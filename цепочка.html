@@ -118,7 +118,10 @@ body.вглубь .подсказка{opacity:0}
 .контур_суть{display:none;font-size:12px;color:var(--текст2);line-height:1.4;
   max-width:30ch;margin-top:6px;padding-top:8px;border-top:1px solid var(--грань)}
 .контур.выбран .контур_суть{display:block}
-body.вглубь .контур:not(.выбран){opacity:.1;pointer-events:none}
+/* внутри передела плашка убирается совсем, а не гаснет до .1: она стоит в
+   том же нижнем левом углу, что и подпись передела, и на просвет читалась
+   сквозь неё двумя наложенными заголовками */
+body.вглубь .контур:not(.выбран){opacity:0;pointer-events:none}
 @media (max-width:900px){ .контур{position:static;margin:14px 16px 0} }
 
 /* ---------- поведение блоков ---------- */
