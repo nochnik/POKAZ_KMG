@@ -1,0 +1,48 @@
+# Публикация показа на GitHub Pages.
+#
+# Pages включается самим действием configure-pages (enablement: true), а не
+# руками в настройках репозитория: так адрес поднимается с первого пуша и не
+# зависит от того, дошёл ли кто-то до Settings.
+name: Публикация показа
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Параллельные публикации не нужны: важна последняя. Идущую не обрываем,
+# иначе Pages может остаться на половине выкладки.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  выложить:
+    name: Выложить на Pages
+    environment:
+      name: github-pages
+      url: ${{ steps.выкладка.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Забрать репозиторий
+        uses: actions/checkout@v4
+
+      - name: Включить и настроить Pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      # Показ автономен: это статические файлы, сборки нет. Кладём корень как есть.
+      - name: Собрать материал
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+      - name: Выложить
+        id: выкладка
+        uses: actions/deploy-pages@v4
