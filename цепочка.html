@@ -1,0 +1,773 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>КМГ — цифровая цепочка</title>
+<style>
+/* Палитра и шрифты перенесены из ЦД через AIAN: заказчик просил у всех показов
+   один стиль. Собственного набора цветов здесь нет намеренно — показы стоят
+   рядом на одном стенде, и разнобой читается как разные продукты. */
+:root{
+  --циан:#4FE3FF; --мята:#3EE6B8; --янтарь:#F0AE4A; --зелёный:#3ED598; --красный:#FF5A4F;
+  --фон0:#050810; --фон1:#0C1626; --фон2:#0E1B2E;
+  --грань:#1B2E48; --грань_мягкая:#142338;
+  --текст:#D7E2F2; --текст2:#AFC0D8; --приглуш:#7C8DA6;
+  --стекло:rgba(10,18,32,.82);
+}
+/* Шрифты самохостятся: в зале может не быть интернета, а показ обязан
+   открыться. Фоллбек на системные — если woff2 не дойдёт, экран живёт. */
+@font-face{font-family:'Unbounded';font-weight:500 700;font-display:swap;
+  src:url('медиа/шрифты/унб_700_cyrillic.woff2') format('woff2');
+  unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
+@font-face{font-family:'Unbounded';font-weight:500 700;font-display:swap;
+  src:url('медиа/шрифты/унб_700_latin.woff2') format('woff2');
+  unicode-range:U+0000-00FF,U+2000-206F}
+@font-face{font-family:'Golos Text';font-weight:400 600;font-display:swap;
+  src:url('медиа/шрифты/голос_400_cyrillic.woff2') format('woff2');
+  unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
+@font-face{font-family:'Golos Text';font-weight:400 600;font-display:swap;
+  src:url('медиа/шрифты/голос_400_latin.woff2') format('woff2');
+  unicode-range:U+0000-00FF,U+2000-206F}
+
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{
+  background:radial-gradient(120% 92% at 50% 6%, var(--фон1) 0%, var(--фон0) 66%, #03060C 100%);
+  color:var(--текст);
+  font-family:'Golos Text',system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  font-size:15px;line-height:1.55;overflow:hidden;touch-action:manipulation;
+  -webkit-font-smoothing:antialiased;
+}
+/* дисплейный шрифт — только знаковым вещам: имя экрана, названия переделов,
+   имя проекта. Подписи остаются в Golos: Unbounded широкий, строки не влезут */
+.дисплей{font-family:'Unbounded',system-ui,sans-serif;letter-spacing:.01em}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+:focus-visible{outline:2px solid var(--циан);outline-offset:3px;border-radius:4px}
+.моно{font-variant-numeric:tabular-nums}
+.надпись{font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--приглуш)}
+
+.экран{position:fixed;inset:0;display:flex;flex-direction:column}
+
+/* ---------- шапка ---------- */
+.шапка{padding:22px 34px 0;display:flex;justify-content:space-between;align-items:flex-start;gap:24px;z-index:6}
+.шапка_л{display:flex;flex-direction:column;gap:6px}
+.шапка h1{font-size:clamp(19px,2.3vw,27px);font-weight:700;line-height:1.12}
+/* градиент имени — та же отстройка, что у AIAN: циан→мята внутри семьи ЦД */
+.град{background:linear-gradient(100deg,#BFF2FF 2%,var(--циан) 40%,var(--мята) 94%);
+  -webkit-background-clip:text;background-clip:text;color:transparent}
+.шапка .пояснение{color:var(--приглуш);font-size:13px;max-width:56ch}
+.шапка_п{display:flex;align-items:center;gap:16px}
+/* логотип заказчика тёмный, на чёрном не читается — выбеливаем фильтром,
+   исходный файл не трогаем */
+#лого{height:26px;filter:brightness(0) invert(1) drop-shadow(0 0 14px rgba(79,227,255,.22));opacity:.8}
+.метка_драфт{border:1px solid var(--грань);border-radius:999px;padding:5px 13px;
+  font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--янтарь);
+  background:rgba(240,174,74,.07);white-space:nowrap}
+
+/* ---------- обратный путь ---------- */
+.путь{padding:12px 34px 0;display:flex;align-items:center;gap:12px;height:42px;z-index:6;
+  opacity:0;pointer-events:none;transition:opacity .3s}
+body.вглубь .путь{opacity:1;pointer-events:auto}
+.путь button{display:inline-flex;align-items:center;gap:8px;color:var(--текст2);
+  font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;padding:6px 13px;
+  border:1px solid var(--грань);border-radius:7px;
+  transition:border-color .2s,color .2s,background .2s}
+.путь button:hover{border-color:var(--циан);color:var(--циан);background:rgba(79,227,255,.08)}
+.путь .где{font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--приглуш)}
+
+/* ---------- сцена ---------- */
+.сцена{flex:1;position:relative;display:flex;flex-direction:column;justify-content:center;min-height:0}
+.сцена_прокрутка{width:100%;overflow-x:auto;overflow-y:hidden}
+.сцена_внутри{position:relative;min-width:900px}
+svg.лента{display:block;width:100%;height:auto}
+
+.скобки{position:relative;height:58px;pointer-events:none;transition:opacity .4s}
+body.вглубь .скобки{opacity:0}
+.скоба{position:absolute;top:0;display:flex;flex-direction:column;gap:4px;align-items:center}
+.скоба .имя{font-family:'Unbounded',system-ui,sans-serif;font-size:11.5px;letter-spacing:.24em;
+  text-transform:uppercase;font-weight:700}
+.скоба .состав{font-size:11.5px;color:var(--приглуш)}
+.скоба .черта{width:100%;height:1px;margin-top:4px;position:relative;opacity:.4}
+.скоба .черта::before,.скоба .черта::after{content:"";position:absolute;top:0;width:1px;height:9px;background:inherit}
+.скоба .черта::before{left:0}
+.скоба .черта::after{right:0}
+.скоба.верх .имя{color:var(--циан)}   .скоба.верх .черта{background:var(--циан)}
+.скоба.средний .имя{color:var(--мята)} .скоба.средний .черта{background:var(--мята)}
+.скоба.низ .имя{color:var(--янтарь)}   .скоба.низ .черта{background:var(--янтарь)}
+
+.подсказка{text-align:center;color:var(--приглуш);font-size:12.5px;padding-top:8px;transition:opacity .3s}
+body.вглубь .подсказка{opacity:0}
+
+/* ---------- поведение блоков ---------- */
+.блок{cursor:pointer;transition:opacity .5s ease;outline:none}
+.блок:focus{outline:none}
+.блок:focus-visible{outline:2px solid var(--циан);outline-offset:6px}
+.блок .попадание{fill:transparent}
+.блок:hover .подъём{transform:translateY(-7px)}
+.подъём{transition:transform .34s cubic-bezier(.34,1.4,.5,1)}
+.блок .свечение{opacity:0;transition:opacity .3s}
+.блок:hover .свечение,.блок.выбран .свечение{opacity:1}
+.блок .подпись{transition:opacity .3s}
+body.вглубь .блок:not(.выбран){opacity:.1;pointer-events:none}
+body.вглубь .блок:not(.выбран) .подпись{opacity:0}
+body.вглубь .блок.выбран .подпись{opacity:0}
+/* приезд камеры тормозит на подлёте — так остановка читается как прибытие,
+   а не как обрыв анимации */
+#камера{transition:transform .8s cubic-bezier(.3,.02,.15,1)}
+
+.поток{stroke-dasharray:14 20;animation:поток 2.4s linear infinite}
+@keyframes поток{to{stroke-dashoffset:-34}}
+.волна{transform-box:fill-box;transform-origin:center;animation:волна 3.4s ease-out infinite}
+.волна:nth-of-type(2){animation-delay:1.1s}
+.волна:nth-of-type(3){animation-delay:2.2s}
+@keyframes волна{0%{transform:scale(.18);opacity:.8}100%{transform:scale(1.25);opacity:0}}
+.балансир{transform-box:fill-box;transform-origin:50% 50%;animation:качание 3.6s ease-in-out infinite}
+@keyframes качание{0%,100%{transform:rotate(-7deg)}50%{transform:rotate(7deg)}}
+.пламя{transform-box:fill-box;transform-origin:50% 100%;animation:трепет 1.1s ease-in-out infinite}
+@keyframes трепет{0%,100%{transform:scaleY(1) scaleX(1);opacity:.95}50%{transform:scaleY(1.4) scaleX(.82);opacity:.7}}
+
+/* ---------- веер кадров ---------- */
+#связи{position:fixed;inset:0;pointer-events:none;z-index:8;opacity:0;transition:opacity .45s ease .15s}
+#связи.виден{opacity:1}
+
+#веер{position:fixed;inset:0;pointer-events:none;z-index:9}
+.кадр{
+  position:fixed;pointer-events:auto;text-align:left;
+  background:linear-gradient(165deg,rgba(14,28,46,.94),rgba(6,12,24,.9));
+  border:1px solid var(--грань);border-radius:12px;overflow:hidden;
+  box-shadow:0 24px 50px -26px rgba(0,0,0,.9);
+  opacity:0;transform:translateX(26px) scale(.97);
+  transition:opacity .42s ease,transform .42s cubic-bezier(.34,1.2,.5,1),border-color .2s;
+  display:flex;flex-direction:column;
+}
+.кадр.виден{opacity:1}
+.кадр:hover{border-color:var(--циан)}
+.кадр:hover .постер::after{opacity:1}
+.постер{position:relative;width:100%;aspect-ratio:16/9;flex:0 0 auto;
+  background:linear-gradient(135deg,#0B1B2E 0%,#12314A 48%,#081524 100%);
+  display:grid;place-items:center;overflow:hidden}
+/* диагональная штриховка вместо пустого прямоугольника: пустой кадр читается
+   как «сломалось», штриховка — как «место под ролик» */
+.постер::before{content:"";position:absolute;inset:0;
+  background:repeating-linear-gradient(115deg,rgba(79,227,255,.05) 0 2px,transparent 2px 9px)}
+.постер::after{content:"";position:absolute;inset:0;background:rgba(79,227,255,.1);opacity:0;transition:opacity .2s}
+.пуск{position:relative;width:38px;height:38px;border-radius:50%;
+  border:1.4px solid var(--циан);display:grid;place-items:center;color:var(--циан);
+  background:rgba(79,227,255,.12)}
+.пуск svg{margin-left:2px}
+.хроно{position:absolute;right:8px;bottom:7px;font-size:10px;letter-spacing:.1em;
+  color:var(--текст2);background:rgba(3,7,14,.7);padding:2px 6px;border-radius:4px}
+.низ_кадра{padding:9px 11px 10px;display:flex;flex-direction:column;gap:5px;flex:1 1 auto;overflow:hidden}
+.ярлыки{position:absolute;left:7px;top:7px;display:flex;gap:4px;flex-wrap:wrap;max-width:calc(100% - 14px)}
+.ярлыки .ярлык{background:rgba(3,7,14,.72);backdrop-filter:blur(2px)}
+.кадр .имя_пр{font-family:'Unbounded',system-ui,sans-serif;font-weight:700;
+  font-size:12.5px;line-height:1.25;letter-spacing:.005em;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.кадр .строка{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.сост{display:inline-flex;align-items:center;gap:5px;font-size:9.5px;letter-spacing:.09em;
+  text-transform:uppercase;padding:2px 7px;border-radius:4px;white-space:nowrap}
+.сост::before{content:"";width:5px;height:5px;border-radius:50%;background:currentColor}
+.сост.готово{background:rgba(62,213,152,.13);color:var(--зелёный)}
+.сост.демо{background:rgba(62,230,184,.13);color:var(--мята)}
+.сост.делается{background:rgba(255,90,79,.13);color:var(--красный)}
+.сост.слайды{background:rgba(124,141,166,.15);color:var(--приглуш)}
+.ярлык{font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;padding:2px 7px;
+  border-radius:4px;border:1px solid var(--грань);color:var(--приглуш)}
+.ярлык.внимание{border-color:rgba(240,174,74,.5);color:var(--янтарь)}
+.эффект{font-size:10.5px;color:var(--приглуш);border-top:1px dashed var(--грань);padding-top:6px;
+  display:flex;gap:6px;align-items:baseline;margin-top:auto}
+.эффект b{font-weight:400;letter-spacing:.1em;text-transform:uppercase;font-size:9px;color:var(--текст2)}
+.эффект .пусто{color:var(--янтарь)}
+
+/* заголовок передела — слева, под уехавшим туда объектом */
+#подпись_передела{position:fixed;z-index:9;pointer-events:none;max-width:min(30vw,360px);
+  display:flex;flex-direction:column;gap:7px;opacity:0;transform:translateY(10px);
+  transition:opacity .45s ease .1s,transform .45s ease .1s}
+#подпись_передела.виден{opacity:1;transform:none}
+#подпись_передела .стадия{font-size:10px;letter-spacing:.2em;text-transform:uppercase;font-weight:600}
+#подпись_передела h2{font-family:'Unbounded',system-ui,sans-serif;font-weight:700;
+  font-size:clamp(22px,2.6vw,32px);line-height:1.1}
+#подпись_передела p{font-size:13px;color:var(--приглуш);line-height:1.45}
+
+/* ---------- проигрыватель ---------- */
+#плеер{position:fixed;inset:0;z-index:40;display:grid;place-items:center;padding:3vmin;
+  background:rgba(2,5,10,.9);backdrop-filter:blur(8px);opacity:0;pointer-events:none;transition:opacity .28s}
+#плеер.открыт{opacity:1;pointer-events:auto}
+.окно{width:min(1180px,94vw);display:flex;flex-direction:column;gap:14px;
+  transform:scale(.985);transition:transform .32s cubic-bezier(.34,1.25,.5,1)}
+#плеер.открыт .окно{transform:none}
+.окно_шапка{display:flex;justify-content:space-between;align-items:flex-start;gap:20px}
+.окно_шапка h3{font-family:'Unbounded',system-ui,sans-serif;font-weight:700;font-size:clamp(17px,2.1vw,24px)}
+.окно_шапка .адрес{font-size:12px;color:var(--приглуш);margin-top:4px;letter-spacing:.04em}
+.закрыть{width:34px;height:34px;border:1px solid var(--грань);border-radius:8px;display:grid;
+  place-items:center;color:var(--приглуш);flex:0 0 auto;transition:border-color .2s,color .2s}
+.закрыть:hover{border-color:var(--красный);color:var(--красный)}
+.экран_видео{aspect-ratio:16/9;max-height:66vh;border-radius:12px;border:1px solid var(--грань);
+  background:linear-gradient(135deg,#0A1A2C 0%,#123049 50%,#07131F 100%);
+  display:grid;place-items:center;position:relative;overflow:hidden}
+.экран_видео::before{content:"";position:absolute;inset:0;
+  background:repeating-linear-gradient(115deg,rgba(79,227,255,.04) 0 2px,transparent 2px 10px)}
+.экран_видео video{width:100%;height:100%;object-fit:contain;background:#000}
+.заглушка{position:relative;display:flex;flex-direction:column;align-items:center;gap:13px}
+.заглушка .пуск{width:62px;height:62px}
+.заглушка .надпись{font-size:11px}
+.полоса{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:1px;
+  background:var(--грань);border:1px solid var(--грань);border-radius:10px;overflow:hidden}
+.полоса > div{background:var(--фон2);padding:11px 14px;display:flex;flex-direction:column;gap:2px}
+.полоса .к{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--приглуш)}
+.полоса .з{font-size:14px}
+.окно .описание{font-size:13.5px;color:var(--текст2);max-width:78ch}
+
+/* ---------- легенда ---------- */
+.легенда{padding:12px 34px 20px;display:flex;gap:18px;flex-wrap:wrap;align-items:center;
+  border-top:1px solid var(--грань_мягкая);font-size:12px;color:var(--приглуш);transition:opacity .3s}
+body.вглубь .легенда{opacity:.25}
+.легенда .набор{display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+
+@media (prefers-reduced-motion:reduce){
+  .поток,.волна,.балансир,.пламя{animation:none}
+  #камера,.подъём,.кадр,#связи,#подпись_передела,.окно{transition-duration:.01ms}
+}
+@media (max-width:900px){
+  .шапка{padding:16px 16px 0;flex-direction:column;gap:10px}
+  .путь,.легенда{padding-left:16px;padding-right:16px}
+  #подпись_передела{display:none}
+}
+</style>
+</head>
+<body>
+
+<div class="экран">
+  <div class="шапка">
+    <div class="шапка_л">
+      <span class="надпись">Единый показ · KIOGE · Digital Bridge</span>
+      <h1 class="дисплей">Цифровая <span class="град">цепочка</span></h1>
+      <p class="пояснение">Один экран на всю производственную цепочку. Нажатие на объект — проваливаемся в передел, кадры проектов раскрываются веером, клик по кадру — ролик или демо.</p>
+    </div>
+    <div class="шапка_п">
+      <img id="лого" src="медиа/лого_кмг.png" alt="КазМунайГаз">
+      <span class="метка_драфт">Драфт</span>
+    </div>
+  </div>
+
+  <div class="путь">
+    <button id="назад" type="button">← Все переделы</button>
+    <span class="где" id="где"></span>
+  </div>
+
+  <div class="сцена">
+    <div class="сцена_прокрутка">
+      <div class="сцена_внутри">
+        <div class="скобки" id="скобки"></div>
+        <svg class="лента" id="лента" viewBox="0 160 1560 380" role="group" aria-label="Изометрическая схема производственной цепочки"></svg>
+      </div>
+    </div>
+    <p class="подсказка">Нажмите на объект, чтобы провалиться в передел</p>
+  </div>
+
+  <div class="легенда">
+    <span class="набор"><span class="надпись">Состояние материала</span></span>
+    <span class="набор">
+      <span class="сост готово">ролик готов</span>
+      <span class="сост демо">живое демо</span>
+      <span class="сост делается">ролик в производстве</span>
+      <span class="сост слайды">только презентация</span>
+    </span>
+  </div>
+</div>
+
+<svg id="связи" aria-hidden="true"></svg>
+<div id="веер"></div>
+<div id="подпись_передела"></div>
+
+<div id="плеер" role="dialog" aria-modal="true" aria-labelledby="имя_плеера">
+  <div class="окно">
+    <div class="окно_шапка">
+      <div>
+        <h3 id="имя_плеера">—</h3>
+        <p class="адрес" id="адрес_плеера">—</p>
+      </div>
+      <button class="закрыть" id="закрыть_плеер" type="button" aria-label="Закрыть">✕</button>
+    </div>
+    <div class="экран_видео" id="экран_видео"></div>
+    <p class="описание" id="описание_плеера">—</p>
+    <div class="полоса">
+      <div><span class="к">Эффект</span><span class="з" id="эффект_плеера">—</span></div>
+      <div><span class="к">Материал</span><span class="з" id="материал_плеера">—</span></div>
+      <div><span class="к">Где показываем</span><span class="з" id="площадки_плеера">—</span></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ================= данные показа ================= */
+  /* Раскладка проектов по переделам — из рабочего файла «Показы КМГ.xlsx»
+     и обсуждения 27.08. Позиции со знаком вопроса помечены ярлыком
+     «на уточнении»: их привязку ещё утверждают с КМГ. */
+  var ПЕРЕДЕЛЫ = [
+    { код:"разведка", номер:"01", имя:"Разведка", стадия:"верх",
+      суть:"Сейсмика, интерпретация, подбор объектов и планирование новых скважин.",
+      проекты:[
+        { имя:"ABAI ИИ — ЦРНС", состояние:"делается", хроно:"~1:10", эффект:"", площадки:"Все площадки", ярлыки:["ИИ"],
+          описание:"Подбор новых скважин: модель ранжирует кандидатов по геологии и истории добычи. Ролики у Абая есть, но сняты в формате «презентер у экрана» — нужен объясняющий: что на входе, что считает модель, что на выходе." },
+        { имя:"ЦД — Numix Optimize", состояние:"слайды", хроно:"—", эффект:"", площадки:"Только 42 этаж", ярлыки:["вендор"],
+          описание:"Цифровое сопровождение разведки на вендорском ядре. На KIOGE и Digital Bridge не выносится — там показываем концепт без имени вендора." }
+      ]},
+    { код:"геология", номер:"02", имя:"Геология", стадия:"верх",
+      суть:"Работа с керном, отчётами и историческими данными месторождений.",
+      проекты:[
+        { имя:"Geological RAG", состояние:"делается", хроно:"~0:50", эффект:"", площадки:"Все площадки", ярлыки:["ИИ"],
+          описание:"Поиск и ответы по всему массиву геологических отчётов на человеческом языке. Сильный сюжет для форума: запрос словами и мгновенный ответ со ссылкой на первоисточник. Собственная разработка, вендорских компонентов нет." },
+        { имя:"Материалы геоконференции", состояние:"готово", хроно:"2:30", эффект:"—", площадки:"KIOGE, Bridge", ярлыки:["готово"],
+          описание:"Готовые ролики с апрельской геоконференции. Забрать исходники у Олжаса, пересобрать под хронометраж стенда и общий визуальный стиль показа." }
+      ]},
+    { код:"добыча", номер:"03", имя:"Добыча", стадия:"верх",
+      суть:"Управление фондом скважин, заводнение, транспорт внутри промысла.",
+      проекты:[
+        { имя:"Цифровое месторождение", состояние:"готово", хроно:"1:40", эффект:"", площадки:"Все площадки", ярлыки:["ядро показа"],
+          описание:"Сквозной цифровой контур промысла: модель, режимы, отклонения. Основной продукт показа. Для ГГ это один из двух блоков, которые останутся, если времени будет мало." },
+        { имя:"ABAI ИИ — заводнение", состояние:"слайды", хроно:"—", эффект:"", площадки:"Все площадки", ярлыки:["ИИ"],
+          описание:"Подбор режимов закачки по реакции добывающих скважин. В рабочем файле стоит между добычей и отдельным блоком — привязку нужно утвердить с КМГ." },
+        { имя:"ИС УТО", состояние:"демо", хроно:"живое", эффект:"", площадки:"Все площадки", ярлыки:[],
+          описание:"Управление транспортом: маршруты, загрузка, тепловая карта участков. Хорошо анимируется — отдельный ролик снимать не нужно, достаточно анимации внутри презентации." },
+        { имя:"TUMAR", состояние:"слайды", хроно:"—", эффект:"", площадки:"Все площадки", ярлыки:[],
+          описание:"Собственная платформа промышленного контура. Уточнить состав демонстрации и владельца продукта." },
+        { имя:"Флоу ЭМБА", состояние:"демо", хроно:"живое", эффект:"—", площадки:"Только 42 этаж", ярлыки:["вендор","не для ГГ"],
+          описание:"Сквозная демонстрация полного цикла на реальном активе. Внутри Numix и T-Navigator — показываем Налибаеву и, при необходимости, ПМ. На форумы и на показ ГГ не идёт." }
+      ]},
+    { код:"транспорт", номер:"04", имя:"Транспортировка", стадия:"средний",
+      суть:"Магистральный транспорт нефти: планирование, балансы, диспетчеризация.",
+      проекты:[
+        { имя:"AIAN", состояние:"делается", хроно:"~2:00", эффект:"", площадки:"Все площадки", ярлыки:["ядро показа"],
+          описание:"Интеллектуальное планирование и сопровождение транспортировки. Ролик переделывается: в текущей версии нарушен порядок флоу — добыча должна идти перед трубопроводом. Второй из двух блоков, которые останутся для ГГ при коротком показе." }
+      ]},
+    { код:"переработка", номер:"05", имя:"Переработка", стадия:"низ",
+      суть:"Заводской передел. Самый неопределённый блок — состав ещё не утверждён.",
+      проекты:[
+        { имя:"ЦД на заводах", состояние:"слайды", хроно:"—", эффект:"", площадки:"На решении", ярлыки:["на уточнении"],
+          описание:"Цифровой контур НПЗ, внедряется больше года, сейчас активная фаза. Решение не принято: показывать переработку сейчас или оставить ЦД только в добыче." },
+        { имя:"KMG Automation", состояние:"слайды", хроно:"—", эффект:"—", площадки:"На решении", ярлыки:["на уточнении"],
+          описание:"Заводская автоматизация — смежный контур продуктов. Айбол и Асия смотрят состав и решают, входят ли они в единый показ." }
+      ]},
+    { код:"сбыт", номер:"06", имя:"Сбыт", стадия:"низ",
+      суть:"Реализация нефти и нефтепродуктов, торговые операции.",
+      проекты:[
+        { имя:"AIAN — сбытовой контур", состояние:"делается", хроно:"~0:40", эффект:"", площадки:"На решении", ярлыки:["на уточнении"],
+          описание:"Продолжение транспортного контура на стороне реализации. Привязка AIAN к сбыту в рабочем файле стоит под вопросом — подтвердить с КМГ." },
+        { имя:"AI-Broker", состояние:"слайды", хроно:"—", эффект:"", площадки:"На решении", ярлыки:["на уточнении"],
+          описание:"Поддержка торговых решений. По логике это бизнес-операционный слой, а не нефтепродукты — решить, показывать ли в цепочке или отдельным блоком корпоративных решений." }
+      ]}
+  ];
+
+  var СТАДИИ = {
+    верх:    { имя:"Upstream",   состав:"разведка · геология · добыча", цвет:"var(--циан)" },
+    средний: { имя:"Midstream",  состав:"транспортировка",              цвет:"var(--мята)" },
+    низ:     { имя:"Downstream", состав:"переработка · сбыт",           цвет:"var(--янтарь)" }
+  };
+  var СОСТОЯНИЯ = {
+    готово:   { класс:"готово",   имя:"ролик готов",          в_плеере:"Ролик готов" },
+    демо:     { класс:"демо",     имя:"живое демо",           в_плеере:"Живое демо" },
+    делается: { класс:"делается", имя:"ролик в производстве", в_плеере:"Ролик в производстве" },
+    слайды:   { класс:"слайды",   имя:"только презентация",   в_плеере:"Материала пока нет" }
+  };
+
+  /* ================= изометрия ================= */
+  var НП = "http://www.w3.org/2000/svg";
+  var ВБ_Ш = 1560, ВБ_Y = 160, ВБ_В = 380;   /* viewBox ленты */
+  var ОСНОВА = 330;                           /* y центра нижнего ромба платформы */
+  var ЦX = [180, 416, 652, 888, 1124, 1360];
+  var ТРУБА = 434;
+  var ПОДПИСЬ = 404;
+
+  /* Грани изо-объектов: верх светлее, правый бок средний, левый тёмный.
+     Оттенки — затемнённые версии акцентов ЦД, чтобы объекты не спорили
+     с подписями и не выжигали экран на проекторе. */
+  var ТОНА = {
+    верх:    { в:"#3FC7E0", п:"#226E85", л:"#14424F" },
+    средний: { в:"#35C9A2", п:"#1D7663", л:"#12463B" },
+    низ:     { в:"#D89A3E", п:"#8A6224", л:"#543C16" },
+    площадка:{ в:"#12233B", п:"#0C1A2C", л:"#08111E" },
+    тёмный:  { в:"#1B3050", п:"#122238", л:"#0B1626" },
+    сталь:   { в:"#40587A", п:"#2A3C55", л:"#1B2838" }
+  };
+
+  function узел(тег, свойства, родитель){
+    var н = document.createElementNS(НП, тег);
+    for(var к in свойства){ if(свойства[к] !== null && свойства[к] !== undefined) н.setAttribute(к, свойства[к]); }
+    if(родитель) родитель.appendChild(н);
+    return н;
+  }
+  function фигура(точки, заливка, родитель, класс){
+    return узел("polygon", { points: точки.map(function(т){ return т[0].toFixed(1)+","+т[1].toFixed(1); }).join(" "),
+                             fill: заливка, "class": класс || null }, родитель);
+  }
+  /* коробка: (цx,цy) — центр нижнего ромба, ш — полуширина, в — высота вверх */
+  function коробка(г, цx, цy, ш, в, тон){
+    var П = ш/2;
+    фигура([[цx-ш,цy],[цx,цy+П],[цx,цy+П-в],[цx-ш,цy-в]], тон.л, г);
+    фигура([[цx,цy+П],[цx+ш,цy],[цx+ш,цy-в],[цx,цy+П-в]], тон.п, г);
+    фигура([[цx,цy-П-в],[цx+ш,цy-в],[цx,цy+П-в],[цx-ш,цy-в]], тон.в, г);
+  }
+  function цилиндр(г, цx, цy, ш, в, тон){
+    var П = ш/2;
+    узел("path", { d:"M"+(цx-ш)+","+цy+" L"+(цx-ш)+","+(цy-в)+" A"+ш+","+П+" 0 0 1 "+(цx+ш)+","+(цy-в)+
+                     " L"+(цx+ш)+","+цy+" A"+ш+","+П+" 0 0 1 "+(цx-ш)+","+цy+" Z", fill: тон.п }, г);
+    узел("path", { d:"M"+(цx-ш)+","+цy+" L"+(цx-ш)+","+(цy-в)+" A"+ш+","+П+" 0 0 0 "+цx+","+(цy-в+П)+
+                     " L"+цx+","+(цy+П)+" Z", fill: тон.л }, г);
+    узел("ellipse", { cx:цx, cy:цy-в, rx:ш, ry:П, fill: тон.в }, г);
+  }
+  /* смещение по изо-плоскости: u вдоль одной оси, v вдоль другой */
+  function точка(цx, цy, u, v){ return [цx + (u - v), цy + (u + v)/2]; }
+
+  var лента = document.getElementById("лента");
+  var опр = узел("defs", {}, лента);
+  var пол = узел("radialGradient", { id:"пол", cx:"50%", cy:"58%", r:"62%" }, опр);
+  узел("stop", { offset:"0%",  "stop-color":"#123049", "stop-opacity":".5" }, пол);
+  узел("stop", { offset:"100%","stop-color":"#050810", "stop-opacity":"0" }, пол);
+  var пятно = узел("radialGradient", { id:"пятно", cx:"50%", cy:"50%", r:"50%" }, опр);
+  узел("stop", { offset:"0%",  "stop-color":"#4FE3FF", "stop-opacity":".45" }, пятно);
+  узел("stop", { offset:"100%","stop-color":"#4FE3FF", "stop-opacity":"0" }, пятно);
+
+  var камера = узел("g", { id:"камера" }, лента);
+  узел("ellipse", { cx:ВБ_Ш/2, cy:366, rx:840, ry:210, fill:"url(#пол)" }, камера);
+
+  var сетка = узел("g", { opacity:".18" }, камера);
+  for(var и = -14; и <= 30; и++){
+    узел("line", { x1:и*120-300, y1:100, x2:и*120+340, y2:560, stroke:"#152944", "stroke-width":"1" }, сетка);
+    узел("line", { x1:и*120-300, y1:560, x2:и*120+340, y2:100, stroke:"#152944", "stroke-width":"1" }, сетка);
+  }
+
+  /* магистраль под платформами — общий поток, к которому подключены все переделы */
+  узел("line", { x1:40, y1:ТРУБА, x2:1520, y2:ТРУБА, stroke:"#0E2033", "stroke-width":"13", "stroke-linecap":"round" }, камера);
+  узел("line", { x1:40, y1:ТРУБА, x2:1520, y2:ТРУБА, stroke:"#1B3B55", "stroke-width":"7", "stroke-linecap":"round" }, камера);
+  узел("line", { x1:40, y1:ТРУБА, x2:1520, y2:ТРУБА, stroke:"#4FE3FF", "stroke-width":"2.5",
+                 "stroke-linecap":"round", opacity:".7", "class":"поток" }, камера);
+
+  var СБОРКА = {
+    разведка: function(г, цx, цy, тон){
+      var в = узел("g", {}, г);
+      for(var к=0;к<3;к++){ узел("ellipse", { cx:цx, cy:цy+4, rx:86, ry:43, fill:"none",
+        stroke:тон.в, "stroke-width":"1.6", opacity:".5", "class":"волна" }, в); }
+      коробка(г, цx-46, цy+16, 17, 15, ТОНА.тёмный);
+      коробка(г, цx+44, цy+18, 15, 12, ТОНА.тёмный);
+      коробка(г, цx, цy, 20, 12, ТОНА.сталь);
+      коробка(г, цx, цy-12, 9, 76, тон);
+      узел("line", { x1:цx, y1:цy-88, x2:цx, y2:цy-112, stroke:тон.в, "stroke-width":"2.4" }, г);
+      узел("circle", { cx:цx, cy:цy-116, r:5, fill:тон.в }, г);
+    },
+    геология: function(г, цx, цy, тон){
+      var слои = [ТОНА.тёмный, { в:"#4A4433", п:"#332E23", л:"#221F16" }, { в:"#5B4C40", п:"#3E332A", л:"#28211B" }, тон];
+      var y = цy;
+      for(var с=0;с<4;с++){ коробка(г, цx-16, y, 48, 17, слои[с]); y -= 17; }
+      цилиндр(г, цx+56, цy+14, 11, 60, ТОНА.сталь);
+      узел("circle", { cx:цx+56, cy:цy-52, r:13, fill:"none", stroke:тон.в, "stroke-width":"2.2" }, г);
+      узел("line", { x1:цx+64, y1:цy-42, x2:цx+74, y2:цy-30, stroke:тон.в, "stroke-width":"2.6", "stroke-linecap":"round" }, г);
+    },
+    добыча: function(г, цx, цy, тон){
+      коробка(г, цx, цy, 52, 11, ТОНА.тёмный);
+      var а = точка(цx, цy-11, -18, -18), б = точка(цx, цy-11, 12, 12);
+      фигура([[а[0]-16,а[1]],[а[0],а[1]-62],[а[0]+16,а[1]]], ТОНА.сталь.п, г);
+      узел("rect", { x:а[0]-40, y:а[1]-72, width:80, height:9, rx:3, fill:тон.в, "class":"балансир" }, г);
+      фигура([[а[0]+40,а[1]-72],[а[0]+52,а[1]-66],[а[0]+42,а[1]-52],[а[0]+34,а[1]-62]], тон.п, г);
+      цилиндр(г, б[0]+18, б[1]+6, 10, 26, ТОНА.сталь);
+      узел("circle", { cx:б[0]+18, cy:б[1]-22, r:5, fill:тон.в }, г);
+    },
+    транспорт: function(г, цx, цy, тон){
+      коробка(г, цx-34, цy+14, 26, 20, ТОНА.тёмный);
+      for(var р=0;р<2;р++){
+        var уу = цy - 6 - р*22;
+        узел("line", { x1:цx-92, y1:уу+34, x2:цx+92, y2:уу-14, stroke:"#12233B", "stroke-width":"15", "stroke-linecap":"round" }, г);
+        узел("line", { x1:цx-92, y1:уу+34, x2:цx+92, y2:уу-14, stroke:ТОНА.сталь.в, "stroke-width":"9", "stroke-linecap":"round" }, г);
+        узел("line", { x1:цx-92, y1:уу+34, x2:цx+92, y2:уу-14, stroke:тон.в, "stroke-width":"2.4", opacity:".85", "class":"поток" }, г);
+      }
+      цилиндр(г, цx+16, цy-4, 13, 30, тон);
+      узел("circle", { cx:цx+16, cy:цy-36, r:12, fill:"none", stroke:тон.в, "stroke-width":"3" }, г);
+      узел("line", { x1:цx+4, y1:цy-36, x2:цx+28, y2:цy-36, stroke:тон.в, "stroke-width":"3" }, г);
+    },
+    переработка: function(г, цx, цy, тон){
+      коробка(г, цx, цy, 74, 8, ТОНА.тёмный);
+      цилиндр(г, цx-40, цy-8, 15, 78, ТОНА.сталь);
+      цилиндр(г, цx-8,  цy-2, 19, 54, тон);
+      цилиндр(г, цx+34, цy+6, 22, 34, ТОНА.сталь);
+      узел("circle", { cx:цx+72, cy:цy-6, r:19, fill:ТОНА.сталь.п }, г);
+      узел("path", { d:"M"+(цx+53)+","+(цy-6)+" a19,19 0 0 1 38,0 Z", fill:ТОНА.сталь.в }, г);
+      узел("line", { x1:цx-40, y1:цy-86, x2:цx-40, y2:цy-104, stroke:ТОНА.сталь.в, "stroke-width":"4" }, г);
+      фигура([[цx-46,цy-104],[цx-40,цy-128],[цx-34,цy-104]], "#F0AE4A", г, "пламя");
+    },
+    сбыт: function(г, цx, цy, тон){
+      коробка(г, цx, цy, 78, 6, ТОНА.тёмный);
+      var у = [точка(цx,цy-6,-30,-30), точка(цx,цy-6,30,-30), точка(цx,цy-6,-30,30), точка(цx,цy-6,30,30)];
+      for(var к=0;к<4;к++){ узел("rect", { x:у[к][0]-3, y:у[к][1]-52, width:6, height:52, fill:ТОНА.сталь.п }, г); }
+      коробка(г, цx, цy-58, 72, 9, тон);
+      коробка(г, цx-24, цy-4, 11, 26, ТОНА.сталь);
+      коробка(г, цx+16, цy+4, 11, 26, ТОНА.сталь);
+      цилиндр(г, цx+74, цy+22, 17, 26, тон);
+      коробка(г, цx+108, цy+34, 15, 20, ТОНА.тёмный);
+    }
+  };
+
+  function склонение(н){
+    var е = н % 10, с = н % 100;
+    if(е === 1 && с !== 11) return "проект";
+    if(е >= 2 && е <= 4 && (с < 12 || с > 14)) return "проекта";
+    return "проектов";
+  }
+
+  ПЕРЕДЕЛЫ.forEach(function(п, и){
+    var цx = ЦX[и], тон = ТОНА[п.стадия];
+    п._цx = цx;
+    var г = узел("g", { "class":"блок", "data-код":п.код, tabindex:"0", role:"button",
+                        "aria-label":"Передел "+п.имя+", "+п.проекты.length+" "+склонение(п.проекты.length) }, камера);
+    var подъём = узел("g", { "class":"подъём" }, г);
+
+    узел("ellipse", { cx:цx, cy:ОСНОВА+28, rx:130, ry:64, fill:"url(#пятно)", "class":"свечение" }, подъём);
+    коробка(подъём, цx, ОСНОВА, 112, 15, ТОНА.площадка);
+    узел("polygon", { points:[[цx,ОСНОВА-71],[цx+112,ОСНОВА-15],[цx,ОСНОВА+41],[цx-112,ОСНОВА-15]]
+        .map(function(т){return т[0]+","+т[1];}).join(" "), fill:"none", stroke:тон.в, "stroke-width":"1.4", opacity:".45" }, подъём);
+    СБОРКА[п.код](подъём, цx, ОСНОВА-15, тон);
+
+    узел("line", { x1:цx, y1:ОСНОВА+41, x2:цx, y2:ТРУБА, stroke:"#13293F", "stroke-width":"5", "stroke-linecap":"round" }, г);
+
+    var пп = узел("g", { "class":"подпись" }, г);
+    узел("text", { x:цx, y:ПОДПИСЬ+66, "text-anchor":"middle", fill:тон.в, "font-size":"12.5",
+                   "letter-spacing":"2.5", opacity:".85", "font-family":"Golos Text, sans-serif" }, пп).textContent = п.номер;
+    узел("text", { x:цx, y:ПОДПИСЬ+92, "text-anchor":"middle", fill:"#D7E2F2", "font-size":"19",
+                   "font-weight":"700", "font-family":"Unbounded, sans-serif" }, пп).textContent = п.имя;
+    узел("text", { x:цx, y:ПОДПИСЬ+112, "text-anchor":"middle", fill:"#7C8DA6", "font-size":"12.5",
+                   "font-family":"Golos Text, sans-serif" }, пп).textContent = п.проекты.length + " " + склонение(п.проекты.length);
+
+    узел("rect", { x:цx-118, y:ОСНОВА-160, width:236, height:360, "class":"попадание" }, г);
+
+    г.addEventListener("click", function(){ if(г.blur) г.blur(); открыть(п); });
+    г.addEventListener("keydown", function(с){
+      if(с.key === "Enter" || с.key === " "){ с.preventDefault(); открыть(п); }
+    });
+  });
+
+  /* скобки Upstream / Midstream / Downstream — привязаны к краям своих платформ */
+  var ОТРЕЗКИ = [
+    { с:"верх",    от:ЦX[0]-112, до:ЦX[2]+112 },
+    { с:"средний", от:ЦX[3]-112, до:ЦX[3]+112 },
+    { с:"низ",     от:ЦX[4]-112, до:ЦX[5]+112 }
+  ];
+  var скобки = document.getElementById("скобки");
+  ОТРЕЗКИ.forEach(function(о){
+    var д = document.createElement("div");
+    д.className = "скоба " + о.с;
+    д.style.left = (о.от / ВБ_Ш * 100) + "%";
+    д.style.width = ((о.до - о.от) / ВБ_Ш * 100) + "%";
+    д.innerHTML = '<span class="имя">' + СТАДИИ[о.с].имя + '</span>' +
+                  '<span class="состав">' + СТАДИИ[о.с].состав + '</span>' +
+                  '<span class="черта"></span>';
+    скобки.appendChild(д);
+  });
+
+  /* ================= камера и веер ================= */
+  var веер = document.getElementById("веер");
+  var связи = document.getElementById("связи");
+  var подпись_передела = document.getElementById("подпись_передела");
+  var плеер = document.getElementById("плеер");
+  var текущий = null;
+
+  /* Куда камера ставит объект: левая пятая часть кадра — справа освобождается
+     место под веер. Значения в координатах viewBox, поэтому от размера окна
+     не зависят и одинаково работают на ноутбуке и на экране стенда. */
+  var ЦЕЛЬ_X = 0.20 * ВБ_Ш;
+  var ЦЕЛЬ_Y = ВБ_Y + 0.50 * ВБ_В;
+  var МАСШТАБ = 1.9;
+
+  function открыть(п){
+    текущий = п;
+    document.body.classList.add("вглубь");
+    Array.prototype.forEach.call(document.querySelectorAll(".блок"), function(н){
+      н.classList.toggle("выбран", н.getAttribute("data-код") === п.код);
+    });
+
+    var фокусY = ОСНОВА - 55;
+    камера.setAttribute("transform",
+      "translate(" + (ЦЕЛЬ_X - п._цx*МАСШТАБ).toFixed(1) + " " + (ЦЕЛЬ_Y - фокусY*МАСШТАБ).toFixed(1) +
+      ") scale(" + МАСШТАБ + ")");
+
+    document.getElementById("где").textContent = СТАДИИ[п.стадия].имя + " / " + п.имя;
+    разложить(п);
+  }
+
+  function закрыть(){
+    текущий = null;
+    document.body.classList.remove("вглубь");
+    Array.prototype.forEach.call(document.querySelectorAll(".блок"), function(н){ н.classList.remove("выбран"); });
+    камера.setAttribute("transform", "translate(0 0) scale(1)");
+    веер.innerHTML = "";
+    связи.innerHTML = "";
+    связи.classList.remove("виден");
+    подпись_передела.classList.remove("виден");
+    подпись_передела.innerHTML = "";
+  }
+
+  /* Экранная точка объекта считается из целевой позиции камеры, а не
+     измеряется у элемента: во время переезда getScreenCTM отдаёт
+     промежуточные значения, и веер приходилось бы ждать. */
+  function якорь(){
+    var рамка = лента.getBoundingClientRect();
+    var к = рамка.width / ВБ_Ш;
+    return { x: рамка.left + ЦЕЛЬ_X * к, y: рамка.top + (ЦЕЛЬ_Y - ВБ_Y) * к };
+  }
+
+  /* Раскладка веера. Кадры обязаны поместиться целиком: веер, который надо
+     листать, перестаёт быть веером и снова превращается в список. Поэтому
+     сначала подбирается число колонок, при котором кадр не мельче предела,
+     и только потом — размер кадра под оставшееся место. */
+  var ЗАЗОР = 12, НИЗ_КАРТОЧКИ = 100, ВЕРХ_ПОЛЯ = 92, НИЗ_ПОЛЯ = 64;
+  var Ш_МИН = 156, Ш_МАКС = 380, ПРОГИБ = 18;
+
+  function высотаКадра(ш){ return Math.round(ш*9/16) + НИЗ_КАРТОЧКИ; }
+
+  function подобратьСетку(н, доступноВ, доступноШ){
+    var лучшее = null;
+    for(var колонок = 1; колонок <= 3; колонок++){
+      var рядов = Math.ceil(н / колонок);
+      var поВысоте = Math.round(((доступноВ - (рядов-1)*ЗАЗОР) / рядов - НИЗ_КАРТОЧКИ) * 16/9);
+      var поШирине = Math.floor((доступноШ - (колонок-1)*ЗАЗОР - ПРОГИБ) / колонок);
+      var ш = Math.min(Ш_МАКС, поВысоте, поШирине);
+      лучшее = { колонок:колонок, рядов:рядов, ширина:Math.max(110, ш) };
+      if(ш >= Ш_МИН) break;
+    }
+    return лучшее;
+  }
+
+  function разложить(п){
+    веер.innerHTML = "";
+    связи.innerHTML = "";
+    var а = якорь();
+    var н = п.проекты.length;
+
+    var лево0 = а.x + Math.max(96, window.innerWidth * 0.07);
+    var сетка = подобратьСетку(н, window.innerHeight - ВЕРХ_ПОЛЯ - НИЗ_ПОЛЯ,
+                                  Math.max(200, window.innerWidth - лево0 - 28));
+    var ширина = сетка.ширина, высота = высотаКадра(ширина);
+
+    /* по колонкам раскидываем ровно: 5 кадров в двух колонках — это 3 и 2,
+       а не 4 и 1 */
+    var база = Math.floor(н / сетка.колонок), остаток = н % сетка.колонок;
+    var вКолонке = [], счёт = 0, к;
+    for(к = 0; к < сетка.колонок; к++){ вКолонке.push(база + (к < остаток ? 1 : 0)); }
+
+    вКолонке.forEach(function(сколько, номерК){
+      var общая = сколько*высота + (сколько-1)*ЗАЗОР;
+      var верх0 = Math.min(Math.max(а.y - общая/2, ВЕРХ_ПОЛЯ),
+                           Math.max(ВЕРХ_ПОЛЯ, window.innerHeight - НИЗ_ПОЛЯ - общая));
+      var базоваяX = лево0 + номерК*(ширина + ЗАЗОР);
+
+      for(var и = 0; и < сколько; и++){
+        var пр = п.проекты[счёт + и];
+        var прогиб = сколько > 1 ? Math.sin(Math.PI * (и + 0.5) / сколько) * ПРОГИБ : 0;
+        var x = Math.min(базоваяX + прогиб, window.innerWidth - ширина - 20);
+        var y = верх0 + и*(высота + ЗАЗОР);
+        var наклон = сколько > 1 ? (и - (сколько-1)/2) * 1.4 : 0;
+        собратьКадр(п, пр, x, y, ширина, высота, наклон, а, счёт + и);
+      }
+      счёт += сколько;
+    });
+
+    узел("circle", { cx:а.x, cy:а.y, r:4, fill:"var(--циан)", opacity:".8" }, связи);
+    связи.classList.add("виден");
+
+    подпись_передела.innerHTML =
+      '<span class="стадия" style="color:' + СТАДИИ[п.стадия].цвет + '">' + СТАДИИ[п.стадия].имя + '</span>' +
+      '<h2>' + п.номер + ' · ' + п.имя + '</h2>' +
+      '<p>' + п.суть + '</p>';
+    подпись_передела.style.left = Math.max(28, а.x - 150) + "px";
+    подпись_передела.style.top  = Math.min(а.y + 120, window.innerHeight - 200) + "px";
+    requestAnimationFrame(function(){ подпись_передела.classList.add("виден"); });
+  }
+
+  function собратьКадр(п, пр, x, y, ширина, высота, наклон, а, порядок){
+    var с = СОСТОЯНИЯ[пр.состояние];
+    var к = document.createElement("button");
+    к.type = "button";
+    к.className = "кадр";
+    к.style.left = x + "px";
+    к.style.top = y + "px";
+    к.style.width = ширина + "px";
+    к.style.height = высота + "px";
+    к.style.transform = "translateX(26px) scale(.97) rotate(" + наклон + "deg)";
+    к.setAttribute("aria-label", пр.имя + " — " + с.имя);
+    к.innerHTML =
+      '<span class="постер">' +
+        (пр.ярлыки.length ? '<span class="ярлыки">' + пр.ярлыки.map(function(я){
+            var тревожный = (я === "вендор" || я === "не для ГГ" || я === "на уточнении");
+            return '<span class="ярлык' + (тревожный ? " внимание" : "") + '">' + я + '</span>';
+          }).join("") + '</span>' : '') +
+        '<span class="пуск"><svg width="12" height="14" viewBox="0 0 12 14" aria-hidden="true">' +
+          '<path d="M1 1 11 7 1 13Z" fill="currentColor"/></svg></span>' +
+        '<span class="хроно моно">' + пр.хроно + '</span>' +
+      '</span>' +
+      '<span class="низ_кадра">' +
+        '<span class="имя_пр"></span>' +
+        '<span class="строка"><span class="сост ' + с.класс + '">' + с.имя + '</span></span>' +
+        '<span class="эффект"><b>Эффект</b><span class="' + (пр.эффект ? "" : "пусто") + '">' +
+          (пр.эффект ? пр.эффект : "не заполнен") + '</span></span>' +
+      '</span>';
+    к.querySelector(".имя_пр").textContent = пр.имя;
+    к.addEventListener("click", function(){ показать(п, пр); });
+    веер.appendChild(к);
+
+    /* связь кадра с объектом. Линии лежат слоем ниже кадров (z-index 8 против 9),
+       поэтому уходят под карточки и не режут их поперёк. */
+    узел("line", { x1:а.x, y1:а.y, x2:x, y2:y + высота/2,
+                   stroke:"var(--циан)", "stroke-width":"1", opacity:".24" }, связи);
+
+    /* кадры выходят по одному: одновременный выброс пяти карточек читается
+       как всплывающее окно, последовательный — как раскрытие веера */
+    setTimeout(function(){
+      к.classList.add("виден");
+      к.style.transform = "translateX(0) scale(1) rotate(" + наклон + "deg)";
+    }, 90 + порядок*70);
+  }
+
+  /* ================= проигрыватель ================= */
+  function показать(п, пр){
+    var с = СОСТОЯНИЯ[пр.состояние];
+    document.getElementById("имя_плеера").textContent = пр.имя;
+    document.getElementById("адрес_плеера").textContent = СТАДИИ[п.стадия].имя + " / " + п.имя;
+    document.getElementById("описание_плеера").textContent = пр.описание;
+    document.getElementById("эффект_плеера").textContent = пр.эффект ? пр.эффект : "не заполнен";
+    document.getElementById("материал_плеера").textContent = с.в_плеере;
+    document.getElementById("площадки_плеера").textContent = пр.площадки;
+
+    /* Место под настоящий ролик: как только в медиа/ ляжет mp4, сюда встаёт
+       <video src> и заглушка исчезает — разметка меняться не будет. */
+    var э = document.getElementById("экран_видео");
+    э.innerHTML = пр.видео
+      ? '<video src="' + пр.видео + '" controls autoplay playsinline></video>'
+      : '<span class="заглушка"><span class="пуск"><svg width="18" height="21" viewBox="0 0 18 21" aria-hidden="true">' +
+        '<path d="M1 1 17 10.5 1 20Z" fill="currentColor"/></svg></span>' +
+        '<span class="надпись">' + с.в_плеере + ' · заглушка</span></span>';
+
+    плеер.classList.add("открыт");
+  }
+  function спрятать(){
+    плеер.classList.remove("открыт");
+    var в = плеер.querySelector("video");
+    if(в) в.pause();
+  }
+
+  document.getElementById("назад").addEventListener("click", закрыть);
+  document.getElementById("закрыть_плеер").addEventListener("click", спрятать);
+  плеер.addEventListener("click", function(с){ if(с.target === плеер) спрятать(); });
+  document.addEventListener("keydown", function(с){
+    if(с.key !== "Escape") return;
+    if(плеер.classList.contains("открыт")) спрятать();
+    else if(текущий) закрыть();
+  });
+  /* при смене размера веер пересобирается на новые числа сразу, без ожидания
+     конца анимации: состояние задаётся напрямую, не по событию перехода */
+  window.addEventListener("resize", function(){ if(текущий) разложить(текущий); });
+})();
+</script>
+</body>
+</html>
