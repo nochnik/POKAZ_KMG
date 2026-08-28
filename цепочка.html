@@ -64,6 +64,12 @@ body.вглубь .шапка .пояснение{opacity:0}
 /* логотип заказчика тёмный, на чёрном не читается — выбеливаем фильтром,
    исходный файл не трогаем */
 #лого{height:26px;filter:brightness(0) invert(1) drop-shadow(0 0 14px rgba(79,227,255,.22));opacity:.8}
+.режим{display:flex;border:1px solid var(--грань);border-radius:8px;overflow:hidden}
+.режим button{padding:6px 13px;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--приглуш);transition:color .2s,background .2s}
+.режим button + button{border-left:1px solid var(--грань)}
+.режим button:hover{color:var(--текст)}
+.режим button.активен{color:var(--фон0);background:var(--циан)}
 .метка_драфт{border:1px solid var(--грань);border-radius:999px;padding:5px 13px;
   font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--янтарь);
   background:rgba(240,174,74,.07);white-space:nowrap}
@@ -168,6 +174,10 @@ body.вглубь .блок.выбран .подпись{opacity:0}
 }
 .кадр.виден{opacity:1}
 .кадр:hover{border-color:var(--циан)}
+/* снятое с показа видно, но не спорит с тем, что идёт на стенд */
+.кадр.снят{border-style:dashed;opacity:.62}
+.кадр.снят .постер{filter:saturate(.35)}
+.кадр.снят:hover{opacity:1}
 .кадр:hover .постер::after{opacity:1}
 .постер{position:relative;width:100%;aspect-ratio:16/9;flex:0 0 auto;
   background:linear-gradient(135deg,#0B1B2E 0%,#12314A 48%,#081524 100%);
@@ -186,6 +196,7 @@ body.вглубь .блок.выбран .подпись{opacity:0}
 .низ_кадра{padding:9px 11px 10px;display:flex;flex-direction:column;gap:7px;flex:1 1 auto;overflow:hidden}
 .ярлыки{position:absolute;left:7px;top:7px;display:flex;gap:4px;flex-wrap:wrap;max-width:calc(100% - 14px)}
 .ярлыки .ярлык{background:rgba(3,7,14,.72);backdrop-filter:blur(2px)}
+.ярлыки_низ{top:auto;bottom:7px}
 .кадр .имя_пр{font-family:'Unbounded',system-ui,sans-serif;font-weight:700;
   font-size:12.5px;line-height:1.25;letter-spacing:.005em;
   display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
@@ -271,6 +282,12 @@ body.вглубь .легенда{opacity:0;pointer-events:none}
       <p class="пояснение">Один экран на всю производственную цепочку. Нажатие на объект — проваливаемся в передел, кадры проектов раскрываются веером, клик по кадру — ролик или демо.</p>
     </div>
     <div class="шапка_п">
+      <!-- Два разных вопроса, которые задают на совещании по очереди: «что у нас
+           вообще есть» и «что мы реально повезём». Переключатель, а не два экрана. -->
+      <div class="режим" role="group" aria-label="Какой список показывать">
+        <button type="button" data-режим="все" class="активен">Все проекты</button>
+        <button type="button" data-режим="показ">Только показ</button>
+      </div>
       <img id="лого" src="медиа/лого_кмг.png" alt="КазМунайГаз">
       <span class="метка_драфт">Драфт</span>
     </div>
@@ -361,6 +378,8 @@ body.вглубь .легенда{opacity:0;pointer-events:none}
           описание:"Подбор геолого-технических мероприятий. В рабочем файле стоял в колонке без передела — привязан к геологии по правке заказчика." },
         { имя:"Сейсмология ИИ", состояние:"слайды", хроно:"—", эффект:"", площадки:"На уточнении", ярлыки:["ИИ","на уточнении"],
           описание:"Проект по сейсмологии на ИИ. Состав демонстрации, владелец и материал уточняются." },
+        { имя:"Материалы геоконференции", снят:"снят с показа 27.08", состояние:"готово", хроно:"2:30", эффект:"—", площадки:"KIOGE, Bridge", ярлыки:[],
+          описание:"Готовые ролики с апрельской геоконференции, исходники у Олжаса. Сняты с показа — при возврате пересобрать под хронометраж стенда и общий стиль." },
         { имя:"Geological RAG", состояние:"делается", хроно:"~0:50", эффект:"", площадки:"Все площадки", ярлыки:["ИИ"],
           описание:"Поиск и ответы по всему массиву геологических отчётов на человеческом языке. Сильный сюжет для форума: запрос словами и мгновенный ответ со ссылкой на первоисточник. Собственная разработка, вендорских компонентов нет." }
       ]},
@@ -405,11 +424,11 @@ body.вглубь .легенда{opacity:0;pointer-events:none}
     проекты:[
       { имя:"AI-Broker", состояние:"слайды", хроно:"—", эффект:"", площадки:"На уточнении", ярлыки:["вне цепочки"],
         описание:"Поддержка торговых решений. По логике это бизнес-операционный слой, а не нефтепродукты — поэтому вынесен из сбыта в отдельный контур." },
-      { имя:"Cowork", скрыт:true, состояние:"слайды", хроно:"—", эффект:"", площадки:"На уточнении", ярлыки:["на уточнении"],
+      { имя:"Cowork", снят:"снят с показа 28.08 до выяснения", состояние:"слайды", хроно:"—", эффект:"", площадки:"На уточнении", ярлыки:["на уточнении"],
         описание:"Из колонки без передела в рабочем файле. Состав демонстрации, владелец и материал уточняются." },
-      { имя:"Коргау", скрыт:true, состояние:"слайды", хроно:"—", эффект:"", площадки:"На уточнении", ярлыки:["на уточнении"],
+      { имя:"Коргау", снят:"снят с показа 28.08 до выяснения", состояние:"слайды", хроно:"—", эффект:"", площадки:"На уточнении", ярлыки:["на уточнении"],
         описание:"Из колонки без передела в рабочем файле. Состав демонстрации, владелец и материал уточняются." },
-      { имя:"ЭНД", скрыт:true, состояние:"слайды", хроно:"—", эффект:"", площадки:"На уточнении", ярлыки:["на уточнении"],
+      { имя:"ЭНД", снят:"снят с показа 28.08 до выяснения", состояние:"слайды", хроно:"—", эффект:"", площадки:"На уточнении", ярлыки:["на уточнении"],
         описание:"Из колонки без передела в рабочем файле. Состав демонстрации, владелец и материал уточняются." }
     ]};
   var ВСЕ_БЛОКИ = ПЕРЕДЕЛЫ.concat([ВНЕ_ЦЕПОЧКИ]);
@@ -417,9 +436,14 @@ body.вглубь .легенда{opacity:0;pointer-events:none}
   /* Снятое с показа не удаляется, а помечается флагом «скрыт»: заказчик снял
      продукт до выяснения, а не насовсем. Вернуть — снять флаг, а не
      восстанавливать карточку из истории. Показ работает со списком «показ». */
-  ВСЕ_БЛОКИ.forEach(function(б){
-    б.показ = б.проекты.filter(function(пр){ return !пр.скрыт; });
-  });
+  /* Снятое с показа не удаляется, а помечается причиной: заказчик снимает
+     продукт до выяснения, а не насовсем. Экран умеет показать оба списка —
+     весь состав и то, что реально идёт на стенд. Это разные вопросы, и на
+     совещании их задают по очереди. */
+  var режим = "все";
+  function видимые(б){
+    return режим === "все" ? б.проекты : б.проекты.filter(function(пр){ return !пр.снят; });
+  }
 
   var СТАДИИ = {
     верх:    { имя:"Upstream",   состав:"разведка · геология · добыча", цвет:"var(--циан)" },
@@ -580,7 +604,7 @@ body.вглубь .легенда{opacity:0;pointer-events:none}
     var цx = ЦX[и], тон = ТОНА[п.стадия];
     п._цx = цx;
     var г = узел("g", { "class":"блок", "data-код":п.код, tabindex:"0", role:"button",
-                        "aria-label":"Передел "+п.имя+", "+п.показ.length+" "+склонение(п.показ.length) }, камера);
+                        "aria-label":"Передел "+п.имя+", "+п.проекты.length+" "+склонение(п.проекты.length) }, камера);
     var подъём = узел("g", { "class":"подъём" }, г);
 
     узел("ellipse", { cx:цx, cy:ОСНОВА+28, rx:130, ry:64, fill:"url(#пятно)", "class":"свечение" }, подъём);
@@ -596,8 +620,9 @@ body.вглубь .легенда{opacity:0;pointer-events:none}
                    "letter-spacing":"2.5", opacity:".85", "font-family":"Golos Text, sans-serif" }, пп).textContent = п.номер;
     узел("text", { x:цx, y:ПОДПИСЬ+92, "text-anchor":"middle", fill:"#D7E2F2", "font-size":"19",
                    "font-weight":"700", "font-family":"Unbounded, sans-serif" }, пп).textContent = п.имя;
-    узел("text", { x:цx, y:ПОДПИСЬ+112, "text-anchor":"middle", fill:"#7C8DA6", "font-size":"12.5",
-                   "font-family":"Golos Text, sans-serif" }, пп).textContent = п.показ.length + " " + склонение(п.показ.length);
+    п._счётчик = узел("text", { x:цx, y:ПОДПИСЬ+112, "text-anchor":"middle", fill:"#7C8DA6", "font-size":"12.5",
+                   "font-family":"Golos Text, sans-serif" }, пп);
+    п._счётчик.textContent = видимые(п).length + " " + склонение(видимые(п).length);
 
     узел("rect", { x:цx-118, y:ОСНОВА-160, width:236, height:360, "class":"попадание" }, г);
 
@@ -723,7 +748,13 @@ body.вглубь .легенда{opacity:0;pointer-events:none}
     веер.innerHTML = "";
     связи.innerHTML = "";
     var а = якорь(п);
-    var н = п.показ.length;
+    var список = видимые(п);
+    var н = список.length;
+    /* пустой передел возможен, если весь его состав снят с показа */
+    if(!н){
+      подпись_передела.classList.remove("виден");
+      return;
+    }
 
     var поля = поляВеера();
     var лево0 = а.x + Math.max(96, window.innerWidth * 0.07);
@@ -744,7 +775,7 @@ body.вглубь .легенда{opacity:0;pointer-events:none}
       var базоваяX = лево0 + номерК*(ширина + ЗАЗОР);
 
       for(var и = 0; и < сколько; и++){
-        var пр = п.показ[счёт + и];
+        var пр = список[счёт + и];
         var прогиб = сколько > 1 ? Math.sin(Math.PI * (и + 0.5) / сколько) * ПРОГИБ : 0;
         var x = Math.min(базоваяX + прогиб, window.innerWidth - ширина - 20);
         var y = верх0 + и*(высота + ЗАЗОР);
@@ -780,7 +811,7 @@ body.вглубь .легенда{opacity:0;pointer-events:none}
     var с = СОСТОЯНИЯ[пр.состояние];
     var к = document.createElement("button");
     к.type = "button";
-    к.className = "кадр";
+    к.className = "кадр" + (пр.снят ? " снят" : "");
     к.style.left = x + "px";
     к.style.top = y + "px";
     к.style.width = ширина + "px";
@@ -789,7 +820,10 @@ body.вглубь .легенда{opacity:0;pointer-events:none}
     к.setAttribute("aria-label", пр.имя + " — " + с.имя);
     к.innerHTML =
       '<span class="постер">' +
-        (пр.ярлыки.length ? '<span class="ярлыки">' + пр.ярлыки.map(function(я){
+        '<span class="ярлыки">' +
+          (пр.снят ? '<span class="ярлык внимание">снят с показа</span>' : '') +
+        '</span>' +
+        (пр.ярлыки.length ? '<span class="ярлыки ярлыки_низ">' + пр.ярлыки.map(function(я){
             var тревожный = (я === "вендор" || я === "не для ГГ" || я === "на уточнении");
             return '<span class="ярлык' + (тревожный ? " внимание" : "") + '">' + я + '</span>';
           }).join("") + '</span>' : '') +
@@ -848,9 +882,28 @@ body.вглубь .легенда{opacity:0;pointer-events:none}
   }
 
   document.getElementById("контур_счёт").textContent =
-    ВНЕ_ЦЕПОЧКИ.показ.length + " " + склонение(ВНЕ_ЦЕПОЧКИ.показ.length);
+    видимые(ВНЕ_ЦЕПОЧКИ).length + " " + склонение(видимые(ВНЕ_ЦЕПОЧКИ).length);
   document.getElementById("контур_суть").textContent = ВНЕ_ЦЕПОЧКИ.суть;
   плашка_контура.addEventListener("click", function(){ открыть(ВНЕ_ЦЕПОЧКИ); });
+
+  function обновитьСписки(){
+    ПЕРЕДЕЛЫ.forEach(function(п){
+      var в = видимые(п);
+      п._счётчик.textContent = в.length + " " + склонение(в.length);
+    });
+    var вк = видимые(ВНЕ_ЦЕПОЧКИ);
+    document.getElementById("контур_счёт").textContent = вк.length + " " + склонение(вк.length);
+    if(текущий) разложить(текущий);
+  }
+  Array.prototype.forEach.call(document.querySelectorAll(".режим button"), function(к){
+    к.addEventListener("click", function(){
+      режим = к.getAttribute("data-режим");
+      Array.prototype.forEach.call(document.querySelectorAll(".режим button"), function(д){
+        д.classList.toggle("активен", д === к);
+      });
+      обновитьСписки();
+    });
+  });
 
   document.getElementById("назад").addEventListener("click", закрыть);
   document.getElementById("закрыть_плеер").addEventListener("click", спрятать);
