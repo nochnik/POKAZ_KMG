@@ -162,7 +162,7 @@ def собрать():
         сцена.paste(плитка, (x, y), маска)
         отчёт.append((код, k, цель, дымка, x, y, новая_ш))
 
-    сцена.save(os.path.join(СЦЕНА, '_сборка_проба.jpg'), 'JPEG',
+    сцена.save(os.path.join(СЦЕНА, 'сцена.jpg'), 'JPEG',
                quality=88, optimize=True, progressive=True)
     return отчёт, (Ш, В)
 
