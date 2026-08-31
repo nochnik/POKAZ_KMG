@@ -237,10 +237,12 @@ body.вглубь .сквозная{pointer-events:none}
    а не окно поверх показа. В прежнем файле он перекрывал их потому, что шапка
    лежала внутри общего блока; здесь она закреплена отдельно, поэтому порядок
    задаётся числом. */
+/* Собственного въезда у экрана больше нет: его выводит морф, а экран просто
+   проявляется поверх уже выросшего кадра. Прежний scale(.92) при этом дёргал
+   картинку второй раз — кадр приезжал морфом и тут же ехал ещё раз. */
 #экран_системы{position:fixed;inset:0;z-index:60;opacity:0;pointer-events:none;
-  transform:scale(.92);transform-origin:50% 50%;background:var(--фон0);overflow:hidden;
-  transition:opacity .45s ease,transform .55s cubic-bezier(.3,.02,.15,1)}
-#экран_системы.открыт{opacity:1;pointer-events:auto;transform:none}
+  background:var(--фон0);overflow:hidden;transition:opacity .3s ease}
+#экран_системы.открыт{opacity:1;pointer-events:auto}
 .фон_системы{position:absolute;inset:0;background-size:cover;background-position:center;
   background-color:#0A1A2C}
 .фон_системы video{width:100%;height:100%;object-fit:cover}
@@ -274,6 +276,26 @@ body.вглубь .сквозная{pointer-events:none}
 .назад_система:hover{border-color:var(--кмг);color:var(--кмг)}
 @media (max-width:900px){ .текст_системы{width:100%} }
 
+/* ================= морф ================= */
+/* Кадр системы вырастает из кружка узла и садится обратно в него. Это не
+   украшение: между уровнями показа не должно быть разрыва, иначе докладчик
+   каждый раз объясняет, куда он попал. Расширенный узел и есть экран системы.
+
+   Анимируется коробка (left/top/width/height), а не transform. Transform был
+   бы дешевле, но он масштабирует кадр неравномерно — у кружка и у экрана
+   разное отношение сторон, и кадр внутри плющило бы. Элемент один, 620 мс,
+   ради этого можно потерпеть перерасчёт раскладки. */
+.морф{position:fixed;z-index:55;pointer-events:none;opacity:0;
+  background-size:cover;background-position:center;background-color:#0A1A2C;
+  box-shadow:0 0 0 1px rgba(2,174,240,.5), 0 24px 80px rgba(0,0,0,.6);
+  will-change:left,top,width,height,border-radius}
+.морф.идёт{transition:left .62s cubic-bezier(.3,.02,.15,1),
+  top .62s cubic-bezier(.3,.02,.15,1), width .62s cubic-bezier(.3,.02,.15,1),
+  height .62s cubic-bezier(.3,.02,.15,1), border-radius .62s ease, opacity .2s ease}
+
+.возврат{position:absolute;right:clamp(20px,3vw,40px);top:clamp(20px,3vh,36px);
+  display:flex;gap:10px;z-index:2}
+
 /* ================= легенда и подсказка ================= */
 .легенда{position:fixed;left:0;right:0;bottom:0;z-index:20;
   padding:12px 34px 16px;display:flex;gap:18px;flex-wrap:wrap;align-items:center;
@@ -286,6 +308,7 @@ body.вглубь .подсказка{opacity:0}
 
 @media (prefers-reduced-motion:reduce){
   .площадка,.ореол,.подложка,.импульс,.узел .волна{animation:none}
+  .морф.идёт{transition-duration:.01ms}
   .сцена,#подпись_передела,.узел{transition-duration:.01ms}
 }
 @media (max-width:900px){
@@ -337,6 +360,10 @@ body.вглубь .подсказка{opacity:0}
   </span>
 </div>
 
+<!-- Морф: кадр системы вырастает из самого узла, по которому кликнули.
+     Лежит между веером и экраном системы, живёт только во время перехода. -->
+<div class="морф" id="морф" aria-hidden="true"></div>
+
 <!-- Экран системы — не окно, а конечное состояние перелёта. Фон и будущий
      ролик занимают один слот, поэтому согласованное видео ляжет сюда без
      правки разметки. -->
@@ -355,7 +382,14 @@ body.вглубь .подсказка{opacity:0}
       <button class="кнопка" id="сис_ролик" type="button" disabled>Ролик на согласовании</button>
     </div>
   </div>
-  <button class="назад_система" id="сис_назад" type="button">← Назад к переделу</button>
+  <!-- Возврат справа сверху по просьбе заказчика: докладчик стоит справа от
+       экрана и тянется туда, а не в дальний нижний угол. Две ступени, потому
+       что из системы одинаково часто нужно и к своему переделу, и сразу ко
+       всей цепочке. -->
+  <div class="возврат">
+    <button class="кнопка" id="сис_назад" type="button">← К переделу</button>
+    <button class="кнопка" id="сис_вцепочку" type="button">Вся цепочка</button>
+  </div>
 </div>
 
 <script>
@@ -796,6 +830,72 @@ body.вглубь .подсказка{opacity:0}
     requestAnimationFrame(function(){ подпись_передела.classList.add("виден"); });
   }
 
+  /* ================= морф ================= */
+  /* Кадр вырастает из кружка узла и садится обратно в него. Узел, из которого
+     ушли, запоминается: при возврате кадр обязан сесть именно в него, иначе
+     переход читается как две разные анимации, а не как одно движение. */
+  var морф = document.getElementById("морф");
+  var откудаУзел = null;
+  var МОРФ_МС = 620;
+
+  function коробка(э){
+    var р = э.getBoundingClientRect();
+    return { л:р.left, в:р.top, ш:р.width, вы:р.height };
+  }
+
+  /* Морф прячется в два шага, и это не перестраховка. Замер поймал состояние,
+     в котором инлайн opacity уже 0, а вычисленная застряла на 1: переход не
+     доиграл, и кадр остался висеть поверх всего экрана. Полагаться на
+     завершение перехода нельзя — сначала гасим плавно, затем снимаем класс с
+     переходом, и записанный ноль применяется мгновенно и окончательно. */
+  function спрятатьМорф(){
+    морф.style.opacity = "0";
+    setTimeout(function(){
+      морф.classList.remove("идёт");
+      морф.style.opacity = "0";
+    }, 240);
+  }
+
+  function поставитьМорф(к, круглый){
+    морф.style.left = к.л + "px";
+    морф.style.top = к.в + "px";
+    морф.style.width = к.ш + "px";
+    морф.style.height = к.вы + "px";
+    морф.style.borderRadius = круглый ? "50%" : "0px";
+  }
+
+  function вырастить(узелЭ, кадр, готово){
+    откудаУзел = узелЭ;
+    var кружок = узелЭ.querySelector(".кружок") || узелЭ;
+    морф.style.backgroundImage = кадр ? 'url("' + кадр + '")' : "";
+    морф.classList.remove("идёт");
+    поставитьМорф(коробка(кружок), true);
+    морф.style.opacity = "1";
+    /* Чтение вынуждает браузер применить начальное положение до того, как
+       включится переход. Без него анимации не будет вовсе: обе записи
+       свернутся в одну, и кадр просто окажется на месте. */
+    void морф.offsetWidth;
+    морф.classList.add("идёт");
+    поставитьМорф({ л:0, в:0, ш:window.innerWidth, вы:window.innerHeight }, false);
+    setTimeout(готово, МОРФ_МС);
+  }
+
+  function усадить(готово){
+    if(!откудаУзел){ морф.style.opacity = "0"; готово(); return; }
+    var кружок = откудаУзел.querySelector(".кружок") || откудаУзел;
+    морф.classList.remove("идёт");
+    поставитьМорф({ л:0, в:0, ш:window.innerWidth, вы:window.innerHeight }, false);
+    морф.style.opacity = "1";
+    void морф.offsetWidth;
+    морф.classList.add("идёт");
+    поставитьМорф(коробка(кружок), true);
+    setTimeout(function(){
+      спрятатьМорф();
+      откудаУзел = null;
+      готово();
+    }, МОРФ_МС);
+  }
+
   /* ================= экран системы ================= */
   function открытьСистему(б, м){
     системаОткрыта = true;
@@ -833,9 +933,16 @@ body.вглубь .подсказка{opacity:0}
       фон.style.backgroundImage = кадр ? 'url("' + кадр + '")' : "";
     }
 
-    экран_системы.classList.add("открыт");
-    экран_системы.setAttribute("aria-hidden", "false");
-    document.getElementById("сис_назад").focus();
+    /* Экран проявляется не сразу, а когда кадр вырос: иначе зритель видит две
+       анимации подряд вместо одного движения. Узел ищется по проекту, а не
+       берётся из события — открытьСистему вызывается и из отладочного крючка. */
+    var свой = б._узлы.filter(function(у){ return у.проект === м.проект; })[0];
+    вырастить(свой ? свой.группа : null, кадр, function(){
+      экран_системы.classList.add("открыт");
+      экран_системы.setAttribute("aria-hidden", "false");
+      спрятатьМорф();
+      document.getElementById("сис_назад").focus();
+    });
   }
 
   function закрытьСистему(){
@@ -845,9 +952,23 @@ body.вглубь .подсказка{opacity:0}
     экран_системы.setAttribute("aria-hidden", "true");
     var в = экран_системы.querySelector("video");
     if(в) в.pause();
-    if(текущий) открыть(текущий);   /* камера возвращается на уровень блока */
+    /* Кадр садится обратно в свой узел, и только потом узлы возвращаются:
+       иначе они проявятся под ещё летящим кадром. */
+    усадить(function(){
+      if(текущий) открыть(текущий);
+    });
   }
   document.getElementById("сис_назад").addEventListener("click", закрытьСистему);
+  /* Вторая ступень возврата: из системы сразу ко всей цепочке, минуя передел. */
+  document.getElementById("сис_вцепочку").addEventListener("click", function(){
+    if(!системаОткрыта){ закрыть(); return; }
+    системаОткрыта = false;
+    экран_системы.classList.remove("открыт");
+    экран_системы.setAttribute("aria-hidden", "true");
+    var в = экран_системы.querySelector("video");
+    if(в) в.pause();
+    усадить(закрыть);
+  });
 
   /* ================= камера ================= */
   /* Наезд — один transform на всю сцену: площадки едут вместе с биркой, линией
@@ -1029,6 +1150,9 @@ body.вглубь .подсказка{opacity:0}
     полосы: ПОЛОСЫ,
     расставитьПолосы: расставитьПолосы,
     системаОткрыта: function(){ return системаОткрыта; },
+    морф: морф,
+    МОРФ_МС: МОРФ_МС,
+    спрятатьМорф: спрятатьМорф,
     проявить: function(код){
       var б = ВСЕ_БЛОКИ.filter(function(д){ return д.код === код; })[0];
       if(!б._узлы) построитьУзлы(б);
