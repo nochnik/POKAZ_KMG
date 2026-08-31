@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>КМГ — сцена цепочки</title>
+<style>
+/* Палитра и шрифты те же, что в «цепочке»: показы КМГ стоят рядом на одном
+   стенде, и свой набор цветов у каждого читается как разные продукты.
+   Добавлен только фирменный синий из логотипа — он замерен по знаку, а не
+   подобран на глаз. */
+:root{
+  --кмг:#02AEF0; --кмг_свет:#90D6F7;
+  --циан:#4FE3FF; --янтарь:#F0AE4A;
+  --фон0:#050810; --фон1:#0C1626;
+  --грань:#1B2E48;
+  --текст:#D7E2F2; --текст2:#AFC0D8; --приглуш:#7C8DA6;
+}
+@font-face{font-family:'Unbounded';font-weight:500 700;font-display:swap;
+  src:url('медиа/шрифты/унб_700_cyrillic.woff2') format('woff2');
+  unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
+@font-face{font-family:'Unbounded';font-weight:500 700;font-display:swap;
+  src:url('медиа/шрифты/унб_700_latin.woff2') format('woff2');
+  unicode-range:U+0000-00FF,U+2000-206F}
+@font-face{font-family:'Golos Text';font-weight:400 600;font-display:swap;
+  src:url('медиа/шрифты/голос_400_cyrillic.woff2') format('woff2');
+  unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
+@font-face{font-family:'Golos Text';font-weight:400 600;font-display:swap;
+  src:url('медиа/шрифты/голос_400_latin.woff2') format('woff2');
+  unicode-range:U+0000-00FF,U+2000-206F}
+
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{
+  /* Фон страницы чёрный, а свет стола лежит внутри сцены (.подложка).
+     Причина не косметическая: .сцена создаёт свой контекст наложения из-за
+     transform, и площадки в режиме screen смешивались не с градиентом
+     страницы, а с прозрачностью внутри контекста — из-за чего вокруг каждой
+     площадки стоял чёрный прямоугольник. Проверено подменой режима на normal:
+     прямоугольники становились явными, на чёрном фоне исчезали совсем. */
+  background:#000;
+  color:var(--текст);
+  font-family:'Golos Text',system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  font-size:15px;line-height:1.55;overflow:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+.дисплей{font-family:'Unbounded',system-ui,sans-serif;letter-spacing:.01em}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+:focus-visible{outline:2px solid var(--кмг);outline-offset:4px;border-radius:4px}
+
+/* ================= шапка ================= */
+.шапка{position:fixed;inset:0 0 auto 0;z-index:40;padding:22px 34px;
+  display:flex;justify-content:space-between;align-items:flex-start;
+  pointer-events:none}
+.шапка > *{pointer-events:auto}
+.надпись{font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--приглуш)}
+h1{font-size:clamp(19px,2vw,27px);font-weight:700;margin-top:5px}
+h1 .град{background:linear-gradient(100deg,#BFF2FF 4%,var(--кмг) 52%,var(--кмг_свет) 98%);
+  -webkit-background-clip:text;background-clip:text;color:transparent}
+.метка{font-size:10px;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--янтарь);border:1px solid var(--янтарь);border-radius:999px;
+  padding:5px 11px;opacity:.85}
+
+/* ================= сцена ================= */
+.стол{position:fixed;inset:0;display:grid;place-items:center;overflow:hidden}
+.сцена{position:relative;width:min(100vw, calc(100vh * 2560 / 1098));
+  aspect-ratio:2560/1098;transform-origin:0 0;
+  transition:transform 900ms cubic-bezier(.22,.7,.24,1)}
+
+/* Свет стола. Растянут далеко за пределы сцены, чтобы его край не влез в кадр,
+   и намеренно оставлен внутри .сцены: при наезде он едет вместе с макетом, как
+   и положено свету, падающему на стол. */
+.подложка{position:absolute;inset:-60%;pointer-events:none;
+  background:radial-gradient(46% 40% at 50% 62%, var(--фон1) 0%, var(--фон0) 46%, #000 76%)}
+
+/* Линия связи рисуется кодом, а не лежит в картинке: она обязана тянуться
+   между площадками при любом их сдвиге, а нарисованную пришлось бы
+   перегенерировать после каждой правки раскладки. */
+.линия{position:absolute;left:0;right:0;top:74%;height:2px;
+  background:linear-gradient(90deg,transparent 0%,var(--кмг) 6%,var(--кмг) 94%,transparent 100%);
+  box-shadow:0 0 14px rgba(2,174,240,.75);opacity:.9}
+
+/* Площадки лежат на чёрном фоне до нуля по яркости (замерено: углы 0,1–0,3 из
+   255), поэтому кладутся режимом screen — чёрное ничего не добавляет. Вырезать
+   их порогом не нужно: на прошлой сборке порог съедал грунт по контуру. */
+.площадка{position:absolute;mix-blend-mode:screen;
+  transition:filter 320ms ease, opacity 320ms ease;
+  will-change:filter}
+.площадка img{width:100%;height:100%;display:block}
+
+.зона{position:absolute;cursor:pointer;border-radius:10px;
+  transition:background 240ms ease}
+.зона:hover{background:rgba(2,174,240,.07)}
+
+.бирка{position:absolute;transform:translate(-50%,0);text-align:center;
+  white-space:nowrap;pointer-events:none;
+  transition:opacity 320ms ease, transform 320ms ease}
+.бирка .номер{font-size:9.5px;letter-spacing:.24em;color:var(--кмг);opacity:.8}
+.бирка .имя{font-size:13.5px;font-weight:700;margin-top:2px;text-shadow:0 2px 14px #000}
+
+/* ================= карточка передела ================= */
+.карточка{position:fixed;left:38px;bottom:38px;z-index:30;max-width:min(38ch,42vw);
+  background:rgba(6,12,22,.86);border:1px solid var(--грань);border-radius:14px;
+  padding:20px 22px;backdrop-filter:blur(9px);
+  opacity:0;transform:translateY(14px);pointer-events:none;
+  transition:opacity 420ms ease, transform 420ms ease}
+.карточка.видна{opacity:1;transform:none;pointer-events:auto}
+.карточка .номер{font-size:10px;letter-spacing:.24em;color:var(--кмг)}
+.карточка h2{font-size:22px;font-weight:700;margin:5px 0 9px}
+.карточка p{font-size:13.5px;color:var(--текст2);line-height:1.5}
+.назад{margin-top:15px;font-size:12px;letter-spacing:.06em;color:var(--приглуш);
+  border:1px solid var(--грань);border-radius:8px;padding:7px 13px}
+.назад:hover{color:var(--кмг);border-color:var(--кмг)}
+
+.подсказка{position:fixed;left:0;right:0;bottom:20px;text-align:center;z-index:20;
+  font-size:12.5px;color:var(--приглуш);transition:opacity 320ms ease}
+</style>
+</head>
+<body>
+
+<header class="шапка">
+  <div>
+    <div class="надпись">Сцена · площадки в 4K · это не показ</div>
+    <h1 class="дисплей">Цифровая <span class="град">цепочка</span></h1>
+  </div>
+  <div class="метка дисплей">Драфт</div>
+</header>
+
+<div class="стол"><div class="сцена" id="сцена">
+  <div class="подложка"></div>
+  <div class="линия"></div>
+</div></div>
+
+<div class="карточка" id="карточка">
+  <div class="номер дисплей" id="карточка_номер">01</div>
+  <h2 class="дисплей" id="карточка_имя">Разведка</h2>
+  <p id="карточка_суть"></p>
+  <button class="назад" id="назад">← вся цепочка</button>
+</div>
+
+<div class="подсказка" id="подсказка">Клик по площадке — наезд. Esc — назад.</div>
+
+<script>
+/* Раскладка вынесена в данные: центры, ширина модуля и низ основания правятся
+   числом, а не перегенерацией кадра. Именно ради этого сцена собирается из
+   отдельных площадок, а не берётся одним мастер-кадром. */
+var РАСКЛАДКА = {
+  "разведка":    {"лево":-3.37,"верх":35.44,"ширина":24.68,"высота":43.15,"центр":9},
+  "геология":    {"лево":10.35,"верх":29.39,"ширина":29.34,"высота":51.31,"центр":25},
+  "добыча":      {"лево":30.61,"верх":43.24,"ширина":20.20,"высота":35.32,"центр":41},
+  "транспорт":   {"лево":45.60,"верх":41.17,"ширина":21.97,"высота":38.42,"центр":57},
+  "переработка": {"лево":58.62,"верх":30.88,"ширина":28.21,"высота":49.33,"центр":73},
+  "сбыт":        {"лево":77.96,"верх":41.54,"ширина":21.73,"высота":37.99,"центр":89}
+};
+
+var ПЕРЕДЕЛЫ = [
+  { код:"разведка", номер:"01", имя:"Разведка",
+    суть:"Более двадцати лет геологоразведочных данных: отчёты, керны, сейсмика." },
+  { код:"геология", номер:"02", имя:"Геология",
+    суть:"Моделирование пласта и цифровой двойник актива на базе ABAI." },
+  { код:"добыча", номер:"03", имя:"Добыча",
+    суть:"Самый плотный участок цепочки: разработка, спецтехника, диспетчеризация промысла." },
+  { код:"транспорт", номер:"04", имя:"Транспортировка",
+    суть:"Транспорт как прозрачное звено между добычей, переработкой и рынком." },
+  { код:"переработка", номер:"05", имя:"Переработка",
+    суть:"Шымкентский НПЗ: предиктив оборудования, энергомониторинг, тренажёры операторов." },
+  { код:"сбыт", номер:"06", имя:"Сбыт",
+    суть:"Замыкание баланса: от завода до заправки в едином контуре учёта." }
+];
+
+var ШИРИНА_МОДУЛЯ = 15.0;   /* проценты ширины сцены, те же, что в раскладке */
+var НИЗ_МОДУЛЯ    = 74.0;   /* проценты высоты сцены */
+
+var сцена     = document.getElementById('сцена');
+var карточка  = document.getElementById('карточка');
+var подсказка = document.getElementById('подсказка');
+var открыт = null;
+
+/* ================= постройка сцены ================= */
+ПЕРЕДЕЛЫ.forEach(function(п){
+  var р = РАСКЛАДКА[п.код];
+
+  var сл = document.createElement('div');
+  сл.className = 'площадка';
+  сл.style.left   = р.лево + '%';
+  сл.style.top    = р.верх + '%';
+  сл.style.width  = р.ширина + '%';
+  сл.style.height = р.высота + '%';
+  сл.innerHTML = '<img src="медиа/сцена/блок_' + п.код + '.jpg" alt="">';
+  сцена.appendChild(сл);
+  п.слой = сл;
+
+  /* Зона клика совпадает с модулем, а не с файлом: у файла вокруг модуля
+     чёрные поля, и по ним зоны соседних площадок перекрывались бы. */
+  var з = document.createElement('div');
+  з.className = 'зона';
+  з.setAttribute('role','button');
+  з.setAttribute('tabindex','0');
+  з.setAttribute('aria-label', 'Передел ' + п.имя);
+  з.style.left   = (р.центр - ШИРИНА_МОДУЛЯ/2) + '%';
+  з.style.width  = ШИРИНА_МОДУЛЯ + '%';
+  з.style.top    = (НИЗ_МОДУЛЯ - 34) + '%';
+  з.style.height = '38%';
+  з.addEventListener('click', function(){ открыть(п); });
+  з.addEventListener('keydown', function(е){
+    if (е.key === 'Enter' || е.key === ' ') { е.preventDefault(); открыть(п); }
+  });
+  сцена.appendChild(з);
+  п.зона = з;
+
+  var б = document.createElement('div');
+  б.className = 'бирка дисплей';
+  б.style.left = р.центр + '%';
+  б.style.top  = (НИЗ_МОДУЛЯ + 3) + '%';
+  б.innerHTML = '<div class="номер">' + п.номер + '</div><div class="имя">' + п.имя + '</div>';
+  сцена.appendChild(б);
+  п.бирка = б;
+});
+
+/* ================= наезд ================= */
+/* Наезд — один transform на всю сцену: площадки едут вместе с биркой и линией,
+   поэтому ничто не разъезжается между собой. Источник площадки 2048 px, так что
+   при увеличении видно деталь, а не пиксели — ради этого площадки и
+   генерировались поштучно. */
+function открыть(п){
+  var р = РАСКЛАДКА[п.код];
+  var к = 42 / ШИРИНА_МОДУЛЯ;                    /* модуль займёт 42% ширины кадра */
+  var цx = р.центр;
+  var цy = НИЗ_МОДУЛЯ - (р.высота * 0.34);       /* середина модуля по высоте */
+  var сдвигX = 50 - к * цx;
+  var сдвигY = 52 - к * цy;
+  сцена.style.transform = 'translate(' + сдвигX + '%,' + сдвигY + '%) scale(' + к + ')';
+
+  /* Бирки гасятся все до одной, включая свою: при наезде передел назван в
+     карточке, а подпись под площадкой уезжает вместе со сценой и на таком
+     увеличении становится в палец высотой. */
+  ПЕРЕДЕЛЫ.forEach(function(д){
+    д.слой.style.opacity = (д === п) ? '1' : '0.12';
+    д.бирка.style.opacity = '0';
+  });
+
+  document.getElementById('карточка_номер').textContent = п.номер;
+  document.getElementById('карточка_имя').textContent  = п.имя;
+  document.getElementById('карточка_суть').textContent = п.суть;
+  карточка.classList.add('видна');
+  подсказка.style.opacity = '0';
+  открыт = п;
+}
+
+function закрыть(){
+  сцена.style.transform = 'none';
+  ПЕРЕДЕЛЫ.forEach(function(д){
+    д.слой.style.opacity = '1';
+    д.бирка.style.opacity = '1';
+  });
+  карточка.classList.remove('видна');
+  подсказка.style.opacity = '1';
+  открыт = null;
+}
+
+document.getElementById('назад').addEventListener('click', закрыть);
+document.addEventListener('keydown', function(е){
+  if (е.key === 'Escape' && открыт) закрыть();
+});
+
+/* Отладочный крючок — как в ЦД: состояние читается напрямую, потому что во
+   вкладке на фоне браузер душит таймеры и замер по анимации врёт. */
+window.__сцена = {
+  переделы: ПЕРЕДЕЛЫ,
+  раскладка: РАСКЛАДКА,
+  открыт: function(){ return открыт ? открыт.код : null; },
+  открыть: function(код){
+    var п = ПЕРЕДЕЛЫ.filter(function(д){ return д.код === код; })[0];
+    if (п) открыть(п);
+  },
+  закрыть: закрыть
+};
+</script>
+</body>
+</html>
