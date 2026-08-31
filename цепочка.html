@@ -202,34 +202,46 @@ body.вглубь .блок.выбран .подпись{opacity:0}
 .сквозная .фон{transition:fill-opacity .25s,stroke-opacity .25s}
 .сквозная:hover .фон,.сквозная.выбран .фон{fill-opacity:.16;stroke-opacity:.9}
 
-/* ---------- проигрыватель ---------- */
-#плеер{position:fixed;inset:0;z-index:40;display:grid;place-items:center;padding:3vmin;
-  background:rgba(2,5,10,.9);backdrop-filter:blur(8px);opacity:0;pointer-events:none;transition:opacity .28s}
-#плеер.открыт{opacity:1;pointer-events:auto}
-.окно{width:min(1180px,94vw);display:flex;flex-direction:column;gap:14px;
-  transform:scale(.985);transition:transform .32s cubic-bezier(.34,1.25,.5,1)}
-#плеер.открыт .окно{transform:none}
-.окно_шапка{display:flex;justify-content:space-between;align-items:flex-start;gap:20px}
-.окно_шапка h3{font-family:'Unbounded',system-ui,sans-serif;font-weight:700;font-size:clamp(17px,2.1vw,24px)}
-.окно_шапка .адрес{font-size:12px;color:var(--приглуш);margin-top:4px;letter-spacing:.04em}
-.закрыть{width:34px;height:34px;border:1px solid var(--грань);border-radius:8px;display:grid;
-  place-items:center;color:var(--приглуш);flex:0 0 auto;transition:border-color .2s,color .2s}
-.закрыть:hover{border-color:var(--красный);color:var(--красный)}
-.экран_видео{aspect-ratio:16/9;max-height:66vh;border-radius:12px;border:1px solid var(--грань);
-  background:linear-gradient(135deg,#0A1A2C 0%,#123049 50%,#07131F 100%);
-  display:grid;place-items:center;position:relative;overflow:hidden}
-.экран_видео::before{content:"";position:absolute;inset:0;
-  background:repeating-linear-gradient(115deg,rgba(79,227,255,.04) 0 2px,transparent 2px 10px)}
-.экран_видео video{width:100%;height:100%;object-fit:contain;background:#000}
-.заглушка{position:relative;display:flex;flex-direction:column;align-items:center;gap:13px}
-.заглушка .пуск{width:62px;height:62px}
-.заглушка .надпись{font-size:11px}
-.полоса{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:1px;
-  background:var(--грань);border:1px solid var(--грань);border-radius:10px;overflow:hidden}
-.полоса > div{background:var(--фон2);padding:11px 14px;display:flex;flex-direction:column;gap:2px}
-.полоса .к{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--приглуш)}
-.полоса .з{font-size:14px}
-.окно .описание{font-size:13.5px;color:var(--текст2);max-width:78ch}
+/* ---------- экран системы ---------- */
+/* Въезжает из точки узла, а не всплывает: пространственная связь между узлом и
+   экраном не должна рваться — это единственное, чем переход отличается от
+   обычной модалки, и ровно то, что просил заказчик. */
+#экран_системы{position:fixed;inset:0;z-index:30;opacity:0;pointer-events:none;
+  transform:scale(.92);transform-origin:50% 50%;background:var(--фон0);overflow:hidden;
+  transition:opacity .45s ease,transform .55s cubic-bezier(.3,.02,.15,1)}
+#экран_системы.открыт{opacity:1;pointer-events:auto;transform:none}
+.фон_системы{position:absolute;inset:0;background-size:cover;background-position:center;
+  background-color:#0A1A2C}
+.фон_системы video{width:100%;height:100%;object-fit:cover}
+/* Шторка слева обеспечивает контраст текста. Кадр генеративный, его тон
+   гарантировать нельзя, поэтому читаемость держится затемнением, а не
+   надеждой на удачный кадр. */
+.шторка{position:absolute;inset:0;background:linear-gradient(100deg,
+  rgba(5,8,16,.97) 0%, rgba(5,8,16,.92) 34%, rgba(5,8,16,.55) 62%, rgba(5,8,16,.35) 100%)}
+.текст_системы{position:absolute;left:0;top:0;height:100%;width:min(52%,720px);
+  padding:clamp(28px,5vh,72px) clamp(28px,4vw,64px);
+  display:flex;flex-direction:column;justify-content:center;gap:14px}
+.текст_системы .стадия{font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;font-weight:600}
+.текст_системы h2{font-family:'Unbounded',system-ui,sans-serif;font-weight:700;
+  font-size:clamp(26px,3.8vw,52px);line-height:1.06;letter-spacing:-.01em;text-wrap:balance}
+.сис_эффект{font-size:clamp(15px,1.5vw,21px);color:var(--циан);line-height:1.35;
+  border-left:2px solid var(--циан);padding-left:14px}
+.сис_суть{font-size:clamp(13px,1.15vw,16px);color:var(--текст2);line-height:1.55;max-width:56ch}
+.сис_отв{font-size:12px;color:var(--приглуш);letter-spacing:.02em}
+.сис_низ{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:8px}
+.кнопка{padding:11px 20px;border-radius:8px;border:1px solid var(--грань);
+  font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--текст2);
+  text-decoration:none;display:inline-flex;align-items:center;cursor:pointer;
+  transition:border-color .2s,color .2s,background .2s}
+.кнопка:hover:not([disabled]){border-color:var(--циан);color:var(--циан);background:rgba(79,227,255,.08)}
+.кнопка[disabled]{opacity:.4;cursor:default}
+.кнопка[hidden]{display:none}
+.назад_система{position:absolute;left:clamp(28px,4vw,64px);bottom:clamp(22px,4vh,44px);
+  font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--текст2);
+  border:1px solid var(--грань);border-radius:7px;padding:8px 14px;cursor:pointer;
+  transition:border-color .2s,color .2s}
+.назад_система:hover{border-color:var(--циан);color:var(--циан)}
+@media (max-width:900px){ .текст_системы{width:100%} }
 
 /* ---------- легенда ---------- */
 .легенда{padding:12px 34px 20px;display:flex;gap:18px;flex-wrap:wrap;align-items:center;
@@ -299,23 +311,25 @@ body.вглубь .легенда{opacity:0;pointer-events:none}
 
 <div id="подпись_передела"></div>
 
-<div id="плеер" role="dialog" aria-modal="true" aria-labelledby="имя_плеера">
-  <div class="окно">
-    <div class="окно_шапка">
-      <div>
-        <h3 id="имя_плеера">—</h3>
-        <p class="адрес" id="адрес_плеера">—</p>
-      </div>
-      <button class="закрыть" id="закрыть_плеер" type="button" aria-label="Закрыть">✕</button>
-    </div>
-    <div class="экран_видео" id="экран_видео"></div>
-    <p class="описание" id="описание_плеера">—</p>
-    <div class="полоса">
-      <div><span class="к">Эффект</span><span class="з" id="эффект_плеера">—</span></div>
-      <div><span class="к">Материал</span><span class="з" id="материал_плеера">—</span></div>
-      <div><span class="к">Где показываем</span><span class="з" id="площадки_плеера">—</span></div>
+<!-- Экран системы — не окно, а конечное состояние перелёта: он въезжает из
+     точки узла. Фон и будущий ролик занимают один слот, поэтому согласованное
+     видео ляжет сюда без правки разметки. -->
+<div id="экран_системы" aria-hidden="true">
+  <div class="фон_системы" id="фон_системы"></div>
+  <div class="шторка"></div>
+  <div class="текст_системы">
+    <span class="стадия" id="сис_стадия">—</span>
+    <h2 id="сис_имя">—</h2>
+    <p class="сис_эффект" id="сис_эффект">—</p>
+    <p class="сис_суть" id="сис_суть">—</p>
+    <p class="сис_отв" id="сис_отв">—</p>
+    <div class="сис_низ">
+      <span class="сост" id="сис_состояние">—</span>
+      <a class="кнопка" id="сис_демо" target="_blank" rel="noopener">Открыть демо</a>
+      <button class="кнопка" id="сис_ролик" type="button" disabled>Ролик на согласовании</button>
     </div>
   </div>
+  <button class="назад_система" id="сис_назад" type="button">← Назад к переделу</button>
 </div>
 
 <script>
@@ -436,6 +450,11 @@ body.вглубь .легенда{opacity:0;pointer-events:none}
 
   var ВСЕ_БЛОКИ = ПЕРЕДЕЛЫ.concat(СЛОИ);
 
+  /* Фон берётся по блоку, а не по системе: кадр передаёт среду — промысел,
+     завод, площадку, — а не конкретный продукт. Поле «кадр» у проекта
+     перебивает блочный, если для системы понадобится свой. */
+  ВСЕ_БЛОКИ.forEach(function(б){ б._кадр = "медиа/кадры/" + б.код + ".jpg"; });
+
   /* Снятое с показа помечается полем «снят», а не удаляется. Экран умеет
      показать оба списка — весь состав и то, что реально идёт на стенд. */
   var режим = "все";
@@ -451,10 +470,10 @@ body.вглубь .легенда{opacity:0;pointer-events:none}
     корпоратив:  { имя:"Сквозной слой", состав:"корпоративный интеллект", цвет:"var(--виолет)" }
   };
   var СОСТОЯНИЯ = {
-    готово:   { класс:"готово",   имя:"ролик готов",          в_плеере:"Ролик готов" },
-    демо:     { класс:"демо",     имя:"живое демо",           в_плеере:"Живое демо" },
-    делается: { класс:"делается", имя:"ролик в производстве", в_плеере:"Ролик в производстве" },
-    слайды:   { класс:"слайды",   имя:"только презентация",   в_плеере:"Материала пока нет" }
+    готово:   { класс:"готово",   имя:"ролик готов" },
+    демо:     { класс:"демо",     имя:"живое демо" },
+    делается: { класс:"делается", имя:"ролик в производстве" },
+    слайды:   { класс:"слайды",   имя:"только презентация" }
   };
 
   /* ================= изометрия ================= */
@@ -805,12 +824,73 @@ body.вглубь .легенда{opacity:0;pointer-events:none}
     requestAnimationFrame(function(){ подпись_передела.classList.add("виден"); });
   }
 
-  /* заглушка до задачи 2 плана */
-  function открытьСистему(б, м){ console.log("система:", м.проект.имя); }
+  var экран_системы = document.getElementById("экран_системы");
+  var системаОткрыта = false;
+
+  /* Перелёт камеры в узел. Состояние ставится напрямую и не зависит от события
+     конца перехода: быстрый повторный клик по другому узлу иначе оставлял бы
+     экран в промежуточном виде. */
+  function открытьСистему(б, м){
+    системаОткрыта = true;
+
+    б._узлы.forEach(function(у){
+      у.группа.classList.toggle("ушёл", у.проект !== м.проект);
+    });
+
+    var сл = 5.5;
+    камера.setAttribute("transform",
+      "translate(" + (0.5*ВБ_Ш - м.x*сл).toFixed(1) + " " +
+      ((ВБ_Y + 0.5*ВБ_В) - м.y*сл).toFixed(1) + ") scale(" + сл + ")");
+
+    var пр = м.проект, с = СОСТОЯНИЯ[пр.состояние];
+    var стадия = document.getElementById("сис_стадия");
+    стадия.textContent = СТАДИИ[б.стадия].имя + " \u00b7 " + б.имя;
+    стадия.style.color = СТАДИИ[б.стадия].цвет;
+    document.getElementById("сис_имя").textContent = пр.имя;
+    document.getElementById("сис_эффект").textContent = пр.эффект || "Эффект не заполнен";
+    document.getElementById("сис_суть").textContent = пр.описание;
+    document.getElementById("сис_отв").textContent =
+      б.ответственный + "   \u00b7   форум " + б.форум + "   \u00b7   правительство " + б.гос;
+
+    var состояние = document.getElementById("сис_состояние");
+    состояние.className = "сост " + с.класс;
+    состояние.textContent = с.имя;
+
+    var демо = document.getElementById("сис_демо");
+    if(пр.демо){ демо.href = пр.демо; демо.hidden = false; } else { демо.hidden = true; }
+    document.getElementById("сис_ролик").hidden = !!пр.видео;
+
+    /* Фон и ролик — один слот: появится согласованный mp4, встанет на то же
+       место, и разметку менять не придётся. */
+    var фон = document.getElementById("фон_системы");
+    var кадр = пр.кадр || б._кадр;
+    if(пр.видео){
+      фон.style.backgroundImage = "";
+      фон.innerHTML = '<video src="' + пр.видео + '" autoplay loop muted playsinline></video>';
+    } else {
+      фон.innerHTML = "";
+      фон.style.backgroundImage = кадр ? 'url("' + кадр + '")' : "";
+    }
+
+    экран_системы.classList.add("открыт");
+    экран_системы.setAttribute("aria-hidden", "false");
+    document.getElementById("сис_назад").focus();
+  }
+
+  function закрытьСистему(){
+    if(!системаОткрыта) return;
+    системаОткрыта = false;
+    экран_системы.classList.remove("открыт");
+    экран_системы.setAttribute("aria-hidden", "true");
+    var в = экран_системы.querySelector("video");
+    if(в) в.pause();
+    if(текущий) открыть(текущий);   /* камера возвращается на уровень блока */
+  }
+
+  document.getElementById("сис_назад").addEventListener("click", закрытьСистему);
 
   /* ================= камера ================= */
   var подпись_передела = document.getElementById("подпись_передела");
-  var плеер = document.getElementById("плеер");
   var текущий = null;
 
   /* Куда камера ставит объект: левая пятая часть кадра — справа освобождается
@@ -848,6 +928,9 @@ body.вглубь .легенда{opacity:0;pointer-events:none}
   }
 
   function закрыть(){
+    системаОткрыта = false;
+    экран_системы.classList.remove("открыт");
+    экран_системы.setAttribute("aria-hidden", "true");
     текущий = null;
     document.body.classList.remove("вглубь");
     Array.prototype.forEach.call(document.querySelectorAll(".блок"), function(н){ н.classList.remove("выбран"); });
@@ -855,33 +938,6 @@ body.вглубь .легенда{opacity:0;pointer-events:none}
     камера.setAttribute("transform", "translate(0 0) scale(1)");
     подпись_передела.classList.remove("виден");
     подпись_передела.innerHTML = "";
-  }
-
-  /* ================= проигрыватель ================= */
-  function показать(п, пр){
-    var с = СОСТОЯНИЯ[пр.состояние];
-    document.getElementById("имя_плеера").textContent = пр.имя;
-    document.getElementById("адрес_плеера").textContent = СТАДИИ[п.стадия].имя + " / " + п.имя;
-    document.getElementById("описание_плеера").textContent = пр.описание;
-    document.getElementById("эффект_плеера").textContent = пр.эффект ? пр.эффект : "не заполнен";
-    document.getElementById("материал_плеера").textContent = с.в_плеере;
-    document.getElementById("площадки_плеера").textContent = пр.площадки;
-
-    /* Место под настоящий ролик: как только в медиа/ ляжет mp4, сюда встаёт
-       <video src> и заглушка исчезает — разметка меняться не будет. */
-    var э = document.getElementById("экран_видео");
-    э.innerHTML = пр.видео
-      ? '<video src="' + пр.видео + '" controls autoplay playsinline></video>'
-      : '<span class="заглушка"><span class="пуск"><svg width="18" height="21" viewBox="0 0 18 21" aria-hidden="true">' +
-        '<path d="M1 1 17 10.5 1 20Z" fill="currentColor"/></svg></span>' +
-        '<span class="надпись">' + с.в_плеере + ' · заглушка</span></span>';
-
-    плеер.classList.add("открыт");
-  }
-  function спрятать(){
-    плеер.classList.remove("открыт");
-    var в = плеер.querySelector("video");
-    if(в) в.pause();
   }
 
   function обновитьСписки(){
@@ -910,17 +966,16 @@ body.вглубь .легенда{opacity:0;pointer-events:none}
   });
 
   document.getElementById("назад").addEventListener("click", закрыть);
-  document.getElementById("закрыть_плеер").addEventListener("click", спрятать);
-  плеер.addEventListener("click", function(с){ if(с.target === плеер) спрятать(); });
   /* Докладчик стоит у экрана и не целится мышью: внутри передела стрелки
      переводят на соседний, Esc поднимает на шаг вверх. */
   document.addEventListener("keydown", function(с){
     if(с.key === "Escape"){
-      if(плеер.classList.contains("открыт")) спрятать();
+      if(системаОткрыта) закрытьСистему();
       else if(текущий) закрыть();
       return;
     }
-    if(!текущий || плеер.classList.contains("открыт")) return;
+    /* стрелки внутри системы не переключают блоки: сначала выйти на уровень выше */
+    if(!текущий || системаОткрыта) return;
     if(с.key !== "ArrowLeft" && с.key !== "ArrowRight") return;
     с.preventDefault();
     var где = ВСЕ_БЛОКИ.indexOf(текущий);
