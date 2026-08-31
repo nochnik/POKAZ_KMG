@@ -1,0 +1,501 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>КМГ — проба 3D</title>
+<style>
+/* Палитра фирменная: синий взят из логотипа замером — #02AEF0.
+   Фон и текст из семьи ЦД, чтобы пробу можно было сравнивать с показом. */
+:root{
+  --кмг:#02AEF0; --кмг_свет:#90D6F7;
+  --фон0:#050810; --текст:#D7E2F2; --приглуш:#7C8DA6; --грань:#1B2E48;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow:hidden;background:var(--фон0)}
+body{font-family:'Golos Text',system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--текст)}
+@font-face{font-family:'Unbounded';font-weight:500 700;font-display:swap;
+  src:url('медиа/шрифты/унб_700_cyrillic.woff2') format('woff2');
+  unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
+@font-face{font-family:'Golos Text';font-weight:400 600;font-display:swap;
+  src:url('медиа/шрифты/голос_400_cyrillic.woff2') format('woff2');
+  unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
+
+#холст{position:fixed;inset:0;display:block}
+
+.шапка{position:fixed;left:34px;top:26px;z-index:5;pointer-events:none;
+  display:flex;flex-direction:column;gap:6px}
+.надпись{font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--приглуш)}
+.шапка h1{font-family:'Unbounded',system-ui,sans-serif;font-weight:700;
+  font-size:clamp(20px,2.4vw,30px);line-height:1.1}
+.град{background:linear-gradient(100deg,var(--кмг_свет) 4%,var(--кмг) 60%);
+  -webkit-background-clip:text;background-clip:text;color:transparent}
+.метка{position:fixed;right:34px;top:26px;z-index:5;
+  border:1px solid var(--грань);border-radius:999px;padding:5px 13px;
+  font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--кмг);
+  background:rgba(2,174,240,.07)}
+
+/* Подписи стадий — обычный HTML поверх сцены, позиции считаются из 3D.
+   Текст внутри WebGL был бы мылом на любом экране, поэтому он остаётся текстом. */
+.подпись{position:fixed;z-index:4;cursor:pointer;transform:translate(-50%,0);
+  text-align:center;transition:opacity .3s}
+.подпись .номер{font-size:11px;letter-spacing:.24em;color:var(--кмг);opacity:.85}
+.подпись .имя{font-family:'Unbounded',system-ui,sans-serif;font-weight:700;
+  font-size:15px;margin-top:3px;white-space:nowrap;text-shadow:0 2px 14px rgba(0,0,0,.9)}
+
+.низ{position:fixed;left:0;right:0;bottom:22px;z-index:5;text-align:center;
+  font-size:12.5px;color:var(--приглуш);pointer-events:none;transition:opacity .3s}
+body.внутри .низ{opacity:0}
+.назад{position:fixed;left:34px;bottom:22px;z-index:6;
+  border:1px solid var(--грань);border-radius:7px;padding:8px 14px;cursor:pointer;
+  font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--текст);
+  background:transparent;opacity:0;pointer-events:none;
+  transition:opacity .3s,border-color .2s,color .2s}
+body.внутри .назад{opacity:1;pointer-events:auto}
+.назад:hover{border-color:var(--кмг);color:var(--кмг)}
+</style>
+</head>
+<body>
+
+<canvas id="холст"></canvas>
+
+<div class="шапка">
+  <span class="надпись">Проба · Three.js · это не показ</span>
+  <h1>Цифровая <span class="град">цепочка</span></h1>
+</div>
+<span class="метка">Проба</span>
+
+<p class="низ">Двигайте мышью — камера отзывается. Клик по стадии — наезд.</p>
+<button class="назад" id="назад" type="button">← Вся цепочка</button>
+
+<script type="importmap">
+{ "imports": { "three": "./вендор/three.module.js", "three/addons/": "./вендор/addons/" } }
+</script>
+<script type="module">
+import * as THREE from 'three';
+
+/* ================= данные ================= */
+const СТАДИИ = [
+  { код:'разведка',    номер:'01', имя:'Разведка' },
+  { код:'геология',    номер:'02', имя:'Геология' },
+  { код:'добыча',      номер:'03', имя:'Добыча' },
+  { код:'транспорт',   номер:'04', имя:'Транспортировка' },
+  { код:'переработка', номер:'05', имя:'Переработка' },
+  { код:'сбыт',        номер:'06', имя:'Сбыт' },
+];
+const ШАГ = 6.8;
+const КМГ = 0x02AEF0, КМГ_СВЕТ = 0x90D6F7, ФОН = 0x050810;
+const СТАЛЬ = 0x8FA6C4, ТЁМНАЯ = 0x1A2942;
+const тихо = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ================= рендер и сцена ================= */
+const холст = document.getElementById('холст');
+const рендер = new THREE.WebGLRenderer({ canvas: холст, antialias: true });
+рендер.setPixelRatio(Math.min(devicePixelRatio, 2));
+рендер.setSize(innerWidth, innerHeight);
+рендер.outputColorSpace = THREE.SRGBColorSpace;
+/* тон-мэппинг обязателен: без него эмиссия выжигается в белые пятна */
+рендер.toneMapping = THREE.ACESFilmicToneMapping;
+рендер.toneMappingExposure = 1.1;
+рендер.shadowMap.enabled = true;
+рендер.shadowMap.type = THREE.PCFSoftShadowMap;
+
+const сцена = new THREE.Scene();
+сцена.background = new THREE.Color(ФОН);
+/* Туман — главный источник глубины. Дальние площадки тают сами, и та самая
+   «воздушная перспектива», которую в картинке приходилось подмешивать руками,
+   здесь получается бесплатно и правильно. */
+сцена.fog = new THREE.FogExp2(ФОН, 0.026);
+
+const камера = new THREE.PerspectiveCamera(38, innerWidth / innerHeight, 0.1, 400);
+
+/* ---------- свет ---------- */
+сцена.add(new THREE.HemisphereLight(0x9fd4ff, 0x0a1424, 0.75));
+const солнце = new THREE.DirectionalLight(0xd8ecff, 1.6);
+солнце.position.set(-12, 16, 10);
+солнце.castShadow = true;
+солнце.shadow.mapSize.set(2048, 2048);
+солнце.shadow.camera.left = -30; солнце.shadow.camera.right = 30;
+солнце.shadow.camera.top = 20;   солнце.shadow.camera.bottom = -12;
+солнце.shadow.camera.far = 70;
+солнце.shadow.bias = -0.0009;
+сцена.add(солнце);
+/* контровой в фирменном синем — отделяет силуэты от фона */
+const контра = new THREE.DirectionalLight(КМГ, 1.1);
+контра.position.set(8, 5, -14);
+сцена.add(контра);
+
+/* ---------- пол ---------- */
+const пол = new THREE.Mesh(
+  new THREE.PlaneGeometry(300, 200),
+  new THREE.MeshStandardMaterial({ color: 0x070d18, roughness: 0.7, metalness: 0.4 })
+);
+пол.rotation.x = -Math.PI / 2;
+пол.receiveShadow = true;
+сцена.add(пол);
+
+const сетка = new THREE.GridHelper(240, 120, 0x14304e, 0x0c1a2c);
+сетка.position.y = 0.01;
+сетка.material.transparent = true;
+сетка.material.opacity = 0.28;
+сцена.add(сетка);
+
+/* ================= материалы ================= */
+const мБетон = new THREE.MeshStandardMaterial({ color: 0x33465f, roughness: 0.85, metalness: 0.15 });
+const мБорт  = new THREE.MeshStandardMaterial({ color: 0x16233a, roughness: 0.6, metalness: 0.5 });
+const мСталь = new THREE.MeshStandardMaterial({ color: СТАЛЬ, roughness: 0.35, metalness: 0.85 });
+const мТёмн  = new THREE.MeshStandardMaterial({ color: ТЁМНАЯ, roughness: 0.5, metalness: 0.6 });
+const мСвет  = new THREE.MeshStandardMaterial({ color: 0x0a1a2e, emissive: КМГ,
+                                                emissiveIntensity: 1.6, roughness: 0.4 });
+
+/* Цифровой слой: каркас поверх физического объекта.
+   Аддитивное смешение и depthWrite:false — как в ЦД, иначе каркас спорит
+   с геометрией и даёт грязь на пересечениях. */
+function цифровой(геом){
+  return new THREE.LineSegments(
+    new THREE.EdgesGeometry(геом, 25),
+    new THREE.LineBasicMaterial({ color: КМГ_СВЕТ, transparent: true, opacity: 0,
+                                  blending: THREE.AdditiveBlending, depthWrite: false })
+  );
+}
+
+/* ================= сборка стадий ================= */
+function площадка(группа, ш = 5.0, г = 4.0){
+  const в = 0.45;
+  const плита = new THREE.Mesh(new THREE.BoxGeometry(ш, в, г), мБетон);
+  плита.position.y = в / 2;
+  плита.castShadow = плита.receiveShadow = true;
+  группа.add(плита);
+  const борт = new THREE.Mesh(new THREE.BoxGeometry(ш + 0.35, 0.16, г + 0.35), мБорт);
+  борт.position.y = 0.08;
+  борт.receiveShadow = true;
+  группа.add(борт);
+  return плита;
+}
+
+function мачта(x, z, h){
+  const г = new THREE.Group();
+  const ноги = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.16, h, 6), мСталь);
+  ноги.position.y = h / 2; ноги.castShadow = true;
+  г.add(ноги);
+  for (let i = 1; i <= 4; i++){
+    const к = new THREE.Mesh(new THREE.TorusGeometry(0.10 + 0.03 * (4 - i), 0.012, 4, 10), мСталь);
+    к.rotation.x = Math.PI / 2; к.position.y = h * i / 5;
+    г.add(к);
+  }
+  const огонь = new THREE.Mesh(new THREE.SphereGeometry(0.07, 8, 8), мСвет);
+  огонь.position.y = h + 0.1;
+  г.add(огонь);
+  г.position.set(x, 0.45, z);
+  return г;
+}
+
+function качалка(x, z, фаза){
+  const г = new THREE.Group();
+  const база = new THREE.Mesh(new THREE.BoxGeometry(1.15, 0.14, 0.6), мТёмн);
+  база.position.y = 0.07; база.castShadow = true; г.add(база);
+  const стойка = new THREE.Mesh(new THREE.ConeGeometry(0.24, 0.9, 4), мСталь);
+  стойка.position.y = 0.55; стойка.castShadow = true; г.add(стойка);
+  const балка = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.11, 0.13), мСталь);
+  балка.position.y = 1.02; балка.castShadow = true;
+  г.add(балка);
+  const голова = new THREE.Mesh(new THREE.CylinderGeometry(0.17, 0.17, 0.11, 10, 1, false, 0, Math.PI), мСталь);
+  голова.rotation.z = Math.PI / 2; голова.position.set(0.74, 1.0, 0);
+  балка.add(голова);
+  г.position.set(x, 0.45, z);
+  г.userData.балка = балка;
+  г.userData.фаза = фаза;
+  return г;
+}
+
+function труба(длина, r, мат){
+  const т = new THREE.Mesh(new THREE.CylinderGeometry(r, r, длина, 20), мат);
+  т.rotation.z = Math.PI / 2;
+  т.castShadow = т.receiveShadow = true;
+  return т;
+}
+
+function колонна(x, z, h, r){
+  const к = new THREE.Mesh(new THREE.CylinderGeometry(r, r, h, 16), мСталь);
+  к.position.set(x, 0.45 + h / 2, z);
+  к.castShadow = true;
+  return к;
+}
+
+const НАПОЛНЕНИЕ = {
+  разведка(г){
+    площадка(г, 5.0, 4.0);
+    г.add(мачта(-1.4, 0.2, 2.6));
+    for (let i = 0; i < 5; i++){
+      const л = new THREE.Mesh(new THREE.BoxGeometry(3.6, 0.02, 0.03), мСталь);
+      л.position.set(0.6, 0.47, -1.4 + i * 0.7);
+      г.add(л);
+    }
+    for (let i = 0; i < 3; i++){
+      const я = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.2, 0.24), мТёмн);
+      я.position.set(1.3 + i * 0.5, 0.55, 1.3); я.castShadow = true;
+      г.add(я);
+    }
+  },
+  геология(г){
+    /* разрез: слои породы разной толщины и тона */
+    const тона = [0x3a4a63, 0x2c3a52, 0x46586f, 0x24324a];
+    let y = 0;
+    тона.forEach((т, i) => {
+      const h = 0.34 + i * 0.12;
+      const с = new THREE.Mesh(new THREE.BoxGeometry(5.0, h, 4.0),
+        new THREE.MeshStandardMaterial({ color: т, roughness: 0.95 }));
+      с.position.y = y + h / 2; с.castShadow = с.receiveShadow = true;
+      г.add(с); y += h;
+    });
+    for (let i = 0; i < 6; i++){
+      const к = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.9, 8), мСвет);
+      к.position.set(-1.8 + i * 0.7, y + 0.45, 1.3);
+      г.add(к);
+    }
+  },
+  добыча(г){
+    площадка(г, 5.4, 4.2);
+    const места = [[-1.6, -1.0], [0.2, -1.2], [1.7, -0.4], [-1.2, 0.9], [0.9, 1.1]];
+    места.forEach(([x, z], i) => г.add(качалка(x, z, i * 1.15)));
+  },
+  транспорт(г){
+    площадка(г, 5.4, 3.4);
+    const т = труба(5.6, 0.42, мСталь);
+    т.position.set(0, 1.05, 0);
+    г.add(т);
+    for (let i = -1; i <= 1; i += 2){
+      const о = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.62, 0.9), мТёмн);
+      о.position.set(i * 1.7, 0.75, 0); о.castShadow = true;
+      г.add(о);
+    }
+    const колесо = new THREE.Mesh(new THREE.TorusGeometry(0.34, 0.05, 8, 20), мСвет);
+    колесо.position.set(0, 1.75, 0);
+    г.add(колесо);
+    г.userData.колесо = колесо;
+  },
+  переработка(г){
+    площадка(г, 5.2, 4.0);
+    г.add(колонна(-1.5, -0.6, 3.4, 0.28));
+    г.add(колонна(-0.7, -0.9, 2.6, 0.22));
+    г.add(колонна(1.6, 0.4, 4.2, 0.20));
+    for (let i = 0; i < 2; i++){
+      const ш = new THREE.Mesh(new THREE.SphereGeometry(0.55, 20, 16), мСталь);
+      ш.position.set(0.3 + i * 1.3, 1.05, 1.1); ш.castShadow = true;
+      г.add(ш);
+    }
+    const эст = new THREE.Mesh(new THREE.BoxGeometry(4.2, 0.08, 0.16), мСталь);
+    эст.position.set(0, 1.9, -1.2);
+    г.add(эст);
+  },
+  сбыт(г){
+    площадка(г, 5.2, 4.0);
+    /* навес */
+    const крыша = new THREE.Mesh(new THREE.BoxGeometry(3.2, 0.14, 2.0), мТёмн);
+    крыша.position.set(-0.6, 1.6, 0); крыша.castShadow = true;
+    г.add(крыша);
+    [[-1.9, -0.8], [0.7, -0.8], [-1.9, 0.8], [0.7, 0.8]].forEach(([x, z]) => {
+      const с = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 1.15, 8), мСталь);
+      с.position.set(x, 1.02, z); г.add(с);
+    });
+    for (let i = 0; i < 3; i++){
+      const ц = new THREE.Mesh(new THREE.CylinderGeometry(0.34, 0.34, 1.5, 16), мСталь);
+      ц.rotation.z = Math.PI / 2;
+      ц.position.set(1.9, 0.82, -1.1 + i * 1.1); ц.castShadow = true;
+      г.add(ц);
+    }
+  },
+};
+
+/* ================= построение ряда ================= */
+const узлы = [];
+СТАДИИ.forEach((с, i) => {
+  const г = new THREE.Group();
+  г.position.x = (i - (СТАДИИ.length - 1) / 2) * ШАГ;
+  НАПОЛНЕНИЕ[с.код](г);
+
+  /* цифровой каркас поверх всей стадии — включается при наведении */
+  const каркасы = [];
+  г.traverse(о => { if (о.isMesh) каркасы.push(о); });
+  каркасы.forEach(м => {
+    const к = цифровой(м.geometry);
+    к.position.copy(м.position); к.rotation.copy(м.rotation); к.scale.copy(м.scale);
+    м.parent.add(к);
+  });
+
+  сцена.add(г);
+  узлы.push({ ...с, группа: г, mix: 0, цель: 0 });
+});
+
+/* ---------- магистраль с бегущим потоком ---------- */
+const трасса = new THREE.Mesh(
+  new THREE.CylinderGeometry(0.09, 0.09, ШАГ * СТАДИИ.length, 12),
+  new THREE.MeshStandardMaterial({ color: 0x102a44, roughness: 0.4, metalness: 0.8 })
+);
+трасса.rotation.z = Math.PI / 2;
+трасса.position.set(0, 0.2, 3.6);
+сцена.add(трасса);
+
+const импульсы = [];
+for (let i = 0; i < 26; i++){
+  const и = new THREE.Mesh(new THREE.SphereGeometry(0.075, 8, 8), мСвет);
+  и.position.set(-ШАГ * 3 + i * 1.7, 0.2, 3.6);
+  сцена.add(и); импульсы.push(и);
+}
+
+/* ---------- пыль в воздухе ---------- */
+const пылинки = 700;
+const позиции = new Float32Array(пылинки * 3);
+for (let i = 0; i < пылинки; i++){
+  позиции[i*3]   = (Math.random() - 0.5) * 70;
+  позиции[i*3+1] = Math.random() * 12;
+  позиции[i*3+2] = (Math.random() - 0.5) * 34;
+}
+const геомПыли = new THREE.BufferGeometry();
+геомПыли.setAttribute('position', new THREE.BufferAttribute(позиции, 3));
+const пыль = new THREE.Points(геомПыли, new THREE.PointsMaterial({
+  color: КМГ_СВЕТ, size: 0.035, transparent: true, opacity: 0.5,
+  blending: THREE.AdditiveBlending, depthWrite: false
+}));
+сцена.add(пыль);
+
+/* ================= камера ================= */
+/* Расстояние камеры посчитано, а не подобрано: видимая ширина
+   W = 2*d*tan(fov/2)*aspect. При ШАГ=6.8 ряд занимает 40 единиц,
+   отсюда d = 33. При 24 первая и последняя стадии уходили за кадр. */
+const ОБЗОР = { поз: new THREE.Vector3(0, 13, 33), цель: new THREE.Vector3(0, 1.2, 0) };
+let позЦель = ОБЗОР.поз.clone(), смотрЦель = ОБЗОР.цель.clone();
+const позТек = ОБЗОР.поз.clone(), смотрТек = ОБЗОР.цель.clone();
+let внутри = null;
+let мышь = { x: 0, y: 0 };
+
+addEventListener('pointermove', с => {
+  мышь.x = (с.clientX / innerWidth) * 2 - 1;
+  мышь.y = (с.clientY / innerHeight) * 2 - 1;
+});
+
+function навести(узел){
+  внутри = узел;
+  document.body.classList.add('внутри');
+  позЦель = new THREE.Vector3(узел.группа.position.x + 1.4, 3.6, 8.6);
+  смотрЦель = new THREE.Vector3(узел.группа.position.x, 1.2, 0);
+}
+function отъехать(){
+  внутри = null;
+  document.body.classList.remove('внутри');
+  позЦель = ОБЗОР.поз.clone();
+  смотрЦель = ОБЗОР.цель.clone();
+}
+document.getElementById('назад').addEventListener('click', отъехать);
+addEventListener('keydown', с => { if (с.key === 'Escape') отъехать(); });
+
+/* ================= подписи ================= */
+const слойПодписей = document.createElement('div');
+document.body.appendChild(слойПодписей);
+узлы.forEach(у => {
+  const э = document.createElement('div');
+  э.className = 'подпись';
+  э.innerHTML = '<div class="номер">' + у.номер + '</div><div class="имя">' + у.имя + '</div>';
+  э.addEventListener('click', () => навести(у));
+  э.addEventListener('pointerenter', () => { у.цель = 1; });
+  э.addEventListener('pointerleave', () => { у.цель = внутри === у ? 1 : 0; });
+  слойПодписей.appendChild(э);
+  у.подпись = э;
+});
+
+/* ================= выбор мышью по сцене ================= */
+const луч = new THREE.Raycaster();
+холст.addEventListener('click', с => {
+  луч.setFromCamera(new THREE.Vector2(мышь.x, -мышь.y), камера);
+  const попал = луч.intersectObjects(узлы.map(у => у.группа), true)[0];
+  if (!попал) { отъехать(); return; }
+  let о = попал.object;
+  while (о.parent && !узлы.some(у => у.группа === о)) о = о.parent;
+  const у = узлы.find(у => у.группа === о);
+  if (у) навести(у);
+});
+
+/* ================= цикл ================= */
+const часы = new THREE.Clock();
+const вектор = new THREE.Vector3();
+
+function кадр(){
+  requestAnimationFrame(кадр);
+  const t = часы.getElapsedTime();
+  const дт = Math.min(часы.getDelta(), 0.05);
+
+  /* камера: плавный подлёт плюс параллакс за курсором.
+     Параллакс — самый дешёвый и самый сильный сигнал объёма: мозг сразу
+     читает пространство, а не картинку. */
+  const парX = мышь.x * (внутри ? 0.8 : 3.4);
+  const парY = -мышь.y * (внутри ? 0.5 : 1.7);
+  позТек.lerp(вектор.copy(позЦель).add(new THREE.Vector3(парX, парY, 0)), тихо ? 1 : 0.055);
+  смотрТек.lerp(смотрЦель, тихо ? 1 : 0.07);
+  камера.position.copy(позТек);
+  камера.lookAt(смотрТек);
+
+  /* качалки качаются в разной фазе */
+  узлы.forEach(у => {
+    у.группа.traverse(о => {
+      if (о.userData && о.userData.балка){
+        о.userData.балка.rotation.z = Math.sin(t * 0.9 + о.userData.фаза) * 0.14;
+      }
+      if (о.userData && о.userData.колесо){
+        о.userData.колесо.rotation.z = t * 0.35;
+      }
+    });
+
+    /* физическое → цифровое: каркас проявляется на наведении и наезде */
+    у.mix += (у.цель - у.mix) * (тихо ? 1 : 0.09);
+    у.группа.traverse(о => {
+      if (о.isLineSegments) о.material.opacity = у.mix * (0.55 + 0.25 * Math.sin(t * 2.2));
+      if (о.isMesh && о.material && о.material.emissive && о.material === мСвет) {
+        о.material.emissiveIntensity = 1.4 + 0.5 * Math.sin(t * 1.7);
+      }
+    });
+    у.группа.position.y = у.mix * 0.18;
+  });
+
+  /* поток по магистрали */
+  импульсы.forEach((и, k) => {
+    и.position.x += дт * 5.2;
+    if (и.position.x > ШАГ * 3.4) и.position.x = -ШАГ * 3.4;
+  });
+
+  /* пыль медленно всплывает */
+  const п = геомПыли.attributes.position;
+  for (let i = 0; i < пылинки; i++){
+    const j = i * 3 + 1;
+    п.array[j] += дт * 0.09;
+    if (п.array[j] > 12) п.array[j] = 0;
+  }
+  п.needsUpdate = true;
+
+  /* подписи проецируются из 3D в экранные координаты */
+  узлы.forEach(у => {
+    вектор.set(у.группа.position.x, 2.9, 0).project(камера);
+    const x = (вектор.x * 0.5 + 0.5) * innerWidth;
+    const y = (-вектор.y * 0.5 + 0.5) * innerHeight;
+    const виден = вектор.z < 1;
+    у.подпись.style.left = x + 'px';
+    у.подпись.style.top = y + 'px';
+    у.подпись.style.opacity = виден ? (внутри && внутри !== у ? 0.22 : 1) : 0;
+  });
+
+  рендер.render(сцена, камера);
+}
+кадр();
+
+/* ================= размер ================= */
+addEventListener('resize', () => {
+  камера.aspect = innerWidth / innerHeight;
+  камера.updateProjectionMatrix();
+  рендер.setSize(innerWidth, innerHeight);
+});
+
+/* отладочный хук — как window.__dbg в проекте ЦД */
+window.__проба = { THREE, сцена, камера, рендер, узлы, навести, отъехать,
+                   внутри: () => внутри };
+</script>
+</body>
+</html>
