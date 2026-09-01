@@ -1,0 +1,2236 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Цифровой двойник месторождения на базе ИС «ABAI» · первый слайд</title>
+<style>
+:root{
+  --cyan:#4FE3FF; --amber:#F0AE4A; --blue:#8FBAF0; --teal:#35D0C2; --viol:#9B7BE8;
+  --bg0:#050810; --bg1:#0C1626; --line:rgba(140,170,210,.22);
+  --glass:rgba(10,18,32,.82); --txt:#D7E2F2; --dim:#7C8DA6;
+  --mono:Consolas,"Courier New",monospace; --serif:Cambria,Georgia,serif;
+  --ui:"Segoe UI",Calibri,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;font-family:var(--ui);color:var(--txt);
+  background:radial-gradient(ellipse at 50% 30%,#0C1626 0%,#050810 70%)}
+#scene{position:fixed;inset:0}
+
+#hdr{position:fixed;top:22px;left:26px;z-index:10;pointer-events:none}
+#hdr h1{font-family:var(--serif);font-size:26px;font-weight:600;line-height:1.2}
+#hdr .sub{font-family:var(--mono);font-size:10.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--dim);margin-top:6px}
+#hdr .sub b{color:var(--cyan);font-weight:700}
+
+/* Список ужат: на показе он спорил с самой моделью за внимание, а его дело —
+   держать порядок контуров, а не читаться вместо сцены. */
+#stack{position:fixed;left:26px;top:50%;transform:translateY(-50%);z-index:10;display:flex;flex-direction:column;
+  gap:5px;width:276px;padding-left:24px}
+/* линия процесса: связывает все контуры и шаги в одну цепочку */
+#navline{position:absolute;left:12px;top:20px;bottom:20px;width:2px;background:rgba(140,170,210,.22);border-radius:2px}
+#navline::after{content:'';position:absolute;left:-4px;bottom:-10px;
+  border-left:5px solid transparent;border-right:5px solid transparent;border-top:10px solid rgba(140,170,210,.4)}
+#navfill{position:absolute;left:0;top:0;width:100%;height:0;border-radius:2px;
+  background:linear-gradient(180deg,rgba(79,227,255,.5),var(--nc,#F0AE4A));
+  transition:height .45s cubic-bezier(.4,0,.2,1)}
+/* позиционируется через transform: у растянутого контейнера (top+bottom) свойство
+   top на потомке не отрабатывает, а translateY ещё и анимируется плавнее */
+#navdot{position:absolute;left:-5px;top:0;width:12px;height:12px;margin-top:-6px;border-radius:50%;
+  background:var(--nc,#F0AE4A);box-shadow:0 0 0 3px rgba(5,8,16,.9),0 0 16px var(--nc,#F0AE4A);
+  opacity:0;transition:transform .45s cubic-bezier(.4,0,.2,1),opacity .3s}
+#navdot.on{opacity:1}
+.lay{position:relative;cursor:pointer;text-align:left;background:var(--glass);border:1px solid var(--line);
+  border-left:3px solid var(--lc);padding:9px 13px;color:var(--txt);font-family:var(--ui);
+  transition:background .2s,border-color .2s,transform .2s;backdrop-filter:blur(8px)}
+.lay::before{content:'';position:absolute;left:-18px;top:50%;margin-top:-5px;width:10px;height:10px;border-radius:50%;
+  background:var(--bg0);border:2px solid var(--line);transition:border-color .25s,background .25s;z-index:1}
+.lay.done::before{border-color:var(--lc)}
+.lay.hot::before{border-color:var(--lc);background:var(--lc)}
+/* Номер стоит слева от названия, а не над ним: сетка держит подписи в одну
+   колонку, и «1.2» рядом с «1» читается как вложенность, а не как новый пункт. */
+.lay{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:baseline;column-gap:9px}
+.lay .n{font-family:var(--mono);font-size:12px;letter-spacing:.04em;color:var(--dim);
+  font-weight:700;min-width:1.6em}
+.lay.hot .n{color:var(--lc)}
+.lay .t{font-size:13.5px;font-weight:600;line-height:1.25}
+/* стрелка раскрытия: показывает, что за контуром прячутся его шаги */
+.lay .ch{position:absolute;right:11px;top:50%;margin-top:-4px;width:7px;height:7px;
+  border-right:1.5px solid var(--dim);border-bottom:1.5px solid var(--dim);
+  transform:rotate(45deg);transition:transform .25s,border-color .25s}
+.lay.open .ch{transform:rotate(-135deg);margin-top:-1px;border-color:var(--lc)}
+.lay:hover,.lay.hot{background:rgba(79,227,255,.08);border-color:var(--lc)}
+.lay.hot .n{color:var(--lc)}
+.lay .tag{display:inline-block;font-family:var(--mono);font-size:8.5px;letter-spacing:.12em;color:var(--dim);
+  border:1px solid var(--line);padding:1px 5px;margin-top:4px;text-transform:uppercase}
+/* шаги — вложенные узлы той же цепочки: сдвинуты вправо и связаны с линией отводом.
+   Показываются только у раскрытого контура: все девять сразу давали стену текста
+   выше самой модели, а на экране должен быть один смысловой уровень. */
+.lay.step{margin-left:16px;width:calc(100% - 16px);padding:6px 10px;
+  background:rgba(10,18,32,.5);border-left-width:2px;display:none}
+.lay.step.show{display:block}
+.lay.step::before{width:7px;height:7px;margin-top:-3.5px;left:-32px}  /* −32 + 3 + 16 = −13 → центр на линии */
+.lay.step::after{content:'';position:absolute;left:-25px;top:50%;width:25px;height:1px;
+  background:var(--line);opacity:.7}
+.lay.step .t{font-size:11px;font-weight:600;color:var(--txt);line-height:1.35}
+.lay.step .n{font-size:10.5px;min-width:2.2em}
+.lay.step.hot{background:rgba(255,255,255,.07)}
+.lay.step.hot::after{background:var(--lc);opacity:1}
+
+#panel{position:fixed;right:26px;top:50%;transform:translateY(-50%) translateX(30px);z-index:10;
+  /* Шире и, как следствие, ниже: узкая колонка гнала текст в столбик и панель
+     казалась башней во весь кадр при том же объёме содержимого. */
+  width:31vw;min-width:340px;max-width:560px;
+  max-height:86vh;overflow-y:auto;background:var(--glass);border:1px solid var(--line);
+  border-top:2px solid var(--pc,#4FE3FF);backdrop-filter:blur(12px);padding:20px 22px;
+  opacity:0;pointer-events:none;transition:opacity .3s,transform .3s}
+#panel.vis{opacity:1;pointer-events:auto;transform:translateY(-50%) translateX(0)}
+#panel::-webkit-scrollbar{width:5px}
+#panel::-webkit-scrollbar-thumb{background:rgba(140,170,210,.3)}
+#p-kick{font-family:var(--mono);font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--pc,#4FE3FF)}
+#p-name{font-family:var(--serif);font-size:23px;font-weight:600;margin-top:5px;line-height:1.2}
+#p-claim{font-size:13.5px;color:var(--dim);margin-top:8px;line-height:1.5}
+.p-h{font-family:var(--mono);font-size:9.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--dim);
+  margin:14px 0 8px;border-bottom:1px solid var(--line);padding-bottom:5px}
+#p-fx{display:flex;flex-wrap:wrap;gap:6px}
+.fx{border:1px solid var(--pc,#4FE3FF);padding:7px 11px;min-width:88px}
+.fx .v{font-family:var(--mono);font-size:20px;font-weight:700;color:var(--pc,#4FE3FF)}
+.fx .l{font-size:10.5px;color:var(--dim);margin-top:2px;line-height:1.3}
+#p-blocks .bl{margin-bottom:9px}
+#p-blocks .bt{font-size:13px;font-weight:600}
+#p-blocks .bi{font-size:12px;color:var(--dim);line-height:1.5}
+#p-mods{display:flex;flex-wrap:wrap;gap:6px}
+.mod{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;
+  border:1px solid var(--line);color:var(--txt);padding:4px 10px}
+#p-note{font-size:12.5px;color:var(--dim);margin-top:16px;line-height:1.55;border-left:2px solid var(--pc,#4FE3FF);padding-left:11px}
+.sub{cursor:pointer;border:1px solid var(--line);border-left:3px solid var(--pc,#F0AE4A);
+  padding:10px 12px;margin-bottom:8px;transition:background .2s,transform .2s}
+.sub:hover{background:rgba(240,174,74,.08);transform:translateX(3px)}
+.sub .sn{font-family:var(--mono);font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--pc,#F0AE4A)}
+.sub .st{font-size:13.5px;font-weight:600;margin-top:3px}
+.sub .sd{font-size:11.5px;color:var(--dim);margin-top:4px;line-height:1.45}
+.sub .more{font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--pc,#F0AE4A);margin-top:6px;text-transform:uppercase}
+#p-back{cursor:pointer;background:none;border:1px solid var(--line);color:var(--dim);
+  font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;padding:6px 10px;margin-bottom:12px}
+#p-back:hover{color:var(--txt);border-color:var(--txt)}
+#p-close{position:absolute;top:10px;right:12px;background:none;border:none;color:var(--dim);
+  font-size:18px;cursor:pointer;line-height:1}
+#p-close:hover{color:var(--txt)}
+
+/* дорожная карта скрыта по решению от 12.08 — вернуть: display:flex вместо none */
+#road{display:none;position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:10;align-items:center;gap:0;
+  background:var(--glass);border:1px solid var(--line);backdrop-filter:blur(8px);padding:10px 22px}
+.rd{text-align:center;padding:0 18px}
+.rd .y{font-family:var(--mono);font-size:15px;font-weight:700;color:var(--cyan)}
+.rd .d{font-size:10.5px;color:var(--dim);margin-top:2px;white-space:nowrap}
+.rsep{width:34px;height:1px;background:var(--line);position:relative}
+.rsep::after{content:'';position:absolute;right:0;top:-2.5px;border-left:5px solid var(--line);
+  border-top:3px solid transparent;border-bottom:3px solid transparent}
+
+#hint{position:fixed;bottom:62px;left:26px;z-index:10;font-family:var(--mono);font-size:9.5px;
+  letter-spacing:.2em;text-transform:uppercase;color:var(--dim)}
+
+/* переходы наружу — неприметные, в том же окне */
+#next,#demo2{position:fixed;z-index:12;display:inline-flex;align-items:center;gap:8px;
+  font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--dim);text-decoration:none;border:1px solid var(--line);padding:8px 13px;
+  background:rgba(10,18,32,.45);backdrop-filter:blur(6px);opacity:.42;
+  transition:opacity .25s,color .25s,border-color .25s,background .25s}
+#next:hover,#next:focus-visible,
+#demo2:hover,#demo2:focus-visible{opacity:1;color:var(--cyan);border-color:var(--cyan);background:rgba(79,227,255,.08)}
+#next .arw,#demo2 .arw{font-size:12px;line-height:1}
+/* ко второй части показа — скрыта по решению от 14.08; вернуть: убрать display:none */
+#next{display:none;left:26px;bottom:22px}
+/* к сборке с гео-подводкой — сверху справа, над панелью контура */
+#demo2{right:26px;top:20px}
+
+/* подписи точек бурения в слое технико-экономической оценки */
+#teo{position:fixed;inset:0;z-index:11;pointer-events:none;opacity:0;transition:opacity .3s}
+#teo.on{opacity:1}
+/* `--ств` — цвет ствола, ставится при сборке подписи: отбивка и строка номера
+   идут им же, и плашка читается как принадлежащая своему столбу. */
+.tm{position:absolute;transform:translate(10px,-50%);white-space:nowrap;--ств:var(--amber);
+  background:rgba(8,14,26,.82);border:1px solid var(--line);border-left:2px solid var(--ств);
+  padding:3px 7px;backdrop-filter:blur(4px)}
+.tm .no{font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--ств)}
+.tm .ec{font-family:var(--mono);font-size:9px;letter-spacing:.06em;color:var(--dim);margin-top:1px}
+/* сами цифры — зелёным, единицы и подписи остаются приглушёнными: на показе
+   спрашивают именно числа, и они должны вылавливаться взглядом сразу */
+.tm .ec b{color:#4FE08A;font-weight:600}
+/* Нижняя плашка растёт влево от своего столба: с верхней они тогда расходятся
+   и по высоте, и по стороне, и ни на одном ракурсе не накладываются. Отбивка
+   переезжает на правый край — она обязана смотреть в сторону столба. */
+.tm.влево{transform:translate(calc(-100% - 10px),-50%);
+  border-left:1px solid var(--line);border-right:2px solid var(--ств)}
+
+/* подпись оцифрованного объекта наземки */
+#naz-lbl{position:fixed;z-index:11;pointer-events:none;opacity:0;transition:opacity .3s;
+  transform:translate(-50%,-100%);white-space:nowrap;
+  font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+  color:#FFE6BF;background:rgba(8,14,26,.88);border:1px solid #FFB020;
+  border-bottom:2px solid #FFB020;padding:4px 10px;backdrop-filter:blur(4px)}
+#naz-lbl.on{opacity:1}
+
+/* отметка бурящейся скважины */
+#drill{position:fixed;z-index:11;pointer-events:none;opacity:0;transition:opacity .3s;
+  transform:translate(12px,-50%);display:flex;align-items:center;gap:7px;
+  font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+  color:#EAF2FF;background:rgba(8,14,26,.85);border:1px solid var(--viol);
+  border-left:3px solid var(--viol);padding:4px 9px;backdrop-filter:blur(4px);white-space:nowrap}
+#drill.on{opacity:1}
+#drill .pt{width:6px;height:6px;border-radius:50%;background:var(--viol);
+  animation:бур 1.1s ease-in-out infinite}
+/* проходка: моноширинные цифры, иначе счётчик дёргает подпись при каждом тике */
+#drill .m{font-weight:600;color:#fff;font-variant-numeric:tabular-nums;
+  border-left:1px solid rgba(155,123,232,.5);padding-left:7px;margin-left:1px}
+
+/* отметка горизонтального бурения — тот же язык, но подпись под носком ствола.
+   Рамка стальная, а не фиолетовая: фиолет в слое означает действующий фонд, а
+   тут идёт та же стройка, что и в центре. */
+#horiz{position:fixed;z-index:11;pointer-events:none;opacity:0;transition:opacity .3s;
+  transform:translate(-50%,16px);display:flex;align-items:center;gap:7px;
+  font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+  color:#EAF2FF;background:rgba(8,14,26,.85);border:1px solid #9AA5B4;
+  border-bottom:2px solid #9AA5B4;padding:4px 9px;backdrop-filter:blur(4px);white-space:nowrap}
+#horiz.on{opacity:1}
+#horiz .pt{width:6px;height:6px;border-radius:50%;background:#9AA5B4;
+  animation:бур 1.1s ease-in-out infinite}
+@keyframes бур{0%,100%{opacity:.35;transform:scale(.8)}50%{opacity:1;transform:scale(1.25)}}
+
+#chip{position:fixed;z-index:20;pointer-events:none;font-family:var(--mono);font-size:10.5px;
+  letter-spacing:.14em;text-transform:uppercase;color:#EAF2FF;background:rgba(8,14,26,.9);
+  border:1px solid var(--cc,#4FE3FF);border-left:3px solid var(--cc,#4FE3FF);padding:4px 9px;display:none;white-space:nowrap}
+
+#loader{position:fixed;inset:0;z-index:50;background:radial-gradient(ellipse at 50% 30%,#0C1626 0%,#050810 70%);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;transition:opacity .6s}
+#loader.done{opacity:0;pointer-events:none}
+#loader .t{font-family:var(--serif);font-size:20px}
+#loader .m{font-family:var(--mono);font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--dim)}
+
+@media (max-width:1280px){ #stack{width:290px} .lay .t{font-size:14px} #panel{width:32vw;min-width:300px} }
+/* невысокий экран: цепочка из 10 узлов должна помещаться целиком */
+@media (max-height:760px){
+  #stack{gap:5px}
+  .lay{padding:10px 14px}
+  .lay .t{font-size:14px}
+  .lay.step{padding:5px 11px}
+  .lay.step .t{font-size:11.5px}
+}
+
+/* ── водяной знак ──────────────────────────────────────────────────────
+   Справа сверху, ровно под кнопкой «Демо показа v2» и по её правому краю.
+   Слой выше загрузочного экрана — знак виден и пока грузятся слои модели.
+   В показе этот файл идёт в <iframe>, и знак оттуда снимается: там его
+   рисует сам показ. Тень держит белые буквы читаемыми на светлом. */
+#знак{position:fixed;right:26px;top:64px;z-index:60;pointer-events:none;
+  height:50px;opacity:.32;filter:drop-shadow(0 1px 3px rgba(0,0,0,.6))}
+#знак svg{display:block;height:100%;width:auto}
+</style>
+</head>
+<body>
+
+<div id="loader"><div class="t">Цифровой двойник месторождения на базе ИС «ABAI»</div><div class="m" id="loadmsg">Загрузка слоёв модели…</div></div>
+
+<div id="знак" aria-hidden="true">
+<svg viewBox="0 0 2497 1215" fill="#F5F6EF" xmlns="http://www.w3.org/2000/svg">
+  <path d="M1200 729.18V295.622H1295.39V485.148L1471.29 295.622H1586.51L1409.98 479.583L1594.56 729.199H1479.99L1345.58 544.619L1295.41 596.652V729.199H1200V729.18Z"/>
+  <path d="M1621.19 729.18V295.622H1724L1837.96 478.965L1951.94 295.622H2054.75V729.199H1959.97V446.118L1837.96 631.316H1835.48L1714.7 447.973V729.18H1621.17H1621.19Z"/>
+  <path d="M2311.8 736.619C2244.5 736.619 2189.67 715.559 2147.35 673.437C2105.02 631.316 2083.87 577.653 2083.87 512.392C2083.87 447.13 2105.54 397.083 2148.9 353.52C2192.26 309.974 2246.35 288.183 2311.18 288.183C2348.75 288.183 2380.55 293.036 2406.58 302.742C2432.58 312.448 2457.56 327.419 2481.52 347.655L2421.45 420.13C2403.28 404.859 2385.74 393.711 2368.8 386.684C2351.86 379.677 2331.65 376.154 2308.09 376.154C2273.41 376.154 2243.99 389.476 2219.82 416.102C2195.67 442.727 2183.58 474.842 2183.58 512.41C2183.58 552.058 2195.86 584.886 2220.44 610.893C2245 636.9 2276.5 649.922 2314.89 649.922C2350.4 649.922 2380.34 641.247 2404.7 623.915V561.97H2308.69V479.583H2496.98V667.872C2442.89 713.704 2381.15 736.619 2311.78 736.619H2311.8Z"/>
+  <path d="M2423.45 927.046V811.023H2436.55V914.946H2501.85V927.046H2423.45Z"/>
+  <path d="M2175.71 927.044L2228.58 810.193H2240.85L2293.72 927.044H2279.63L2266.04 896.381H2202.89L2189.14 927.044H2175.71ZM2208.03 884.613H2260.9L2234.55 825.442L2208.03 884.613Z"/>
+  <path d="M1994.18 927.046V823.123H1955.06V811.023H2046.39V823.123H2007.27V927.046H1994.18Z"/>
+  <path d="M1811.84 927.046V811.023H1824.93V927.046H1811.84Z"/>
+  <path d="M1634.72 929.034C1598.25 929.034 1575.71 902.514 1575.71 869.365V869.034C1575.71 837.211 1599.08 809.034 1633.89 809.034C1653.45 809.034 1665.55 814.669 1677.15 824.448L1668.69 834.393C1659.91 826.603 1649.63 821.133 1633.39 821.133C1607.7 821.133 1589.3 842.846 1589.3 868.702V869.034C1589.3 896.713 1607.04 917.266 1635.21 917.266C1648.47 917.266 1660.74 912.128 1668.69 905.664V876.824H1633.39V865.056H1681.29V911.299C1670.52 921.078 1654.44 929.034 1634.72 929.034Z"/>
+  <path d="M1432.48 927.046V811.023H1445.58V927.046H1432.48Z"/>
+  <path d="M1200.22 927.046V811.023H1240.5C1276.96 811.023 1302.16 836.051 1302.16 868.703V869.035C1302.16 901.687 1276.96 927.046 1240.5 927.046H1200.22ZM1240.5 823.123H1213.32V914.946H1240.5C1269.84 914.946 1288.57 895.222 1288.57 869.366V869.035C1288.57 843.344 1269.84 823.123 1240.5 823.123Z"/>
+  <path d="M640.933 900.522H842.781C814.723 1010.95 721.871 1135.97 576.727 1187.98C574.383 1181.91 572.027 1175.81 569.369 1168.94C675.301 1122.22 749.3 1044.31 795.268 937.462H750.151C701.551 1038 625.038 1107.87 519.12 1145.66C522 1154.87 524.802 1163.81 527.565 1172.76C530.275 1181.5 532.959 1190.26 535.957 1200C532.173 1201.16 528.376 1202.58 524.462 1203.45C477.839 1213.93 430.784 1217.12 383.206 1212.08C325.9 1206.02 272.05 1188.87 222.05 1160.42C145.642 1116.93 86.4112 1056.57 46.3612 977.825C10.7756 907.878 -4.56883 833.696 1.17879 755.475C6.00994 689.763 24.7716 627.882 57.3589 570.655C71.7476 545.385 88.5191 521.466 104.453 497.089C145.734 433.922 187.145 370.859 228.505 307.745C288.115 216.79 347.738 125.849 407.309 34.8816C414.602 23.7483 421.607 12.4315 429.501 0C463.725 52.6371 497.478 104.54 531.584 157.006C530.078 159.485 528.612 162.081 526.975 164.547C500.699 204.372 474.383 244.184 448.119 284.023C414.838 334.509 381.661 385.074 348.314 435.521C308.998 494.991 269.471 554.315 230.22 613.837C214.64 637.467 199.924 661.557 189.973 688.347C162.466 762.398 166.027 834.129 205.187 903.315C227.811 943.271 258.735 975.373 298.209 998.78C328.859 1016.94 361.97 1028.23 397.582 1031.85C434.477 1035.6 470.599 1032.76 505.779 1020.39C539.034 1008.69 567.916 990.152 592.896 965.341C611.54 946.812 626.976 925.935 639.309 902.738C639.689 902.03 640.265 901.426 640.92 900.548L640.933 900.522ZM465.427 1126.61C518.243 1115.28 565.297 1092.44 608.031 1059.85C643.303 1032.95 702.52 960.935 707.011 937.292H661.711C612.116 1016.29 543.367 1067.74 452.557 1088.08C429.58 1071.26 404.481 1081.92 395.133 1099.73C384.489 1120 392.58 1143.97 413.057 1152.94C433.547 1161.91 459.025 1152.89 465.414 1126.61H465.427Z"/>
+  <path d="M603.592 481.523C589.78 502.806 576.32 523.473 562.953 544.192C556.944 553.515 550.436 562.616 545.383 572.451C534.202 594.219 532.12 617.128 541.246 640.064C544.676 648.692 550.476 656.455 555.739 664.245C570.56 686.17 583.456 709.066 591.966 734.231C595.959 746.072 598.656 758.189 598.421 771.997C575.417 772.771 552.806 771.893 529.528 772.574C520.049 760.563 507.414 753.98 491.533 755.212C480.247 756.091 470.886 761.245 463.476 769.781C448.419 787.143 450.632 814.065 468.32 829.565C486.244 845.275 510.557 842.574 528.768 822.681H858.137C856.422 834.929 854.799 846.547 853.123 858.506H578.847C576.386 862.703 574.226 866.571 571.895 870.335C555.215 897.204 534.071 919.956 506.197 935.023C443.3 969.013 382.001 964.476 323.661 923.785C293.639 902.843 271.709 874.924 258.407 840.502C244.673 804.964 244.28 769.126 255.003 732.775C261.209 711.728 271.762 692.976 283.65 674.827C313.763 628.891 343.836 582.929 374.041 537.045C430.627 451.074 487.291 365.168 543.89 279.21C553.199 265.074 562.298 250.806 571.515 236.618C573.322 233.838 575.26 231.162 577.918 227.307C592.49 249.639 606.63 271.289 620.979 293.281C618.806 296.887 616.92 300.231 614.812 303.443C571.345 369.495 527.865 435.521 484.385 501.56C475.233 515.46 466.225 529.452 456.864 543.221C455.123 545.779 452.386 548.126 449.585 549.398C433.14 556.846 424.643 573.382 428.178 591.807C431.255 607.818 446.835 620.892 463.764 621.692C481.609 622.531 496.823 611.385 501.667 594.114C504.089 585.473 503.552 577.133 499.349 568.596C549.664 492.184 599.952 415.773 650.738 338.653C658.384 350.402 665.873 361.916 674.056 374.479C658.083 399.171 641.888 424.191 625.548 449.435C656.133 479.058 684.085 510.53 707.73 545.634C731.205 580.503 750.792 617.378 763.478 657.701H807.705C781.415 576.162 737.699 506.058 677.984 445.396C685.002 434.367 691.692 423.89 698.749 412.809C700.464 414.96 701.917 416.52 703.082 418.264C732.58 462.954 762.601 507.304 791.339 552.453C818.375 594.914 836.875 641.178 847.938 690.367C848.174 691.403 848.187 692.478 848.383 694.209H736.01C712.823 610.952 668.767 540.074 603.553 481.51L603.592 481.523Z"/>
+  <path d="M589.635 581.945C596.927 570.078 603.853 558.774 611.473 546.382C658.868 601.615 689.308 664.179 702.741 735.778H856.369C857.181 747.934 857.953 759.422 858.778 771.643H662.298C665.663 697.959 637.999 636.248 589.648 581.932L589.635 581.945Z"/>
+</svg>
+</div>
+<script>if (window.self !== window.top) document.getElementById('знак').remove();</script>
+
+<div id="scene"></div>
+
+<div id="hdr">
+  <h1>Цифровой двойник месторождения на базе ИС «<b style="color:var(--cyan)">ABAI</b>»</h1>
+  <div class="sub">Цель 2025–2028 — стать полностью цифровой компанией и принимать решения заранее</div>
+</div>
+
+<div id="stack">
+  <div id="navline"><div id="navfill"></div><div id="navdot"></div></div>
+</div>
+
+<aside id="panel">
+  <button id="p-close" aria-label="Закрыть">×</button>
+  <div id="p-kick"></div>
+  <div id="p-name"></div>
+  <div id="p-claim"></div>
+  <div class="p-h" id="p-h-blocks">Что закрывает</div>
+  <div id="p-blocks"></div>
+  <div class="p-h" id="p-h-mods">Модули</div>
+  <div id="p-mods"></div>
+  <div id="p-note"></div>
+  <div class="p-h" id="p-h-fx">Ожидаемый эффект</div>
+  <div id="p-fx"></div>
+</aside>
+
+<div id="road">
+  <div class="rd"><div class="y">окт 2026</div><div class="d">реализация пилотного проекта</div></div>
+  <div class="rsep"></div>
+  <div class="rd"><div class="y">2028</div><div class="d">ТОП-12 месторождений КМГ</div></div>
+  <div class="rsep"></div>
+  <div class="rd"><div class="y">далее</div><div class="d">100% добывающих активов</div></div>
+</div>
+
+<div id="hint">Вращение — мышь · наведите на слой модели или список слева</div>
+<!-- target="_top": слайд открывается ещё и внутри demo_with_map.html, и без
+     этого вторая часть грузилась бы в рамку, будто она часть нашего показа -->
+<a id="next" target="_top" rel="noopener"
+   href="https://znewk.github.io/kmg-digital-twin-presentation/">2 часть<span class="arw">→</span></a>
+<a id="demo2" href="demo_with_map.html">demo ч.2<span class="arw">→</span></a>
+<!-- слайд открыт внутри demo_with_map.html — кнопка вела бы саму в себя -->
+<script>if (window.self !== window.top) document.getElementById('demo2').remove();</script>
+<div id="chip"></div>
+<!-- подписи точек бурения: HTML поверх сцены, чтобы цифры оставались чёткими -->
+<div id="teo"></div>
+<div id="drill"><span class="pt"></span>идёт бурение<b class="m">—</b></div>
+<div id="horiz"><span class="pt"></span>горизонтальное бурение</div>
+<div id="naz-lbl"></div>
+
+<script type="importmap">
+{ "imports": {
+    "three": "./vendor/three.module.js",
+    "three/addons/": "./vendor/addons/"
+} }
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+/* ================================================================
+   ДАННЫЕ: 4 контура ЦД (сценарий демо, слайд 7 АТК; только ABAI)
+   ================================================================ */
+const ZONES = {
+  grr: {
+    // скрыт по решению от 11.08; при возврате перенумеровать: грр 01, пласт 02, скв 03, наземка 04
+    no:'—', name:'Цифровой двойник ресурсной базы', short:'ГРР · ресурсная база', color:'#9B7BE8',
+    claim:'Цифровая геологическая модель: восполняемость и конверсия запасов. Сейсморазведка, интерпретация и геологическое моделирование в едином контуре.',
+    fx:[{v:'−15%', l:'полный цикл ГРР'}],
+    blocks:[
+      {t:'Интерпретация и геологическое моделирование', i:'Сейсморазведка и обработка данных · построение геологических моделей'}
+    ],
+    mods:['Геомодели (КМГИ)','ГГДМ'],
+    note:'Контур 2027 года — вне периметра пилота Молдабек Восточный. Показывается как целевой образ.'
+  },
+  plast: {
+    no:'01', name:'Цифровой двойник пласта', short:'Пласт', color:'#F0AE4A',
+    claim:'Постоянно действующая гидродинамическая модель и приоритизация мероприятий по экономике: планирование не от пробуренных скважин, а от ограничений пласта и геологии.',
+    fx:[{v:'−5%', l:'снижение CAPEX'}],
+    blocks:[],   // шаги вынесены в список слева — здесь не дублируем
+    mods:['ABAI Картопостроитель','ABAI ЦРНС 2.0','ABAI Управление заводнением 2.0','ABAI ПиАГТМ','ГГДМ (КМГИ)'],
+    note:'На пилоте: выделена перспективная область истощённого 5-го Юрского объекта, намечено бурение 1–2 горизонтальных скважин.',
+    subs:[
+      { n:'Шаг 1', t:'Построение и актуализация геолого-гидродинамической модели', shortT:'ГГДМ',
+        what:'Постоянно действующая цифровая модель пласта: структура, свойства коллектора, характеристики вытеснения и Кпрод по каждой скважине.',
+        mods:['ABAI Картопостроитель','ГГДМ (КМГИ)'] },
+      { n:'Шаг 2', t:'Подготовка стратегии разработки месторождения', shortT:'Стратегия разработки',
+        what:'Выбор системы разработки, оптимизация заводнения и подбор мероприятий ГТМ на модели.',
+        mods:['ABAI Управление заводнением 2.0','ABAI ПиАГТМ','ABAI ЦРНС 2.0'] },
+      { n:'Шаг 3', t:'Проведение технико-экономической оценки', shortT:'Технико-экономическая оценка',
+        what:'Расчёт экономики вариантов разработки: CAPEX и OPEX мероприятий, ранжирование точек бурения по отдаче.',
+        mods:['ABAI ЦРНС 2.0'] }
+    ]
+  },
+  skv: {
+    no:'02', name:'Цифровой двойник скважины', short:'Скважина', color:'#8FBAF0',
+    claim:'Сквозной двойник от начала бурения до вывода на режим и последующих ремонтов: контроль параметров в реальном времени, предотвращение аварий, единая среда ТКРС.',
+    fx:[{v:'−3%', l:'сроки вывода на режим'}],
+    blocks:[
+      {t:'Онлайн-мониторинг бурения и сводки', i:'Мониторинг строительства скважин · совместная работа подрядчика и заказчика'},
+      {t:'Планирование и контроль ТКРС', i:'График ремонтов · выявление пересечений движения бригад · суточная отчётность · датчики СТПА'}
+    ],
+    mods:['ABAI Цифровое бурение','ABAI Цифровой мониторинг ТКРС'],
+    note:'Появляются инструменты для оценки перехода от бурения «под ключ» к раздельному сервису — новая возможная бизнес-модель.',
+    subs:[
+      { n:'Шаг 1', t:'Мониторинг бурения и сводки', shortT:'Мониторинг бурения',
+        what:'Контроль параметров, режимов и отклонений в реальном времени: оперативная корректировка траектории, предотвращение аварий, полная цифровизация суточных сводок.',
+        mods:['ABAI Цифровое бурение'] },
+      { n:'Шаг 2', t:'Планирование и контроль ремонтов скважин', shortT:'ТКРС',
+        what:'График ремонтов и его исполнение в единой среде: выявление пересечений движения бригад, документооборот по ремонту, данные датчиков СТПА.',
+        mods:['ABAI Цифровой мониторинг ТКРС'] }
+    ]
+  },
+  naz: {
+    no:'03', name:'Цифровой двойник добычи и наземной инфраструктуры', short:'Наземная инфраструктура', color:'#35D0C2',
+    claim:'Контроль добычи в реальном времени по действующему фонду: модель работает с данными «с поля», реагирует на изменение дебита, обводнённости и давления, предупреждает об отклонениях.',
+    fx:[
+      {v:'−5%', l:'управляемые потери добычи'},
+      {v:'−3%', l:'CAPEX/OPEX инфраструктуры'}
+    ],
+    blocks:[
+      {t:'Скважины и режимы фонда', i:'Прогноз и контроль показателей добычи · выявление отклонений режима'},
+      {t:'КНС и ППД · экономика', i:'Оценка износа насосов · подбор низкорентабельных скважин под остановку'},
+      {t:'Трубопроводы', i:'Предиктивный анализ отказов напорного нефтепровода (машинное обучение)'},
+      {t:'Гидравлика · энергетика · подготовка', i:'Загрузка системы сбора и ППД · расчёт электрических сетей · мнемосхема подготовки'}
+    ],
+    mods:['ABAI ТР','ABAI ПГНО','ABAI Планирование добычи и мониторинг 2.0','ABAI Наземная инфраструктура','Интеллектуальное месторождение'],
+    subs:[
+      { n:'Шаг 1', t:'Насосные станции и наземная инфраструктура', shortT:'КНС и инфраструктура',
+        what:'Гидравлика системы сбора и ППД, загрузка сети, оценка износа насосов КНС и расчёт электрических сетей.',
+        mods:['ABAI Наземная инфраструктура'] },
+      { n:'Шаг 2', t:'Мониторинг добычи', shortT:'Мониторинг добычи',
+        what:'Контроль добычи в реальном времени: реакция на изменение дебита, обводнённости и давления, выявление отклонений режима и предиктивный анализ отказов трубопроводов.',
+        mods:['ABAI Планирование добычи и мониторинг 2.0','ABAI ТР'] }
+    ],
+    note:'Любое изменение на одном шаге цепочки «пласт — скважина — труба» автоматически пересчитывает все остальные шаги.'
+  }
+};
+// ЦД ресурсной базы (ГРР) пока скрыт по решению от 11.08 — вернуть: добавить 'grr' в оба списка
+const ORDER = ['plast','skv','naz'];             // порядок кнопок слева (сверху вниз)
+const RANK_UP = ['plast','skv','naz'];           // порядок слоёв снизу вверх
+
+/* ================================================================
+   СЦЕНА
+   ================================================================ */
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(36, innerWidth/innerHeight, 1, 4000);
+camera.position.set(385, 278, 385);   // с запасом, чтобы куб влезал в коридор между панелями
+const renderer = new THREE.WebGLRenderer({ antialias:true, alpha:true });
+renderer.setSize(innerWidth, innerHeight);
+renderer.setPixelRatio(Math.min(devicePixelRatio, 1.6));
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.35;
+renderer.localClippingEnabled = true;   // подслои пласта режутся секущими плоскостями
+document.getElementById('scene').appendChild(renderer.domElement);
+
+scene.add(new THREE.HemisphereLight(0xC6D6EA, 0x5A4A34, 1.25));
+const key = new THREE.DirectionalLight(0xF6ECDA, 2.1); key.position.set(300, 420, 220); scene.add(key);
+const rim = new THREE.DirectionalLight(0x6E86C8, 0.6); rim.position.set(-260, 120, -300); scene.add(rim);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true; controls.dampingFactor = 0.07;
+controls.enablePan = false;
+controls.minDistance = 240; controls.maxDistance = 760;
+controls.minPolarAngle = 0.5; controls.maxPolarAngle = 1.35;
+controls.target.set(0, -40, 0);
+// Скорость вращения одна на все состояния: раньше на холостом ходу стояло 1.7,
+// а при выбранном контуре 0.55 — модель заметно тормозила на наведении.
+const ROT_SPEED = 0.55;
+controls.autoRotate = true; controls.autoRotateSpeed = ROT_SPEED;
+
+const world = new THREE.Group(); scene.add(world);
+
+/* ---------- голограмма ---------- */
+function gridTexture(hex, nx, ny){
+  const cv = document.createElement('canvas'); cv.width = 256; cv.height = 256;
+  const c = cv.getContext('2d');
+  c.strokeStyle = hex; c.lineWidth = 1.6; c.globalAlpha = 0.85;
+  for(let i=0;i<=nx;i++){ const x=i/nx*254+1; c.beginPath(); c.moveTo(x,0); c.lineTo(x,256); c.stroke(); }
+  for(let j=0;j<=ny;j++){ const y=j/ny*254+1; c.beginPath(); c.moveTo(0,y); c.lineTo(256,y); c.stroke(); }
+  c.lineWidth = 0.6; c.globalAlpha = 0.35;
+  for(let i=0;i<=nx*4;i++){ const x=i/(nx*4)*254+1; c.beginPath(); c.moveTo(x,0); c.lineTo(x,256); c.stroke(); }
+  const t = new THREE.CanvasTexture(cv);
+  t.wrapS = t.wrapT = THREE.RepeatWrapping;
+  return t;
+}
+function cornerLines(w, h, d, hex){
+  const L = Math.min(w, d)*0.07, Lh = Math.min(L, h*0.45);
+  const p = [];
+  for(const a of [1,-1]) for(const b of [1,-1]) for(const c of [1,-1]){
+    const x=a*w/2, y=b*h/2, z=c*d/2;
+    p.push(x,y,z, x-a*L,y,z,  x,y,z, x,y-b*Lh,z,  x,y,z, x,y,z-c*L);
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(p, 3));
+  return new THREE.LineSegments(g, new THREE.LineBasicMaterial({ color:hex, transparent:true, opacity:0 }));
+}
+/* Слой технико-экономической оценки: тонкая плита-основание, от каждой точки
+   бурения вверх уходит ствол, высота и цвет — по месту в ранжировании. */
+// Основание слоя оценки: сами столбы живут уровнем выше — они общие для стопки
+function собратьТЭО(g, physMats, wireMats, sb, st, col, FOOT, DEPTH){
+  const базаМат = new THREE.MeshStandardMaterial({ color:'#B9AE93', roughness:0.96, metalness:0.02, transparent:true });
+  const база = new THREE.Mesh(new THREE.BoxGeometry(FOOT, (st - sb) - 3, DEPTH), базаМат);
+  база.position.y = (sb + st)/2;
+  g.add(база); physMats.push(базаМат);
+}
+
+/* Столбы ранжирования точек бурения. Стоят не в слое оценки, а в группе всего
+   пласта: начинаются в геолого-гидродинамической модели — там, где по карте
+   насыщенности лежат красные и зелёные зоны, — и проходят сквозь все три
+   составляющие вверх. Поэтому при раздвижке слоёв они остаются на месте и
+   прошивают стопку насквозь, показывая связь «запасы → мероприятие → эффект». */
+/* Ствол одной точки. Вертикальная — отрезок. Горизонтальная — вертикаль,
+   четверть окружности заворота и горизонталь по пласту; заворот кладём в
+   нижнюю составляющую (ГГДМ), потому что уходить в горизонт ствол обязан
+   ровно там, где по карте насыщенности лежит цель. `гориз` — азимут в
+   радианах, им же разводим лежачие стволы, чтобы не легли друг на друга. */
+function стволТочки(т, x, z, низ, верх, R = 34, L = 46){
+  const P = [new THREE.Vector3(x, верх, z)];
+  if(т.гориз === undefined){
+    P.push(new THREE.Vector3(x, низ, z));
+    return new THREE.CatmullRomCurve3(P);
+  }
+  const dx = Math.cos(т.гориз), dz = Math.sin(т.гориз);
+  const кровля = низ + R;                        // выше — вертикаль, ниже — заворот
+  P.push(new THREE.Vector3(x, кровля, z));
+  /* Радиус берём заведомо большим: на малом дуга читается как колено, а
+     заворот на промысле идёт метрами набора угла — на референсе это длинная
+     мягкая кривая, а не угол. Шагов по дуге двадцать: на десяти на просвет
+     видна огранка. */
+  for(let i = 1; i <= 20; i++){
+    const a = (Math.PI/2) * (i/20);
+    P.push(new THREE.Vector3(x + dx*R*(1 - Math.cos(a)),
+                             кровля - R*Math.sin(a),
+                             z + dz*R*(1 - Math.cos(a))));
+  }
+  /* Горизонталь кладём не одной дальней точкой, а четырьмя: Catmull-Rom тянет
+     кривую через опорные точки, и на стыке плотной дуги с одиночным дальним
+     концом лежачая часть выгибалась горбом. */
+  for(let i = 1; i <= 4; i++){
+    const s = R + L*i/4;
+    P.push(new THREE.Vector3(x + dx*s, низ, z + dz*s));
+  }
+  return new THREE.CatmullRomCurve3(P);
+}
+
+/* Две полосы высот вместо одной общей лесенки.
+
+   Раньше все восемь столбов шли ровным шагом в 4 единицы. На таком шаге при
+   вращении соседние макушки то и дело сходились в одну точку экрана, и столб
+   прятался за столбом — на изометрии это читалось как ошибка сборки, а не как
+   ранжирование. Теперь горизонтали занимают верхнюю полосу, наклонно-
+   направленные — нижнюю, между полосами зазор, и внутри нижней шаг вырос
+   вдвое: пересечься макушкам стало заметно труднее.
+
+   Порядок высот по-прежнему говорит про отдачу, просто шкала разнесена по типу
+   ствола. Соседство полос и есть высказывание слоя: горизонтальное бурение —
+   не «чуть лучше», а другое решение.
+
+   ПРИВЯЗКА — К СОСТАВЛЯЮЩЕЙ ТЭО, а не к слою целиком. Она занимает верхнюю
+   треть пласта, то есть доли 0,67–1,0 его высоты, и столбы стоят вокруг неё:
+   самый высокий чуть выступает над её кровлей, самый низкий чуть уходит под
+   подошву, остальные внутри. Столб тогда читается как принадлежащий именно
+   технико-экономической оценке.
+
+   Сначала столбы поднимались много выше слоя и в разъехавшейся стопке лезли на
+   контур скважины — чужой; потом, наоборот, утонули в пласте целиком. Отсюда
+   узкая полоса вокруг составляющей.
+
+   Доли, а не абсолютные единицы: высота модели поменяется — привязка устоит. */
+const ВЫСОТЫ = {
+  гориз:  { низ:1.03, размах:0.07 },   // верхняя полоса: чуть выше кровли ТЭО
+  наклон: { низ:0.67, размах:0.28 },   // нижняя: от подошвы составляющей и внутрь
+};
+
+function собратьСтолбы(zoneG, yb, yt, FOOT, DEPTH, col, столбы, узлыСтолбов){
+  const h3 = (yt - yb)/3;
+  const низ = yb + h3*0.28 - 8;          // внутри слоя ГГДМ (он смещён вниз на 8), у зон насыщенности
+  // границы рангов считаем внутри каждой полосы, иначе правка данных сдвинет шкалу
+  const полоса = т => т.гориз === undefined ? 'наклон' : 'гориз';
+  const края = {};
+  for(const т of ТОЧКИ){
+    const п = полоса(т), к = края[п] || (края[п] = { мин:т.ранг, макс:т.ранг });
+    к.мин = Math.min(к.мин, т.ранг); к.макс = Math.max(к.макс, т.ранг);
+  }
+
+  for(const т of ТОЧКИ){
+    const п = полоса(т), к = края[п], В = ВЫСОТЫ[п];
+    const доля = 1 - (т.ранг - к.мин) / Math.max(1, к.макс - к.мин);   // 1 — лучшая в полосе
+    const верх = yb + (yt - yb)*(В.низ + В.размах*доля);               // отдача читается высотой
+    const L = верх - низ;
+    // цвет — про тип ствола: зелёный у горизонтальных, красный у вертикальных
+    const цвет = new THREE.Color(т.гориз === undefined ? '#F03A2E' : '#2FBF5B');
+    const x = т.x * FOOT, z = т.z * DEPTH;
+
+    /* Столб рисуем дважды. Плотный проход идёт с обычной глубиной: плиты его
+       перекрывают, и в изометрии видно, что он именно входит в слой. Поверх —
+       бледный «просвечивающий» дубль, чтобы путь читался и внутри стопки.
+       Одним проходом поверх всего столб выглядел наклейкой сверху. */
+    /* depthWrite обязательно снять: у прозрачного материала он включён по
+       умолчанию, и при нулевой непрозрачности столб продолжал писать глубину —
+       на соседних составляющих проступали чёрные полосы будущих столбов. */
+    const мкА = new THREE.MeshStandardMaterial({ color:цвет, roughness:0.3, metalness:0.3,
+      transparent:true, opacity:0, emissive:цвет, emissiveIntensity:0.45, depthWrite:false });
+    const мкБ = new THREE.MeshBasicMaterial({ color:цвет, transparent:true, opacity:0,
+      depthTest:false, depthWrite:false });
+
+    /* Ствол ведём трубой по кривой, а не цилиндром: у горизонтальных точек он
+       не прямой, и один и тот же путь должен отработать в обоих проходах. */
+    const путь = стволТочки(т, x, z, низ, верх);
+    const плотный = new THREE.Mesh(new THREE.TubeGeometry(путь, 64, 1.7, 10, false), мкА);
+    zoneG.add(плотный);
+
+    // чуть тоньше плотного — читается как след внутри породы
+    const сквозь = new THREE.Mesh(new THREE.TubeGeometry(путь, 64, 1.36, 10, false), мкБ);
+    сквозь.renderOrder = 5;
+    zoneG.add(сквозь);
+
+    /* Башмак на конце и шар на устье. Каждый — тоже в два прохода, как ствол.
+       Одним плотным проходом их не видно: макушка стоит внутри составляющей, и
+       плита закрывает шар целиком. Зелёные казались исключением только потому,
+       что торчат выше остальных и их шар выходил над плитой. */
+    const конец = путь.getPoint(1), касат = путь.getTangent(1).normalize();
+    const наконечник = (гео, где, кват) => {
+      const плотн = new THREE.Mesh(гео, мкА);
+      плотн.position.copy(где);
+      if(кват) плотн.quaternion.copy(кват);
+      zoneG.add(плотн);
+      const скв = new THREE.Mesh(гео, мкБ);     // геометрию делят, материал разный
+      скв.position.copy(где);
+      if(кват) скв.quaternion.copy(кват);
+      скв.renderOrder = 6;                      // после ствола, чтобы концы читались на нём
+      zoneG.add(скв);
+      return [плотн, скв];
+    };
+    const поворот = new THREE.Quaternion()
+      .setFromUnitVectors(new THREE.Vector3(0, 1, 0), касат);
+    const башмаки = наконечник(new THREE.ConeGeometry(3.6, 7, 14), конец, поворот);
+    const шары = наконечник(new THREE.SphereGeometry(2.8, 14, 12),
+                            new THREE.Vector3(x, верх, z), null);
+
+    const якорь = new THREE.Object3D();
+    якорь.position.set(x, верх, z);
+    zoneG.add(якорь);
+
+    столбы.push(мкА, мкБ);
+    узлыСтолбов.push(плотный, сквозь, ...башмаки, ...шары);
+    меткиТЭО.push({ точка:т, узел:якорь });
+  }
+}
+
+/* ── Акценты на наземке ────────────────────────────────────────────────────
+   Модель наземного комплекса — один меш, отдельные объекты в нём не выделить.
+   Поэтому обводим их сверху: кольца и линии по координатам, снятым с вида
+   сверху, плюс HTML-подписи. Так видно, что именно оцифровано на каждом шаге. */
+const НАЗ_ОБЪЕКТЫ = {
+  инфра: {
+    подпись: 'Резервуарный парк и трубопровод',
+    кольца: [[54, -55, 34]],                       // x, z, радиус
+    // трассу больше не рисуем полосой: вместо неё объёмный трубопровод с
+    // бегущим потоком — см. собратьТрубопровод
+    линии: [],
+    метка: [54, -55],
+  },
+  добыча: {
+    подпись: 'Фонд скважин под контролем',
+    кольца: [[-64, 41, 24], [0, 41, 24], [64, 41, 24]],
+    линии: [],
+    метка: [0, 41],
+  },
+};
+
+function собратьАкцентыНаземки(zoneG, yb, yt, col){
+  const итог = {};
+  /* Верх полосы — это макушка факела, а не земля: модель включает высокие
+     объекты. Обводку кладём на поверхность промысла, иначе кольца висят в
+     воздухе и в изометрии выглядят сдвинутыми относительно объектов. */
+  const земля = yb + (yt - yb)*0.34;
+  for(const ключ in НАЗ_ОБЪЕКТЫ){
+    const набор = НАЗ_ОБЪЕКТЫ[ключ];
+    const маты = [], узлы = [];
+    const y = земля + 2;
+    const мат = new THREE.MeshBasicMaterial({ color:col, transparent:true, opacity:0,
+      depthTest:false, depthWrite:false });
+    маты.push(мат);
+
+    for(const [x, z, r] of набор.кольца){
+      const кольцо = new THREE.Mesh(new THREE.TorusGeometry(r, 1.1, 8, 40), мат);
+      кольцо.rotation.x = Math.PI/2;
+      кольцо.position.set(x, y, z);
+      кольцо.renderOrder = 7;
+      zoneG.add(кольцо); узлы.push(кольцо);
+      // засечки по кольцу — читается как «объект взят под контроль»
+      for(let i=0;i<4;i++){
+        const a = i/4*Math.PI*2 + Math.PI/4;
+        const з = new THREE.Mesh(new THREE.BoxGeometry(r*0.22, 1.1, 2.2), мат);
+        з.position.set(x + Math.cos(a)*r, y, z + Math.sin(a)*r);
+        з.rotation.y = -a;
+        з.renderOrder = 7;
+        zoneG.add(з); узлы.push(з);
+      }
+    }
+    for(const [[x1,z1],[x2,z2]] of набор.линии){
+      const L = Math.hypot(x2-x1, z2-z1);
+      const л = new THREE.Mesh(new THREE.BoxGeometry(L, 1.1, 2.6), мат);
+      л.position.set((x1+x2)/2, y, (z1+z2)/2);
+      л.rotation.y = -Math.atan2(z2-z1, x2-x1);
+      л.renderOrder = 7;
+      zoneG.add(л); узлы.push(л);
+    }
+    const якорь = new THREE.Object3D();
+    якорь.position.set(набор.метка[0], y + 16, набор.метка[1]);
+    zoneG.add(якорь);
+    итог[ключ] = { маты, узлы, якорь, подпись:набор.подпись };
+  }
+  return итог;
+}
+
+/* ── трубопровод с бегущим потоком ────────────────────────────────────
+   Показывается вместе с акцентом «Резервуарный парк и трубопровод»: от
+   каждой станции ветка выходит к дорожному коридору (z = −2, там в модели
+   и лежит трасса), магистраль собирает их и отводом уходит в резервуарный
+   парк. По трубам бегут янтарные сгустки — направление всюду от устьев к
+   хранилищу, у сгустка яркая голова по ходу движения.
+
+   Поток сделан текстурой, а не частицами: тот же приём, что бегущая сетка
+   голограмм, — сдвиг offset.x каждый кадр. Повтор узора пропорционален
+   длине сегмента, поэтому скорость сгустков в единицах сцены одинакова на
+   ветках и магистрали. */
+function собратьТрубопровод(zoneG, y){
+  // сегменты [от] → [к], по направлению потока; врезки без перекрытий
+  const СЕГМЕНТЫ = [
+    [[-74.8, 40], [-74.8, -2]],       // ветки от трёх станций
+    [[  2.5, 40], [  2.5, -2]],
+    [[ 74.4, 40], [ 74.4, -2]],
+    [[-74.8, -2], [ 54,   -2]],       // магистраль с двух сторон к отводу
+    [[ 74.4, -2], [ 54,   -2]],
+    [[ 54,   -2], [ 54,  -24]],       // отвод в резервуарный парк
+  ];
+  const ШТРИХ = 20;                   // период сгустков, единицы сцены
+
+  /* Корпус — тёмный и непрозрачный, а не светящийся: он перекрывает каркас
+     слоя позади себя, и бегущие сгустки читаются на нём, а не тонут в сетке. */
+  const корпусМат = new THREE.MeshBasicMaterial({ color:'#1A1006',
+    transparent:true, opacity:0, depthTest:false, depthWrite:false });
+
+  // сгусток: прозрачный хвост, раскалённая голова по ходу движения (+u текстуры)
+  const cv = document.createElement('canvas'); cv.width = 128; cv.height = 16;
+  const c = cv.getContext('2d');
+  const гр = c.createLinearGradient(6, 0, 78, 0);
+  гр.addColorStop(0, 'rgba(255,176,32,0)');
+  гр.addColorStop(0.55, 'rgba(255,178,32,0.9)');
+  гр.addColorStop(0.9, '#FFD87A');
+  гр.addColorStop(1, '#FFF4D6');
+  c.fillStyle = гр; c.fillRect(6, 2, 72, 12);
+
+  const узлы = [], потокМаты = [], тексты = [];
+  for(const [[x1, z1], [x2, z2]] of СЕГМЕНТЫ){
+    const L = Math.hypot(x2 - x1, z2 - z1);
+    const кривая = new THREE.LineCurve3(new THREE.Vector3(x1, y, z1),
+                                        new THREE.Vector3(x2, y, z2));
+    const корпус = new THREE.Mesh(new THREE.TubeGeometry(кривая, 1, 2.2, 10, false), корпусМат);
+    корпус.renderOrder = 7;
+    zoneG.add(корпус); узлы.push(корпус);
+
+    const тек = new THREE.CanvasTexture(cv);
+    тек.wrapS = тек.wrapT = THREE.RepeatWrapping;
+    тек.repeat.set(Math.max(1, Math.round(L / ШТРИХ)), 1);
+    const мп = new THREE.MeshBasicMaterial({ map:тек, transparent:true, opacity:0,
+      blending:THREE.AdditiveBlending, depthTest:false, depthWrite:false });
+    const поток = new THREE.Mesh(new THREE.TubeGeometry(кривая, 1, 2.45, 10, false), мп);
+    поток.renderOrder = 8;
+    zoneG.add(поток); узлы.push(поток);
+    потокМаты.push(мп); тексты.push(тек);
+  }
+  return { узлы, корпусМат, потокМаты, тексты };
+}
+
+/* Шарошечное долото на забое одной из скважин: показываем, что бурение идёт
+   прямо сейчас. Собрано геометрией, а не моделью — так оно вращается и
+   встаёт точно по оси ствола. */
+/* `ось` — куда долото бурит. По умолчанию вниз; на горизонтальном стволе
+   передаётся касательная к забою, и группа разворачивается целиком. Шлам при
+   этом уходит не «вверх», а назад по стволу — ровно как на промысле, где
+   выбуренную породу выносит обратно к устью. */
+function собратьДолото(zoneG, x, y, z, R, Hшлама, ось, безШтанги){
+  const g = new THREE.Group();
+  g.position.set(x, y, z);
+  if(ось) g.quaternion.setFromUnitVectors(new THREE.Vector3(0, -1, 0), ось.clone().normalize());
+  zoneG.add(g);
+
+  // рисуем поверх плит: забой прячется внутри стопки, а показать надо именно его
+  /* Металличность держим низкой: карты окружения в сцене нет, и при высокой
+     металличности сталь отражать нечего — деталь уходит в чёрный силуэт. */
+  const сталь = new THREE.MeshStandardMaterial({ color:'#AEB8C6', roughness:0.45, metalness:0.25,
+    transparent:true, opacity:0, emissive:new THREE.Color('#3A4658'), emissiveIntensity:0.5,
+    depthTest:false, depthWrite:false });
+  const зуб = new THREE.MeshStandardMaterial({ color:'#E8C87A', roughness:0.3, metalness:0.7,
+    transparent:true, opacity:0, emissive:new THREE.Color('#8A6A20'), emissiveIntensity:0.35,
+    depthTest:false, depthWrite:false });
+
+  const корпус = new THREE.Mesh(new THREE.CylinderGeometry(R*0.86, R*0.98, R*1.5, 16), сталь);
+  корпус.position.y = R*1.5;
+  корпус.renderOrder = 6;
+  g.add(корпус);
+
+  /* Бурильная штанга вверх по стволу — видно, что долото на конце колонны.
+     На горизонтали её не рисуем: там колонну уже изображает сама труба ствола,
+     а штанга длиннее лежачей части и торчала из неё палкой в пустоту. */
+  if(!безШтанги){
+    const штанга = new THREE.Mesh(new THREE.CylinderGeometry(R*0.34, R*0.34, R*7, 12), сталь);
+    штанга.position.y = R*5.5;
+    штанга.renderOrder = 6;
+    g.add(штанга);
+  }
+
+  // три шарошки по окружности — узнаваемый силуэт трёхшарошечного долота
+  const вращ = new THREE.Group();
+  g.add(вращ);
+  for(let i=0;i<3;i++){
+    const a = i/3*Math.PI*2;
+    const ш = new THREE.Mesh(new THREE.ConeGeometry(R*0.5, R*1.15, 12), сталь);
+    ш.position.set(Math.cos(a)*R*0.52, R*0.55, Math.sin(a)*R*0.52);
+    ш.rotation.set(Math.cos(a)*0.42, 0, -Math.sin(a)*0.42);
+    ш.renderOrder = 6;
+    вращ.add(ш);
+    for(let k=0;k<7;k++){                       // зубья по шарошке
+      const t = new THREE.Mesh(new THREE.SphereGeometry(R*0.11, 6, 5), зуб);
+      const ang = k/7*Math.PI*2, r = R*0.3;
+      t.position.set(ш.position.x + Math.cos(ang)*r, R*0.34 + (k%2)*R*0.22, ш.position.z + Math.sin(ang)*r);
+      вращ.add(t);
+    }
+  }
+  /* Шлам идёт от забоя вверх по всей высоте слоя — так видно, что порода
+     выносится на поверхность, а не клубится у долота. */
+  const H = Hшлама || R*3;
+  const пыльМат = new THREE.PointsMaterial({ color:'#C7B48A', size:2.4, transparent:true,
+    opacity:0, depthWrite:false, depthTest:false });
+  const pg = new THREE.BufferGeometry();
+  const N = 90, pos = new Float32Array(N*3), seed = new Float32Array(N);
+  for(let i=0;i<N;i++){
+    const a = Math.random()*Math.PI*2, r = R*(0.18 + Math.random()*0.55);
+    pos[i*3] = Math.cos(a)*r; pos[i*3+2] = Math.sin(a)*r; pos[i*3+1] = Math.random()*H;
+    seed[i] = Math.random()*H;
+  }
+  pg.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  const точки = new THREE.Points(pg, пыльМат);
+  точки.renderOrder = 6;
+  g.add(точки);
+
+  const якорь = new THREE.Object3D();
+  якорь.position.y = R*2.4;
+  g.add(якорь);
+
+  return { группа:g, вращ, маты:[сталь, зуб], пыль:{ гео:pg, мат:пыльМат, seed, n:N, H }, якорь };
+}
+
+function holoBox(w, h, d, cy, hex, cells=8, fillHex=0x0A2E3E){
+  const g = new THREE.Group();
+  const fill = new THREE.Mesh(new THREE.BoxGeometry(w, h, d),
+    new THREE.MeshBasicMaterial({ color:fillHex, transparent:true, opacity:0, depthWrite:false }));
+  const grid = new THREE.Mesh(new THREE.BoxGeometry(w+0.4, h+0.4, d+0.4),
+    new THREE.MeshBasicMaterial({ map:gridTexture(hex, cells, Math.max(2, Math.round(cells*h/w))),
+      transparent:true, opacity:0, blending:THREE.AdditiveBlending, depthWrite:false, side:THREE.DoubleSide }));
+  const edge = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(w+0.6, h+0.6, d+0.6)),
+    new THREE.LineBasicMaterial({ color:hex, transparent:true, opacity:0 }));
+  const corners = cornerLines(w+3.5, h+3.5, d+3.5, '#FFFFFF');
+  g.add(fill, grid, edge, corners);
+  g.position.y = cy;
+  g.userData.parts = { fill, grid, edge, corners };
+  return g;
+}
+
+/* ================================================================
+   СБОРКА: 4 отдельных GLB-слоя, стек снизу вверх
+   ================================================================ */
+const zones = {};
+let pickMeshes = [];
+const FOOT = 250;                                   // ширина куба в сцене
+// целевые высоты подземных плит (наземка — натуральная, чтобы не плющить объекты)
+const TARGET_H = { grr:44, plast:56, skv:56 };
+
+const holoColors = { grr:['#9B7BE8',0x201338], plast:['#F0AE4A',0x3A280C], skv:['#8FBAF0',0x0E2440], naz:['#35D0C2',0x07251F] };
+
+/* ── Точки бурения и их экономика ──────────────────────────────────────────
+   ЦИФРЫ ИЛЛЮСТРАТИВНЫЕ — подставить расчёт из ABAI ЦРНС. Номера скважин взяты
+   с карты остаточных запасов пилота, x/z — доли футпринта от центра.
+
+   Ранг наружу не выводится: он задаёт высоту столба. Подписаны только две
+   скважины — лучшая горизонтальная и лучшая наклонно-направленная, см.
+   `создатьМеткиТЭО`. Цифры там месячные, здесь лежат годовые.
+
+   Цвет столба говорит про тип ствола, а не про карту: КРАСНЫЙ — вертикальная
+   скважина, ЗЕЛЁНЫЙ — горизонтальная, та самая, что загибается в пласт.
+   Поэтому отдельного поля под цвет нет: он берётся из наличия `гориз`.
+
+   `гориз` — азимут заворота в радианах. Горизонтальных две — ровно столько,
+   сколько обещает текст слоя: «намечено бурение 1–2 горизонтальных скважин».
+
+   ОСНОВА ФАКТИЧЕСКАЯ — НРС ЭМГ по В. Молдабеку за январь–июнь 2026, 369
+   скважин. Добыча за полугодие считана как Qн × отработанные дни, деньги — из
+   графы «прибыль/убыток».
+
+   Восемь точек из 369: три лучшие по отдаче и пять из верхней средней части
+   фонда. «Верхняя средняя» — не медиана, а полоса между 60-м и 85-м
+   процентилем (335–831 т за полугодие при медиане 245): такие скважины
+   работают заметно выше типичной, но не являются рекордами.
+
+   ГОДОВЫЕ ЦИФРЫ — ОЦЕНКА, НЕ ФАКТ. Полугодие умножено на 1,85, а не на 2:
+   объект истощённый, обводнённость по фонду 88,8 %, и второе полугодие на
+   падающей добыче не повторяет первое. Отсюда «≈» в подписи. Появится годовой
+   отчёт или расчёт ЦРНС — подставить факт и убрать знак приближения.
+
+   ОГОВОРКА ПО СТВОЛАМ: тип в отчёте не указан. Зелёными — то есть
+   горизонтальными — помечены две лучшие, потому что текст слоя обещает
+   «бурение 1–2 горизонтальных скважин», а такая отдача на истощённом объекте
+   идёт с горизонталей. Если по факту не так, снять `гориз` у точки.
+
+   Высота столба берётся от ранга, а не от абсолютных цифр: иначе средние
+   скважины на фоне лучших превратились бы в невидимые пеньки. */
+const ТОЧКИ = [
+  { N:'VMB_2783', x:-0.28, z:-0.18, ранг:1, добыча:'5 750', прибыль:'612', гориз:-0.35 },
+  { N:'VMB_2787', x:-0.06, z: 0.28, ранг:2, добыча:'4 700', прибыль:'485', гориз:-1.90 },
+  { N:'VMB_2746', x:-0.34, z: 0.24, ранг:3, добыча:'4 640', прибыль:'488' },
+  { N:'VMB_2768', x: 0.02, z:-0.06, ранг:4, добыча:'1 540', прибыль:'126' },
+  { N:'VMB_418',  x: 0.18, z:-0.02, ранг:5, добыча:'1 540', прибыль:'117' },
+  { N:'VMB_615',  x:-0.12, z: 0.10, ранг:6, добыча:'1 490', прибыль:'113' },
+  { N:'VMB_202',  x: 0.24, z: 0.20, ранг:7, добыча:'1 420', прибыль:'112' },
+  { N:'VMB_2793', x: 0.31, z: 0.06, ранг:8, добыча:'1 360', прибыль:'142' },
+];
+const меткиТЭО = [];   // {точка, узел, div} — подписи ведём в HTML, не в текстуре
+
+// слои грузятся напрямую из .glb (без base64-глобала — меньше RAM, работает на GitHub Pages)
+const GLB_FILES = {
+  plast1: 'пласт_1_ггдм.glb',
+  plast2: 'пласт_2_стратегия.glb',
+  skv:    'слой_03_скважина.glb',
+  naz:    'слой_04_наземка.glb'
+};
+const gltfLoader = new GLTFLoader();
+function loadLayer(id){
+  return new Promise((res, rej) => {
+    gltfLoader.load(encodeURIComponent(GLB_FILES[id]), g => res(g.scene), undefined, rej);
+  });
+}
+
+/* ── станки-качалки ───────────────────────────────────────────────────
+   В модели наземки они есть, но качать в ней нечего: слой приходит одной
+   сплошной сеткой на 49 439 вершин, без анимаций, и объекты в ней не
+   разделены — разбор файла даёт всего семь связных кусков, крупнейший из
+   которых вся плита вместе со станками. Отдельного узла у коромысла не
+   существует, и появиться ему неоткуда.
+
+   Поэтому три станка вырезаются из сетки коробкой и собираются заново из
+   примитивов — тогда у коромысла есть свой узел и его можно качать.
+   Геометрия взята с прототипа `первый_слайд_макет.html`, где станки качались
+   до перехода на glb; там же и период хода.
+
+   Координаты — в системе самой модели, замерены по её геометрии: центры трёх
+   кластеров вершин, стоящих над площадками. Коробка режет от верха площадки
+   (0,030) и выше: сама площадка и устьевой блок перед станком остаются на
+   месте. Файл модели не трогается — вырезание идёт на загрузке, и чтобы всё
+   вернуть, достаточно убрать этот блок.
+   ──────────────────────────────────────────────────────────────────── */
+const КАЧАЛКИ = {
+  места: [ { x:-0.569, z:0.602 }, { x:0.018, z:0.608 }, { x:0.564, z:0.605 } ],
+  /* Коробка реза, в осях модели наземки. Снимается вся станция вместе с
+     насыпной площадкой: замер поля высот дал площадку 0,13 × 0,55 при уровне
+     грунта между площадками −0,219, и станок на ней стоял как на постаменте.
+     Режем от −0,21 — то есть всё, что поднимается над грунтом. */
+  пх:0.075, дz0:-0.375, дz1:0.20,
+  низ:-0.210, верх:0.30,
+  /* Масштаб подобран по следу вырезанной станции: она 0,105 модели в ширину
+     (14 единиц сцены) и 0,48 в длину (48). Присланный станок относительно
+     шире и короче, поэтому берётся масштаб по ширине — по нему модель точно
+     заходит в след, а высота остаётся свободной. */
+  масштаб:31.5,                // единицы модели станка → единицы сцены
+  ходов:14,                    // ходов в минуту — темп утверждён на пробной странице
+  /* Плита заменяет снятую площадку. Она толстая не для вида: под срезанной
+     площадкой в модели нет поверхности, и плита затыкает дыру — сверху видно
+     только её верхнюю грань, вровень с грунтом. */
+  плита:9,
+  утопить:7.5,                 // на сколько станок сидит в плите, а не стоит на ней
+  /* Плита шире реза на этот запас с каждой стороны: станок крупнее следа
+     вырезанной площадки и свисал бы за её край. Лишнее уходит в грунт —
+     верх плиты стоит с ним почти вровень, а вниз она уходит на всю толщину. */
+  запас:5.5,
+  /* Оцифровка станков — wireframe промежуточной плотности (~26 тыс.
+     треугольников на станок): полная сетка в аддитивном смешении выгорала в
+     белый при любом цвете, грубая читалась клеткой. Цвет свой — фиолетовый из
+     палитры показа; цвет и яркость подбираются по одному числу. */
+  цвет:'#9B7BE8',
+  яркость:0.34,
+};
+
+/* Отладочный ключ `?станки=0` (или `?jacks=0`) собирает слой без станков —
+   видно голые площадки после реза. На показ не влияет: без ключа всё как есть. */
+const СТАНКИ_ВКЛ = (() => {
+  const п = new URLSearchParams(location.search);
+  const в = п.get('станки') ?? п.get('jacks');
+  return !(в === '0' || в === 'нет' || в === 'no');
+})();
+
+/* ── механизм станка ──────────────────────────────────────────────────
+   Станок приходит файлом `качалка_части.glb`: тот же присланный станок,
+   разрезанный на раму, коромысло, кривошип и шатун и облегчённый с 1,6 млн
+   треугольников до 308 тысяч (инструмент `качалка_на_части.js`). Оси взяты
+   с самой модели и должны совпадать с теми, по которым шёл рез.
+
+   Коромысло не качается по синусу: его ведёт шатун от кривошипа, и угол
+   считается из треугольника «опора — палец коромысла — палец кривошипа».
+   Отсюда несимметричный ход, которым настоящая качалка и отличается от
+   игрушечной.
+
+   Радиус кривошипа задан, а не взят из модели: в ней палец стоит в 0,086 от
+   вала, при таком плече размах вышел бы едва заметным. 0,160 даёт 35° —
+   как у настоящей. Вал стоит по центру тяжести противовесов, поэтому они
+   вращаются вокруг себя. */
+const МЕХ = {
+  ось:  { x:-0.280, y: 0.560 },     // опора коромысла на стойке
+  вал:  { x: 0.450, y:-0.148 },     // вал кривошипа
+  палец:{ x: 0.484, y:-0.069 },     // палец кривошипа в исходной позе модели
+  верх: { x: 0.250, y: 0.673 },     // палец на коромысле
+  радиус: 0.160,
+};
+МЕХ.шатун = Math.hypot(МЕХ.верх.x-МЕХ.палец.x, МЕХ.верх.y-МЕХ.палец.y);
+МЕХ.плечо = Math.hypot(МЕХ.верх.x-МЕХ.ось.x,   МЕХ.верх.y-МЕХ.ось.y);
+МЕХ.ф0 = Math.atan2(МЕХ.палец.y-МЕХ.вал.y,  МЕХ.палец.x-МЕХ.вал.x);
+МЕХ.б0 = Math.atan2(МЕХ.верх.y-МЕХ.ось.y,   МЕХ.верх.x-МЕХ.ось.x);
+МЕХ.г0 = Math.atan2(МЕХ.верх.y-МЕХ.палец.y, МЕХ.верх.x-МЕХ.палец.x);
+
+function положениеСтанка(ф){
+  const cx = МЕХ.вал.x + МЕХ.радиус*Math.cos(ф);
+  const cy = МЕХ.вал.y + МЕХ.радиус*Math.sin(ф);
+  const dx = cx - МЕХ.ось.x, dy = cy - МЕХ.ось.y;
+  const D = Math.hypot(dx, dy);
+  const кос = Math.max(-1, Math.min(1,
+    (МЕХ.плечо*МЕХ.плечо + D*D - МЕХ.шатун*МЕХ.шатун) / (2*МЕХ.плечо*D)));
+  const б = Math.atan2(dy, dx) + Math.acos(кос);
+  const bx = МЕХ.ось.x + МЕХ.плечо*Math.cos(б);
+  const by = МЕХ.ось.y + МЕХ.плечо*Math.sin(б);
+  return { б, cx, cy, г: Math.atan2(by-cy, bx-cx) };
+}
+
+/* Копия геометрии без треугольников, попавших в коробки станков. Режем по
+   центру треугольника: по вершинам срез рвал бы соседние грани площадки. */
+/* ── резервуарный парк ────────────────────────────────────────────────
+   Коробка снята с самой сетки, а не подобрана на глаз: `где_баки.js` собирает
+   занятость по XZ и выдаёт связные области высоких клеток, `высоты_баков.js`
+   показывает распределение высот внутри коробки. Оттуда и числа.
+
+   Нижняя граница по высоте важнее прочих: под баками лежит грунт, и без неё в
+   выборку попадает плита промысла — каркас тогда рисуется по всей площадке, а
+   не по резервуарам. Грунт здесь стоит на −0,22…−0,14, баки начинаются с
+   −0,10 и кончаются крышами на 0,07. */
+/* ── факел ────────────────────────────────────────────────────────────
+   Снят с показа по просьбе заказчика: горящий факел на макете читается как
+   сжигание попутного газа, а разговор идёт про цифровизацию. Убран и с ленты
+   подводки, и отсюда — иначе он возвращался бы ровно в тот момент, когда живой
+   слайд перехватывает картинку у видео, и стык бросался бы в глаза.
+
+   Ствол стоит отдельно, между установкой подготовки и резервуарным парком;
+   координаты сняты с сетки и сверены с указанием на скриншоте. Режем всё выше
+   грунта: сам грунт в этой коробке лежит на −0,22…−0,14, площадка под факелом
+   остаётся на месте, и дыры, в отличие от выреза станков, не образуется. */
+const ФАКЕЛ = { x0:-0.05, x1:0.09, z0:-0.83, z1:-0.70, y:-0.13 };
+const вФакеле = (x, y, z) =>
+  x > ФАКЕЛ.x0 && x < ФАКЕЛ.x1 && z > ФАКЕЛ.z0 && z < ФАКЕЛ.z1 && y > ФАКЕЛ.y;
+
+const ХРАНИЛИЩЕ = { x0:0.10, x1:0.78, z0:-0.88, z1:-0.28, y0:-0.12, y1:0.12 };
+const вХранилище = (x, y, z) =>
+  x > ХРАНИЛИЩЕ.x0 && x < ХРАНИЛИЩЕ.x1 &&
+  z > ХРАНИЛИЩЕ.z0 && z < ХРАНИЛИЩЕ.z1 &&
+  y > ХРАНИЛИЩЕ.y0 && y < ХРАНИЛИЩЕ.y1;
+
+/* Разбор сетки на две по признаку: треугольник уходит туда, где его центр.
+   Вершинный буфер общий, меняется только набор индексов — памяти это почти не
+   стоит, а объект получает свою пару материалов и живёт своей жизнью. */
+function частьСетки(geo, годится){
+  const поз = geo.getAttribute('position');
+  const инд = geo.getIndex();
+  const всего = инд ? инд.count : поз.count;
+  const свои = [];
+  for(let t = 0; t < всего; t += 3){
+    const a = инд ? инд.getX(t) : t, b = инд ? инд.getX(t+1) : t+1, c = инд ? инд.getX(t+2) : t+2;
+    if(годится((поз.getX(a)+поз.getX(b)+поз.getX(c))/3,
+               (поз.getY(a)+поз.getY(b)+поз.getY(c))/3,
+               (поз.getZ(a)+поз.getZ(b)+поз.getZ(c))/3)) свои.push(a, b, c);
+  }
+  if(!свои.length) return null;
+  const g = geo.clone();
+  g.setIndex(свои);
+  return g;
+}
+
+function безКачалок(geo){
+  const поз = geo.getAttribute('position');
+  const инд = geo.getIndex();
+  const всего = инд ? инд.count : поз.count;
+  const внутри = (x, y, z) => y >= КАЧАЛКИ.низ && y <= КАЧАЛКИ.верх &&
+    КАЧАЛКИ.места.some(м => Math.abs(x - м.x) < КАЧАЛКИ.пх &&
+                            z > м.z + КАЧАЛКИ.дz0 && z < м.z + КАЧАЛКИ.дz1);
+  const оставить = [];
+  for(let t = 0; t < всего; t += 3){
+    const a = инд ? инд.getX(t) : t, b = инд ? инд.getX(t+1) : t+1, c = инд ? инд.getX(t+2) : t+2;
+    if(внутри((поз.getX(a)+поз.getX(b)+поз.getX(c))/3,
+              (поз.getY(a)+поз.getY(b)+поз.getY(c))/3,
+              (поз.getZ(a)+поз.getZ(b)+поз.getZ(c))/3)) continue;
+    оставить.push(a, b, c);
+  }
+  const g = geo.clone();
+  g.setIndex(оставить);
+  return g;
+}
+
+/* Один станок из загруженных частей. Каждая подвижная часть садится в свою
+   группу, поставленную на ось вращения, а сама сетка внутри сдвигается на ту
+   же ось назад — тогда вращение идёт вокруг настоящего шарнира, а не вокруг
+   начала координат модели.
+
+   Каркасная копия кладётся соседом в ту же группу: она качается вместе с
+   железом, и отдельной анимации ей не нужно. */
+function собратьСтанок(части, мат, кмат){
+  const узел = (имя, ось) => {
+    const г = new THREE.Group();
+    if(ось) г.position.set(ось.x, ось.y, 0);
+    // каркас берётся с огрублённой копии: на полной сетке wireframe сливается
+    // в сплошное белое пятно, линий там в тысячу раз больше, чем у плит слоёв
+    const сетки = [new THREE.Mesh(части[имя], мат),
+                   new THREE.Mesh(части[имя + '_каркас'] || части[имя], кмат)];
+    сетки[1].renderOrder = 1;         // каркас рисуется после железа своей же части
+    for(const м of сетки){
+      if(ось) м.position.set(-ось.x, -ось.y, 0);
+      г.add(м);
+    }
+    return г;
+  };
+  const j = new THREE.Group();
+  const коромысло = узел('коромысло', МЕХ.ось);
+  const кривошип  = узел('кривошип',  МЕХ.вал);
+  const шатун     = узел('шатун',     МЕХ.палец);
+  j.add(узел('рама', null), коромысло, кривошип, шатун);
+  return { группа:j, коромысло, кривошип, шатун };
+}
+
+/* Ставим станки на те же места, откуда вырезаны. Кладём их в `scaleG`, а не в
+   группу модели: та растянута по осям неодинаково (ширина к глубине как
+   1,32 к 1), и станок в ней поехал бы вслед за растяжением.
+
+   Под каждым — своя плита. Она не украшение: под вырезанным станком в модели
+   нет поверхности (корпус стоял прямо на грунте, настила под ним не сделано),
+   и без плиты на месте реза осталась бы сквозная дыра. Плита повторяет след
+   коробки реза, поэтому закрывает его целиком. */
+function собратьКачалки(z, M, yb, части){
+  const центр = M.box.getCenter(new THREE.Vector3());
+  /* Сдвиг полигонов отодвигает железо на волос назад, чтобы каркас, снятый с
+     огрублённой копии, не тонул в поверхности и не мерцал. У запечённых
+     станков этой проблемы не было: там каркас был той же геометрией. */
+  const мат = new THREE.MeshStandardMaterial({ color:'#3C4149', roughness:0.62,
+    metalness:0.42, transparent:true,
+    polygonOffset:true, polygonOffsetFactor:1, polygonOffsetUnits:1 });
+  // плита под цвет грунта, а не чёрная: иначе под станком чёрный ящик
+  const матПлиты = new THREE.MeshStandardMaterial({ color:'#93866D', roughness:0.97,
+    metalness:0.03, transparent:true });
+  /* Тот же приём, что у запечённых объектов слоя: wireframe ровно той же
+     геометрии, что и железо, — линии лежат на поверхности, задние прячутся за
+     корпусом. Огрублённые каркасы из файла не используются: пробовали и
+     крупную сетку, и чертёж по рёбрам — на этой детали и то и другое выпадало
+     из общей манеры. Цвет и яркость свои, см. КАЧАЛКИ. */
+  const кмат = new THREE.MeshBasicMaterial({ color:КАЧАЛКИ.цвет, wireframe:true,
+    transparent:true, opacity:0, blending:THREE.AdditiveBlending,
+    depthWrite:false });
+  /* Плита гаснет вместе со слоем, а сталь станка — нет: она уходит в двойник
+     уже на наведении, вместе со своим каркасом. Иначе на наведении каркас лёг
+     бы поверх целого железа и станок читался бы просто подсвеченным, а не
+     оцифрованным. Плиту так гасить нельзя: под ней вырез в модели, и на
+     физическом слое сквозь неё стала бы видна дыра. */
+  z.physMats.push(матПлиты);
+  z.мехФиз = [мат];
+  // у каркаса станков своя кривая яркости: на плотной сетке общая выгорает в белый
+  z.мехМат = кмат;
+  z.качалки = [];
+
+  const верхПлиты = yb + (КАЧАЛКИ.низ - M.box.min.y) * M.sY;
+  const шПлиты = 2 * КАЧАЛКИ.пх * M.sX + 2 * КАЧАЛКИ.запас;
+  const дПлиты = (КАЧАЛКИ.дz1 - КАЧАЛКИ.дz0) * M.sZ + 2 * КАЧАЛКИ.запас;
+  const дцентр = (КАЧАЛКИ.дz1 + КАЧАЛКИ.дz0) / 2 * M.sZ;   // рез несимметричен по Z
+
+  КАЧАЛКИ.места.forEach((место, i) => {
+    const узел = new THREE.Group();
+    узел.position.set((место.x - центр.x) * M.sX, верхПлиты, (место.z - центр.z) * M.sZ);
+    z.scaleG.add(узел);
+
+    const плита = new THREE.Mesh(new THREE.BoxGeometry(шПлиты, КАЧАЛКИ.плита, дПлиты), матПлиты);
+    плита.position.set(0, -КАЧАЛКИ.плита/2, дцентр);
+    узел.add(плита);
+
+    const с = собратьСтанок(части, мат, кмат);
+    с.группа.scale.setScalar(КАЧАЛКИ.масштаб);
+    // коромысло идёт вдоль Z, как у вырезанных; разворот — головкой от зрителя
+    с.группа.rotation.y = Math.PI/2;
+    /* Низ рамы модели (−0,951) садится на верх плиты и уходит в неё на
+       `утопить`: рама у станка толстая, и стоя на площадке он смотрится
+       взгромождённым. Плита при этом остаётся на уровне настила — она закрывает
+       дыру от реза, и опускать её вместе со станком нельзя. */
+    с.группа.position.set(0, 0.951 * КАЧАЛКИ.масштаб - КАЧАЛКИ.утопить, дцентр);
+    узел.add(с.группа);
+
+    // сдвиг фазы: три станка, качающихся в такт, читаются как механизм, а не промысел
+    z.качалки.push({ ...с, сдвиг:i * 60/КАЧАЛКИ.ходов/3 });
+  });
+}
+
+async function build(){
+  const roots = {};
+  // верхняя составляющая пласта (ТЭО) собирается кодом — модель для неё не грузим
+  const LOAD_IDS = ['plast1','plast2','skv','naz'];
+  // грузим параллельно — общее время ≈ самый долгий файл, а не сумма всех
+  let loaded = 0;
+  const частиСтанка = {};
+  await Promise.all([
+    ...LOAD_IDS.map(id => loadLayer(id).then(s => {
+      roots[id] = s;
+      document.getElementById('loadmsg').textContent = 'Слоёв загружено ' + (++loaded) + ' из ' + LOAD_IDS.length + '…';
+    })),
+    // станок-качалка: не слой, а деталь наземки, поэтому вне списка слоёв
+    new Promise(res => gltfLoader.load(encodeURIComponent('качалка_части.glb'), g => {
+      g.scene.traverse(n => {
+        // нормали в файл не писались — считаем на месте, вес файла вдвое меньше.
+        // Части с рёбрами приходят линиями (mode LINES), нормали им не нужны.
+        if(n.isMesh){ n.geometry.computeVertexNormals(); частиСтанка[n.name] = n.geometry; }
+        else if(n.isLineSegments) частиСтанка[n.name] = n.geometry;
+      });
+      res();
+    }, undefined, () => res()))   // не нашёлся — слой соберётся без станков
+  ]);
+
+  // размеры и стек: ширина и глубина всех плит приводятся к одному футпринту
+  const DEPTH = 190;
+  const H_PLAST = 62;                       // суммарная высота трёх составляющих пласта
+  const meta = {};
+  for(const id of LOAD_IDS){
+    const r = roots[id];
+    r.updateMatrixWorld(true);
+    const box = new THREE.Box3().setFromObject(r);
+    const size = box.getSize(new THREE.Vector3());
+    const sX = FOOT / size.x;
+    const sZ = DEPTH / size.z;
+    const sY = (id === 'naz') ? (sX+sZ)/2 : (TARGET_H[id] ? TARGET_H[id]/size.y : 1);
+    meta[id] = { r, box, size, sX, sZ, sY, h: (id==='naz' ? size.y*sY : (TARGET_H[id] || 0)) };
+  }
+  // границы полос: наземка от 0 вверх, остальные вниз; лёгкий нахлёст убирает щели стыков
+  const bands = {};
+  bands.naz = [0, meta.naz.h];
+  bands.skv = [-meta.skv.h, 0];
+  bands.plast = [bands.skv[0]-H_PLAST, bands.skv[0]];
+  let acc = 0;
+  for(const [id, up] of [['skv',5],['plast',3]]){
+    acc += up;
+    bands[id][0] += acc; bands[id][1] += acc;
+  }
+
+  for(const id of RANK_UP){
+    const M = meta[id];
+    const [yb, yt] = bands[id];
+    const z = zones[id] = { id, yb, yt, physMats:[], wireMats:[], holo:[], mix:0, target:0,
+      offset:0, targetOffset:0, scaleG:new THREE.Group() };
+    world.add(z.scaleG);
+
+    const place = mesh => {
+      const center = M.box.getCenter(new THREE.Vector3());
+      mesh.scale.set(M.sX, M.sY, M.sZ);
+      mesh.position.set(-center.x*M.sX, yb - M.box.min.y*M.sY, -center.z*M.sZ);
+    };
+
+    // физическая версия (пласт собирается из 3 подслоёв ниже)
+    if(id !== 'plast'){
+      const physG = new THREE.Group();
+      M.r.traverse(n => {
+        if(!n.isMesh) return;
+        // у наземки из сетки вырезаны станки: их место занимают собранные кодом
+        const геом = (id === 'naz')
+          ? частьСетки(безКачалок(n.geometry), (x,y,zz) => !вФакеле(x,y,zz))
+          : n.geometry;
+
+        /* Резервуарный парк отделяется в свою пару мешей. Он уходит в двойник
+           уже на наведении — вместе со станками и трубопроводом, — а остальной
+           слой остаётся физическим до нажатия. Одним мешем так не получится:
+           у железа и каркаса баков должна быть своя непрозрачность. */
+        const баки = (id === 'naz') ? частьСетки(геом, вХранилище) : null;
+        const остальное = баки ? частьСетки(геом, (x,y,zz) => !вХранилище(x,y,zz)) : геом;
+
+        const пара = (g, свои) => {
+          const pm = n.material.clone(); pm.transparent = true;
+          physG.add(new THREE.Mesh(g, pm));
+          const wm = new THREE.MeshBasicMaterial({ color:holoColors[id][0], wireframe:true,
+            transparent:true, opacity:0, blending:THREE.AdditiveBlending, depthWrite:false });
+          physG.add(new THREE.Mesh(g, wm));
+          свои.физ.push(pm); свои.кар.push(wm);
+        };
+        пара(остальное, { физ:z.physMats, кар:z.wireMats });
+        if(баки){
+          z.бакиФиз = z.бакиФиз || []; z.бакиКар = z.бакиКар || [];
+          пара(баки, { физ:z.бакиФиз, кар:z.бакиКар });
+        }
+      });
+      if(id === 'skv'){
+        // слой скважин повёрнут на −90°: штатные чёрные трубы встают рядом под качалками
+        const center = M.box.getCenter(new THREE.Vector3());
+        const inner = new THREE.Group();
+        inner.position.set(-center.x, 0, -center.z);
+        while(physG.children.length) inner.add(physG.children[0]);
+        const rot = new THREE.Group();
+        rot.rotation.y = -Math.PI/2;
+        rot.add(inner);
+        const outer = new THREE.Group();
+        outer.add(rot);
+        // Оси меняются местами из-за поворота, поэтому ширина считается по
+        // size.z, а глубина по size.x. Множителя тут быть не должно: слой
+        // вылезал на 5% за собственную голограмму и за соседние плиты.
+        outer.scale.set(FOOT/M.size.z, M.sY, DEPTH/M.size.x);
+        outer.position.set(0, yb - M.box.min.y*M.sY, 0);
+        z.scaleG.add(outer);
+      } else {
+        place(physG);
+        z.scaleG.add(physG);
+        if(id === 'naz' && СТАНКИ_ВКЛ && частиСтанка['коромысло']) собратьКачалки(z, M, yb, частиСтанка);
+        /* В отладочном режиме выводим число треугольников слоя: по нему сразу
+           видно, какая версия страницы открыта. Без реза их 27 936, с резом —
+           25 487. Иначе спор «убраны станки или нет» не разрешить. */
+        if(id === 'naz' && !СТАНКИ_ВКЛ){
+          let тр = 0;
+          physG.traverse(n => { if(n.isMesh && n.geometry.index) тр = Math.max(тр, n.geometry.index.count/3); });
+          document.getElementById('hint').textContent =
+            'отладка · станки сняты · треугольников в слое наземки: ' + тр.toLocaleString('ru');
+        }
+      }
+    } else {
+      // ЦД пласта: нижние две составляющие — модели, верхняя собирается кодом
+      z.subs3d = [];
+      const subIds = ['plast1','plast2','plast3'];
+      const h3 = (yt-yb)/3;
+      for(let si=0; si<3; si++){
+        const col = ZONES.plast.subs[si].color || ZONES.plast.color;
+        // составляющие идут снизу вверх: 01.1 — нижняя полоса, 01.3 — верхняя
+        const sb = yb + h3*si, st = sb + h3;
+        const wrap = new THREE.Group();
+        const g = new THREE.Group();
+        const physMats = [], wireMats = [];
+
+        if(si === 2){
+          /* Технико-экономическая оценка — не генерированная плита, а расчётный
+             слой: от каждой точки бурения вверх идёт ствол, рядом цифры расчёта.
+             Модель тут не нужна — считать и подписывать точнее в коде, и текст
+             остаётся чётким (генератор кириллицу не выговаривает). */
+          собратьТЭО(g, physMats, wireMats, sb, st, col, FOOT, DEPTH);
+        } else {
+          const Ms = meta[subIds[si]];
+          const cS = Ms.box.getCenter(new THREE.Vector3());
+          const sX = FOOT/Ms.size.x, sZ = DEPTH/Ms.size.z, sY = (h3-3)/Ms.size.y;
+          Ms.r.traverse(n => {
+            if(!n.isMesh) return;
+            const pm = n.material.clone(); pm.transparent = true;
+            g.add(new THREE.Mesh(n.geometry, pm)); physMats.push(pm);
+            const wm = new THREE.MeshBasicMaterial({ color:col, wireframe:true, transparent:true,
+              opacity:0, blending:THREE.AdditiveBlending, depthWrite:false });
+            g.add(new THREE.Mesh(n.geometry, wm)); wireMats.push(wm);
+          });
+          g.scale.set(sX, sY, sZ);
+          g.position.set(-cS.x*sX, sb - Ms.box.min.y*sY + 1.5, -cS.z*sZ);
+        }
+        wrap.add(g);
+        const hb = holoBox(FOOT, h3-2.5, DEPTH, (st+sb)/2, col, 9, 0x3A280C);
+        wrap.add(hb);
+        z.scaleG.add(wrap);
+        const hit = new THREE.Mesh(new THREE.BoxGeometry(FOOT, h3, DEPTH),
+          new THREE.MeshBasicMaterial({ visible:false }));
+        hit.position.y = (st+sb)/2;
+        hit.userData.zone = 'plast'; hit.userData.sub = si;
+        world.add(hit);
+        pickMeshes.push(hit);
+        z.subs3d.push({ wrap, physMats, wireMats, holo:hb.userData.parts, st, sb, hit, off:0, mix:0 });
+      }
+      z.столбы = []; z.узлыСтолбов = [];
+      собратьСтолбы(z.scaleG, yb, yt, FOOT, DEPTH, ZONES.plast.color, z.столбы, z.узлыСтолбов);
+    }
+
+    // голограмма-обёртка (для наземки — только нижняя плита; пласт — 3 составляющие)
+    const D2 = DEPTH;
+    if(id === 'naz'){
+      const hb = holoBox(FOOT, (yt-yb)*0.30, D2, yb + (yt-yb)*0.10, holoColors[id][0], 10, holoColors[id][1]);
+      z.scaleG.add(hb); z.holo.push(hb.userData.parts);
+      // обводка идёт янтарём, а не бирюзой контура: на бирюзовой голограмме
+      // одноцветная разметка сливалась и объект переставал читаться
+      z.акценты = собратьАкцентыНаземки(z.scaleG, yb, yt, '#FFB020');
+      /* Трубопровод принадлежит акценту «инфра», но включается своим уровнем, а
+         не вместе с кольцами: на шаге «Резервуарный парк и трубопровод» он
+         выходит целиком, а на голом наведении на слой — приглушённым и один,
+         без обводки и подписи. Поэтому его узлы в `н.узлы` не кладём. */
+      z.труба = собратьТрубопровод(z.scaleG, yb + (yt - yb)*0.34 - 5);
+    } else if(id === 'plast'){
+      // голограммы подслоёв уже созданы вместе с клип-полосами выше
+    } else {
+      const hb = holoBox(FOOT, yt-yb, D2, (yb+yt)/2, holoColors[id][0], 9, holoColors[id][1]);
+      z.scaleG.add(hb); z.holo.push(hb.userData.parts);
+    }
+
+    // ЦД скважины: собственные стволы строго под качалками наземки + подсветка
+    if(id === 'skv'){
+      // Подсветка идёт «муфтой» поверх стволов самой модели: координаты и радиус
+      // сняты замером сверху по чёрным трубам GLB, чуть шире — чтобы обнимать трубу.
+      z.wellMats = [];
+      const WELLS = [[-80.5, 81.4], [0.1, 81.5], [80.5, 81.4]];
+      const R_PIPE = 4.2;
+      const БУРИТСЯ = 1;                       // средняя скважина — в бурении
+      const ГОРИЗОНТ = 2;                      // правая — горизонтальный ствол
+      WELLS.forEach(([wx, wz], wi) => {
+        /* Бурящуюся скважину фиолетовым не красим: там сейчас идёт работа, а не
+           телеметрия действующего фонда — её показывает само долото. Бурятся
+           обе: одна вертикально, вторая с заворотом в горизонт. */
+        const вБурении = (wi === БУРИТСЯ || wi === ГОРИЗОНТ);
+        const wm = вБурении
+          ? new THREE.MeshStandardMaterial({ color:'#9AA5B4', roughness:0.5, metalness:0.25,
+              transparent:true, opacity:0, emissive:new THREE.Color('#38414F'), emissiveIntensity:0.4,
+              depthWrite:false })
+          : new THREE.MeshStandardMaterial({ color:'#9B7BE8', roughness:0.35, metalness:0.2,
+              transparent:true, opacity:0, emissive:new THREE.Color('#9B7BE8'), emissiveIntensity:0,
+              depthWrite:false });
+        (вБурении ? (z.бурМаты = z.бурМаты || []) : z.wellMats).push(wm);
+        /* У горизонтальной скважины прямой обсадки нет: её ствол целиком идёт
+           одной кривой ниже, и цилиндр поверх него дал бы двойную стенку.
+           Муфты по той же причине только на прямых стволах — на кривой они
+           повисли бы рядом со стволом, а не на нём. */
+        if(wi !== ГОРИЗОНТ){
+          const tube = new THREE.Mesh(new THREE.CylinderGeometry(R_PIPE*1.18, R_PIPE*1.18, (yt-yb)+10, 14), wm);
+          tube.position.set(wx, (yb+yt)/2, wz);
+          z.scaleG.add(tube);
+          // муфты — акцент по стволу
+          for(const q of [0.25, 0.6]){
+            const ring = new THREE.Mesh(new THREE.TorusGeometry(R_PIPE*1.5, 0.7, 8, 18), wm);
+            ring.rotation.x = Math.PI/2;
+            ring.position.set(wx, yb + (yt-yb)*q, wz);
+            z.scaleG.add(ring);
+          }
+        }
+        // долото на забой — чуть ниже подошвы слоя, в просвет: там его видно;
+        // шлам поднимается по стволу до кровли слоя
+        if(wi === БУРИТСЯ) z.бурение = собратьДолото(z.scaleG, wx, yb - 10, wz, R_PIPE*2.3, (yt - yb) + 12);
+
+        /* Горизонтальный ствол — вторая бурящаяся скважина. Одной кривой от
+           кровли слоя: вертикаль, длинный набор угла и лежачая часть со своим
+           долотом на забое.
+
+           Всё держится внутри полосы слоя. Первая версия уводила заворот на
+           сорок с лишним единиц под подошву — ствол проваливался в плиту
+           пласта, там его съедала её геометрия, и на раздвижке слоёв он висел
+           в пустоте.
+
+           Азимут — ровно вдоль передней грани блока (−X). Разворот «в глубину»
+           выглядел коротким огрызком: горизонталь уходила от камеры и вся
+           длина съедалась ракурсом. Вдоль грани она видна в профиль, как на
+           разрезах, и не налезает на соседние стволы. */
+        if(wi === ГОРИЗОНТ){
+          const гм = new THREE.MeshStandardMaterial({ color:'#9AA5B4', roughness:0.5, metalness:0.25,
+            transparent:true, opacity:0, emissive:new THREE.Color('#38414F'), emissiveIntensity:0.45,
+            depthWrite:false });
+          (z.бурМаты = z.бурМаты || []).push(гм);
+          const путь = стволТочки({ гориз:Math.PI }, wx, wz, yb + 4, yt + 5, 28, 30);
+          const ствол = new THREE.Mesh(new THREE.TubeGeometry(путь, 96, R_PIPE*1.18, 12, false), гм);
+          z.scaleG.add(ствол);
+
+          // долото на забое горизонтали: разворачиваем по касательной, чтобы оно
+          // именно уходило в пласт, а не висело поперёк ствола
+          const конец = путь.getPoint(1), ход = путь.getTangent(1).normalize();
+          z.бурениеГ = собратьДолото(z.scaleG, конец.x, конец.y, конец.z, R_PIPE*2.1, 46, ход, true);
+
+          // якорь подписи — на середине лежачей части, там её ни с чем не спутать
+          const якорь = new THREE.Object3D();
+          якорь.position.copy(путь.getPoint(0.82));
+          z.scaleG.add(якорь);
+          z.горизонт = { якорь };
+        }
+      });
+    }
+
+    // частицы данных
+    {
+      const N = 130;
+      const pos = new Float32Array(N*3), seed = new Float32Array(N*2);
+      for(let i=0;i<N;i++){
+        pos[i*3]   = (Math.random()-0.5)*FOOT*0.96;
+        pos[i*3+1] = yb + Math.random()*(yt-yb);
+        pos[i*3+2] = (Math.random()-0.5)*D2*0.96;
+        seed[i*2] = Math.random()*(yt-yb);
+        seed[i*2+1] = 4 + Math.random()*10;
+      }
+      const pg = new THREE.BufferGeometry();
+      pg.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+      const pmT = new THREE.PointsMaterial({ color:holoColors[id][0], size:2.4,
+        transparent:true, opacity:0, blending:THREE.AdditiveBlending, depthWrite:false });
+      const pts = new THREE.Points(pg, pmT);
+      z.scaleG.add(pts);
+      z.particles = { geo:pg, mat:pmT, seed, yb, yt, n:N };
+    }
+
+    // хитбокс (у пласта — свои по подслоям)
+    if(id !== 'plast'){
+      const hit = new THREE.Mesh(new THREE.BoxGeometry(FOOT, yt-yb, D2),
+        new THREE.MeshBasicMaterial({ visible:false }));
+      hit.position.y = (yb+yt)/2;
+      hit.userData.zone = id;
+      world.add(hit);
+      pickMeshes.push(hit);
+      z.hit = hit;
+    }
+  }
+
+  // сместить весь стек так, чтобы центр масс был около цели камеры
+  const stackTop = bands.naz[1], stackBot = bands.plast[0];
+  const shift = -40 - (stackTop + stackBot)/2;
+  world.position.y = shift;   // хитбоксы уже в world — двигаются вместе со стеком
+
+  document.getElementById('loader').classList.add('done');
+}
+build().catch(e => { document.getElementById('loadmsg').textContent = 'Ошибка: ' + e.message; });
+
+/* ================================================================
+   ИНТЕРАКЦИЯ
+   ================================================================ */
+const state = { hover:null, hoverSub:null, locked:null };
+const panelState = { zone:null, sub:null };
+const active = () => state.locked || state.hover;
+
+const raycaster = new THREE.Raycaster();
+const ptr = new THREE.Vector2(-2,-2);
+let mouseXY = [0,0];
+addEventListener('pointermove', e => {
+  ptr.x = (e.clientX/innerWidth)*2 - 1;
+  ptr.y = -(e.clientY/innerHeight)*2 + 1;
+  mouseXY = [e.clientX, e.clientY];
+});
+renderer.domElement.addEventListener('click', () => {
+  if(state.hover){
+    const same = state.locked === state.hover && state.hover !== 'plast';
+    state.locked = same ? null : state.hover;
+    // клик по подслою пласта открывает его модалку
+    if(state.locked === 'plast') panelState.sub = state.hoverSub;
+    refresh();
+  }
+  else if(state.locked){ state.locked = null; refresh(); }
+});
+addEventListener('keydown', e => { if(e.key === 'Escape'){ state.locked = null; state.hover = null; refresh(); } });
+
+const elStack = document.getElementById('stack');
+/* Список слева. При выборе ЦД пласта он раскрывается в шаги, остальные контуры
+   уходят — чтобы на экране был один смысловой уровень, а не два сразу. */
+let stackBuilt = false;
+function buildStack(){
+  if(stackBuilt) return;      // список статичен: все шаги видны сразу
+  stackBuilt = true;
+  for(const id of ORDER){
+    const zd = ZONES[id];
+    const b = document.createElement('button');
+    b.className = 'lay'; b.id = 'lay-'+id;
+    b.style.setProperty('--lc', zd.color);
+    /* Нумерация наружу: контуры 1–3, шаги внутри — 1.1, 1.2 и так далее.
+       На показе докладчик ссылается на шаг голосом, и без номера зал ищет его
+       по названию. Номер берём из данных (`no`), а не из позиции в списке:
+       порядок кнопок менялся, а нумерация контуров закреплена сценарием. */
+    const ном = String(Number(zd.no)) || '';
+    b.innerHTML = `<div class="n">${ном}</div><div class="t">${zd.name}</div>`
+                + ((zd.subs || []).length ? '<i class="ch"></i>' : '');
+    b.addEventListener('mouseenter', () => { state.hover = id; state.hoverSub = null; refresh(); });
+    b.addEventListener('mouseleave', () => { state.hover = null; refresh(); });
+    b.addEventListener('click', () => {
+      state.locked = (state.locked === id) ? null : id;
+      panelState.sub = null;
+      refresh();
+    });
+    elStack.appendChild(b);
+
+    // шаги контура — вложенные узлы той же цепочки, в цвете своего контура
+    (zd.subs || []).forEach((s, si) => {
+      const sb = document.createElement('button');
+      sb.className = 'lay step'; sb.id = `lay-step-${id}-${si}`;
+      sb.style.setProperty('--lc', s.color || zd.color);
+      sb.innerHTML = `<div class="n">${ном}.${si + 1}</div><div class="t">${s.t}</div>`;
+      sb.addEventListener('mouseenter', () => { state.hover = id; state.hoverSub = si; refresh(); });
+      sb.addEventListener('mouseleave', () => { state.hoverSub = null; refresh(); });
+      sb.addEventListener('click', () => {
+        state.locked = id;
+        const same = panelState.zone === id && panelState.sub === si;
+        panelState.zone = id;                 // иначе showPanel сочтёт контур новым и сбросит выбор
+        panelState.sub = same ? null : si;
+        refresh();
+      });
+      elStack.appendChild(sb);
+    });
+  }
+}
+buildStack();
+
+const $ = s => document.getElementById(s);
+
+/* Ведущая часть формулировки — до двоеточия или первой точки. Формулировки в
+   ZONES написаны по схеме «суть: расшифровка», и на экране нужна только суть:
+   расшифровку докладчик проговаривает вслух, а панель от неё разрасталась в
+   стену текста. Резать механически, а не переписывать: исходные строки целы,
+   вернуть полный вид — снять один вызов. */
+function главное(текст){
+  if(!текст) return '';
+  const m = /^(.+?)(?::|\.\s)/.exec(текст);
+  return m ? m[1].trim() : текст.replace(/\.$/, '');
+}
+function showPanel(id){
+  const zd = ZONES[id];
+  if(panelState.zone !== id){ panelState.zone = id; panelState.sub = null; }
+  $('panel').style.setProperty('--pc', zd.color);
+  $('p-kick').textContent = 'Из чего строится ЦД Актива';
+  $('p-name').textContent = zd.name;
+  $('p-claim').textContent = главное(zd.claim);
+  $('p-fx').innerHTML = zd.fx.map(f => `<div class="fx"><div class="v">${f.v}</div><div class="l">${f.l}</div></div>`).join('');
+  /* Панель намеренно держим короткой. Раньше она несла второй слой пояснений
+     под каждым пунктом плюс сноску контура — на экране выходила стена текста,
+     которую докладчик всё равно проговаривает вслух. Осталось то, что глазами
+     считывают за секунду: название, одна строка сути, модули и эффект.
+     Формулировки не тронуты — убрана только их вторая половина. */
+  if(zd.subs && panelState.sub !== null){
+    // выбран шаг: его название — заголовок, контур остаётся подзаголовком
+    const s = zd.subs[panelState.sub];
+    const sc = s.color || zd.color;
+    $('panel').style.setProperty('--pc', sc);
+    $('p-kick').textContent = 'Из чего строится ЦД Актива';
+    $('p-name').textContent = s.t;
+    $('p-claim').innerHTML = `<span style="color:${sc}">${zd.name}</span>`;
+    $('p-h-blocks').textContent = 'Что это';
+    $('p-blocks').innerHTML = `<div class="bl"><div class="bi">${главное(s.what)}</div></div>`;
+    $('p-mods').innerHTML = s.mods.map(m => `<span class="mod">${m}</span>`).join('');
+    $('p-note').textContent = '';
+  } else {
+    $('p-h-blocks').textContent = 'Что закрывает';
+    // только заголовки пунктов: расшифровка под каждым — работа докладчика
+    $('p-blocks').innerHTML = zd.blocks.map(b => `<div class="bl"><div class="bt">${b.t}</div></div>`).join('');
+    $('p-mods').innerHTML = zd.mods.map(m => `<span class="mod">${m}</span>`).join('');
+    $('p-note').textContent = '';
+  }
+  $('p-h-blocks').style.display = $('p-blocks').innerHTML ? '' : 'none';
+  $('panel').classList.add('vis');
+}
+$('p-close').addEventListener('click', () => { state.locked = null; state.hover = null; refresh(); });
+
+const chip = $('chip');
+function refresh(){
+  const a = active();
+  for(const id in zones) zones[id].target = (id === a) ? 1 : 0;
+  buildStack();
+  for(const id of ORDER){
+    /* Шаги раскрываются только у выбранного контура. Наведения мало: иначе
+       список дёргается высотой под курсором и сам себя выводит из-под него. */
+    const раскрыт = (state.locked === id);
+    const b = $('lay-'+id);
+    if(b){ b.classList.toggle('hot', id === a); b.classList.toggle('open', раскрыт); }
+    const cur = state.locked === id ? panelState.sub : (state.hover === id ? state.hoverSub : null);
+    (ZONES[id].subs || []).forEach((_, si) => {
+      const sb = $(`lay-step-${id}-${si}`);
+      if(!sb) return;
+      sb.classList.toggle('show', раскрыт);
+      sb.classList.toggle('hot', a === id && cur === si);
+    });
+  }
+  /* Ничего не выбрано — панели нет вовсе. Стартовая модалка про ABAI снята:
+     она открывалась поверх модели до первого касания и закрывала собой то,
+     ради чего слайд и открыт. Её содержание переехало на главный экран
+     показа, где под него есть отдельный кадр. */
+  if(a) showPanel(a); else $('panel').classList.remove('vis');
+  controls.autoRotateSpeed = ROT_SPEED;
+  updateNavLine();
+  // список меняет высоту и заново центрируется — уточняем позицию, когда раскладка устоялась
+  requestAnimationFrame(updateNavLine);
+  fitBetweenPanels();
+}
+
+/* Заливка линии и бегущая точка доходят до текущего узла: видно, что процесс
+   идёт от пласта через шаги к следующим контурам, а не набор отдельных кнопок. */
+function updateNavLine(){
+  const line = $('navline'), fill = $('navfill'), dot = $('navdot');
+  if(!line) return;
+  const sTop = elStack.getBoundingClientRect().top;
+  const lTop = line.getBoundingClientRect().top;
+  const btns = [...elStack.querySelectorAll('.lay')];
+  const hot = btns.filter(b => b.classList.contains('hot')).pop();
+  if(!hot){
+    fill.style.height = '0px';
+    dot.classList.remove('on');
+    btns.forEach(b => b.classList.remove('done'));
+    return;
+  }
+  const centerOf = b => { const r = b.getBoundingClientRect(); return r.top + r.height/2; };
+  const y = centerOf(hot);
+  line.style.setProperty('--nc', getComputedStyle(hot).getPropertyValue('--lc').trim() || '#F0AE4A');
+  const dy = Math.max(0, y - lTop);
+  fill.style.height = dy + 'px';
+  dot.style.transform = 'translateY(' + dy + 'px)';
+  dot.classList.add('on');
+  btns.forEach(b => b.classList.toggle('done', centerOf(b) <= y + 1));
+}
+fitBetweenPanels();
+
+/* ================================================================
+   ЦИКЛ
+   ================================================================ */
+/* На сколько разлетевшиеся составляющие выходят за габарит своего слоя.
+   Берём фактические значения прошлого кадра — стек и полосы едут синхронно. */
+function subSpread(id){
+  const z = zones[id];
+  if(!z || !z.subs3d) return { up:0, down:0 };
+  let top = -Infinity, bot = Infinity;
+  for(const s of z.subs3d){
+    const cy = (s.st + s.sb)/2, hh = (s.st - s.sb)/2 * (s.scl || 1);
+    top = Math.max(top, cy + hh + s.off);
+    bot = Math.min(bot, cy - hh + s.off);
+  }
+  return { up: Math.max(0, (top - z.yt) * 1.06), down: Math.max(0, (z.yb - bot) * 1.06) };
+}
+
+/* Подписи точек бурения. Считаем экранные координаты сами — так не нужен ещё
+   один модуль three, а текст остаётся обычным HTML: чёткий и переводимый. */
+const elTeo = document.getElementById('teo');
+const подписиТЭО = [];   // те метки, у которых есть плашка; остальные столбы немые
+
+/* Подписаны ровно две скважины из восьми: по одной из каждой полосы высот —
+   горизонтальная и наклонно-направленная. Восемь подписей превращали стопку в
+   таблицу, висящую над моделью, и сама раздвижка слоёв за ними терялась; две
+   подписи читаются как сравнение двух решений — ради него слой и показывают.
+   Остальные шесть столбов остаются без плашек: ранг виден высотой, тип ствола —
+   заворотом и цветом.
+
+   ВЫБОР — ПО БЛИЗОСТИ К ЦЕНТРУ ФУТПРИНТА, а не по отдаче. Модель вращается, и
+   столб с краю на половине оборота уезжает за обрез стопки, утаскивая подпись
+   за собой; центральные видны с любого ракурса. Поэтому подписанная наклонно-
+   направленная — из середины фонда, а не лучшая по деньгам. На высказывании
+   слоя это не сказывается: сравниваются полосы, а не две конкретные скважины.
+
+   РАЗВЕДЕНИЕ ПЛАШЕК. Двух мер хватает, чтобы они не сходились ни на одном
+   ракурсе: столбы стоят в разных полосах высот, то есть плашки заведомо на
+   разной высоте экрана, и растут они в разные стороны — верхняя вправо от
+   своего столба, нижняя влево. Экранных проверок на пересечение не делаем:
+   геометрия уже разводит, а дёргающаяся от кадра к кадру подпись хуже.
+
+   ДЕНЬГИ. В НРС ЭМГ есть графа «прибыль/убыток», дисконтированного NPV там нет,
+   поэтому в подписи стоит прибыль — так она и называется. Подставят расчёт ЦРНС
+   с настоящим NPV — менять здесь только заголовок строки и источник числа. */
+const вМесяц = с => {
+  const год = +String(с).replace(/[^\d]/g, '');
+  return Math.round(год / 12).toLocaleString('ru-RU');
+};
+// слой собирается асинхронно, поэтому подписи заводим при первом показе
+function создатьМеткиТЭО(){
+  const кЦентру = (a, b) =>
+    Math.hypot(a.точка.x, a.точка.z) - Math.hypot(b.точка.x, b.точка.z);
+  const центральная = горизонтальная => меткиТЭО
+    .filter(м => (м.точка.гориз !== undefined) === горизонтальная)
+    .sort(кЦентру)[0];
+
+  for(const [м, тип, бок] of [[центральная(true),  'горизонтальная',        ''],
+                              [центральная(false), 'наклонно-направленная', ' влево']]){
+    if(!м) continue;
+    const d = document.createElement('div');
+    d.className = 'tm' + бок;
+    /* Номер и тип идут цветом своего ствола: зелёным у горизонтальной, красным
+       у наклонно-направленной. Плашка тогда сама говорит, к какому столбу она
+       относится, и на плотной стопке её не нужно связывать глазами. */
+    d.style.setProperty('--ств', м.точка.гориз !== undefined ? '#2FBF5B' : '#F03A2E');
+    d.innerHTML = `<div class="no">${м.точка.N} · ${тип}</div>`
+      + `<div class="ec">добыча ≈ <b>${вМесяц(м.точка.добыча)}</b> т/мес</div>`
+      + `<div class="ec">прибыль ≈ <b>${вМесяц(м.точка.прибыль)}</b> млн ₸/мес</div>`;
+    elTeo.appendChild(d);
+    м.div = d;
+    подписиТЭО.push(м);
+  }
+}
+const elNaz = document.getElementById('naz-lbl');
+/* Наведение на слой наземки без выбранного шага: оцифровываются только станки
+   и трубопровод, плиты промысла остаются физическими. Докладчик подводит курсор
+   и сразу видит, что именно тут взято в двойник, — вместо того чтобы получить
+   всю плиту в сетке, а это уже отдельный шаг рассказа. Подписи на наведении не
+   выходят: они принадлежат шагам и всплывают по нажатию, как раньше. */
+const ТРУБЫ_НА_НАВЕДЕНИИ = 0.85;      // доля от полной яркости на предпросмотре
+/* Труба выглядит одинаково и на наведении, и на шаге: тёмный корпус с
+   бегущими янтарными сгустками. Пробовал на наведении вести её цифровым
+   фиолетовым и без потока — читалось хуже: труба без нефти перестаёт быть
+   трубой, а становится просто ещё одной подсвеченной линией. */
+const ТРУБА_КОРПУС = '#1A1006';
+
+/* Акценты наземки: на первом шаге обводим резервуарный парк с трубопроводом,
+   на втором — фонд скважин. Показываем только выбранный набор. */
+function обновитьАкцентыНаземки(k, t){
+  const z = zones.naz;
+  if(!z || !z.акценты) return;
+  const выбран = state.locked === 'naz' ? panelState.sub
+               : (state.hover === 'naz' ? state.hoverSub : null);
+  const наведёнСлой = state.locked !== 'naz' && state.hover === 'naz' && state.hoverSub == null;
+  const ключи = ['инфра', 'добыча'];
+  let активный = null;
+  ключи.forEach((ключ, i) => {
+    const н = z.акценты[ключ];
+    const надо = (выбран === i) ? 1 : 0;
+    н.вид = (н.вид === undefined ? 0 : н.вид) + (надо - (н.вид === undefined ? 0 : н.вид))*k;
+    const виден = н.вид > 0.02;
+    for(const у of н.узлы) у.visible = виден;
+    for(const м of н.маты) м.opacity = н.вид * (0.55 + 0.45*Math.abs(Math.sin(t*2.2)));
+    if(надо) активный = н;
+  });
+
+  /* Трубопровод: сгустки бегут сдвигом текстуры — скорость общая для всех
+     сегментов, направление от устьев к резервуарному парку. Уровень свой:
+     полный на шаге «Резервуарный парк и трубопровод», приглушённый на голом
+     наведении на слой. */
+  if(z.труба){
+    const шаг = (выбран === 0);
+    const надо = шаг ? 1 : (наведёнСлой ? ТРУБЫ_НА_НАВЕДЕНИИ : 0);
+    z.трубыВид = (z.трубыВид === undefined ? 0 : z.трубыВид)
+               + (надо - (z.трубыВид === undefined ? 0 : z.трубыВид))*k;
+    const в = z.трубыВид;
+    const виден = в > 0.02;
+    for(const у of z.труба.узлы) у.visible = виден;
+    z.труба.корпусМат.color.set(ТРУБА_КОРПУС);
+    z.труба.корпусМат.opacity = в * 0.85;
+    for(const м of z.труба.потокМаты) м.opacity = в;
+    for(const тек of z.труба.тексты) тек.offset.x = -(t * 2.2) % 1;
+    /* Приглушение оцифровки слоя вешаем только на выбранный шаг: там сетка
+       обязана уступить потоку. На наведении глушить нечего — слой и так не
+       оцифрован, а станки, наоборот, должны гореть в полную силу. */
+    z.глушь = 1 - ((выбран === 0) ? в : 0) * 0.72;
+  }
+
+  elNaz.classList.toggle('on', !!активный);
+  if(!активный) return;
+  elNaz.textContent = активный.подпись;
+  активный.якорь.getWorldPosition(_вект);
+  _вект.project(camera);
+  if(_вект.z > 1){ elNaz.classList.remove('on'); return; }
+  elNaz.style.left = ((_вект.x * 0.5 + 0.5) * innerWidth) + 'px';
+  elNaz.style.top  = ((-_вект.y * 0.5 + 0.5) * innerHeight) + 'px';
+}
+
+const elDrill = document.getElementById('drill');
+const elПроходка = elDrill.querySelector('.m');
+const elГориз = document.getElementById('horiz');
+const _вект = new THREE.Vector3();
+
+/* Проходка. Растёт только пока слой раскрыт: за спиной у докладчика счётчик
+   иначе убежал бы в тысячи метров, и вернувшись на слой он увидел бы чушь.
+   Скорость взята показной, а не промысловой: при честных 20–30 м/ч цифра на
+   глаз стоит на месте, и «бурение идёт» перестаёт читаться. */
+let проходка = 1184.0, тикБурения = 0;
+
+// подпись бурящейся скважины ходит за её забоем
+function обновитьБурение(){
+  const б = zones.skv && zones.skv.бурение;
+  // по mixH, а не по mix: подпись обязана выходить вместе с самим долотом,
+  // то есть уже на наведении, а не только после нажатия
+  const видно = б && ((zones.skv.mixH || 0) > 0.35);
+  elDrill.classList.toggle('on', !!видно);
+  if(!видно){ тикБурения = 0; return; }
+
+  const сейчас = performance.now();
+  // шаг ограничиваем: вкладка была в фоне — не засчитываем весь простой
+  if(тикБурения) проходка += Math.min(0.25, (сейчас - тикБурения)/1000) * 0.05;
+  тикБурения = сейчас;
+  elПроходка.textContent = проходка.toFixed(1).replace('.', ',') + ' м';
+
+  б.якорь.getWorldPosition(_вект);
+  _вект.project(camera);
+  if(_вект.z > 1){ elDrill.classList.remove('on'); return; }
+  elDrill.style.left = ((_вект.x * 0.5 + 0.5) * innerWidth) + 'px';
+  elDrill.style.top  = ((-_вект.y * 0.5 + 0.5) * innerHeight) + 'px';
+}
+
+// подпись горизонтального ствола — у носка лежачей части
+function обновитьГоризонт(){
+  const г = zones.skv && zones.skv.горизонт;
+  const видно = г && ((zones.skv.mixH || 0) > 0.35);
+  elГориз.classList.toggle('on', !!видно);
+  if(!видно) return;
+  г.якорь.getWorldPosition(_вект);
+  _вект.project(camera);
+  if(_вект.z > 1){ elГориз.classList.remove('on'); return; }
+  elГориз.style.left = ((_вект.x * 0.5 + 0.5) * innerWidth) + 'px';
+  elГориз.style.top  = ((-_вект.y * 0.5 + 0.5) * innerHeight) + 'px';
+}
+function обновитьМеткиТЭО(){
+  const показывать = меткиТЭО.length && (
+    (state.locked === 'plast' && panelState.sub === 2) ||
+    (state.hover === 'plast' && state.hoverSub === 2));
+  elTeo.classList.toggle('on', !!показывать);
+  if(!показывать) return;
+  if(!подписиТЭО.length) создатьМеткиТЭО();
+  const W = innerWidth, H = innerHeight;
+  const низы = [];
+  for(const м of подписиТЭО){
+    м.узел.getWorldPosition(_вект);
+    _вект.project(camera);
+    const за = _вект.z > 1;
+    м.div.style.display = за ? 'none' : '';
+    if(за){ низы.push(null); continue; }
+    низы.push({ м, x:(_вект.x * 0.5 + 0.5) * W, y:(-_вект.y * 0.5 + 0.5) * H });
+  }
+
+  /* Развод по высоте. Полосы высот разносят столбы в сцене, но на пологом
+     ракурсе разница в мировых координатах съедается проекцией, и плашки всё
+     равно сходятся — так и было видно на показе. Поэтому нижнюю дожимаем уже
+     в экранных пикселях, и правило одностороннее: она только опускается, и
+     ровно до порога. Двустороннее «разойтись друг от друга» дало бы дрожь —
+     на каждом кадре обе плашки прыгали бы вокруг границы. */
+  const ЗАЗОР = 66;
+  const [верхняя, нижняя] = низы;          // порядок задан в `создатьМеткиТЭО`
+  if(верхняя && нижняя && нижняя.y - верхняя.y < ЗАЗОР) нижняя.y = верхняя.y + ЗАЗОР;
+
+  for(const п of низы){
+    if(!п) continue;
+    п.м.div.style.left = п.x + 'px';
+    п.м.div.style.top  = п.y + 'px';
+  }
+}
+
+const clock = new THREE.Clock();
+
+/* Спящий режим для встроенного показа.
+
+   demo_with_map.html держит слайд в скрытом iframe всю подводку, чтобы к финалу
+   сцена была готова. Но скрытый — не значит бесплатный: кадровый цикл крутится
+   на полной частоте и на каждом кадре стреляет лучом по геометрии, и лента
+   поверх начинает заикаться.
+
+   Пока родитель не сказал «показываю», рендерим редко — только чтобы кадр
+   появился по мере подгрузки моделей — и не трассируем вовсе. */
+const ВСТРОЕН = window.self !== window.top;
+let живой = !ВСТРОЕН, последнийСон = 0;
+addEventListener('message', e => {
+  if(e.data !== 'слайд:показать') return;
+  живой = true;
+  // в скрытом iframe плотность могла определиться неверно — пересматриваем
+  подогнатьПлотность();
+  renderer.setSize(innerWidth, innerHeight);
+});
+
+function animate(){
+  requestAnimationFrame(animate);
+
+  if(!живой){
+    const now = performance.now();
+    if(now - последнийСон < 250) return;
+    последнийСон = now;
+    clock.getDelta();                 // не копим дельту к пробуждению
+    controls.update();
+    renderer.render(scene, camera);
+    return;
+  }
+
+  const dt = Math.min(clock.getDelta(), 0.1);
+  const t = clock.elapsedTime;
+  const k = 1 - Math.exp(-dt*8);
+
+  let hitZone = null, hitSub = null;
+  if(Math.abs(ptr.x) <= 1 && Math.abs(ptr.y) <= 1 && pickMeshes.length){
+    raycaster.setFromCamera(ptr, camera);
+    const hits = raycaster.intersectObjects(pickMeshes, false);
+    if(hits.length){
+      hitZone = hits[0].object.userData.zone;
+      hitSub = hits[0].object.userData.sub ?? null;
+    }
+  }
+  /* `заморожен` ставит только служебный вход `?наведение=1`: мыши там нет,
+     трассировка каждый кадр не находит ничего и сбрасывала бы выставленное
+     наведение обратно в ноль. На показе флаг не поднимается никогда. */
+  if(!state.заморожен && (hitZone !== state.hover || hitSub !== state.hoverSub)){
+    const overUI = document.querySelector('#stack:hover, #panel:hover');
+    if(!overUI){ state.hover = hitZone; state.hoverSub = hitSub; refresh(); }
+  }
+  renderer.domElement.style.cursor = hitZone ? 'pointer' : '';
+
+  if(hitZone && !state.locked){
+    chip.style.display = 'block';
+    chip.style.left = (mouseXY[0]+16)+'px';
+    chip.style.top = (mouseXY[1]+14)+'px';
+    if(hitZone === 'plast' && hitSub !== null){
+      const s = ZONES.plast.subs[hitSub];
+      chip.style.setProperty('--cc', s.color || ZONES.plast.color);
+      chip.textContent = s.shortT;
+    } else {
+      chip.style.setProperty('--cc', ZONES[hitZone].color);
+      chip.textContent = ZONES[hitZone].short;
+    }
+  } else chip.style.display = 'none';
+
+  // стек финальных позиций — слои не перекрываются при любом выборе
+  const act = active();
+  const VIEW_Y = 0;   // локальный центр (world уже смещён к цели камеры)
+  const offsets = { grr:0, plast:0, skv:0, naz:0 };
+  if(act && pickMeshes.length){
+    const locked = !!state.locked;
+    const GAP = locked ? 34 : 14;
+    const za = zones[act];
+    const cA = (za.yb + za.yt)/2;
+    const anchor = locked ? VIEW_Y : cA;
+    offsets[act] = anchor - cA;
+    const ai = RANK_UP.indexOf(act);
+    // разлетевшиеся составляющие пласта выходят за габарит слоя — соседние контуры
+    // должны отступить на эту же величину, иначе верхняя полоса въедет в ЦД скважины
+    const spread = subSpread(act);
+    let topEdge = anchor + (za.yt - za.yb)/2 * 1.06 + spread.up;
+    for(let i = ai+1; i < RANK_UP.length; i++){
+      const z = zones[RANK_UP[i]], h = z.yt - z.yb;
+      const c = topEdge + GAP + h/2;
+      offsets[RANK_UP[i]] = c - (z.yb + z.yt)/2;
+      topEdge = c + h/2;
+    }
+    let botEdge = anchor - (za.yt - za.yb)/2 * 1.06 - spread.down;
+    for(let i = ai-1; i >= 0; i--){
+      const z = zones[RANK_UP[i]], h = z.yt - z.yb;
+      const c = botEdge - GAP - h/2;
+      offsets[RANK_UP[i]] = c - (z.yb + z.yt)/2;
+      botEdge = c - h/2;
+    }
+  }
+
+  const pulse = 0.72 + 0.28*Math.sin(t*3.1);
+  for(const id in zones){
+    const z = zones[id];
+    z.targetOffset = offsets[id];
+    z.offset += (z.targetOffset - z.offset)*k;
+    z.scaleG.position.y = z.offset;
+    if(z.hit) z.hit.position.y = (z.yb+z.yt)/2 + z.offset;
+
+    /* Оцифровка идёт только по нажатию. Наведение раньше тоже запускало
+       голограмму, и от беглого движения мышью слайд мерцал; теперь на наведение
+       остаётся только выделение и лёгкая раздвижка. */
+    z.target  = (id === state.locked) ? 1 : 0;
+    z.targetH = (id === act) ? 1 : 0;
+    z.mix  += (z.target  - z.mix)*k;
+    z.mixH  = (z.mixH === undefined ? 0 : z.mixH) + (z.targetH - (z.mixH === undefined ? 0 : z.mixH))*k;
+    const m = z.mix;
+    /* Стволы и долота живут не по оцифровке, а по наведению: `mixH` поднимается
+       и на курсоре, и на нажатии, тогда как `m` — только на нажатии. Раньше
+       наведение на слой скважины не показывало ничего, и докладчику приходилось
+       нажимать, чтобы просто указать на бурение; при этом весь слой уходил в
+       голограмму, а это отдельный шаг рассказа. */
+    const mh = z.mixH;
+    // глушь < 1, пока активен акцент трубопровода: сетка уступает потоку
+    const глушь = z.глушь === undefined ? 1 : z.глушь;
+    for(const pm of z.physMats) pm.opacity = 1 - m*0.9;
+    for(const wm of z.wireMats) wm.opacity = 0.5*m*pulse*глушь;
+    for(const p of z.holo){
+      p.fill.material.opacity = 0.28*m;
+      p.grid.material.opacity = 0.6*m*pulse;
+      p.grid.material.map.offset.x = ((p.grid.material.map.offset.x - dt*0.05*m) % 1 + 1) % 1;   // обёрнута — не копим float
+      p.edge.material.opacity = 0.9*m;
+      if(p.corners) p.corners.material.opacity = m;
+    }
+    // стволы скважин: не гаснут со слоем, а загораются фиолетовым
+    if(z.wellMats) for(const wm of z.wellMats){
+      wm.opacity = mh * 0.85;
+      wm.emissiveIntensity = mh * (2.2 + 0.8*Math.sin(t*3.4));
+    }
+    /* Долота на забоях: крутятся и поднимают шлам, пока слой скважины раскрыт.
+       Их два — вертикальное в центре и второе на конце горизонтали. Второе
+       живёт по тем же правилам, только развёрнуто по ходу ствола, и шлам у
+       него уходит назад к устью, а не вверх. */
+    if(z.бурение || z.бурениеГ){
+      if(z.бурМаты) for(const мат of z.бурМаты) мат.opacity = mh * 0.7;   // обсадка без фиолета
+      for(const б of [z.бурение, z.бурениеГ]){
+        if(!б) continue;
+        for(const мат of б.маты) мат.opacity = mh;
+        б.вращ.rotation.y = t * 2.6;
+        const P = б.пыль, attr = P.гео.attributes.position;
+        for(let i=0;i<P.n;i++) attr.setY(i, (P.seed[i] + t*7) % P.H);
+        attr.needsUpdate = true;
+        P.мат.opacity = mh * 0.6;
+      }
+    }
+    // подслои пласта: свой цвет, лёгкое разделение, клипы следуют за слоем и масштабом
+    if(z.subs3d){
+      const plastActive = (act === 'plast');
+      const aSub = state.locked === 'plast' ? panelState.sub
+                 : (state.hover === 'plast' ? state.hoverSub : null);
+      // столбы ранжирования выходят вместе со слоем оценки
+      if(z.столбы){
+        const вид = (aSub === 2) ? 1 : 0;
+        z.видСтолбов = (z.видСтолбов === undefined ? 0 : z.видСтолбов) + (вид - (z.видСтолбов === undefined ? 0 : z.видСтолбов))*k;
+        // погашенные столбы убираем из рендера целиком — иначе они всё равно
+        // участвуют в проходе прозрачности и мажут соседние слои
+        const виден = z.видСтолбов > 0.02;
+        for(const узел of z.узлыСтолбов) узел.visible = виден;
+        if(виден) for(const мат of z.столбы){
+          const сквозной = (мат.depthTest === false);   // бледный дубль, идущий внутри породы
+          мат.opacity = (сквозной ? 0.58 : 0.95) * z.видСтолбов;
+          if(!сквозной) мат.emissiveIntensity = 0.45 + 0.3*Math.sin(t*3);
+        }
+      }
+      const sc2 = 1 + 0.05*m;
+      z.subs3d.forEach((s, si) => {
+        // раздвижка: базовая при выборе пласта; при выборе конкретной составляющей
+        // она встаёт в центр слоя, соседние разъезжаются заметно дальше
+        let tOff = 0;
+        if(plastActive){
+          const base = (si === 0 ? -8 : si === 2 ? 8 : 0);   // si: 0 — нижняя, 2 — верхняя
+          // на оценке стопку не разносим: столбы прошивают её насквозь, и в
+          // разъехавшихся слоях связь «запасы → точка → эффект» рвётся
+          if(aSub === null || aSub === 2) tOff = base;
+          else if(si === aSub) tOff = base;                  // выбранная остаётся на месте
+          else tOff = base + (si < aSub ? -1 : 1) * 34 * Math.abs(si - aSub);   // соседние уезжают
+        }
+        s.off += (tOff - s.off)*k;
+        /* Выбранная составляющая крупнее соседних; масштабируем вокруг её центра,
+           иначе группа уедет — её содержимое стоит в координатах всего стека.
+           На технико-экономической оценке подрастают все три: столбы ранжирования
+           идут сквозь стопку, и разнокалиберные слои под ними читаются как ошибка. */
+        const tScale = !plastActive || aSub === null ? 1
+                     : (aSub === 2 ? 1.12 : (aSub === si ? 1.22 : 0.93));
+        s.scl = (s.scl === undefined) ? 1 : s.scl + (tScale - s.scl)*k;
+        const cy = (s.st + s.sb)/2;
+        s.wrap.scale.set(s.scl, s.scl, s.scl);
+        s.wrap.position.y = s.off + cy*(1 - s.scl);
+        const tMix = plastActive ? ((aSub === null || aSub === si) ? 1 : 0.4) : 0;
+        s.mix += (tMix - s.mix)*k;
+        const sm = s.mix;
+        // текстуры составляющих (сетка ГГДМ, карта заводнения, цели бурения) — сами контент:
+        // гасим мягко, wireframe и рамка работают акцентом
+        /* Карта на верхней грани — сам контент составляющей. У стратегии
+           разработки она главное, что надо разглядеть, поэтому голограмму там
+           приглушаем сильнее остальных. */
+        const голо = (si === 1) ? 0.32 : 1;
+        for(const pm of s.physMats) pm.opacity = 1 - sm*(si === 1 ? 0.18 : 0.45);
+        for(const wm of s.wireMats) wm.opacity = 0.32*sm*pulse*голо;
+        s.holo.fill.material.opacity = 0.12*sm*голо;
+        s.holo.grid.material.opacity = 0.45*sm*pulse*голо;
+        s.holo.grid.material.map.offset.x = ((s.holo.grid.material.map.offset.x - dt*0.05*sm) % 1 + 1) % 1;   // обёрнута — не копим float
+        s.holo.edge.material.opacity = 0.9*sm*(si === 1 ? 0.6 : 1);
+        if(s.holo.corners) s.holo.corners.material.opacity = sm*голо;
+        if(s.clip){
+          s.clip[0].constant =  s.st*sc2 + z.offset + s.off*sc2;
+          s.clip[1].constant = -(s.sb*sc2 + z.offset + s.off*sc2);
+        }
+        s.hit.position.y = (s.st+s.sb)/2 + z.offset + s.off;
+      });
+    }
+    if(z.particles && m > 0.02){
+      const P = z.particles, attr = P.geo.attributes.position, hgt = P.yt - P.yb;
+      for(let i=0;i<P.n;i++){
+        const y = P.yb + ((P.seed[i*2] + t*P.seed[i*2+1]) % hgt);
+        attr.setY(i, y);
+      }
+      attr.needsUpdate = true;
+      P.mat.opacity = 0.85*m;
+    } else if(z.particles) z.particles.mat.opacity = 0;
+    /* Станки качаются всегда — и в физическом виде, и в цифровом: промысел
+       не замирает оттого, что на него посмотрели двойником. Каркасные копии
+       лежат в тех же группах и едут следом. */
+    /* Каркас станков идёт по наведению, а не только по нажатию: на наведении
+       оцифровываются они одни, а плиты промысла остаются физическими — см.
+       `обновитьАкцентыНаземки`. Отсюда max, а не m: нажатие поднимает и то и
+       другое, наведение — только станки. */
+    const мех = Math.max(m, mh);
+    if(z.мехФиз) for(const pm of z.мехФиз) pm.opacity = 1 - мех*0.9;
+    if(z.мехМат) z.мехМат.opacity = мех * КАЧАЛКИ.яркость * pulse * глушь;
+    /* Резервуарный парк идёт по тому же правилу, что станки: оцифровывается на
+       наведении, а не только на нажатии. Каркас у него общий с остальным слоем
+       по цвету — это тот же объект слоя, просто взятый отдельно. */
+    if(z.бакиФиз) for(const pm of z.бакиФиз) pm.opacity = 1 - мех*0.9;
+    if(z.бакиКар) for(const wm of z.бакиКар) wm.opacity = 0.5 * мех * pulse * глушь;
+    if(z.качалки) for(const к of z.качалки){
+      const ф = МЕХ.ф0 + (t + к.сдвиг) * КАЧАЛКИ.ходов/60 * Math.PI*2;
+      const п = положениеСтанка(ф);
+      к.коромысло.rotation.z = п.б - МЕХ.б0;
+      к.кривошип.rotation.z  = ф - МЕХ.ф0;
+      к.шатун.position.set(п.cx, п.cy, 0);
+      к.шатун.rotation.z = п.г - МЕХ.г0;
+    }
+    z.scaleG.scale.setScalar(1 + 0.05*z.mixH);   // укрупнение — и на наведении тоже
+  }
+
+  controls.update();
+  renderer.render(scene, camera);
+  обновитьМеткиТЭО();
+  обновитьБурение();
+  обновитьГоризонт();
+  обновитьАкцентыНаземки(k, t);
+}
+animate();
+
+/* ── вход по адресу: раскрыть слой без мыши ───────────────────────────
+   `?слой=plast|skv|naz` раскрывает контур, `&шаг=N` — его подшаг (с нуля),
+   `&угол=45` доворачивает модель и останавливает автоповорот, `&ждать=1`
+   ставит съёмку на паузу до готовности.
+
+   Нужно для снимков экрана: страницу открывает Chrome в фоновом режиме, мышью
+   там кликать некому. На показ не влияет — без параметров всё как было. */
+(function входПоАдресу(){
+  const п = new URLSearchParams(location.search);
+  const слой = п.get('слой') ?? п.get('layer');
+  const шаг = п.get('шаг') ?? п.get('step');
+  const наведение = п.get('наведение') ?? п.get('hover');   // курсор на слое вместо нажатия
+  const угол = parseFloat(п.get('угол') ?? п.get('angle'));
+  if((!слой || !ZONES[слой]) && !Number.isFinite(угол)) return;
+  /* Состояние переставляем несколько раз подряд, а не однократно: слои
+     догружаются вразнобой, и первый же `refresh` после последнего .glb сбрасывал
+     выставленный контур обратно на обзорную панель — снимок уходил пустым. */
+  const поставить = () => {
+    if(слой && ZONES[слой]){
+      if(наведение){ state.hover = слой; state.locked = null; state.hoverSub = null;
+                     state.заморожен = true; }
+      else { state.locked = слой; state.hover = null; }
+      refresh();
+    }
+    if(слой && ZONES[слой] && шаг !== null && шаг !== undefined && шаг !== ''){
+      panelState.zone = слой; panelState.sub = +шаг;
+      refresh();
+    }
+    if(Number.isFinite(угол)){
+      controls.autoRotate = false;
+      const р = Math.hypot(camera.position.x, camera.position.z);
+      const а = угол * Math.PI/180;
+      camera.position.x = Math.sin(а)*р;
+      camera.position.z = Math.cos(а)*р;
+      camera.lookAt(controls.target);
+    }
+  };
+  // первый заход — когда слои встали в стопку, дальше держим ещё восемь секунд
+  for(let мс = 400; мс <= 8400; мс += 800) setTimeout(поставить, мс);
+})();
+
+/* Модель центрируется в свободном коридоре между панелями: сдвигаем не сцену,
+   а окно проекции — орбита и клики остаются на своих местах. */
+function fitBetweenPanels(){
+  const W = innerWidth, H = innerHeight;
+  const left  = document.getElementById('stack').getBoundingClientRect().right + 24;
+  const panel = document.getElementById('panel');
+  /* Место под панель держим всегда, показана она или нет. Считать коридор по
+     видимой панели нельзя: пока ничего не выбрано, её нет, модель встаёт по
+     центру всего кадра, а на первом же наведении панель выходит, коридор
+     сужается — и картинка дёргается влево ровно в тот момент, когда на неё
+     смотрят. Место пустует, зато модель стоит неподвижно.
+
+     Ширину и отступ берём из вёрстки, а не из положения на экране: скрытая
+     панель отодвинута переходом на свои тридцать пикселей, и её `rect` соврал
+     бы ровно на них. */
+  const поле = parseFloat(getComputedStyle(panel).right) || 0;
+  const right = W - поле - panel.offsetWidth - 24;
+  const shift = (left + right)/2 - W/2;          // куда уехал центр коридора
+  /* Дополнительный сдвиг влево. Список слева узкий, и по одному коридору
+     модель садилась в кадре правее, чем нужно, подходя вплотную к панели.
+     Положительный x у setViewOffset сдвигает картинку влево. */
+  const ВЛЕВО = 34;
+  camera.setViewOffset(W, H, -shift + ВЛЕВО, 0, W, H);
+  camera.aspect = W/H;
+  camera.updateProjectionMatrix();
+}
+
+/* Плотность пикселей нельзя выставлять один раз при загрузке: слайд стартует и
+   в скрытом iframe, и в окне, которое потом переезжает на другой монитор или
+   меняет масштаб — devicePixelRatio при этом меняется, а рендер остаётся в
+   старой плотности и картинка выглядит мылом. Пересматриваем на каждый resize
+   и при пробуждении. */
+function подогнатьПлотность(){
+  const нужно = Math.min(devicePixelRatio || 1, 1.6);
+  if (Math.abs(renderer.getPixelRatio() - нужно) > 0.01) renderer.setPixelRatio(нужно);
+}
+
+addEventListener('resize', () => {
+  подогнатьПлотность();
+  renderer.setSize(innerWidth, innerHeight);
+  fitBetweenPanels();
+  updateNavLine();
+});
+
+window.__dbg = { renderer, scene, camera, state, zones, refresh, world,
+  get pickCount(){ return pickMeshes.length; },
+  get спит(){ return !живой; },
+  get точекТЭО(){ return меткиТЭО.length; }, обновитьПодписи: обновитьМеткиТЭО,
+  обновитьБурение, обновитьГоризонт, get проходка(){ return проходка; },
+  get подписьВидна(){ return elTeo.classList.contains('on'); } };
+</script>
+</body>
+</html>
