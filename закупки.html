@@ -231,8 +231,8 @@ svg .сбор[data-к]{transform:none}
 .карточка .шкала i{position:absolute;top:14px;width:2px;height:12px;background:var(--мята)}
 .карточка .шкала i.сред{background:var(--кмг)}
 .карточка .шкала span{position:absolute;top:-2px;font-size:11px;transform:translateX(-50%)}
-.карточка .шкала span.низ{left:44%;color:var(--мята)}
-.карточка .шкала span.сред{left:58%;color:var(--кмг)}
+.карточка .шкала span.низ{left:26%;color:var(--мята)}
+.карточка .шкала span.сред{left:70%;color:var(--кмг)}
 .склад .статус{margin-top:14px;display:inline-block;padding:8px 12px;border-radius:999px;font-size:13px;font-weight:600;
   border:1px solid rgba(62,213,152,.6);color:var(--мята);background:rgba(62,213,152,.12)}
 .сбор.назад{stroke:var(--зелёный)}
@@ -442,9 +442,9 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
         <marker id="стрелка_мята2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
           <path d="M0 0L10 5L0 10z" fill="#3ED598"/></marker>
       </defs>
-      <path class="поток" pathLength="1" marker-end="url(#стрелка_циан2)" d="M300 290 H372" data-к="2"/>
-      <line class="сбор" pathLength="1" x1="485" y1="430" x2="485" y2="460" data-к="3"/>
-      <line class="сбор" pathLength="1" x1="715" y1="430" x2="715" y2="460" data-к="3"/>
+      <path class="поток" pathLength="1" marker-end="url(#стрелка_циан2)" d="M300 210 H372" data-к="2"/>
+      <line class="сбор" pathLength="1" x1="485" y1="270" x2="485" y2="460" data-к="3"/>
+      <line class="сбор" pathLength="1" x1="715" y1="270" x2="715" y2="460" data-к="3"/>
       <line class="сбор" pathLength="1" x1="760" y1="290" x2="900" y2="146" style="transition-delay:0ms" data-к="4"/>
       <line class="сбор" pathLength="1" x1="760" y1="290" x2="900" y2="246" style="transition-delay:120ms" data-к="4"/>
       <line class="сбор" pathLength="1" x1="760" y1="290" x2="900" y2="346" style="transition-delay:240ms" data-к="4"/>
@@ -461,7 +461,7 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
     </svg>
 
     <!-- потребность с кодом -->
-    <div class="карточка синяя" style="left:0;top:200px;width:300px" data-к="1">
+    <div class="карточка синяя" style="left:0;top:150px;width:300px" data-к="1">
       <b>Потребность</b>
       <ul>
         <li class="кодчип">Код ЕНС ТРУ / АСУ НСИ: <strong>1234</strong></li>
@@ -470,7 +470,7 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
     </div>
 
     <!-- модуль -->
-    <div class="склад" style="left:380px;top:150px;width:380px" data-к="2">
+    <div class="склад" style="left:380px;top:150px;width:380px;height:120px" data-к="2">
       <div class="имя">ProcuPriceMetal</div>
       <div class="заг">Маркетинг цен <span class="ии">AI</span></div>
       <p class="ищет">ищет по коду <strong>1234</strong></p>
@@ -510,9 +510,9 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
     </div>
 
     <!-- результат -->
-    <div class="карточка" style="left:1180px;top:240px;width:240px" data-к="6">
+    <div class="карточка" style="left:1180px;top:240px;width:250px" data-к="6">
       <b>Цена посчитана</b>
-      <div class="шкала"><i class="низ" style="left:44%"></i><i class="сред" style="left:58%"></i>
+      <div class="шкала"><i class="низ" style="left:26%"></i><i class="сред" style="left:70%"></i>
         <span class="низ">низкая</span><span class="сред">средняя</span></div>
       <ul><li>Заключение готово</li></ul>
     </div>
@@ -648,8 +648,8 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
         <marker id="стрелка_циан4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
           <path d="M0 0L10 5L0 10z" fill="#4FE3FF"/></marker>
       </defs>
-      <path class="поток" pathLength="1" marker-end="url(#стрелка_циан4)" d="M300 300 H374" data-к="2" style="opacity:.5"/>
-      <path class="поток" pathLength="1" marker-end="url(#стрелка_циан4)" d="M920 300 H992" data-к="5"/>
+      <path class="поток" pathLength="1" marker-end="url(#стрелка_циан4)" d="M300 190 H374" data-к="2" style="opacity:.5"/>
+      <path class="поток" pathLength="1" marker-end="url(#стрелка_циан4)" d="M920 190 H992" data-к="5"/>
     </svg>
 
     <!-- 1. срок наступил -->
@@ -658,14 +658,14 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
       <svg viewBox="0 0 132 100" class="кал"><rect x="4" y="18" width="14" height="12" rx="2" class="день"/><rect x="22" y="18" width="14" height="12" rx="2" class="день"/><rect x="40" y="18" width="14" height="12" rx="2" class="день"/><rect x="58" y="18" width="14" height="12" rx="2" class="день"/><rect x="76" y="18" width="14" height="12" rx="2" class="день"/><rect x="94" y="18" width="14" height="12" rx="2" class="день"/><rect x="112" y="18" width="14" height="12" rx="2" class="день"/><rect x="4" y="34" width="14" height="12" rx="2" class="день"/><rect x="22" y="34" width="14" height="12" rx="2" class="день"/><rect x="40" y="34" width="14" height="12" rx="2" class="день"/><rect x="58" y="34" width="14" height="12" rx="2" class="день"/><rect x="76" y="34" width="14" height="12" rx="2" class="день"/><rect x="94" y="34" width="14" height="12" rx="2" class="день"/><rect x="112" y="34" width="14" height="12" rx="2" class="день"/><rect x="4" y="50" width="14" height="12" rx="2" class="день"/><rect x="22" y="50" width="14" height="12" rx="2" class="день"/><rect x="40" y="50" width="14" height="12" rx="2" class="день"/><rect x="58" y="50" width="14" height="12" rx="2" class="срок"/><rect x="76" y="50" width="14" height="12" rx="2" class="день"/><rect x="94" y="50" width="14" height="12" rx="2" class="день"/><rect x="112" y="50" width="14" height="12" rx="2" class="день"/><rect x="4" y="66" width="14" height="12" rx="2" class="день"/><rect x="22" y="66" width="14" height="12" rx="2" class="день"/><rect x="40" y="66" width="14" height="12" rx="2" class="день"/><rect x="58" y="66" width="14" height="12" rx="2" class="день"/><rect x="76" y="66" width="14" height="12" rx="2" class="день"/><rect x="94" y="66" width="14" height="12" rx="2" class="день"/><rect x="112" y="66" width="14" height="12" rx="2" class="день"/><rect x="4" y="82" width="14" height="12" rx="2" class="день"/><rect x="22" y="82" width="14" height="12" rx="2" class="день"/><rect x="40" y="82" width="14" height="12" rx="2" class="день"/><rect x="58" y="82" width="14" height="12" rx="2" class="день"/><rect x="76" y="82" width="14" height="12" rx="2" class="день"/><rect x="94" y="82" width="14" height="12" rx="2" class="день"/><rect x="112" y="82" width="14" height="12" rx="2" class="день"/><text x="4" y="10" class="т">срок закупки — сегодня</text></svg>
     </div>
     <!-- 2. заявка -->
-    <div class="заявка" style="left:312px;top:254px" data-к="2">
+    <div class="заявка" style="left:312px;top:146px" data-к="2">
       <svg viewBox="0 0 40 48"><path d="M6 4h20l8 8v32H6z" class="док"/><path d="M26 4v8h8" class="док"/>
         <path d="M12 22h16M12 30h16M12 38h10" class="строки"/></svg>
       <span>заявка</span>
     </div>
 
     <!-- 3. площадка -->
-    <div class="склад площадка" style="left:380px;top:60px;width:540px;height:300px" data-к="2">
+    <div class="склад площадка" style="left:380px;top:60px;width:540px;height:236px" data-к="2">
       <div class="имя">SK Store · электронная площадка</div>
       <div class="заг">Закупочная процедура <span class="ии">AI</span></div>
       <div class="секретарь" data-к="3">ИИ-секретарь проверяет документы</div>
@@ -686,7 +686,7 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
       </div>
     </div>
     <!-- 4. договор -->
-    <div class="карточка договор" style="left:380px;top:400px;width:540px" data-к="4">
+    <div class="карточка договор" style="left:380px;top:326px;width:540px" data-к="4">
       <svg viewBox="0 0 64 64" class="печать"><circle cx="32" cy="32" r="28" class="круг"/><circle cx="32" cy="32" r="20" class="круг"/>
         <path d="M20 33l8 8 16-16" class="галка включён"/></svg>
       <div><b>Договор подписан ЭЦП</b><span>смарт-контракт сформирован</span></div>
@@ -711,16 +711,16 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
         </g>
         <g data-к="8">
           <path d="M400 128v60" class="ось"/>
-          <path d="M400 188l-90 40" class="ось мята"/><path d="M400 188l90 40" class="ось серая"/>
-          <circle cx="310" cy="228" r="16" class="круг мята"/><path d="M302 228l6 6 10-10" class="галка мята"/>
-          <text x="310" y="266" class="т мята" text-anchor="middle">поставлено — акты</text>
-          <circle cx="490" cy="228" r="16" class="круг серая"/><path d="M484 222l12 12M496 222l-12 12" class="крест"/>
-          <text x="490" y="266" class="т" text-anchor="middle">нет — претензия сама</text>
+          <path d="M400 188l-100 40" class="ось мята"/><path d="M400 188l70 40" class="ось серая"/>
+          <circle cx="300" cy="228" r="16" class="круг мята"/><path d="M292 228l6 6 10-10" class="галка мята"/>
+          <text x="300" y="266" class="т мята" text-anchor="middle">поставлено — акты</text>
+          <circle cx="470" cy="228" r="16" class="круг серая"/><path d="M464 222l12 12M476 222l-12 12" class="крест"/>
+          <text x="470" y="266" class="т" text-anchor="middle">нет — претензия сама</text>
         </g>
         <g data-к="9">
-          <circle cx="600" cy="228" r="28" class="круг мята"/><circle cx="600" cy="228" r="20" class="круг мята"/>
-          <path d="M588 229l8 8 16-16" class="галка мята"/>
-          <text x="600" y="282" class="т мята" text-anchor="middle">договор закрыт</text>
+          <circle cx="640" cy="228" r="28" class="круг мята"/><circle cx="640" cy="228" r="20" class="круг мята"/>
+          <path d="M628 229l8 8 16-16" class="галка мята"/>
+          <text x="640" y="286" class="т мята" text-anchor="middle">договор закрыт</text>
         </g>
       </svg>
     </div>
