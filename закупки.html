@@ -237,6 +237,48 @@ svg .сбор[data-к]{transform:none}
   border:1px solid rgba(62,213,152,.6);color:var(--мята);background:rgba(62,213,152,.12)}
 .сбор.назад{stroke:var(--зелёный)}
 
+/* ===== слайд 4: закупка, договор, поставка ===== */
+.кал{margin-top:10px;width:100%;height:auto;display:block}
+.кал .день{fill:rgba(2,174,240,.16);stroke:rgba(2,174,240,.35);stroke-width:.6}
+.кал .срок{fill:var(--кмг);filter:drop-shadow(0 0 6px rgba(2,174,240,.9))}
+.кал .т{font-family:'Golos Text',sans-serif;font-size:8px;fill:var(--текст2)}
+.заявка{position:absolute;display:flex;flex-direction:column;align-items:center;gap:4px}
+.заявка svg{width:56px;height:68px}
+.заявка span{font-size:12px;color:var(--кмг)}
+.док{fill:rgba(2,174,240,.14);stroke:var(--кмг);stroke-width:1.6}
+.строки{fill:none;stroke:rgba(2,174,240,.7);stroke-width:1.4}
+.площадка .секретарь{margin-top:10px;display:inline-block;font-size:12.5px;color:var(--мята);
+  border:1px solid rgba(62,213,152,.5);border-radius:999px;padding:5px 11px;background:rgba(62,213,152,.1)}
+.участник{position:absolute;width:130px;display:flex;flex-direction:column;align-items:center;gap:6px;
+  padding:12px 8px;border-radius:12px;border:1px solid var(--грань);background:rgba(12,22,38,.7)}
+.участник svg{width:40px;height:48px}
+.участник b{font-size:12.5px;color:var(--текст2);font-weight:600}
+.галка{fill:none;stroke:var(--мята);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;
+  stroke-dasharray:30;stroke-dashoffset:30;transition:stroke-dashoffset .5s ease}
+.участник.включён .галка,.галка.включён{stroke-dashoffset:0}
+.участник.победитель{border-color:rgba(62,213,152,.6);box-shadow:0 0 18px rgba(62,213,152,.35)}
+.участник.победитель b{color:var(--мята)}
+.участник.победитель::after{content:"выбран";font-size:11px;color:var(--мята)}
+.договор{display:flex;align-items:center;gap:18px}
+.договор .печать{width:64px;height:64px;flex:0 0 64px}
+.договор .цепь{width:64px;height:32px;margin-left:auto}
+.договор span{display:block;font-size:13px;color:var(--текст2);margin-top:4px}
+.круг{fill:none;stroke:var(--кмг);stroke-width:1.8}
+.круг.мята{stroke:var(--мята)}
+.круг.серая{stroke:var(--приглуш)}
+.лента .ось{stroke:var(--циан);stroke-width:2;fill:none}
+.лента .ось.мята{stroke:var(--мята)}
+.лента .ось.серая{stroke:var(--приглуш)}
+.лента .веха{fill:var(--фон0);stroke:var(--кмг);stroke-width:2}
+.лента .т{font-family:'Golos Text',sans-serif;font-size:13px;fill:var(--текст2)}
+.лента .т.мята{fill:var(--мята)}
+.лента .колокол{fill:var(--мята)}
+.лента .крест{stroke:var(--приглуш);stroke-width:2;fill:none}
+.лента .галка.мята{stroke:var(--мята);stroke-dashoffset:0}
+.лента g[data-к]{transition:opacity .5s ease}
+svg .ось[data-к]{transform:none}
+.карточка.календ b{font-size:15px}
+
 /* ===== слайд AI-Broker: карта ===== */
 #с3 .карта{position:absolute;left:0;top:0;width:1000px;height:560px}
 #с3 .карта svg{width:1000px;height:518px;display:block}
@@ -591,92 +633,96 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
   </div>
 </section>
 
-<!-- ================= 5. закупка, договор, исполнение =================
-     Слайд 3 из документа: девять кадров. -->
+<!-- ================= 4. закупка, договор, поставка =================
+     Сцена вместо трёх блоков с перечнями. Девять кадров документа остались,
+     но каждый теперь показан предметом: календарь с наступившим сроком,
+     документ-заявка, три участника с проверенными документами, печать ЭЦП,
+     лента поставок с колокольчиком и развилкой, зелёная печать «закрыт». -->
 <section class="слайд" id="с4" aria-label="Слайд 4">
   <div class="бровь">Слайд 4 · SK Store и ProcuPriceMetal</div>
-  <h2 class="заголовок дисплей">Проведение закупки, смарт-контракт и автоматическое исполнение договора</h2>
-  <p class="идея">В срок по плану заявка уходит в SK Store; после выбора поставщика договор подписывается
-    транспортным ЭЦП, формируется смарт-контракт, а модуль «Исполнение договоров» сам контролирует
-    поставку, документы и закрытие.</p>
+  <h2 class="заголовок дисплей">ИИ проводит закупку и ведёт договор до закрытия</h2>
 
   <div class="полотно">
-    <!-- Планирование закупок -->
-    <div class="система" style="left:0;top:20px;width:340px;min-height:330px" data-к="1">
-      <div class="имя">ИС «Маркетинг цен, планирование закупок и складская отчётность»</div>
-      <div class="модуль">
-        <div class="заг">Модуль «Планирование закупок» <span class="ии">AI</span></div>
-        <ul class="действия">
-          <li>Позиция плана: потребность, стоимость, бюджет, источник</li>
-          <li>Следит за сроком закупки</li>
-        </ul>
-      </div>
-      <div class="бирка_срок" style="position:static;display:inline-block;margin-top:16px" data-к="1">
-        Наступил срок запуска закупки
-      </div>
-      <div class="карточка синяя" style="position:static;margin-top:14px" data-к="2">
-        <b>Заявка на закупку</b>
-        <ul><li>Номенклатура, код ТРУ, количество, стоимость, источник, способ закупки, сроки, ТС/ТД</li></ul>
-      </div>
+    <svg class="потоки" viewBox="0 0 1724 640" style="position:absolute;left:0;top:0;width:1724px;height:640px;pointer-events:none" aria-hidden="true">
+      <defs>
+        <marker id="стрелка_циан4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0 0L10 5L0 10z" fill="#4FE3FF"/></marker>
+      </defs>
+      <path class="поток" pathLength="1" marker-end="url(#стрелка_циан4)" d="M300 300 H374" data-к="2" style="opacity:.5"/>
+      <path class="поток" pathLength="1" marker-end="url(#стрелка_циан4)" d="M920 300 H992" data-к="5"/>
+    </svg>
+
+    <!-- 1. срок наступил -->
+    <div class="карточка синяя календ" style="left:0;top:60px;width:300px" data-к="1">
+      <b>План закупок</b>
+      <svg viewBox="0 0 132 100" class="кал"><rect x="4" y="18" width="14" height="12" rx="2" class="день"/><rect x="22" y="18" width="14" height="12" rx="2" class="день"/><rect x="40" y="18" width="14" height="12" rx="2" class="день"/><rect x="58" y="18" width="14" height="12" rx="2" class="день"/><rect x="76" y="18" width="14" height="12" rx="2" class="день"/><rect x="94" y="18" width="14" height="12" rx="2" class="день"/><rect x="112" y="18" width="14" height="12" rx="2" class="день"/><rect x="4" y="34" width="14" height="12" rx="2" class="день"/><rect x="22" y="34" width="14" height="12" rx="2" class="день"/><rect x="40" y="34" width="14" height="12" rx="2" class="день"/><rect x="58" y="34" width="14" height="12" rx="2" class="день"/><rect x="76" y="34" width="14" height="12" rx="2" class="день"/><rect x="94" y="34" width="14" height="12" rx="2" class="день"/><rect x="112" y="34" width="14" height="12" rx="2" class="день"/><rect x="4" y="50" width="14" height="12" rx="2" class="день"/><rect x="22" y="50" width="14" height="12" rx="2" class="день"/><rect x="40" y="50" width="14" height="12" rx="2" class="день"/><rect x="58" y="50" width="14" height="12" rx="2" class="срок"/><rect x="76" y="50" width="14" height="12" rx="2" class="день"/><rect x="94" y="50" width="14" height="12" rx="2" class="день"/><rect x="112" y="50" width="14" height="12" rx="2" class="день"/><rect x="4" y="66" width="14" height="12" rx="2" class="день"/><rect x="22" y="66" width="14" height="12" rx="2" class="день"/><rect x="40" y="66" width="14" height="12" rx="2" class="день"/><rect x="58" y="66" width="14" height="12" rx="2" class="день"/><rect x="76" y="66" width="14" height="12" rx="2" class="день"/><rect x="94" y="66" width="14" height="12" rx="2" class="день"/><rect x="112" y="66" width="14" height="12" rx="2" class="день"/><rect x="4" y="82" width="14" height="12" rx="2" class="день"/><rect x="22" y="82" width="14" height="12" rx="2" class="день"/><rect x="40" y="82" width="14" height="12" rx="2" class="день"/><rect x="58" y="82" width="14" height="12" rx="2" class="день"/><rect x="76" y="82" width="14" height="12" rx="2" class="день"/><rect x="94" y="82" width="14" height="12" rx="2" class="день"/><rect x="112" y="82" width="14" height="12" rx="2" class="день"/><text x="4" y="10" class="т">срок закупки — сегодня</text></svg>
+    </div>
+    <!-- 2. заявка -->
+    <div class="заявка" style="left:312px;top:254px" data-к="2">
+      <svg viewBox="0 0 40 48"><path d="M6 4h20l8 8v32H6z" class="док"/><path d="M26 4v8h8" class="док"/>
+        <path d="M12 22h16M12 30h16M12 38h10" class="строки"/></svg>
+      <span>заявка</span>
     </div>
 
-    <div class="стрела" style="left:352px;top:120px;width:96px" data-к="2">
-      <span class="подпись">заявка<br>на закупку</span>
-    </div>
-
-    <!-- SK Store -->
-    <div class="система" style="left:460px;top:20px;width:380px;min-height:330px" data-к="2">
-      <div class="имя">SK Store — электронная площадка</div>
-      <div class="модуль">
-        <div class="заг">Закупочная процедура <span class="ии">AI</span></div>
-        <ul class="действия" data-к="3">
-          <li class="ключ">ИИ-секретарь закупок проверяет тендерную документацию</li>
-          <li>Проверка комплектности и соответствия</li>
-          <li>Выбор поставщика по правилам закупок</li>
-        </ul>
+    <!-- 3. площадка -->
+    <div class="склад площадка" style="left:380px;top:60px;width:540px;height:300px" data-к="2">
+      <div class="имя">SK Store · электронная площадка</div>
+      <div class="заг">Закупочная процедура <span class="ии">AI</span></div>
+      <div class="секретарь" data-к="3">ИИ-секретарь проверяет документы</div>
+      <div class="участник " style="left:30px;top:96px;transition-delay:0ms" data-к="3">
+        <svg viewBox="0 0 40 48"><path d="M6 4h20l8 8v32H6z" class="док"/><path d="M26 4v8h8" class="док"/>
+          <path d="M12 26l5 5 10-10" class="галка" style="transition-delay:600ms"/></svg>
+        <b>Поставщик 1</b>
       </div>
-      <div class="карточка" style="position:static;margin-top:14px" data-к="4">
-        <b>Договор подписан транспортным ЭЦП</b>
-        <ul><li>Сформирован смарт-контракт для контроля исполнения</li></ul>
+      <div class="участник победитель" style="left:190px;top:96px;transition-delay:180ms" data-к="3">
+        <svg viewBox="0 0 40 48"><path d="M6 4h20l8 8v32H6z" class="док"/><path d="M26 4v8h8" class="док"/>
+          <path d="M12 26l5 5 10-10" class="галка" style="transition-delay:780ms"/></svg>
+        <b>Поставщик 2</b>
       </div>
-    </div>
-
-    <div class="стрела" style="left:852px;top:120px;width:96px" data-к="5">
-      <span class="подпись">договор<br>и график</span>
-    </div>
-
-    <!-- Исполнение договоров -->
-    <div class="система" style="left:960px;top:20px;width:764px;min-height:330px" data-к="5">
-      <div class="имя">ИС «Маркетинг цен, планирование закупок и складская отчётность»</div>
-      <div class="модуль">
-        <div class="заг">Модуль «Исполнение договоров» <span class="ии">AI</span></div>
-        <ul class="действия" data-к="6" style="columns:2;column-gap:24px">
-          <li>График поставок — автоматически</li>
-          <li>График платежей — автоматически</li>
-          <li>Контроль сроков поставки</li>
-          <li>Контроль закрывающих документов</li>
-          <li>Контроль исполнения обязательств</li>
-        </ul>
-      </div>
-      <div class="бирка_срок" style="position:static;display:inline-block;margin-top:14px" data-к="7">
-        До поставки 10 дней · уведомление поставщику направлено
+      <div class="участник " style="left:350px;top:96px;transition-delay:360ms" data-к="3">
+        <svg viewBox="0 0 40 48"><path d="M6 4h20l8 8v32H6z" class="док"/><path d="M26 4v8h8" class="док"/>
+          <path d="M12 26l5 5 10-10" class="галка" style="transition-delay:960ms"/></svg>
+        <b>Поставщик 3</b>
       </div>
     </div>
-
-    <!-- развилка и финал -->
-    <div class="карточка синяя" style="left:960px;top:404px;width:370px" data-к="8">
-      <b>Поставка выполнена?</b>
-      <ul>
-        <li><span style="color:var(--мята)">Да</span> → проверка актов и закрывающих документов</li>
-        <li><span style="color:var(--приглуш)">Нет</span> → уведомление + проект претензионного письма</li>
-      </ul>
+    <!-- 4. договор -->
+    <div class="карточка договор" style="left:380px;top:400px;width:540px" data-к="4">
+      <svg viewBox="0 0 64 64" class="печать"><circle cx="32" cy="32" r="28" class="круг"/><circle cx="32" cy="32" r="20" class="круг"/>
+        <path d="M20 33l8 8 16-16" class="галка включён"/></svg>
+      <div><b>Договор подписан ЭЦП</b><span>смарт-контракт сформирован</span></div>
+      <svg viewBox="0 0 64 32" class="цепь"><rect x="4" y="8" width="22" height="16" rx="8" class="круг"/><rect x="38" y="8" width="22" height="16" rx="8" class="круг"/><path d="M26 16h12" class="круг"/></svg>
     </div>
-    <div class="карточка" style="left:1354px;top:404px;width:370px" data-к="9">
-      <b>Договор исполнен и закрыт</b>
-      <ul>
-        <li>Акты проверены</li>
-        <li>Закрывающие документы подтверждены</li>
-      </ul>
+
+    <!-- 5–9. исполнение -->
+    <div class="склад" style="left:1000px;top:60px;width:724px;height:480px" data-к="5">
+      <div class="имя">ProcuPriceMetal</div>
+      <div class="заг">Исполнение договоров <span class="ии">AI</span></div>
+      <svg viewBox="0 0 680 330" class="лента" style="margin-top:14px;width:680px;height:330px">
+        <line x1="20" y1="120" x2="660" y2="120" class="ось" data-к="6"/>
+        <g data-к="6" style="transition-delay:200ms">
+          <circle cx="140" cy="120" r="8" class="веха"/><text x="140" y="96" class="т" text-anchor="middle">платёж 1</text>
+          <circle cx="400" cy="120" r="8" class="веха"/><text x="400" y="96" class="т" text-anchor="middle">поставка</text>
+          <circle cx="600" cy="120" r="8" class="веха"/><text x="600" y="96" class="т" text-anchor="middle">платёж 2</text>
+          <text x="20" y="160" class="т">график поставок и платежей — из договора, сам</text>
+        </g>
+        <g data-к="7">
+          <path d="M330 106c0-9 6-14 12-14s12 5 12 14v10h-24z" class="колокол"/><circle cx="342" cy="120" r="3" class="колокол"/>
+          <text x="342" y="80" class="т мята" text-anchor="middle">за 10 дней — уведомление поставщику</text>
+        </g>
+        <g data-к="8">
+          <path d="M400 128v60" class="ось"/>
+          <path d="M400 188l-90 40" class="ось мята"/><path d="M400 188l90 40" class="ось серая"/>
+          <circle cx="310" cy="228" r="16" class="круг мята"/><path d="M302 228l6 6 10-10" class="галка мята"/>
+          <text x="310" y="266" class="т мята" text-anchor="middle">поставлено — акты</text>
+          <circle cx="490" cy="228" r="16" class="круг серая"/><path d="M484 222l12 12M496 222l-12 12" class="крест"/>
+          <text x="490" y="266" class="т" text-anchor="middle">нет — претензия сама</text>
+        </g>
+        <g data-к="9">
+          <circle cx="600" cy="228" r="28" class="круг мята"/><circle cx="600" cy="228" r="20" class="круг мята"/>
+          <path d="M588 229l8 8 16-16" class="галка мята"/>
+          <text x="600" y="282" class="т мята" text-anchor="middle">договор закрыт</text>
+        </g>
+      </svg>
     </div>
   </div>
 
@@ -745,15 +791,15 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
       "Позиция плана сформирована. Источник — один источник у конкретной ДЗО: внешняя закупка не нужна."
     ],
     с4: [
-      "Наступил срок закупки по плану. Модуль «Планирование закупок» сам инициирует заявку.",
-      "В SK Store уходит заявка со всем необходимым: предмет, код ТРУ, количество, стоимость, сроки, требования, способ закупки и источник.",
-      "В SK Store идёт процедура. ИИ-секретарь закупок проверяет тендерную документацию и комплектность, система определяет поставщика по правилам.",
-      "Договор подписывается транспортным ЭЦП. Одновременно формируется смарт-контракт для автоматического контроля обязательств.",
-      "Данные договора уходят в модуль «Исполнение договоров»: условия, поставщик, позиции, сроки, график, закрывающие документы.",
-      "Модуль извлекает из договора ключевые условия и сам строит графики поставок и платежей.",
-      "До срока поставки система заранее уведомляет поставщика и ответственных — рисками срыва управляют до того, как они случились.",
-      "Поставка выполнена — проверка актов и документов. Не выполнена — отклонение зафиксировано, уведомление и проект претензионного письма сформированы.",
-      "Акты, накладные и счета проверены, расхождений нет — договор автоматически переведён в статус исполненного и закрытого."
+      "Наступил срок закупки по плану — система заметила это сама.",
+      "Заявка на закупку уходит на электронную площадку SK Store: предмет, код, количество, стоимость, сроки, источник.",
+      "На площадке — участники. ИИ-секретарь закупок проверяет их документы, победитель определяется по правилам.",
+      "Договор подписан транспортным ЭЦП. Одновременно сформирован смарт-контракт — он будет следить за исполнением.",
+      "Договор уходит в модуль «Исполнение договоров».",
+      "Из договора модуль сам извлекает сроки и строит график поставок и платежей.",
+      "За десять дней до поставки поставщику уходит уведомление — рисками срыва управляют заранее.",
+      "Поставлено — проверяются акты и закрывающие документы. Не поставлено — отклонение зафиксировано, проект претензии сформирован сам.",
+      "Расхождений нет — договор автоматически закрыт."
     ]
   };
 
