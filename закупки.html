@@ -219,7 +219,7 @@ svg .сбор[data-к]{transform:none}
 .поставщик .код{margin-left:8px;font-size:11px;color:var(--кмг)}
 .поставщик .кп{margin-top:8px;height:14px;position:relative;display:flex;align-items:center;gap:8px}
 .поставщик .кп i{display:block;height:6px;border-radius:3px;background:linear-gradient(90deg, rgba(62,213,152,.35), var(--зелёный))}
-.поставщик .кп em{font-style:normal;font-size:11px;color:var(--мята)}
+.поставщик .кп em{font-style:normal;font-size:12px;color:var(--мята);white-space:nowrap;margin-left:auto}
 .карточка .шкала{position:relative;height:34px;margin-top:12px;border-bottom:2px solid var(--грань)}
 .карточка .шкала i{position:absolute;top:14px;width:2px;height:12px;background:var(--мята)}
 .карточка .шкала i.сред{background:var(--кмг)}
@@ -287,6 +287,37 @@ svg .ось[data-к]{transform:none}
 .карточка li.цена_стр{color:var(--кмг)}
 .карточка li strong{color:var(--кмг)}
 
+/* ===== первая страница ===== */
+.система_имя{margin-top:22px;font-size:34px;font-weight:700;color:var(--кмг)}
+.система_имя span{display:block;font-family:'Golos Text',sans-serif;font-size:16px;font-weight:400;
+  color:var(--приглуш);letter-spacing:.04em;margin-top:4px}
+.подзаг{margin-top:8px;font-size:22px;color:var(--текст2)}
+.шаг7 .ик{width:54px;height:54px;margin-top:14px;display:block;fill:none;stroke:var(--кмг);stroke-width:1.8;
+  stroke-linecap:round;stroke-linejoin:round}
+.шаг7.обмен .ик{stroke:var(--мята)}
+.шаг7 .сис b{display:block;font-size:15px;color:var(--текст);font-weight:700}
+.шаг7 .сис span{display:block;margin-top:4px}
+/* карточка товара: поля в две колонки «имя — значение» */
+.поля li{display:flex;justify-content:space-between;gap:12px;align-items:baseline}
+.поля li span{color:var(--приглуш);font-size:13px;white-space:nowrap}
+.поля li strong{color:var(--текст);font-weight:600;text-align:right}
+.поля li em{font-style:normal;color:var(--приглуш);text-align:right}
+.поля li strong.мятн{color:var(--мята)}
+.поля li strong.мятн[data-к]{display:none}
+.поля li strong.мятн[data-к].включён{display:inline}
+.поля.две{display:grid;grid-template-columns:1fr 1fr;column-gap:28px}
+.карточка .средняя{margin-top:10px;font-size:13px;color:var(--приглуш)}
+.карточка .средняя strong{display:block;font-size:24px;color:var(--мята);font-weight:700;margin-top:2px}
+.карточка li.прим{color:var(--приглуш);font-size:13px}
+.карточка li strong.акцент{color:var(--мята)}
+.шестерня{width:40px;height:40px;margin-top:14px;display:block;fill:none;stroke:var(--кмг);stroke-width:2}
+.шестерня .крут{transform-origin:20px 20px;animation:кручение 1.6s linear infinite}
+.шестерня rect{fill:var(--кмг);stroke:none}
+@keyframes кручение{to{transform:rotate(360deg)}}
+/* «до» — элемент гаснет после указанного кадра */
+[data-до].ушёл{opacity:0!important}
+#лого{height:64px}
+
 /* ===== слайд AI-Broker: карта ===== */
 #с3 .карта{position:absolute;left:0;top:0;width:1000px;height:560px}
 #с3 .карта svg{width:1000px;height:518px;display:block}
@@ -343,20 +374,59 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
 <div id="обёртка">
 <div id="кадр">
 
-<!-- ================= 0. общая картина: семь шагов =================
-     Заказчик 03.09 23:15: «нужно какую-то общую картину дать по семи шагам…
-     helicopter view, и потом оттуда проваливаться в детали». -->
-<section class="слайд виден" id="с0" aria-label="Общая картина">
-  <div class="бровь">ИИ-закупки · общая картина</div>
-  <h2 class="заголовок дисплей">Семь шагов закупки без участия человека</h2>
+<!-- ================= 0. первая страница: helicopter view =================
+     Созвон 03.09 23:40: заголовок «Сквозной процесс проведения закупок
+     посредством ИИ», мельче — «без участия человеческого фактора»; сверху
+     имя системы KMG AISAP с расшифровкой; у шагов — иллюстрации, названия
+     системы крупнее, модуль под ним. -->
+<section class="слайд виден" id="с0" aria-label="Helicopter view">
+  <div class="бровь">Helicopter view</div>
+  <div class="система_имя дисплей">KMG AISAP <span>AI Satyp Alu Platformasy</span></div>
+  <h2 class="заголовок дисплей">Сквозной процесс проведения закупок посредством ИИ</h2>
+  <div class="подзаг">без участия человеческого фактора</div>
   <div class="семь">
-    <div class="шаг7" data-к="1"><div class="н">01</div><h3>Формирование потребности</h3><div class="сис">Модуль формирования потребности</div></div>
-    <div class="шаг7" data-к="2"><div class="н">02</div><h3>Маркетинг цен</h3><div class="сис">KMG AISAP</div></div>
-    <div class="шаг7" data-к="3"><div class="н">03</div><h3>Подтверждение бюджета</h3><div class="сис">Система бюджетирования</div></div>
-    <div class="шаг7" data-к="4"><div class="н">04</div><h3>Планирование закупок</h3><div class="сис">KMG AISAP</div></div>
-    <div class="шаг7 обмен" data-к="5"><div class="н">05</div><h3>AI-Broker</h3><div class="сис">остатки других ДЗО</div></div>
-    <div class="шаг7" data-к="6"><div class="н">06</div><h3>Тендер и договор</h3><div class="сис">SK Store</div></div>
-    <div class="шаг7" data-к="7"><div class="н">07</div><h3>Исполнение договора</h3><div class="сис">KMG AISAP</div></div>
+    <div class="шаг7" data-к="1">
+      <div class="н">01</div>
+      <svg class="ик" viewBox="0 0 54 54" aria-hidden="true"><path d="M14 6h20l6 6v30H14z"/><path d="M34 6v6h6"/><path d="M20 22h14M20 30h14M20 38h8"/></svg>
+      <h3>Формирование потребности</h3>
+      <div class="сис"><b>KMG AISAP</b><span>модуль формирования потребности</span></div>
+    </div>
+    <div class="шаг7" data-к="2">
+      <div class="н">02</div>
+      <svg class="ик" viewBox="0 0 54 54" aria-hidden="true"><circle cx="22" cy="22" r="12"/><path d="M31 31l11 11"/><path d="M16 22h12M22 16v12"/></svg>
+      <h3>Проведение маркетингового анализа</h3>
+      <div class="сис"><b>KMG AISAP</b><span>модуль маркетинга цен</span></div>
+    </div>
+    <div class="шаг7" data-к="3">
+      <div class="н">03</div>
+      <svg class="ик" viewBox="0 0 54 54" aria-hidden="true"><rect x="8" y="14" width="38" height="26" rx="4"/><path d="M8 22h38"/><circle cx="36" cy="32" r="3"/></svg>
+      <h3>Подтверждение наличия бюджета</h3>
+      <div class="сис"><b>Система бюджетирования</b></div>
+    </div>
+    <div class="шаг7" data-к="4">
+      <div class="н">04</div>
+      <svg class="ик" viewBox="0 0 54 54" aria-hidden="true"><rect x="8" y="10" width="38" height="34" rx="4"/><path d="M8 20h38M18 6v8M36 6v8"/><path d="M16 30l5 5 10-10"/></svg>
+      <h3>Формирование плана закупок</h3>
+      <div class="сис"><b>KMG AISAP</b><span>модуль планирования закупок</span></div>
+    </div>
+    <div class="шаг7 обмен" data-к="5">
+      <div class="н">05</div>
+      <svg class="ик" viewBox="0 0 54 54" aria-hidden="true"><path d="M6 24l21-12 21 12"/><path d="M11 22v20h32V22"/><circle cx="27" cy="32" r="6"/><path d="M31 36l6 6"/></svg>
+      <h3>Поиск товаров внутри ДЗО</h3>
+      <div class="сис"><b>KMG AISAP</b><span>модуль AI-Broker</span></div>
+    </div>
+    <div class="шаг7" data-к="6">
+      <div class="н">06</div>
+      <svg class="ик" viewBox="0 0 54 54" aria-hidden="true"><path d="M10 40h34"/><path d="M18 40V22l9-8 9 8v18"/><path d="M14 22h26"/><circle cx="27" cy="30" r="3"/></svg>
+      <h3>Проведение тендерных процедур и заключение договора</h3>
+      <div class="сис"><b>SK Store</b></div>
+    </div>
+    <div class="шаг7" data-к="7">
+      <div class="н">07</div>
+      <svg class="ик" viewBox="0 0 54 54" aria-hidden="true"><path d="M14 6h20l6 6v30H14z"/><path d="M34 6v6h6"/><path d="M19 30l5 5 11-11"/></svg>
+      <h3>Исполнение договорных обязательств</h3>
+      <div class="сис"><b>KMG AISAP</b><span>модуль исполнения договоров</span></div>
+    </div>
   </div>
   <svg class="лента7" viewBox="0 0 1724 60" data-к="7" aria-hidden="true">
     <line x1="30" y1="30" x2="1694" y2="30" class="ось"/>
@@ -365,19 +435,11 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
 </section>
 
 <!-- ================= 1. ИИ формирует потребность =================
-     Созвон 03.09 21:39: «нужно, чтобы анимация здесь была… как он формирует
-     потребность: смотрит, что есть на складах, потом min/max и так далее.
-     Вокруг модуля должны формироваться вот эти данные, и по итогам он
-     формирует потребность». И общее: «остальные слайды в таком формате, как с
-     картой… минимум текста сбоку».
-
-     Поэтому: в центре склад МЭМ с полками, вокруг шесть источников данных —
-     каждый с маленькой картинкой того, что он значит (min/max — шкала,
-     история — столбики, нормы — человек и три ручки, паспорт — шестерёнка и
-     календарь). Лучи сходятся в модуль, рождается потребность, уходит в
-     маркетинг цен. Стрелок между текстовыми карточками нет. -->
-<section class="слайд" id="с1" aria-label="Слайд 1">
-  <div class="бровь">Слайд 1 · KMG AISAP</div>
+     Созвон 23:40: шесть карточек-источников — все слева от модуля; карточка
+     потребности с полями материала, девятизначным кодом, количеством,
+     сроком и местом поставки. Пример товара условный, до присылки своего. -->
+<section class="слайд" id="с1" aria-label="Шаг 1">
+  <div class="бровь">Шаг 1 · KMG AISAP</div>
   <h2 class="заголовок дисплей">ИИ формирует потребность в закупе</h2>
 
   <div class="полотно">
@@ -386,64 +448,62 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
         <marker id="стрелка_циан" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
           <path d="M0 0L10 5L0 10z" fill="#4FE3FF"/></marker>
       </defs>
-      <line class="сбор" pathLength="1" x1="165" y1="120" x2="340" y2="250" style="transition-delay:0ms" data-к="3"/>
-      <line class="сбор" pathLength="1" x1="165" y1="300" x2="340" y2="330" style="transition-delay:140ms" data-к="3"/>
-      <line class="сбор" pathLength="1" x1="165" y1="480" x2="340" y2="410" style="transition-delay:280ms" data-к="3"/>
-      <line class="сбор" pathLength="1" x1="555" y1="70" x2="560" y2="180" style="transition-delay:420ms" data-к="3"/>
-      <line class="сбор" pathLength="1" x1="945" y1="120" x2="780" y2="250" style="transition-delay:560ms" data-к="3"/>
-      <line class="сбор" pathLength="1" x1="945" y1="480" x2="780" y2="410" style="transition-delay:700ms" data-к="3"/>
-      <path class="поток" pathLength="1" marker-end="url(#стрелка_циан)" d="M796 330 H1104" data-к="4"/>
-      <text class="поток_подпись" x="950" y="316" text-anchor="middle" data-к="4">по итогам анализа</text>
-      <path class="поток" pathLength="1" marker-end="url(#стрелка_циан)" d="M1444 330 H1536" data-к="5"/>
+      <line class="сбор" pathLength="1" x1="250" y1="100" x2="580" y2="250" style="transition-delay:0ms" data-к="3"/>
+      <line class="сбор" pathLength="1" x1="520" y1="100" x2="580" y2="280" style="transition-delay:120ms" data-к="3"/>
+      <line class="сбор" pathLength="1" x1="250" y1="290" x2="580" y2="310" style="transition-delay:240ms" data-к="3"/>
+      <line class="сбор" pathLength="1" x1="520" y1="290" x2="580" y2="340" style="transition-delay:360ms" data-к="3"/>
+      <line class="сбор" pathLength="1" x1="250" y1="480" x2="580" y2="370" style="transition-delay:480ms" data-к="3"/>
+      <line class="сбор" pathLength="1" x1="520" y1="480" x2="580" y2="400" style="transition-delay:600ms" data-к="3"/>
+      <path class="поток" pathLength="1" marker-end="url(#стрелка_циан)" d="M1000 330 H1084" data-к="4"/>
+      <text class="поток_подпись" x="1042" y="316" text-anchor="middle" data-к="4">по итогам анализа</text>
+      <path class="поток" pathLength="1" marker-end="url(#стрелка_циан)" d="M1454 330 H1526" data-к="5"/>
     </svg>
 
-    <!-- склад МЭМ: модуль с полками -->
-    <div class="склад" style="left:340px;top:180px;width:440px" data-к="1">
-      <div class="имя">Модуль формирования потребности</div>
+    <div class="склад" style="left:580px;top:150px;width:420px" data-к="1">
+      <div class="имя">KMG AISAP · модуль формирования потребности</div>
       <div class="заг">ИИ автоматически выявляет и формирует потребность <span class="ии">AI</span></div>
       <div class="сетка"><i class="ячейка" style="transition-delay:0ms"></i><i class="ячейка" style="transition-delay:18ms"></i><i class="ячейка" style="transition-delay:36ms"></i><i class="ячейка" style="transition-delay:54ms"></i><i class="ячейка" style="transition-delay:72ms"></i><i class="ячейка пусто" style="transition-delay:90ms"></i><i class="ячейка" style="transition-delay:108ms"></i><i class="ячейка" style="transition-delay:126ms"></i><i class="ячейка" style="transition-delay:144ms"></i><i class="ячейка" style="transition-delay:162ms"></i><i class="ячейка" style="transition-delay:180ms"></i><i class="ячейка" style="transition-delay:198ms"></i><i class="ячейка" style="transition-delay:216ms"></i><i class="ячейка" style="transition-delay:234ms"></i><i class="ячейка пусто" style="transition-delay:252ms"></i><i class="ячейка" style="transition-delay:270ms"></i><i class="ячейка" style="transition-delay:288ms"></i><i class="ячейка" style="transition-delay:306ms"></i><i class="ячейка" style="transition-delay:324ms"></i><i class="ячейка" style="transition-delay:342ms"></i><i class="ячейка" style="transition-delay:360ms"></i><i class="ячейка" style="transition-delay:378ms"></i><i class="ячейка пусто" style="transition-delay:396ms"></i><i class="ячейка" style="transition-delay:414ms"></i><i class="ячейка" style="transition-delay:432ms"></i><i class="ячейка" style="transition-delay:450ms"></i><i class="ячейка" style="transition-delay:468ms"></i><i class="ячейка пусто" style="transition-delay:486ms"></i><i class="ячейка" style="transition-delay:504ms"></i><i class="ячейка" style="transition-delay:522ms"></i><i class="ячейка" style="transition-delay:540ms"></i><i class="ячейка" style="transition-delay:558ms"></i></div>
       <div class="ключ"><span class="есть">есть</span><span class="нет">заканчивается</span></div>
       <div class="сияние" data-к="3"></div>
     </div>
 
-    <div class="исток остатки" style="left:40px;top:60px;transition-delay:0ms" data-к="2">
+    <div class="исток остатки" style="left:0px;top:40px;transition-delay:0ms" data-к="2">
       <div class="мини"><svg viewBox="0 0 70 56"><rect x="4" y="4" width="12" height="12" rx="2" class="з"/><rect x="20" y="4" width="12" height="12" rx="2" class="з"/><rect x="36" y="4" width="12" height="12" rx="2" class="з"/><rect x="52" y="4" width="12" height="12" rx="2" class="з"/><rect x="4" y="20" width="12" height="12" rx="2" class="з"/><rect x="20" y="20" width="12" height="12" rx="2" class="з"/><rect x="36" y="20" width="12" height="12" rx="2" class="п"/><rect x="52" y="20" width="12" height="12" rx="2" class="з"/><rect x="4" y="36" width="12" height="12" rx="2" class="п"/><rect x="20" y="36" width="12" height="12" rx="2" class="з"/><rect x="36" y="36" width="12" height="12" rx="2" class="з"/><rect x="52" y="36" width="12" height="12" rx="2" class="з"/></svg></div>
       <div><b>Анализирует текущие складские запасы</b></div>
     </div>
-    <div class="исток минмакс" style="left:40px;top:240px;transition-delay:200ms" data-к="2">
+    <div class="исток минмакс" style="left:270px;top:40px;transition-delay:160ms" data-к="2">
       <div class="мини"><svg viewBox="0 0 70 56"><rect x="24" y="4" width="22" height="48" rx="4" class="к"/><rect x="24" y="40" width="22" height="12" rx="3" class="ур"/><line x1="12" y1="36" x2="58" y2="36" class="лин"/><text x="2" y="39" class="т">min</text><line x1="12" y1="8" x2="58" y2="8" class="лин мята"/><text x="2" y="11" class="т мята">max</text></svg></div>
       <div><b>Анализирует min-max уровни запасов</b></div>
     </div>
-    <div class="исток закупки" style="left:40px;top:420px;transition-delay:400ms" data-к="2">
+    <div class="исток закупки" style="left:0px;top:230px;transition-delay:320ms" data-к="2">
       <div class="мини"><svg viewBox="0 0 70 56"><rect x="6" y="30" width="10" height="22" class="з"/><rect x="21" y="20" width="10" height="32" class="з"/><rect x="36" y="26" width="10" height="26" class="з"/><rect x="51" y="12" width="10" height="40" class="з"/></svg></div>
       <div><b>Анализирует историю закупок</b></div>
     </div>
-    <div class="исток потребление" style="left:430px;top:10px;transition-delay:600ms" data-к="2">
+    <div class="исток потребление" style="left:270px;top:230px;transition-delay:480ms" data-к="2">
       <div class="мини"><svg viewBox="0 0 70 56"><circle cx="10" cy="12" r="3" class="з"/><circle cx="22" cy="12" r="3" class="з"/><circle cx="34" cy="12" r="3" class="з"/><circle cx="58" cy="12" r="3" class="з"/><circle cx="10" cy="28" r="3" class="з"/><circle cx="22" cy="28" r="3" class="з"/><circle cx="34" cy="28" r="3" class="з"/><circle cx="46" cy="28" r="3" class="з"/><circle cx="58" cy="28" r="3" class="з"/><circle cx="22" cy="44" r="3" class="з"/><circle cx="34" cy="44" r="3" class="з"/><circle cx="46" cy="44" r="3" class="з"/><circle cx="58" cy="44" r="3" class="з"/></svg></div>
       <div><b>Анализирует историю потребления</b></div>
     </div>
-    <div class="исток нормы" style="left:820px;top:60px;transition-delay:800ms" data-к="2">
+    <div class="исток нормы" style="left:0px;top:420px;transition-delay:640ms" data-к="2">
       <div class="мини"><svg viewBox="0 0 70 56"><circle cx="16" cy="16" r="7" class="к"/><path d="M4 50c0-12 6-18 12-18s12 6 12 18" class="к"/><rect x="40" y="10" width="6" height="30" rx="2" class="з"/><rect x="50" y="10" width="6" height="30" rx="2" class="з"/><rect x="60" y="10" width="6" height="30" rx="2" class="з"/><text x="40" y="52" class="т">x3</text></svg></div>
       <div><b>Анализирует нормы потребления</b></div>
     </div>
-    <div class="исток паспорта" style="left:820px;top:420px;transition-delay:1000ms" data-к="2">
+    <div class="исток паспорта" style="left:270px;top:420px;transition-delay:800ms" data-к="2">
       <div class="мини"><svg viewBox="0 0 70 56"><circle cx="22" cy="28" r="14" class="к"/><circle cx="22" cy="28" r="5" class="з"/><rect x="42" y="12" width="7" height="7" rx="1" class="к"/><rect x="51" y="12" width="7" height="7" rx="1" class="к"/><rect x="60" y="12" width="7" height="7" rx="1" class="з"/><rect x="42" y="21" width="7" height="7" rx="1" class="к"/><rect x="51" y="21" width="7" height="7" rx="1" class="к"/><rect x="60" y="21" width="7" height="7" rx="1" class="з"/><rect x="42" y="30" width="7" height="7" rx="1" class="к"/><rect x="51" y="30" width="7" height="7" rx="1" class="к"/><rect x="60" y="30" width="7" height="7" rx="1" class="к"/><rect x="42" y="39" width="7" height="7" rx="1" class="к"/><rect x="51" y="39" width="7" height="7" rx="1" class="к"/><rect x="60" y="39" width="7" height="7" rx="1" class="к"/></svg></div>
       <div><b>Анализирует паспорта, техспецификацию и техдокументацию</b></div>
     </div>
 
-    <!-- результат -->
-    <div class="карточка товар" style="left:1120px;top:190px;width:320px" data-к="4">
+    <div class="карточка товар" style="left:1100px;top:180px;width:340px" data-к="4">
       <b>Потребность сформирована</b>
-      <div class="товар_имя">Провод ПВС 3×2,5</div>
-      <ul>
-        <li>Код ЕНС ТРУ / АСУ НСИ: <strong>1234</strong></li>
-        <li>Количество: 500 м · до max</li>
-        <li>Срок: ноябрь 2026</li>
+      <ul class="поля">
+        <li><span>Материал</span><strong>Провод ПВС 3×2,5</strong></li>
+        <li><span>Код ЕНС ТРУ / АСУ НСИ</span><strong>273212900</strong></li>
+        <li><span>Количество</span><strong>500 м</strong></li>
+        <li><span>Срок</span><strong>январь 2027</strong></li>
+        <li><span>Место поставки</span><strong>Мангистауэнергомунай</strong></li>
       </ul>
     </div>
-    <div class="пилюля" style="left:1548px;top:306px" data-к="5">Маркетинг цен</div>
+    <div class="пилюля" style="left:1538px;top:306px" data-к="5">Маркетинг цен</div>
   </div>
-
 </section>
 
 <!-- ================= 2. маркетинг цен и бюджет =================
@@ -458,7 +518,7 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
      Цен в цифрах нет намеренно: любое число тут было бы выдумкой. КП показаны
      полосками разной длины, результат — отметками «низкая» и «средняя». -->
 <section class="слайд" id="с2" aria-label="Слайд 2">
-  <div class="бровь">Слайд 2 · KMG AISAP</div>
+  <div class="бровь">Шаг 2 · KMG AISAP</div>
   <h2 class="заголовок дисплей">ИИ находит поставщиков, цену и проводит маркетинговый анализ</h2>
 
   <div class="полотно">
@@ -469,7 +529,7 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
         <marker id="стрелка_мята2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
           <path d="M0 0L10 5L0 10z" fill="#3ED598"/></marker>
       </defs>
-      <path class="поток" pathLength="1" marker-end="url(#стрелка_циан2)" d="M300 210 H372" data-к="2"/>
+      <path class="поток" pathLength="1" marker-end="url(#стрелка_циан2)" d="M320 210 H392" data-к="2"/>
       <line class="сбор" pathLength="1" x1="485" y1="270" x2="485" y2="460" data-к="3"/>
       <line class="сбор" pathLength="1" x1="715" y1="270" x2="715" y2="460" data-к="3"/>
       <line class="сбор" pathLength="1" x1="760" y1="210" x2="900" y2="146" style="transition-delay:0ms" data-к="4"/>
@@ -482,24 +542,28 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
       <line class="сбор назад" pathLength="1" x1="1140" y1="346" x2="1180" y2="330" style="transition-delay:280ms" data-к="5"/>
       <line class="сбор назад" pathLength="1" x1="1140" y1="446" x2="1180" y2="330" style="transition-delay:420ms" data-к="5"/>
       <line class="сбор назад" pathLength="1" x1="1140" y1="546" x2="1180" y2="330" style="transition-delay:560ms" data-к="5"/>
-      <path class="поток" pathLength="1" marker-end="url(#стрелка_циан2)" d="M1420 330 H1462" data-к="7"/>
-      <path class="поток назад" pathLength="1" marker-end="url(#стрелка_мята2)" d="M1596 440 V690 H150 V268" data-к="8"/>
+      <path class="поток назад" pathLength="1" marker-end="url(#стрелка_мята2)" d="M1180 400 V420 H160 V300" data-к="6" data-до="6"/>
+      <path class="поток" pathLength="1" marker-end="url(#стрелка_циан2)" d="M1430 330 H1462" data-к="7"/>
+      <path class="поток назад" pathLength="1" marker-end="url(#стрелка_мята2)" d="M1596 400 V690 H160 V430" data-к="8"/>
       <text class="поток_подпись назад" x="1180" y="710" text-anchor="middle" data-к="8">статус бюджета</text>
     </svg>
 
     <!-- потребность с кодом -->
-    <div class="карточка синяя товар" style="left:0;top:150px;width:300px" data-к="1">
+    <div class="карточка синяя товар" style="left:0;top:120px;width:320px" data-к="1">
       <b>Потребность</b>
-      <div class="товар_имя">Провод ПВС 3×2,5 · 500 м</div>
-      <ul>
-        <li class="кодчип">Код ЕНС ТРУ / АСУ НСИ: <strong>1234</strong></li>
-        <li data-к="6" class="цена_стр">Цена определена</li>
-        <li data-к="8" class="мятн">Бюджет имеется ✓</li>
+      <ul class="поля">
+        <li><span>Материал</span><strong>Провод ПВС 3×2,5</strong></li>
+        <li><span>Код ЕНС ТРУ / АСУ НСИ</span><strong>273212900</strong></li>
+        <li><span>Количество</span><strong>500 м</strong></li>
+        <li><span>Срок</span><strong>январь 2027</strong></li>
+        <li><span>Место поставки</span><strong>Мангистауэнергомунай</strong></li>
+        <li class="поле_цена"><span>Цена</span><em data-до="5">не определена</em><strong class="мятн" data-к="6">1 218 ₸/м</strong></li>
+        <li class="поле_бюдж"><span>Бюджет</span><em data-до="7">не определён</em><strong class="мятн" data-к="8">имеется ✓</strong></li>
       </ul>
     </div>
 
     <!-- модуль -->
-    <div class="склад" style="left:380px;top:150px;width:380px;height:120px" data-к="2">
+    <div class="склад" style="left:400px;top:150px;width:360px;height:120px" data-к="2">
       <div class="имя">KMG AISAP</div>
       <div class="заг">Модуль маркетинга цен <span class="ии">AI</span></div>
       <p class="ищет">ищет по коду <strong>1234</strong></p>
@@ -519,38 +583,38 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
     <!-- поставщики -->
     <div class="поставщик" style="left:900px;top:110px;transition-delay:0ms" data-к="4">
       <b>Поставщик 1</b><span class="код">✓ код</span>
-      <div class="кп" data-к="5" style="transition-delay:0ms"><i style="width:62%"></i><em>КП</em></div>
+      <div class="кп" data-к="5" style="transition-delay:0ms"><i style="width:52%"></i><em>1 240 ₸/м</em></div>
     </div>
     <div class="поставщик" style="left:900px;top:210px;transition-delay:120ms" data-к="4">
       <b>Поставщик 2</b><span class="код">✓ код</span>
-      <div class="кп" data-к="5" style="transition-delay:140ms"><i style="width:48%"></i><em>КП</em></div>
+      <div class="кп" data-к="5" style="transition-delay:140ms"><i style="width:50%"></i><em>1 180 ₸/м</em></div>
     </div>
     <div class="поставщик" style="left:900px;top:310px;transition-delay:240ms" data-к="4">
       <b>Поставщик 3</b><span class="код">✓ код</span>
-      <div class="кп" data-к="5" style="transition-delay:280ms"><i style="width:55%"></i><em>КП</em></div>
+      <div class="кп" data-к="5" style="transition-delay:280ms"><i style="width:55%"></i><em>1 310 ₸/м</em></div>
     </div>
     <div class="поставщик" style="left:900px;top:410px;transition-delay:360ms" data-к="4">
       <b>Поставщик 4</b><span class="код">✓ код</span>
-      <div class="кп" data-к="5" style="transition-delay:420ms"><i style="width:71%"></i><em>КП</em></div>
+      <div class="кп" data-к="5" style="transition-delay:420ms"><i style="width:46%"></i><em>1 095 ₸/м</em></div>
     </div>
     <div class="поставщик" style="left:900px;top:510px;transition-delay:480ms" data-к="4">
       <b>Поставщик 5</b><span class="код">✓ код</span>
-      <div class="кп" data-к="5" style="transition-delay:560ms"><i style="width:51%"></i><em>КП</em></div>
+      <div class="кп" data-к="5" style="transition-delay:560ms"><i style="width:54%"></i><em>1 265 ₸/м</em></div>
     </div>
 
     <!-- результат -->
-    <div class="карточка" style="left:1180px;top:240px;width:250px" data-к="6">
+    <div class="карточка" style="left:1180px;top:240px;width:250px;height:160px" data-к="6">
       <b>Цена определена</b>
       <div class="товар_имя">Провод ПВС 3×2,5</div>
-      <div class="шкала"><i class="низ" style="left:26%"></i><i class="сред" style="left:70%"></i>
-        <span class="низ">низкая</span><span class="сред">средняя</span></div>
+      <div class="средняя">средняя по 5 КП<strong>1 218 ₸/м</strong></div>
       <ul><li>Маркетинговое заключение</li></ul>
     </div>
 
     <!-- бюджет -->
-    <div class="склад" style="left:1464px;top:150px;width:260px" data-к="7">
+    <div class="склад" style="left:1464px;top:150px;width:260px;height:250px" data-к="7">
       <div class="имя">Система бюджетирования</div>
-      <div class="заг">Бюджет <span class="ии">AI</span></div>
+      <div class="заг">Проверка наличия утверждённого бюджета на закуп выявленной потребности</div>
+      <svg class="шестерня" viewBox="0 0 40 40" data-к="7" data-до="7" aria-hidden="true"><g class="крут"><circle cx="20" cy="20" r="9"/><rect x="18" y="2" width="4" height="8" rx="1" transform="rotate(0 20 20)"/><rect x="18" y="2" width="4" height="8" rx="1" transform="rotate(45 20 20)"/><rect x="18" y="2" width="4" height="8" rx="1" transform="rotate(90 20 20)"/><rect x="18" y="2" width="4" height="8" rx="1" transform="rotate(135 20 20)"/><rect x="18" y="2" width="4" height="8" rx="1" transform="rotate(180 20 20)"/><rect x="18" y="2" width="4" height="8" rx="1" transform="rotate(225 20 20)"/><rect x="18" y="2" width="4" height="8" rx="1" transform="rotate(270 20 20)"/><rect x="18" y="2" width="4" height="8" rx="1" transform="rotate(315 20 20)"/></g></svg>
       <div class="статус" data-к="8">Подтверждён ✓</div>
     </div>
   </div>
@@ -562,10 +626,10 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
      четырьмя одинаковыми блоками: карта уже была согласована как сцена и
      говорит то же самое — «в другом регионе». -->
 <section class="слайд" id="с3" aria-label="Слайд 3">
-  <div class="бровь">Слайд 3 · AI-Broker</div>
-  <h2 class="заголовок дисплей">Модуль AI-Broker: поиск внутренних остатков по ДЗО до внешней закупки</h2>
-  <p class="идея">До выхода на внешний рынок AI-Broker проверяет, можно ли закрыть потребность за счёт
-    неликвидных или невостребованных остатков на складах других ДЗО.</p>
+  <div class="бровь">Шаг 3 · Анализ наличия остатков по ДЗО</div>
+  <h2 class="заголовок дисплей">Поиск внутренних остатков по ДЗО</h2>
+  <p class="идея">AI-Broker проверяет, можно ли закрыть потребность за счёт неликвидных или
+    невостребованных остатков на складах других ДЗО внутри группы компаний КМГ.</p>
 
   <div class="полотно">
     <div class="карта" data-к="1">
@@ -592,7 +656,7 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
         <path d="M816.7 472.9 818.0 475.4 818.0 478.4 819.1 480.4 820.9 482.1 825.4 483.9 825.5 480.7 827.2 477.8 823.5 475.0 824.1 472.7 825.4 470.8 823.0 469.5 820.3 472.4 816.7 472.9Z"/>
         <path d="M622.6 510.3 624.3 514.5 626.2 518.2 628.6 518.9 630.8 517.9 632.7 516.7 634.5 515.1 636.1 516.7 635.6 514.5 637.7 513.0 636.2 510.9 635.0 509.0 633.4 507.1 628.5 505.5 625.9 507.3 624.6 509.3 622.6 510.3Z"/>
         </g>
-        <g class="лучи" data-к="3">
+        <g class="лучи" data-к="2">
           <line class="луч" pathLength="1" style="transition-delay:0ms" x1="149.2" y1="459.9" x2="168.5" y2="325.3"/>
           <line class="луч" pathLength="1" style="transition-delay:95ms" x1="149.2" y1="459.9" x2="155.5" y2="165.5"/>
           <line class="луч" pathLength="1" style="transition-delay:190ms" x1="149.2" y1="459.9" x2="580.8" y2="298.0"/>
@@ -602,7 +666,7 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
           <line class="луч" pathLength="1" style="transition-delay:570ms" x1="149.2" y1="459.9" x2="820.8" y2="475.4"/>
           <line class="луч" pathLength="1" style="transition-delay:665ms" x1="149.2" y1="459.9" x2="306.8" y2="200.5"/>
         </g>
-        <path class="возврат" pathLength="1" d="M306.8 200.5 Q50 300 149.2 459.9" data-к="4"/>
+        <path class="возврат" pathLength="1" d="M306.8 200.5 Q50 300 149.2 459.9" data-к="3"/>
         <g class="точки">
           <circle class="точка" cx="168.5" cy="325.3" r="6"/>
           <circle class="точка" cx="155.5" cy="165.5" r="6"/>
@@ -612,46 +676,41 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
           <circle class="точка" cx="822.1" cy="123.3" r="6"/>
           <circle class="точка" cx="820.8" cy="475.4" r="6"/>
         </g>
-        <circle class="найден" cx="306.8" cy="200.5" r="8" data-к="4"/>
+        <circle class="найден" cx="306.8" cy="200.5" r="8" data-к="3"/>
         <circle class="волна" cx="149.2" cy="459.9" r="9" data-к="1"/>
         <circle class="мэм" cx="149.2" cy="459.9" r="9" data-к="1"/>
         <text class="имя_точки" x="167.2" y="465.9" data-к="1">МЭМ · потребность</text>
-        <text class="имя_найден" x="322.8" y="186.5" data-к="4">найден остаток: неликвид, ДЗО не требуется</text>
+        <text class="имя_найден" x="322.8" y="186.5" data-к="3">ДЗО №1: найден остаток, неликвид</text>
       </svg>
     </div>
 
-    <div class="карточка синяя" style="left:1060px;top:0;width:664px" data-к="1">
-      <b>Потребность сформирована</b>
-      <ul><li>Номенклатура · код ЕНС ТРУ / АСУ НСИ · количество · стоимость · статус бюджета</li></ul>
-    </div>
-
-    <div class="система" style="left:1060px;top:118px;width:664px" data-к="2">
-      <div class="модуль обмен" style="margin-top:0">
-        <div class="заг">Модуль «AI-Broker» <span class="ии">AI</span></div>
-        <ul class="действия">
-          <li>Поиск остатков по складам ДЗО</li>
-          <li>Анализ неликвидов и невостребованного</li>
-          <li>Сопоставление ТРУ по кодам и характеристикам</li>
-          <li>Проверка применимости и потребности ДЗО-владельца</li>
-        </ul>
-      </div>
-    </div>
-
-    <div class="карточка" style="left:1060px;top:346px;width:664px" data-к="5">
-      <b>Рекомендация AI-Broker: закрыть потребность через конкретную ДЗО</b>
-      <ul>
-        <li>ДЗО-поставщик · доступное количество · стоимость</li>
-        <li>Обоснование · сравнение с рыночной ценой · способ закупки</li>
+    <div class="карточка синяя товар" style="left:1060px;top:0;width:664px" data-к="1">
+      <b>Потребность из шага 2</b>
+      <ul class="поля две">
+        <li><span>Материал</span><strong>Провод ПВС 3×2,5</strong></li>
+        <li><span>Код</span><strong>273212900</strong></li>
+        <li><span>Количество</span><strong>500 м</strong></li>
+        <li><span>Срок</span><strong>январь 2027</strong></li>
+        <li><span>Цена</span><strong class="мятн">1 218 ₸/м</strong></li>
+        <li><span>Бюджет</span><strong class="мятн">имеется ✓</strong></li>
       </ul>
     </div>
-
-    <div class="стрела вниз" style="left:1391px;top:464px;height:36px" data-к="6">
-      <span class="подпись">потребность + стоимость + бюджет + источник</span>
+    <div class="стрела вниз" style="left:1391px;top:176px;height:34px" data-к="4"></div>
+    <div class="карточка" style="left:1060px;top:218px;width:664px" data-к="4">
+      <b>Рекомендация AI-Broker</b>
+      <ul>
+        <li>Товар «Провод ПВС 3×2,5» — потребность, планируемая к закупке, — <strong>найден на складе ДЗО №1</strong>: 500 м, не используется, числится неликвидом.</li>
+        <li>Закрыть потребность через ДЗО №1 без выхода на рынок.</li>
+        <li class="прим">AI-Broker влияет на поле «метод закупки» в плане закупок.</li>
+      </ul>
     </div>
-
-    <div class="карточка синяя" style="left:1060px;top:506px;width:664px" data-к="6">
-      <b>Модуль планирования закупок: способ закупки определён</b>
-      <ul><li data-к="7">Прямой договор из одного источника — у конкретной ДЗО. На рынок не выходим.</li></ul>
+    <div class="стрела вниз" style="left:1391px;top:404px;height:34px" data-к="5"></div>
+    <div class="карточка синяя" style="left:1060px;top:446px;width:664px" data-к="5">
+      <b>Модуль планирования закупок</b>
+      <ul>
+        <li>Потребность определена, все поля плана закупок заполнены.</li>
+        <li data-к="6"><strong class="акцент">Срок закупки указан: январь 2027.</strong> Метод: из одного источника — ДЗО №1.</li>
+      </ul>
     </div>
   </div>
 
@@ -663,7 +722,7 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
      документ-заявка, три участника и победитель, печать «договор заключён»,
      лента поставок с колокольчиком и развилкой, зелёная печать «закрыт». -->
 <section class="слайд" id="с4" aria-label="Слайд 4">
-  <div class="бровь">Слайд 4 · SK Store и KMG AISAP</div>
+  <div class="бровь">Шаги 6–7 · SK Store и KMG AISAP</div>
   <h2 class="заголовок дисплей">ИИ проводит закупку и ведёт договор до закрытия</h2>
 
   <div class="полотно">
@@ -690,7 +749,7 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
 
     <!-- 3. площадка -->
     <div class="склад площадка" style="left:380px;top:60px;width:540px;height:264px" data-к="2">
-      <div class="имя">SK Store · электронная площадка</div>
+      <div class="имя">Шаг 6 · SK Store · электронная площадка</div>
       <div class="заг">Тендер: определяется победитель <span class="ии">AI</span></div>
       <div class="секретарь" data-к="2">карточка договора заполнена автоматически</div>
       <div class="участник " style="left:30px;top:124px;transition-delay:0ms" data-к="3">
@@ -718,32 +777,31 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
 
     <!-- 5–9. исполнение -->
     <div class="склад" style="left:1000px;top:60px;width:724px" data-к="5">
-      <div class="имя">KMG AISAP</div>
+      <div class="имя">Шаг 7 · KMG AISAP</div>
       <div class="заг">Модуль исполнения договоров <span class="ии">AI</span></div>
       <svg viewBox="0 0 680 330" class="лента" style="margin-top:14px;width:680px;height:330px">
         <line x1="20" y1="120" x2="660" y2="120" class="ось" data-к="6"/>
         <g data-к="6" style="transition-delay:200ms">
-          <circle cx="140" cy="120" r="8" class="веха"/><text x="140" y="96" class="т" text-anchor="middle">платёж 1</text>
+          <circle cx="140" cy="120" r="8" class="веха"/><text x="140" y="96" class="т" text-anchor="middle">платёж</text>
           <circle cx="400" cy="120" r="8" class="веха"/><text x="400" y="96" class="т" text-anchor="middle">поставка</text>
-          <circle cx="600" cy="120" r="8" class="веха"/><text x="600" y="96" class="т" text-anchor="middle">платёж 2</text>
-          <text x="20" y="160" class="т">график поставок и платежей — из договора, сам</text>
+          <text x="20" y="160" class="т">карточка договора: график платежей · график поставок · закрывающие документы</text>
         </g>
         <g data-к="7">
           <path d="M330 106c0-9 6-14 12-14s12 5 12 14v10h-24z" class="колокол"/><circle cx="342" cy="120" r="3" class="колокол"/>
-          <text x="342" y="80" class="т мята" text-anchor="middle">за 10 дней — уведомление поставщику</text>
+          <text x="342" y="80" class="т мята" text-anchor="middle">за 10 дней: уведомляет заказчика, напоминает поставщику</text>
         </g>
         <g data-к="8">
           <path d="M400 128v60" class="ось"/>
           <path d="M400 188l-110 40" class="ось мята"/><path d="M400 188l50 40" class="ось серая"/>
           <circle cx="290" cy="228" r="16" class="круг мята"/><path d="M282 228l6 6 10-10" class="галка мята"/>
-          <text x="290" y="266" class="т мята" text-anchor="middle">поставлено — акты</text>
+          <text x="290" y="266" class="т мята" text-anchor="middle">поставлено — акт подписан</text>
           <circle cx="450" cy="228" r="16" class="круг серая"/><path d="M444 222l12 12M456 222l-12 12" class="крест"/>
-          <text x="450" y="266" class="т" text-anchor="middle">нет — претензия сама</text>
+          <text x="450" y="266" class="т" text-anchor="middle">нет — претензионное письмо</text>
         </g>
         <g data-к="9">
           <circle cx="612" cy="228" r="28" class="круг мята"/><circle cx="612" cy="228" r="20" class="круг мята"/>
           <path d="M600 229l8 8 16-16" class="галка мята"/>
-          <text x="612" y="286" class="т мята" text-anchor="middle">договор закрыт</text>
+          <text x="612" y="286" class="т мята" text-anchor="middle">договор исполнен</text>
         </g>
       </svg>
     </div>
@@ -796,6 +854,12 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
   function показатьКадры(с, до){
     [].forEach.call(с.querySelectorAll("[data-к]"), function(э){
       э.classList.toggle("включён", +э.getAttribute("data-к") <= до);
+    });
+    /* data-до: элемент живёт до указанного кадра и гаснет после — так стрелка
+       «цена в карточку» уходит, когда цена уже в карточке, и её место занимает
+       стрелка в бюджет. Заказчик: «эта стрелочка обратно должна исчезнуть». */
+    [].forEach.call(с.querySelectorAll("[data-до]"), function(э){
+      э.classList.toggle("ушёл", до > +э.getAttribute("data-до"));
     });
     состояние[с.id] = до;
     var д = с.querySelector("[data-диктор]");
