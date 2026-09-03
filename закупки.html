@@ -1,0 +1,616 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Закупка без участия человека — МЭМ и ProcuPriceMetal</title>
+<style>
+/* Палитра и шрифты — те же, что в показе цифровой цепочки. Своего набора цветов
+   здесь нет намеренно: презентация уходит в тот же зал, где стоит показ, и
+   отдельная палитра читалась бы как чужой продукт.
+
+   Смысл цветов держится тот же:
+     фирменный синий КМГ — система и её действие,
+     мята/зелёный      — путь, который закончился без закупки,
+     янтарь            — в этой презентации не используется: в показе он занят
+                         пометкой «эффект не заполнен», и повторять его здесь
+                         значит спутать два разных смысла. */
+:root{
+  --кмг:#02AEF0; --кмг_свет:#90D6F7;
+  --циан:#4FE3FF; --мята:#3EE6B8; --зелёный:#3ED598;
+  --фон0:#050810; --фон1:#0C1626;
+  --грань:#1B2E48; --грань_мягкая:#142338;
+  --текст:#D7E2F2; --текст2:#AFC0D8; --приглуш:#7C8DA6;
+}
+/* Шрифты самохостятся из показа: в зале может не быть интернета, а презентация
+   обязана открыться. Файл лежит в корне рядом с показом, путь относительный. */
+@font-face{font-family:'Unbounded';font-weight:500 700;font-display:swap;
+  src:url('медиа/шрифты/унб_700_cyrillic.woff2') format('woff2');
+  unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
+@font-face{font-family:'Unbounded';font-weight:500 700;font-display:swap;
+  src:url('медиа/шрифты/унб_700_latin.woff2') format('woff2');
+  unicode-range:U+0000-00FF,U+2000-206F}
+@font-face{font-family:'Golos Text';font-weight:400 600;font-display:swap;
+  src:url('медиа/шрифты/голос_400_cyrillic.woff2') format('woff2');
+  unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
+@font-face{font-family:'Golos Text';font-weight:400 600;font-display:swap;
+  src:url('медиа/шрифты/голос_400_latin.woff2') format('woff2');
+  unicode-range:U+0000-00FF,U+2000-206F}
+
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{background:#000;color:var(--текст);overflow:hidden;
+  font-family:'Golos Text',system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  -webkit-font-smoothing:antialiased;touch-action:manipulation}
+.дисплей{font-family:'Unbounded',system-ui,sans-serif;letter-spacing:.01em}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+:focus-visible{outline:2px solid var(--кмг);outline-offset:4px;border-radius:4px}
+
+/* ===== сцена =====
+   Кадр жёстко 1920×1080 и масштабируется целиком. Причина: в зале неизвестно
+   какой экран и какое разрешение, а кегли и координаты развилки на третьем
+   слайде посчитаны под конкретную ширину. Тянуть текст резиновой вёрсткой
+   значит каждый раз заново проверять, куда уехала линия развилки. */
+#обёртка{position:fixed;inset:0;overflow:hidden;background:var(--фон0)}
+/* Центрируется отрицательными отступами, а не grid place-items: кадр 1920×1080
+   больше окна до масштабирования, и grid при переполнении прижимает ребёнка к
+   началу («безопасное» выравнивание) — кадр уезжал вправо и вниз на 160/90 px,
+   нижняя строка с логотипом и точками уходила за край. Замерено:
+   getBoundingClientRect давал x=160, y=90 при окне 1600×900. */
+#кадр{width:1920px;height:1080px;position:absolute;left:50%;top:50%;
+  margin-left:-960px;margin-top:-540px;transform-origin:center center;
+  background:var(--фон0);overflow:hidden}
+
+/* Фон: холодное свечение сверху и техническая сетка. Сетка очень слабая — она
+   нужна как фактура, а не как элемент: на слайде с цифрами она не должна
+   спорить с ними за внимание. */
+#кадр::before{content:"";position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(1200px 620px at 50% -12%, rgba(2,174,240,.14), transparent 68%),
+    radial-gradient(900px 520px at 92% 108%, rgba(62,213,152,.07), transparent 70%),
+    linear-gradient(180deg, #060B16 0%, var(--фон0) 55%, #04070E 100%)}
+#кадр::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:.5;
+  background-image:
+    linear-gradient(rgba(27,46,72,.30) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(27,46,72,.30) 1px, transparent 1px);
+  background-size:96px 96px;
+  -webkit-mask-image:radial-gradient(1400px 900px at 50% 45%, #000 30%, transparent 82%);
+          mask-image:radial-gradient(1400px 900px at 50% 45%, #000 30%, transparent 82%)}
+
+/* ===== слайд ===== */
+.слайд{position:absolute;inset:0;padding:88px 98px 96px;display:flex;
+  flex-direction:column;opacity:0;visibility:hidden;
+  transform:translateY(16px);transition:opacity .42s ease, transform .42s ease, visibility 0s .42s}
+.слайд.виден{opacity:1;visibility:visible;transform:none;transition:opacity .42s ease, transform .42s ease}
+@media (prefers-reduced-motion: reduce){
+  .слайд{transition:opacity .01s linear, visibility 0s .01s;transform:none}
+  .слайд.виден{transition:opacity .01s linear}
+}
+
+.бровь{font-size:14px;letter-spacing:.22em;text-transform:uppercase;color:var(--приглуш)}
+h2.заголовок{font-size:52px;font-weight:700;line-height:1.1;margin-top:14px}
+.подзаголовок{font-size:22px;color:var(--текст2);margin-top:16px;max-width:1120px;line-height:1.5}
+
+/* ===== 1. титул ===== */
+#с1{justify-content:center}
+#с1 .бровь{margin-bottom:34px}
+h1{font-size:92px;font-weight:700;line-height:1.06;max-width:1500px}
+h1 .град{background:linear-gradient(100deg,
+    var(--кмг) 0%, var(--кмг) 30%, #EAF9FF 42%, var(--кмг_свет) 54%, var(--кмг) 70%, var(--кмг) 100%);
+  background-size:300% 100%;background-position:100% 0;
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  animation:перелив 12s ease-in-out infinite}
+@keyframes перелив{0%{background-position:100% 0}55%{background-position:0% 0}100%{background-position:100% 0}}
+@media (prefers-reduced-motion: reduce){h1 .град{animation:none;background-position:38% 0}}
+#с1 .лид{font-size:36px;color:var(--текст2);margin-top:36px;max-width:1280px;line-height:1.35}
+#с1 .черта{width:132px;height:3px;background:var(--кмг);margin-top:52px;border-radius:2px;
+  box-shadow:0 0 22px rgba(2,174,240,.55)}
+
+/* ===== 2. главная мысль ===== */
+#с2{justify-content:center}
+.мысль{font-size:58px;font-weight:600;line-height:1.3;max-width:1560px;
+  font-family:'Golos Text',system-ui,sans-serif}
+.мысль em{font-style:normal;color:var(--кмг)}
+.мысль .первый{color:var(--кмг_свет)}
+#с2 .сноска{margin-top:56px;font-size:19px;color:var(--приглуш);max-width:1100px;line-height:1.55}
+
+/* ===== 3. схема ===== */
+#с3 .полотно{margin-top:52px;flex:1;display:flex;flex-direction:column}
+.лента{display:grid;grid-template-columns:repeat(4, 300px 56px) 300px;align-items:start}
+.шаг{position:relative}
+.шаг .номер{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;
+  border:1.5px solid rgba(2,174,240,.55);background:rgba(2,174,240,.10);
+  color:var(--кмг);font-family:'Unbounded',sans-serif;font-size:15px;font-weight:700}
+.шаг .значок{margin:26px 0 22px;height:76px;display:flex;align-items:center}
+.шаг .значок svg{width:76px;height:76px;display:block}
+/* Два ряда под заголовок держатся принудительно: у шагов 2 и 4 имя переносится
+   на вторую строку, у остальных нет, и без этого описания под ними стояли на
+   разной высоте — замерено, разбег 26 px. */
+.шаг h3{font-size:21px;font-weight:700;line-height:1.24;color:var(--текст);min-height:52px}
+.шаг p{margin-top:12px;font-size:16.5px;line-height:1.52;color:var(--приглуш)}
+/* Бирка «не нашли» вынута из потока: пока она стояла над стрелкой обычным
+   блоком, эта стрелка опускалась на 39 px ниже трёх остальных. */
+.стрелка{align-self:start;margin-top:96px;position:relative}
+.стрелка svg{width:44px;height:16px;display:block}
+.стрелка .бирка{position:absolute;left:50%;bottom:calc(100% + 11px);transform:translateX(-50%);
+  font-size:12.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--приглуш);
+  white-space:nowrap}
+
+/* Развилка второго шага. Координаты посчитаны от левого края ленты:
+   ширина шага 300, промежуток 56, значит центр второго шага = 300+56+150 = 506.
+   Держать их числами можно только потому, что кадр фиксирован 1920 px, —
+   иначе линия уехала бы при первом же изменении ширины. */
+.развилка{position:relative;height:244px;margin-top:26px}
+.развилка .стойка{position:absolute;left:505px;top:0;width:2px;height:110px;
+  background:linear-gradient(180deg, rgba(62,213,152,.15), rgba(62,213,152,.75))}
+.развилка .стойка::after{content:"";position:absolute;left:-4px;bottom:-1px;
+  width:10px;height:10px;border-radius:50%;background:var(--зелёный);
+  box-shadow:0 0 14px rgba(62,213,152,.7)}
+.развилка .бирка_вниз{position:absolute;left:526px;top:34px;font-size:12.5px;
+  letter-spacing:.13em;text-transform:uppercase;color:var(--зелёный)}
+.развилка .исход{position:absolute;left:392px;top:110px;width:726px;
+  border:1px solid rgba(62,213,152,.34);border-radius:16px;
+  background:linear-gradient(180deg, rgba(62,213,152,.11), rgba(62,213,152,.04));
+  padding:22px 28px}
+.развилка .исход b{display:block;font-size:19px;color:var(--мята);font-weight:700}
+.развилка .исход span{display:block;margin-top:8px;font-size:16.5px;color:var(--текст2);line-height:1.5}
+
+/* Такты схемы: элементы проявляются по очереди, как карта областей в показе
+   AIAN. Ролика здесь нет намеренно — схему правят словом, а ролик правят
+   перегенерацией; на этой схеме текст ещё будет меняться.
+
+   Докладчик не заложник таймера: стрелка вперёд во время анимации досматривает
+   её мгновенно, а не листает слайд. */
+#с3 .шаг,#с3 .стрелка,.развилка > *{opacity:0;transform:translateY(14px);
+  transition:opacity .5s ease, transform .5s cubic-bezier(.2,.7,.3,1)}
+#с3.дошёл .шаг,#с3.дошёл .стрелка,#с3.дошёл .развилка > *,
+#с3 .шаг.включён,#с3 .стрелка.включён,.развилка > .включён{opacity:1;transform:none}
+.развилка .стойка{transform-origin:top center}
+#с3 .шаг,#с3 .стрелка{will-change:opacity,transform}
+@media (prefers-reduced-motion: reduce){
+  #с3 .шаг,#с3 .стрелка,.развилка > *{opacity:1;transform:none;transition:none}
+}
+
+/* ===== 4. деньги остаются внутри группы ===== */
+#с4 .весы{margin-top:auto;display:grid;grid-template-columns:1fr 150px 1fr;
+  align-items:stretch;gap:0}
+.чаша{border:1px solid var(--грань);border-radius:22px;padding:38px 40px 36px;
+  display:flex;flex-direction:column;min-height:404px}
+.чаша .шапка_карты{font-size:13px;letter-spacing:.22em;text-transform:uppercase}
+.чаша h3{font-size:34px;font-weight:700;line-height:1.16;margin-top:16px}
+.чаша ul{margin-top:26px;list-style:none;display:flex;flex-direction:column;gap:15px}
+.чаша li{font-size:19px;line-height:1.45;padding-left:26px;position:relative;color:var(--текст2)}
+.чаша li::before{content:"";position:absolute;left:2px;top:11px;width:8px;height:8px;
+  border-radius:50%}
+.чаша.рынок{background:linear-gradient(180deg, rgba(12,22,38,.5), rgba(5,8,16,.4));
+  border-color:var(--грань_мягкая);opacity:.72}
+.чаша.рынок .шапка_карты,.чаша.рынок h3{color:var(--приглуш)}
+.чаша.рынок li{color:var(--приглуш)}
+.чаша.рынок li::before{background:var(--приглуш);opacity:.55}
+.чаша.группа{background:linear-gradient(180deg, rgba(62,213,152,.10), rgba(62,213,152,.03));
+  border-color:rgba(62,213,152,.36)}
+.чаша.группа .шапка_карты{color:var(--мята)}
+.чаша.группа h3{color:var(--мята)}
+.чаша.группа li::before{background:var(--зелёный)}
+.против{display:flex;align-items:center;justify-content:center;
+  font-family:'Unbounded',sans-serif;font-size:14px;letter-spacing:.2em;
+  color:var(--приглуш);text-transform:uppercase}
+#с4 .подпись_низ{margin-top:44px;margin-bottom:auto;font-size:22px;line-height:1.5;
+  color:var(--текст2);max-width:1500px}
+#с4 .подпись_низ b{color:var(--кмг);font-weight:600}
+
+/* ===== 5. три цифры ===== */
+#с5 .цифры{margin-top:auto;margin-bottom:auto;display:grid;
+  grid-template-columns:repeat(3,1fr);gap:44px}
+.цифра{border:1px solid var(--грань);border-radius:22px;padding:44px 40px 40px;
+  background:linear-gradient(180deg, rgba(12,22,38,.85), rgba(5,8,16,.6));
+  display:flex;flex-direction:column;min-height:330px}
+.цифра .шапка_карты{font-size:13px;letter-spacing:.22em;text-transform:uppercase;color:var(--приглуш)}
+.цифра .крупно{margin-top:auto;font-size:112px;font-weight:700;line-height:1;color:var(--кмг);
+  font-family:'Unbounded',sans-serif}
+.цифра .крупно.строкой{font-size:46px;line-height:1.18}
+.цифра .крупно.дата{font-size:64px;line-height:1.1}
+.цифра .пояс{margin-top:20px;font-size:18px;color:var(--текст2);line-height:1.45}
+
+/* ===== 6. закрытие ===== */
+#с6{justify-content:center}
+.итог{font-size:46px;font-weight:600;line-height:1.34;max-width:1500px}
+.итог em{font-style:normal;color:var(--кмг)}
+.плашка{margin-top:56px;border-left:3px solid var(--мята);padding:6px 0 6px 30px;
+  font-size:34px;line-height:1.32;color:var(--мята);max-width:1200px;font-weight:600}
+
+/* ===== низ кадра ===== */
+.низ{position:absolute;left:98px;right:98px;bottom:44px;display:flex;
+  align-items:center;justify-content:space-between;gap:24px;pointer-events:none}
+.низ > *{pointer-events:auto}
+#лого{height:46px;filter:brightness(0) invert(1);opacity:.72}
+.точки{display:flex;gap:11px}
+.точки button{width:9px;height:9px;border-radius:50%;background:var(--грань);
+  transition:background .25s ease, transform .25s ease}
+.точки button[aria-current="true"]{background:var(--кмг);transform:scale(1.34);
+  box-shadow:0 0 12px rgba(2,174,240,.6)}
+.счётчик{font-family:'Unbounded',sans-serif;font-size:13px;letter-spacing:.14em;color:var(--приглуш)}
+
+/* ===== печать в PDF: один слайд на страницу, альбомно ===== */
+@media print{
+  @page{size:1920px 1080px;margin:0}
+  html,body{height:auto;overflow:visible;background:#fff}
+  #обёртка{position:static;display:block;overflow:visible}
+  #кадр{transform:none!important;position:static;margin:0;width:1920px;height:auto;overflow:visible}
+  .слайд{position:relative;opacity:1!important;visibility:visible!important;
+    transform:none!important;width:1920px;height:1080px;page-break-after:always;
+    background:var(--фон0)}
+  .низ{position:absolute}
+  #кадр::before,#кадр::after{display:none}
+  .слайд{background:
+    radial-gradient(1200px 620px at 50% -12%, rgba(2,174,240,.14), transparent 68%),
+    linear-gradient(180deg,#060B16 0%,#050810 55%,#04070E 100%)}
+  -webkit-print-color-adjust:exact;print-color-adjust:exact
+}
+</style>
+</head>
+<body>
+
+<div id="обёртка">
+<div id="кадр">
+
+<!-- ================= 1. титул ================= -->
+<section class="слайд виден" id="с1" aria-label="Титул">
+  <div class="бровь">КазМунайГаз · пилот 2026</div>
+  <h1 class="дисплей">Закупка <span class="град">без участия человека</span></h1>
+  <div class="лид">ИИ на всех этапах — от склада до поставщика</div>
+  <div class="черта"></div>
+</section>
+
+<!-- ================= 2. главная мысль ================= -->
+<section class="слайд" id="с2" aria-label="Главная мысль">
+  <div class="бровь">Что мы делаем</div>
+  <p class="мысль" style="margin-top:38px">
+    <span class="первый">Первый в Казахстане</span> пилот полностью
+    автоматизированной закупки — искусственный интеллект
+    <em>сам находит, покупает и оформляет поставку</em> без участия человека.
+  </p>
+  <p class="сноска">Пилот идёт на реальных потребностях предприятия: металлопрокат
+    для площадок, кабель и электрика, общехозяйственные материалы и средства
+    защиты.</p>
+</section>
+
+<!-- ================= 3. схема ================= -->
+<section class="слайд" id="с3" aria-label="Как это работает">
+  <div class="бровь">Как это работает</div>
+  <h2 class="заголовок дисплей">Пять шагов, ни одного человека</h2>
+
+  <div class="полотно">
+    <div class="лента">
+
+      <div class="шаг">
+        <div class="номер дисплей">1</div>
+        <div class="значок">
+          <!-- склад: стеллаж с коробками и сигнал о нехватке -->
+          <svg viewBox="0 0 76 76" fill="none" stroke="#02AEF0" stroke-width="2.2"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M8 28 38 12l30 16"/>
+            <path d="M13 30v34h50V30"/>
+            <rect x="23" y="42" width="14" height="12"/>
+            <rect x="39" y="42" width="14" height="12"/>
+            <path d="M23 64v-8h30v8" opacity=".55"/>
+            <circle cx="60" cy="22" r="7" stroke="#3EE6B8"/>
+            <path d="M60 19v4.5" stroke="#3EE6B8"/><path d="M60 26.5v.2" stroke="#3EE6B8"/>
+          </svg>
+        </div>
+        <h3>Склад видит потребность</h3>
+        <p>Система сама замечает, что заканчивается и что нужно докупить.</p>
+      </div>
+
+      <div class="стрелка">
+        <svg viewBox="0 0 44 16" fill="none" stroke="#4FE3FF" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M2 8h38"/><path d="M33 2l7 6-7 6"/>
+        </svg>
+      </div>
+
+      <div class="шаг">
+        <div class="номер дисплей">2</div>
+        <div class="значок">
+          <!-- группа компаний: три площадки, связанные между собой -->
+          <svg viewBox="0 0 76 76" fill="none" stroke="#02AEF0" stroke-width="2.2"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="6" y="42" width="20" height="20" rx="3"/>
+            <rect x="50" y="42" width="20" height="20" rx="3"/>
+            <rect x="28" y="10" width="20" height="20" rx="3"/>
+            <path d="M38 30v10M38 40H16v2M38 40h22v2" opacity=".7"/>
+            <path d="M12 52h8M56 52h8M34 20h8" opacity=".6"/>
+          </svg>
+        </div>
+        <h3>ИИ проверяет группу компаний</h3>
+        <p>Может, нужный товар уже лежит на складе в другом регионе.</p>
+      </div>
+
+      <div class="стрелка">
+        <span class="бирка">не нашли</span>
+        <svg viewBox="0 0 44 16" fill="none" stroke="#4FE3FF" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M2 8h38"/><path d="M33 2l7 6-7 6"/>
+        </svg>
+      </div>
+
+      <div class="шаг">
+        <div class="номер дисплей">3</div>
+        <div class="значок">
+          <!-- поиск поставщика и цены: лупа над ценником -->
+          <svg viewBox="0 0 76 76" fill="none" stroke="#02AEF0" stroke-width="2.2"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M40 8H20a4 4 0 0 0-4 4v20l26 26 24-24L40 8z"/>
+            <circle cx="28" cy="20" r="3.4"/>
+            <circle cx="44" cy="46" r="12" stroke="#4FE3FF" fill="#050810"/>
+            <path d="M53 55l10 10" stroke="#4FE3FF"/>
+          </svg>
+        </div>
+        <h3>ИИ ищет поставщика и цену</h3>
+        <p>Находит лучшее предложение сам, без участия человека.</p>
+      </div>
+
+      <div class="стрелка">
+        <svg viewBox="0 0 44 16" fill="none" stroke="#4FE3FF" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M2 8h38"/><path d="M33 2l7 6-7 6"/>
+        </svg>
+      </div>
+
+      <div class="шаг">
+        <div class="номер дисплей">4</div>
+        <div class="значок">
+          <!-- электронная площадка: договор с подписью -->
+          <svg viewBox="0 0 76 76" fill="none" stroke="#02AEF0" stroke-width="2.2"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M16 8h28l16 16v44H16z"/>
+            <path d="M44 8v16h16" opacity=".7"/>
+            <path d="M26 34h24M26 44h16" opacity=".7"/>
+            <path d="M26 57c6-7 10 4 16-3" stroke="#3EE6B8"/>
+            <path d="M46 50l6 6" stroke="#3EE6B8"/>
+          </svg>
+        </div>
+        <h3>Площадка проводит закупку</h3>
+        <p>Закупка проходит и договор подписывается автоматически.</p>
+      </div>
+
+      <div class="стрелка">
+        <svg viewBox="0 0 44 16" fill="none" stroke="#4FE3FF" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M2 8h38"/><path d="M33 2l7 6-7 6"/>
+        </svg>
+      </div>
+
+      <div class="шаг">
+        <div class="номер дисплей">5</div>
+        <div class="значок">
+          <!-- поставка: машина с грузом и отметка о приёмке -->
+          <svg viewBox="0 0 76 76" fill="none" stroke="#02AEF0" stroke-width="2.2"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M6 22h32v30H6z"/>
+            <path d="M38 32h13l9 10v10H38z"/>
+            <circle cx="20" cy="58" r="6"/><circle cx="52" cy="58" r="6"/>
+            <path d="M26 58h20" opacity=".55"/>
+            <path d="M14 32l6 6 12-12" stroke="#3EE6B8"/>
+          </svg>
+        </div>
+        <h3>Товар поставлен</h3>
+        <p>Весь путь пройден без единого участия человека.</p>
+      </div>
+
+    </div>
+
+    <div class="развилка">
+      <div class="стойка"></div>
+      <div class="бирка_вниз">нашли</div>
+      <div class="исход">
+        <b>Закупка не нужна вообще</b>
+        <span>Товар перераспределяется внутри группы: одно предприятие отдаёт
+          излишек, другое закрывает потребность. Деньги на рынок не уходят.</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 4. деньги остаются внутри группы =================
+     Слайда не было в присланной структуре — он добавлен по разговору 03.09,
+     где эту мысль назвали главной и сказали прямо: «и вот это тоже надо на
+     слайде отразить». Своими словами оттуда же: «чтобы ты не закупался на
+     рынке, а купил внутри КазМунайГаза», «через лет пять уже на металлолом
+     отправляют — ты вообще там теряешь». -->
+<section class="слайд" id="с4" aria-label="Деньги остаются внутри группы">
+  <div class="бровь">Зачем это группе</div>
+  <h2 class="заголовок дисплей">Деньги остаются внутри КазМунайГаза</h2>
+
+  <div class="весы">
+    <div class="чаша рынок">
+      <div class="шапка_карты">Как было</div>
+      <h3>Закупка на рынке</h3>
+      <ul>
+        <li>Деньги уходят внешнему поставщику.</li>
+        <li>Излишки соседнего предприятия продолжают лежать.</li>
+        <li>Через несколько лет их списывают в металлолом — потеряли оба.</li>
+      </ul>
+    </div>
+
+    <div class="против">против</div>
+
+    <div class="чаша группа">
+      <div class="шапка_карты">Как становится</div>
+      <h3>Обмен внутри группы</h3>
+      <ul>
+        <li>Потребность закрывается со склада другого предприятия.</li>
+        <li>Одно предприятие получает товар, второе — выручку за неликвид.</li>
+        <li>Деньги остаются в группе, склад превращается в оборот.</li>
+      </ul>
+    </div>
+  </div>
+
+  <p class="подпись_низ">ИИ видит склады всех предприятий группы и
+    <b>предлагает внутренний обмен раньше, чем выходить на рынок</b>.
+    Закупка проводится только тогда, когда внутри группы товара действительно нет.</p>
+</section>
+
+<!-- ================= 5. три цифры ================= -->
+<section class="слайд" id="с5" aria-label="Три цифры">
+  <div class="бровь">Пилот</div>
+  <h2 class="заголовок дисплей">Три цифры</h2>
+
+  <div class="цифры">
+    <div class="цифра">
+      <div class="шапка_карты">Объём</div>
+      <div class="крупно дисплей">68</div>
+      <div class="пояс">товарных позиций в пилоте</div>
+    </div>
+    <div class="цифра">
+      <div class="шапка_карты">Площадка</div>
+      <div class="крупно дисплей строкой">Мангистау­энергомунай</div>
+      <div class="пояс">ТОО «МЭМ» — первое предприятие группы</div>
+    </div>
+    <div class="цифра">
+      <div class="шапка_карты">Запуск</div>
+      <div class="крупно дисплей дата">15 декабря</div>
+      <div class="пояс">2026 года</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 6. закрытие ================= -->
+<section class="слайд" id="с6" aria-label="Закрытие">
+  <div class="бровь">Что дальше</div>
+  <p class="итог" style="margin-top:38px">
+    Реализуется в 2026 году — году, объявленном Главой государства
+    <em>Годом цифровизации и искусственного интеллекта</em>.
+  </p>
+  <div class="плашка">После пилота — масштабирование на всю группу компаний.</div>
+</section>
+
+<!-- ================= низ кадра ================= -->
+<div class="низ">
+  <img id="лого" src="медиа/лого_кмг.png" alt="КазМунайГаз">
+  <div class="точки" id="точки" role="tablist" aria-label="Слайды"></div>
+  <div class="счётчик" id="счётчик"></div>
+</div>
+
+</div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var слайды = [].slice.call(document.querySelectorAll(".слайд"));
+  var точки  = document.getElementById("точки");
+  var счёт   = document.getElementById("счётчик");
+  var кадр   = document.getElementById("кадр");
+  var текущий = 0;
+
+  /* Кадр вписывается в окно целиком: обе стороны, а не только ширина.
+     Обрезка по высоте была бы хуже всего — на слайде со схемой снизу стоит
+     развилка, и именно она уехала бы за край. */
+  function вписать(){
+    var к = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+    кадр.style.transform = "scale(" + к + ")";
+  }
+  window.addEventListener("resize", вписать);
+  вписать();
+
+  слайды.forEach(function(_, i){
+    var т = document.createElement("button");
+    т.type = "button";
+    т.setAttribute("aria-label", "Слайд " + (i + 1));
+    т.addEventListener("click", function(){ показать(i); });
+    точки.appendChild(т);
+  });
+  var кнопки = [].slice.call(точки.children);
+
+  /* ===== такты схемы =====
+     Схема собирается на глазах: шаг, стрелка, следующий шаг. Так же устроена
+     карта областей в показе AIAN — и по той же причине: пять блоков, выехавших
+     разом, зритель читает как картинку, а по одному — как процесс.
+
+     Ролика здесь нет намеренно. Схему правят словом (заказчик уже дважды
+     менял формулировки шагов), а ролик правят перегенерацией. */
+  var с3      = document.getElementById("с3");
+  var развилка = с3.querySelector(".развилка");
+  var порядок = [
+    [с3.querySelectorAll(".шаг")[0],      60],
+    [с3.querySelectorAll(".стрелка")[0], 520],
+    [с3.querySelectorAll(".шаг")[1],     700],
+    [развилка.querySelector(".стойка"),      1200],
+    [развилка.querySelector(".бирка_вниз"),  1380],
+    [развилка.querySelector(".исход"),       1520],
+    [с3.querySelectorAll(".стрелка")[1], 2260],
+    [с3.querySelectorAll(".шаг")[2],     2460],
+    [с3.querySelectorAll(".стрелка")[2], 2940],
+    [с3.querySelectorAll(".шаг")[3],     3140],
+    [с3.querySelectorAll(".стрелка")[3], 3620],
+    [с3.querySelectorAll(".шаг")[4],     3820]
+  ];
+  var таймеры = [];
+  var схемаИдёт = false;
+  var безДвижения = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function сброситьСхему(){
+    таймеры.forEach(clearTimeout); таймеры = [];
+    схемаИдёт = false;
+    с3.classList.remove("дошёл");
+    порядок.forEach(function(п){ п[0].classList.remove("включён"); });
+  }
+  function пуститьСхему(){
+    сброситьСхему();
+    if(безДвижения){ с3.classList.add("дошёл"); return; }
+    схемаИдёт = true;
+    порядок.forEach(function(п){
+      таймеры.push(setTimeout(function(){ п[0].classList.add("включён"); }, п[1]));
+    });
+    таймеры.push(setTimeout(function(){ схемаИдёт = false; }, 4400));
+  }
+  /* Досмотреть мгновенно. Докладчик не должен ждать таймер: если он уже
+     проговорил все пять шагов, следующее нажатие показывает схему целиком, а
+     листает только второе. */
+  function досмотретьСхему(){
+    таймеры.forEach(clearTimeout); таймеры = [];
+    схемаИдёт = false;
+    с3.classList.add("дошёл");
+  }
+
+  function показать(i){
+    if(i < 0 || i >= слайды.length || i === текущий) return;
+    слайды[текущий].classList.remove("виден");
+    текущий = i;
+    слайды[текущий].classList.add("виден");
+    кнопки.forEach(function(к, j){ к.setAttribute("aria-current", j === i ? "true" : "false"); });
+    счёт.textContent = ("0" + (i + 1)).slice(-2) + " / " + ("0" + слайды.length).slice(-2);
+    if(слайды[i] === с3) пуститьСхему(); else сброситьСхему();
+  }
+  кнопки[0].setAttribute("aria-current", "true");
+  счёт.textContent = "01 / " + ("0" + слайды.length).slice(-2);
+
+  /* Вперёд со схемы: сначала досмотреть, потом листать. */
+  function вперёд(){
+    if(слайды[текущий] === с3 && схемаИдёт){ досмотретьСхему(); return; }
+    показать(текущий + 1);
+  }
+
+  document.addEventListener("keydown", function(с){
+    var к = с.key;
+    if(к === "ArrowRight" || к === "PageDown" || к === " " || к === "Enter"){ с.preventDefault(); вперёд(); }
+    else if(к === "ArrowLeft" || к === "PageUp" || к === "Backspace"){ с.preventDefault(); показать(текущий - 1); }
+    else if(к === "Home"){ с.preventDefault(); показать(0); }
+    else if(к === "End"){ с.preventDefault(); показать(слайды.length - 1); }
+    else if(к === "f" || к === "F" || к === "а" || к === "А"){
+      if(document.fullscreenElement) document.exitFullscreen();
+      else document.documentElement.requestFullscreen();
+    }
+  });
+
+  /* Клик листает вперёд, клик с Shift — назад. Пульт-«кликер» шлёт те же
+     PageDown/PageUp, что и клавиатура, поэтому отдельной обработки не просит. */
+  document.addEventListener("click", function(с){
+    if(с.target.closest(".точки")) return;
+    if(с.shiftKey) показать(текущий - 1); else вперёд();
+  });
+})();
+</script>
+</body>
+</html>
