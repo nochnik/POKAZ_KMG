@@ -153,6 +153,13 @@ h1 .град{background:linear-gradient(100deg,
 .стрела.вниз{width:2px;background:linear-gradient(180deg, rgba(79,227,255,.15), var(--циан))}
 .стрела.вниз::after{right:auto;left:-6px;top:auto;bottom:-1px;border:7px solid transparent;
   border-top:10px solid var(--циан);border-bottom:0}
+.поток{fill:none;stroke:var(--циан);stroke-width:2;stroke-dasharray:1;stroke-dashoffset:1;
+  transition:stroke-dashoffset .9s ease}
+.поток.назад{stroke:var(--зелёный)}
+.поток.включён{stroke-dashoffset:0}
+.поток_подпись{font-family:'Golos Text',sans-serif;font-size:14px;fill:var(--текст2)}
+.поток_подпись.назад{fill:var(--мята)}
+svg .поток[data-к]{transform:none}
 .стрела .подпись{position:absolute;left:-8px;right:-8px;bottom:12px;text-align:center;
   font-size:13px;line-height:1.3;color:var(--текст2)}
 .стрела.назад .подпись{bottom:auto;top:12px;color:var(--мята)}
@@ -311,10 +318,12 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
 <section class="слайд" id="с3" aria-label="Потребность, цена и бюджет">
   <div class="бровь">Шаг 1–3 · ProcuPriceMetal</div>
   <h2 class="заголовок дисплей">Потребность, цена и бюджет — без человека</h2>
+  <p style="margin-top:10px;font-size:15px;color:var(--приглуш)">Категории пилота: СИЗ, канцелярия,
+    IT-расходники, хозтовары, повторяющиеся ТМЦ по нормам и min-max.</p>
 
   <div class="полотно">
     <!-- Система складского учёта -->
-    <div class="система" style="left:0;top:20px;width:540px;min-height:520px" data-к="1">
+    <div class="система" style="left:0;top:70px;width:540px;min-height:520px" data-к="1">
       <div class="имя">Система складского учёта</div>
       <div class="модуль">
         <div class="заг">Модуль «Формирование потребности» <span class="ии">AI</span></div>
@@ -343,38 +352,46 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
     </div>
 
     <!-- стрелки склад ⇄ маркетинг -->
-    <div class="стрела" style="left:552px;top:150px;width:112px" data-к="4">
+    <div class="стрела" style="left:552px;top:200px;width:112px" data-к="4">
       <span class="подпись">потребность<br>и данные ТРУ</span>
     </div>
-    <div class="стрела назад" style="left:552px;top:300px;width:112px" data-к="6">
+    <div class="стрела назад" style="left:552px;top:350px;width:112px" data-к="6">
       <span class="подпись">цена, поставщики,<br>заключение</span>
     </div>
 
     <!-- ИС Маркетинг цен -->
-    <div class="система" style="left:676px;top:20px;width:500px;min-height:520px" data-к="4">
+    <div class="система" style="left:676px;top:70px;width:500px;min-height:520px" data-к="4">
       <div class="имя">ИС «Маркетинг цен, планирование закупок и складская отчётность»</div>
       <div class="модуль">
         <div class="заг">Модуль «Маркетинг цен» <span class="ии">AI</span></div>
         <ul class="действия" data-к="5">
           <li>Пул поставщиков по коду ЕНС ТРУ / NCMR</li>
           <li>Автоматическая рассылка запросов КП</li>
-          <li>Сбор и анализ коммерческих предложений</li>
+          <li>Сбор коммерческих предложений</li>
+          <li>Анализ ценовых предложений</li>
           <li>Расчёт средней / низкой цены</li>
           <li>Маркетинговое заключение</li>
         </ul>
       </div>
     </div>
 
-    <!-- стрелки маркетинг/склад ⇄ бюджет -->
-    <div class="стрела" style="left:1188px;top:150px;width:112px" data-к="7">
-      <span class="подпись">потребность<br>+ стоимость</span>
-    </div>
-    <div class="стрела назад" style="left:1188px;top:300px;width:112px" data-к="8">
-      <span class="подпись">статус<br>бюджета</span>
-    </div>
+    <!-- потоки склад ⇄ бюджет обходят маркетинг: в документе они идут из
+         модуля «Формирование потребности», а не из маркетинга цен -->
+    <svg class="потоки" viewBox="0 0 1724 660" style="position:absolute;left:0;top:0;width:1724px;height:660px;pointer-events:none" aria-hidden="true">
+      <defs>
+        <marker id="стрелка_циан" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0 0L10 5L0 10z" fill="#4FE3FF"/></marker>
+        <marker id="стрелка_мята" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0 0L10 5L0 10z" fill="#3ED598"/></marker>
+      </defs>
+      <path class="поток" pathLength="1" marker-end="url(#стрелка_циан)" d="M270 70 V30 H1518 V66" data-к="7"/>
+      <text class="поток_подпись" x="894" y="20" text-anchor="middle" data-к="7">потребность + стоимость</text>
+      <path class="поток назад" pathLength="1" marker-end="url(#стрелка_мята)" d="M1518 592 V626 H270 V596" data-к="8"/>
+      <text class="поток_подпись назад" x="894" y="648" text-anchor="middle" data-к="8">статус бюджета: подтверждён / не подтверждён</text>
+    </svg>
 
     <!-- Система бюджетирования -->
-    <div class="система" style="left:1312px;top:20px;width:412px;min-height:520px" data-к="7">
+    <div class="система" style="left:1312px;top:70px;width:412px;min-height:520px" data-к="7">
       <div class="имя">Система бюджетирования</div>
       <div class="модуль">
         <div class="заг">Статус бюджета <span class="ии">AI</span></div>
@@ -516,6 +533,10 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
       <div class="бирка_срок" style="position:static;display:inline-block;margin-top:16px" data-к="1">
         Наступил срок запуска закупки
       </div>
+      <div class="карточка синяя" style="position:static;margin-top:14px" data-к="2">
+        <b>Заявка на закупку</b>
+        <ul><li>Номенклатура, код ТРУ, количество, стоимость, источник, способ закупки, сроки, ТС/ТД</li></ul>
+      </div>
     </div>
 
     <div class="стрела" style="left:352px;top:120px;width:96px" data-к="2">
@@ -639,9 +660,9 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
     <em>Годом цифровизации и искусственного интеллекта</em>.
   </p>
   <div class="плашка">После пилота — масштабирование на всю группу компаний.</div>
-  <p class="расшифровка">Категории пилота: <b>СИЗ</b>, <b>канцелярия</b>,
-    <b>IT-расходники</b>, <b>хозтовары</b>, повторяющиеся ТМЦ по нормам и min-max.
-    Дальше — остальные предприятия группы и другие товарные группы.</p>
+  <p class="расшифровка">Пилот — на типовых ТМЦ: <b>СИЗ</b>, <b>канцелярия</b>,
+    <b>IT-расходники</b>, <b>хозтовары</b>. Дальше — остальные предприятия группы
+    и другие товарные группы: металлопрокат, электрика и связь.</p>
 </section>
 
 <div class="низ">
