@@ -298,6 +298,15 @@ svg .ось[data-к]{transform:none}
 .шаг7 .сис b{display:block;font-size:15px;color:var(--текст);font-weight:700}
 .шаг7 .сис b.платформа{color:var(--кмг)}
 .шаг7 .сис span{display:block;margin-top:4px}
+/* семь шагов открываются одним нажатием — каскадом слева направо */
+.семь .шаг7:nth-child(1){transition-delay:0s}
+.семь .шаг7:nth-child(2){transition-delay:.11s}
+.семь .шаг7:nth-child(3){transition-delay:.22s}
+.семь .шаг7:nth-child(4){transition-delay:.33s}
+.семь .шаг7:nth-child(5){transition-delay:.44s}
+.семь .шаг7:nth-child(6){transition-delay:.55s}
+.семь .шаг7:nth-child(7){transition-delay:.66s}
+.лента7{transition-delay:.8s}
 /* карточка товара: поля в две колонки «имя — значение» */
 .поля li{display:flex;justify-content:space-between;gap:12px;align-items:baseline}
 .поля li span{color:var(--приглуш);font-size:13px;white-space:nowrap}
@@ -422,44 +431,44 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
       <h3>Формирование потребности</h3>
       <div class="сис"><b class="платформа">KMG AISAP</b><span>модуль формирования потребности</span></div>
     </div>
-    <div class="шаг7" data-к="2">
+    <div class="шаг7" data-к="1">
       <div class="н">02</div>
       <img class="ик" src="медиа/иконки_закупки/шаг2.png" alt="">
       <h3>Проведение маркетингового анализа</h3>
       <div class="сис"><b class="платформа">KMG AISAP</b><span>модуль маркетинга цен</span></div>
     </div>
-    <div class="шаг7" data-к="3">
+    <div class="шаг7" data-к="1">
       <div class="н">03</div>
       <img class="ик" src="медиа/иконки_закупки/шаг3.png" alt="">
       <h3>Подтверждение наличия бюджета</h3>
       <div class="сис"><b>Система бюджетирования</b></div>
     </div>
-    <div class="шаг7 обмен" data-к="4">
+    <div class="шаг7 обмен" data-к="1">
       <div class="н">04</div>
       <img class="ик" src="медиа/иконки_закупки/шаг4.png" alt="">
       <h3>Поиск товаров внутри ДЗО</h3>
       <div class="сис"><b class="платформа">KMG AISAP</b><span>модуль AI-Broker</span></div>
     </div>
-    <div class="шаг7" data-к="5">
+    <div class="шаг7" data-к="1">
       <div class="н">05</div>
       <img class="ик" src="медиа/иконки_закупки/шаг5.png" alt="">
       <h3>Формирование плана закупок</h3>
       <div class="сис"><b class="платформа">KMG AISAP</b><span>модуль планирования закупок</span></div>
     </div>
-    <div class="шаг7" data-к="6">
+    <div class="шаг7" data-к="1">
       <div class="н">06</div>
       <img class="ик" src="медиа/иконки_закупки/шаг6.png" alt="">
       <h3>Проведение тендерных процедур и заключение договора</h3>
       <div class="сис"><b>SK Store</b></div>
     </div>
-    <div class="шаг7" data-к="7">
+    <div class="шаг7" data-к="1">
       <div class="н">07</div>
       <img class="ик" src="медиа/иконки_закупки/шаг7.png" alt="">
       <h3>Исполнение договорных обязательств</h3>
       <div class="сис"><b class="платформа">KMG AISAP</b><span>модуль исполнения договоров</span></div>
     </div>
   </div>
-  <svg class="лента7" viewBox="0 0 1724 60" data-к="7" aria-hidden="true">
+  <svg class="лента7" viewBox="0 0 1724 60" data-к="1" aria-hidden="true">
     <line x1="30" y1="30" x2="1694" y2="30" class="ось"/>
     <path d="M1682 22l12 8-12 8" class="ось"/>
   </svg>
@@ -798,31 +807,31 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
       <div class="имя">Шаг 7 · KMG AISAP</div>
       <div class="заг">Модуль исполнения договоров <span class="ии">AI</span></div>
       <svg viewBox="0 0 680 350" class="лента" style="margin-top:14px;width:680px;height:350px">
-        <line x1="20" y1="120" x2="660" y2="120" class="ось" data-к="6"/>
+        <line x1="20" y1="142" x2="660" y2="142" class="ось" data-к="6"/>
         <g data-к="6" style="transition-delay:200ms">
-          <circle cx="140" cy="120" r="8" class="веха"/><text x="140" y="96" class="т" text-anchor="middle">платёж</text>
-          <circle cx="400" cy="120" r="8" class="веха"/><text x="400" y="96" class="т" text-anchor="middle">поставка</text>
-          <text x="20" y="160" class="т">Карточка договора — из договора, сама:</text>
-          <text x="20" y="182" class="т">· график платежей</text>
-          <text x="20" y="204" class="т">· график поставок</text>
-          <text x="20" y="226" class="т">· перечень закрывающих документов</text>
+          <circle cx="140" cy="142" r="8" class="веха"/><text x="140" y="118" class="т" text-anchor="middle">платёж</text>
+          <circle cx="400" cy="142" r="8" class="веха"/><text x="400" y="118" class="т" text-anchor="middle">поставка</text>
+          <text x="20" y="184" class="т">Карточка договора — из договора, сама:</text>
+          <text x="20" y="206" class="т">· график платежей</text>
+          <text x="20" y="228" class="т">· график поставок</text>
+          <text x="20" y="250" class="т">· перечень закрывающих документов</text>
         </g>
         <g data-к="7">
-          <path d="M330 106c0-9 6-14 12-14s12 5 12 14v10h-24z" class="колокол"/><circle cx="342" cy="120" r="3" class="колокол"/>
-          <text x="342" y="80" class="т мята" text-anchor="middle">за 10 дней: уведомляет заказчика, напоминает поставщику</text>
+          <path d="M330 128c0-9 6-14 12-14s12 5 12 14v10h-24z" class="колокол"/><circle cx="342" cy="142" r="3" class="колокол"/>
+          <text x="342" y="90" class="т мята" text-anchor="middle">за 10 дней: уведомляет заказчика, напоминает поставщику</text>
         </g>
         <g data-к="8">
-          <path d="M400 128v100" class="ось"/>
-          <path d="M400 228l-130 40" class="ось мята"/><path d="M400 228l60 40" class="ось серая"/>
-          <circle cx="270" cy="268" r="16" class="круг мята"/><path d="M262 268l6 6 10-10" class="галка мята"/>
-          <text x="270" y="306" class="т мята" text-anchor="middle">поставлено — акты и</text><text x="270" y="322" class="т мята" text-anchor="middle">закрывающие документы</text>
-          <circle cx="460" cy="268" r="16" class="круг серая"/><path d="M454 262l12 12M466 262l-12 12" class="крест"/>
-          <text x="460" y="306" class="т" text-anchor="middle">нет — претензионное</text><text x="460" y="322" class="т" text-anchor="middle">письмо</text>
+          <path d="M400 150v78" class="ось"/>
+          <path d="M400 228L289 271" class="ось мята"/><path d="M400 228L445 265" class="ось серая"/>
+          <circle cx="270" cy="278" r="16" class="круг мята"/><path d="M262 278l6 6 10-10" class="галка мята"/>
+          <text x="270" y="314" class="т мята" text-anchor="middle">поставлено — акты и</text><text x="270" y="330" class="т мята" text-anchor="middle">закрывающие документы</text>
+          <circle cx="460" cy="278" r="16" class="круг серая"/><path d="M454 272l12 12M466 272l-12 12" class="крест"/>
+          <text x="460" y="314" class="т" text-anchor="middle">нет — претензионное</text><text x="460" y="330" class="т" text-anchor="middle">письмо</text>
         </g>
         <g data-к="9">
-          <circle cx="630" cy="268" r="28" class="круг мята"/><circle cx="630" cy="268" r="20" class="круг мята"/>
-          <path d="M618 269l8 8 16-16" class="галка мята"/>
-          <text x="630" y="326" class="т мята" text-anchor="middle">договор исполнен</text>
+          <circle cx="598" cy="278" r="26" class="круг мята"/><circle cx="598" cy="278" r="19" class="круг мята"/>
+          <path d="M587 279l7 7 15-15" class="галка мята"/>
+          <text x="598" y="330" class="т мята" text-anchor="middle">договор исполнен</text>
         </g>
       </svg>
     </div>
