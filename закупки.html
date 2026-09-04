@@ -307,12 +307,33 @@ svg .ось[data-к]{transform:none}
 .семь .шаг7:nth-child(6){transition-delay:.55s}
 .семь .шаг7:nth-child(7){transition-delay:.66s}
 .лента7{transition-delay:.8s}
+/* статус и срок шага — второй кадр: зелёная точка «разработан», циановая «в работе» */
+.шаг7 .ст{margin-top:14px;padding-top:10px;border-top:1px dashed rgba(124,141,166,.35);font-size:13px;line-height:1.35}
+.шаг7 .ст b{display:flex;align-items:center;gap:8px;font-weight:700;color:var(--текст)}
+.шаг7 .ст b::before{content:"";width:9px;height:9px;border-radius:50%;flex:0 0 9px}
+.шаг7 .ст.готов b{color:var(--мята)}
+.шаг7 .ст.готов b::before{background:var(--мята);box-shadow:0 0 10px rgba(62,230,184,.7)}
+.шаг7 .ст.работа b{color:var(--циан)}
+.шаг7 .ст.работа b::before{background:var(--циан);box-shadow:0 0 10px rgba(79,227,255,.7)}
+.шаг7 .ст span{display:block;margin-top:3px;padding-left:17px;color:var(--приглуш)}
 /* карточка товара: поля в две колонки «имя — значение» */
 .поля li{display:flex;justify-content:space-between;gap:12px;align-items:baseline}
 .поля li span{color:var(--приглуш);font-size:13px;white-space:nowrap}
 .поля li strong{color:var(--текст);font-weight:600;text-align:right}
 .поля li em{font-style:normal;color:var(--приглуш);text-align:right}
 .поля li strong.мятн{color:var(--мята)}
+/* статус документа потребности: чип, меняется по кадрам (data-к / data-до) */
+.поля li strong.стат{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;
+  border:1px solid rgba(62,213,152,.6);color:var(--мята);background:rgba(62,213,152,.12)}
+.поля li strong.стат.идёт{border-color:rgba(79,227,255,.6);color:var(--циан);background:rgba(79,227,255,.1)}
+.поля li strong.стат[data-к]{display:none}
+.поля li strong.стат[data-к].включён{display:inline-block}
+.поля li strong.стат.ушёл{display:none!important}
+.карточка b .счёт{margin-left:8px;font-family:'Unbounded',sans-serif;font-size:11px;letter-spacing:.06em;color:var(--кмг);
+  padding:3px 9px;border-radius:999px;border:1px solid rgba(2,174,240,.55);vertical-align:middle}
+/* список позиций — три колонки, плотно */
+.карточка.список ol{margin:10px 0 0;padding:0 0 0 22px;columns:3;column-gap:26px;font-size:13px;line-height:1.55;color:var(--текст2)}
+.карточка.список ol li{break-inside:avoid;padding-left:2px}
 .поля li strong.мятн[data-к]{display:none}
 .поля li strong.мятн[data-к].включён{display:inline}
 .поля.две{display:grid;grid-template-columns:1fr 1fr;column-gap:28px}
@@ -331,9 +352,9 @@ svg .ось[data-к]{transform:none}
 #с00{justify-content:center}
 .титул_имя{font-size:118px;font-weight:700;line-height:1;color:var(--кмг)}
 .титул_расш{margin-top:18px;font-size:30px;color:var(--текст)}
-.титул_расш.en{margin-top:6px;color:var(--текст2)}
-.титул_черта{width:132px;height:3px;background:var(--кмг);margin:40px 0 28px;border-radius:2px;box-shadow:0 0 22px rgba(2,174,240,.55)}
-.титул_суть{font-size:26px;color:var(--текст2);max-width:1200px;line-height:1.4}
+.титул_расш.en{margin-top:0;color:var(--текст)}
+.титул_черта{width:132px;height:3px;background:var(--кмг);margin:30px 0 26px;border-radius:2px;box-shadow:0 0 22px rgba(2,174,240,.55)}
+.титул_суть{margin-top:16px;font-size:26px;color:var(--текст2);max-width:1200px;line-height:1.4}
 /* подпись-следствие под карточкой */
 .след{position:absolute;font-size:16px;line-height:1.45;color:var(--текст2);border-left:2px solid var(--кмг);padding-left:14px}
 /* шаг 1: шина сбора */
@@ -408,9 +429,9 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
   <div class="титул">
     <div class="титул_имя дисплей">KMG AISAP</div>
     <div class="титул_расш">AI Satyp Alu Platformasy</div>
-    <div class="титул_расш en">AI-powered Supply and Procurement Platform</div>
     <div class="титул_черта"></div>
-    <div class="титул_суть">Единая интеллектуальная платформа полного цикла закупок и снабжения КМГ</div>
+    <div class="титул_расш en">AI-driven Supply and Procurement Platform</div>
+    <div class="титул_суть">Единая платформа полного цикла закупок и снабжения КМГ</div>
   </div>
 </section>
 
@@ -430,42 +451,49 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
       <img class="ик" src="медиа/иконки_закупки/шаг1.png" alt="">
       <h3>Формирование потребности</h3>
       <div class="сис"><b class="платформа">KMG AISAP</b><span>модуль формирования потребности</span></div>
+      <div class="ст готов" data-к="2" style="transition-delay:0ms"><b>Разработан</b><span>ИИ-модель на дообучении</span></div>
     </div>
     <div class="шаг7" data-к="1">
       <div class="н">02</div>
       <img class="ик" src="медиа/иконки_закупки/шаг2.png" alt="">
       <h3>Проведение маркетингового анализа</h3>
       <div class="сис"><b class="платформа">KMG AISAP</b><span>модуль маркетинга цен</span></div>
+      <div class="ст готов" data-к="2" style="transition-delay:90ms"><b>Разработан</b></div>
     </div>
     <div class="шаг7" data-к="1">
       <div class="н">03</div>
       <img class="ик" src="медиа/иконки_закупки/шаг3.png" alt="">
       <h3>Подтверждение наличия бюджета</h3>
       <div class="сис"><b>Система бюджетирования</b></div>
+      <div class="ст готов" data-к="2" style="transition-delay:180ms"><b>Разработан</b></div>
     </div>
     <div class="шаг7 обмен" data-к="1">
       <div class="н">04</div>
       <img class="ик" src="медиа/иконки_закупки/шаг4.png" alt="">
       <h3>Поиск товаров внутри ДЗО</h3>
       <div class="сис"><b class="платформа">KMG AISAP</b><span>модуль AI-Broker</span></div>
+      <div class="ст готов" data-к="2" style="transition-delay:270ms"><b>Разработан</b><span>на тестировании</span></div>
     </div>
     <div class="шаг7" data-к="1">
       <div class="н">05</div>
       <img class="ик" src="медиа/иконки_закупки/шаг5.png" alt="">
       <h3>Формирование плана закупок</h3>
       <div class="сис"><b class="платформа">KMG AISAP</b><span>модуль планирования закупок</span></div>
+      <div class="ст работа" data-к="2" style="transition-delay:360ms"><b>В работе</b><span>срок · 30 октября 2026</span></div>
     </div>
     <div class="шаг7" data-к="1">
       <div class="н">06</div>
       <img class="ик" src="медиа/иконки_закупки/шаг6.png" alt="">
       <h3>Проведение тендерных процедур и заключение договора</h3>
       <div class="сис"><b>SK Store</b></div>
+      <div class="ст работа" data-к="2" style="transition-delay:450ms"><b>В работе</b><span>срок · 15 ноября 2026</span></div>
     </div>
     <div class="шаг7" data-к="1">
       <div class="н">07</div>
       <img class="ик" src="медиа/иконки_закупки/шаг7.png" alt="">
       <h3>Исполнение договорных обязательств</h3>
       <div class="сис"><b class="платформа">KMG AISAP</b><span>модуль исполнения договоров</span></div>
+      <div class="ст работа" data-к="2" style="transition-delay:540ms"><b>В работе</b><span>срок · 25 декабря 2026</span></div>
     </div>
   </div>
   <svg class="лента7" viewBox="0 0 1724 60" data-к="1" aria-hidden="true">
@@ -498,12 +526,13 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
       <path class="поток" pathLength="1" marker-end="url(#стрелка_циан)" d="M874 330 H992" data-к="4"/>
       <text class="поток_подпись" x="932" y="304" text-anchor="middle" data-к="4">по итогам</text>
       <text class="поток_подпись" x="932" y="320" text-anchor="middle" data-к="4">анализа</text>
-      <path class="поток" pathLength="1" marker-end="url(#стрелка_циан)" d="M1340 330 H1406" data-к="5"/>
+      <path class="поток" pathLength="1" marker-end="url(#стрелка_циан)" d="M1382 330 H1432" data-к="6"/>
     </svg>
 
     <div class="склад" style="left:450px;top:150px;width:420px" data-к="1">
       <div class="имя">Шаг 1 · KMG AISAP · модуль формирования потребности</div>
       <div class="заг">ИИ автоматически выявляет и формирует потребность <span class="ии">AI</span></div>
+      <p class="ищет" style="margin-top:8px">запуск по настраиваемому расписанию · без участия человека</p>
       <div class="сетка"><i class="ячейка" style="transition-delay:0ms"></i><i class="ячейка" style="transition-delay:18ms"></i><i class="ячейка" style="transition-delay:36ms"></i><i class="ячейка" style="transition-delay:54ms"></i><i class="ячейка" style="transition-delay:72ms"></i><i class="ячейка пусто" style="transition-delay:90ms"></i><i class="ячейка" style="transition-delay:108ms"></i><i class="ячейка" style="transition-delay:126ms"></i><i class="ячейка" style="transition-delay:144ms"></i><i class="ячейка" style="transition-delay:162ms"></i><i class="ячейка" style="transition-delay:180ms"></i><i class="ячейка" style="transition-delay:198ms"></i><i class="ячейка" style="transition-delay:216ms"></i><i class="ячейка" style="transition-delay:234ms"></i><i class="ячейка пусто" style="transition-delay:252ms"></i><i class="ячейка" style="transition-delay:270ms"></i><i class="ячейка" style="transition-delay:288ms"></i><i class="ячейка" style="transition-delay:306ms"></i><i class="ячейка" style="transition-delay:324ms"></i><i class="ячейка" style="transition-delay:342ms"></i><i class="ячейка" style="transition-delay:360ms"></i><i class="ячейка" style="transition-delay:378ms"></i><i class="ячейка пусто" style="transition-delay:396ms"></i><i class="ячейка" style="transition-delay:414ms"></i><i class="ячейка" style="transition-delay:432ms"></i><i class="ячейка" style="transition-delay:450ms"></i><i class="ячейка" style="transition-delay:468ms"></i><i class="ячейка пусто" style="transition-delay:486ms"></i><i class="ячейка" style="transition-delay:504ms"></i><i class="ячейка" style="transition-delay:522ms"></i><i class="ячейка" style="transition-delay:540ms"></i><i class="ячейка" style="transition-delay:558ms"></i></div>
       <div class="ключ"><span class="есть">есть</span><span class="нет">заканчивается</span></div>
       <div class="сияние" data-к="3"></div>
@@ -517,18 +546,31 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
     <div class="исток паспорта" style="left:0;top:516px;transition-delay:600ms" data-к="2">      <div class="мини"><svg viewBox="0 0 70 56"><circle cx="22" cy="28" r="14" class="к"/><circle cx="22" cy="28" r="5" class="з"/><rect x="42" y="12" width="7" height="7" rx="1" class="к"/><rect x="51" y="12" width="7" height="7" rx="1" class="к"/><rect x="60" y="12" width="7" height="7" rx="1" class="з"/><rect x="42" y="21" width="7" height="7" rx="1" class="к"/><rect x="51" y="21" width="7" height="7" rx="1" class="к"/><rect x="60" y="21" width="7" height="7" rx="1" class="з"/><rect x="42" y="30" width="7" height="7" rx="1" class="к"/><rect x="51" y="30" width="7" height="7" rx="1" class="к"/><rect x="60" y="30" width="7" height="7" rx="1" class="к"/><rect x="42" y="39" width="7" height="7" rx="1" class="к"/><rect x="51" y="39" width="7" height="7" rx="1" class="к"/><rect x="60" y="39" width="7" height="7" rx="1" class="к"/></svg></div>      <div><b>Анализирует паспорта, техспецификацию и техдокументацию</b></div>    </div>
     <div class="исток другие" style="left:0;top:618px;transition-delay:720ms" data-к="2">      <div class="мини"><svg viewBox="0 0 70 56"><circle cx="18" cy="28" r="6" class="з"/><circle cx="35" cy="14" r="6" class="з"/><circle cx="35" cy="42" r="6" class="з"/><circle cx="52" cy="28" r="6" class="з"/><path d="M24 28h22M35 20v16" class="к"/></svg></div>      <div><b>Другие источники данных</b></div>    </div>
 
-    <div class="карточка товар" style="left:1000px;top:180px;width:330px" data-к="4">
-      <b>Потребность сформирована</b>
+    <div class="карточка товар" style="left:1000px;top:150px;width:372px" data-к="4">
+      <b>Документ потребности <span class="счёт">23 позиции</span></b>
       <ul class="поля">
-        <li><span>Материал</span><strong>Провод ПВС 3×2,5</strong></li>
+        <li><span>Статус</span><strong class="стат">Создана</strong></li>
+        <li><span>Позиция 1 из 23</span><strong>Провод ПВС 3×2,5</strong></li>
         <li><span>Код ЕНС ТРУ / АСУ НСИ</span><strong>273212900</strong></li>
         <li><span>Количество</span><strong>500 м</strong></li>
         <li><span>Срок</span><strong>январь 2027</strong></li>
         <li><span>Место поставки</span><strong>Мангистауэнергомунай</strong></li>
       </ul>
     </div>
-    <div class="пилюля" style="left:1418px;top:306px" data-к="5">Маркетинг цен</div>
-    <p class="след" style="left:1000px;top:400px;width:640px" data-к="5">После того как потребность сформирована, автоматически проводится маркетинговое исследование.</p>
+    <div class="пилюля" style="left:1440px;top:306px" data-к="6">Маркетинг цен</div>
+    <p class="след" style="left:1440px;top:160px;width:284px" data-к="6">После того как потребность сформирована, автоматически проводится маркетинговое исследование.</p>
+    <!-- список позиций — условный, до присылки реального перечня из 23 товаров -->
+    <div class="карточка список" style="left:1000px;top:420px;width:724px" data-к="5">
+      <b>Позиции потребности · 23</b>
+      <ol>
+        <li>Провод ПВС 3×2,5</li><li>Кабель ВВГнг 4×16</li><li>Кабель КГ 3×4</li><li>Автомат ВА47-29 C25</li>
+        <li>Автомат ВА47-29 C63</li><li>Контактор КМИ-22510</li><li>Пускатель ПМ12-025</li><li>Реле тепловое РТИ-1322</li>
+        <li>Светильник LED 36 Вт IP65</li><li>Лампа LED E27 15 Вт</li><li>Розетка IP44 16 А</li><li>Выключатель IP44</li>
+        <li>Труба ПНД 32 мм</li><li>Гофра ПВХ 20 мм</li><li>Лоток кабельный 100×50</li><li>Наконечник ТМЛ 16-8</li>
+        <li>Клемма ЗНИ-4</li><li>Изолента ПВХ 19 мм</li><li>Стяжка 300×4,8</li><li>Хомут металлический 25</li>
+        <li>Шина заземления 40×4</li><li>Щит ЩРН-24</li><li>Предохранитель ППН-33 100 А</li>
+      </ol>
+    </div>
   </div>
 </section>
 
@@ -576,8 +618,9 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
 
     <!-- потребность с кодом -->
     <div class="карточка синяя товар" style="left:0;top:120px;width:320px" data-к="1">
-      <b>Потребность</b>
+      <b>Потребность <span class="счёт">1 / 23</span></b>
       <ul class="поля">
+        <li><span>Статус</span><strong class="стат" data-до="1">Создана</strong><strong class="стат идёт" data-к="2" data-до="5">Маркетинг</strong><strong class="стат" data-к="6" data-до="6">Маркетинг завершён</strong><strong class="стат идёт" data-к="7" data-до="7">Бюджетирование</strong><strong class="стат" data-к="8">Бюджетирование завершено</strong></li>
         <li><span>Материал</span><strong>Провод ПВС 3×2,5</strong></li>
         <li><span>Код ЕНС ТРУ / АСУ НСИ</span><strong>273212900</strong></li>
         <li><span>Количество</span><strong>500 м</strong></li>
@@ -711,8 +754,9 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
     </div>
 
     <div class="карточка синяя товар" style="left:1060px;top:0;width:664px" data-к="1">
-      <b>Потребность из шага 2</b>
+      <b>Потребность из шага 2 <span class="счёт">1 / 23</span></b>
       <ul class="поля две">
+        <li><span>Статус</span><strong class="стат">Бюджетирование завершено</strong></li>
         <li><span>Материал</span><strong>Провод ПВС 3×2,5</strong></li>
         <li><span>Код</span><strong>273212900</strong></li>
         <li><span>Количество</span><strong>500 м</strong></li>
@@ -771,7 +815,7 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
     <div class="заявка" style="left:312px;top:146px" data-к="2">
       <svg viewBox="0 0 40 48"><path d="M6 4h20l8 8v32H6z" class="док"/><path d="M26 4v8h8" class="док"/>
         <path d="M12 22h16M12 30h16M12 38h10" class="строки"/></svg>
-      <span>заявка</span>
+      <span>передано к закупу</span>
     </div>
 
     <!-- 3. площадка -->
