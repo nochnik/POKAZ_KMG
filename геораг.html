@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Geological RAG — ИИ-ассистент геолога</title>
+<style>
+/* Тот же язык, что у презентации закупок (закупки.html): палитра ЦД, кадр
+   1920×1080, кадры по стрелке. Содержание — с листа заказчика
+   «KMGD_GEO_RAG.pptx» и разбора проекта в docs/geological-rag.md. */
+:root{
+  --кмг:#02AEF0; --кмг_свет:#90D6F7;
+  --циан:#4FE3FF; --мята:#3EE6B8; --зелёный:#3ED598;
+  --фон0:#050810; --фон1:#0C1626;
+  --грань:#1B2E48; --грань_мягкая:#142338;
+  --текст:#D7E2F2; --текст2:#AFC0D8; --приглуш:#7C8DA6;
+}
+@font-face{font-family:'Unbounded';font-weight:500 700;font-display:swap;
+  src:url('медиа/шрифты/унб_700_cyrillic.woff2') format('woff2');
+  unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
+@font-face{font-family:'Unbounded';font-weight:500 700;font-display:swap;
+  src:url('медиа/шрифты/унб_700_latin.woff2') format('woff2');
+  unicode-range:U+0000-00FF,U+2000-206F}
+@font-face{font-family:'Golos Text';font-weight:400 600;font-display:swap;
+  src:url('медиа/шрифты/голос_400_cyrillic.woff2') format('woff2');
+  unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
+@font-face{font-family:'Golos Text';font-weight:400 600;font-display:swap;
+  src:url('медиа/шрифты/голос_400_latin.woff2') format('woff2');
+  unicode-range:U+0000-00FF,U+2000-206F}
+
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{background:#000;color:var(--текст);overflow:hidden;
+  font-family:'Golos Text',system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  -webkit-font-smoothing:antialiased;touch-action:manipulation}
+.дисплей{font-family:'Unbounded',system-ui,sans-serif;letter-spacing:.01em}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+:focus-visible{outline:2px solid var(--кмг);outline-offset:4px;border-radius:4px}
+
+#обёртка{position:fixed;inset:0;overflow:hidden;background:var(--фон0)}
+#кадр{width:1920px;height:1080px;position:absolute;left:50%;top:50%;
+  margin-left:-960px;margin-top:-540px;transform-origin:center center;
+  background:var(--фон0);overflow:hidden}
+#кадр::before{content:"";position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(1200px 620px at 50% -12%, rgba(2,174,240,.14), transparent 68%),
+    radial-gradient(900px 520px at 92% 108%, rgba(62,213,152,.07), transparent 70%),
+    linear-gradient(180deg, #060B16 0%, var(--фон0) 55%, #04070E 100%)}
+#кадр::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:.5;
+  background-image:
+    linear-gradient(rgba(27,46,72,.30) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(27,46,72,.30) 1px, transparent 1px);
+  background-size:96px 96px;
+  -webkit-mask-image:radial-gradient(1400px 900px at 50% 45%, #000 30%, transparent 82%);
+          mask-image:radial-gradient(1400px 900px at 50% 45%, #000 30%, transparent 82%)}
+
+.слайд{position:absolute;inset:0;padding:80px 98px 96px;display:flex;flex-direction:column;
+  opacity:0;visibility:hidden;transform:translateY(16px);
+  transition:opacity .42s ease, transform .42s ease, visibility 0s .42s}
+.слайд.виден{opacity:1;visibility:visible;transform:none;transition:opacity .42s ease, transform .42s ease}
+@media (prefers-reduced-motion: reduce){
+  .слайд{transition:opacity .01s linear, visibility 0s .01s;transform:none}
+  .слайд.виден{transition:opacity .01s linear}
+}
+.бровь{font-size:14px;letter-spacing:.22em;text-transform:uppercase;color:var(--приглуш)}
+h2.заголовок{font-size:44px;font-weight:700;line-height:1.12;margin-top:12px;max-width:1500px}
+.идея{margin-top:12px;font-size:18px;line-height:1.5;color:var(--текст2);max-width:1200px}
+.полотно{position:relative;margin-top:26px;flex:1}
+
+[data-к]{opacity:0;transform:translateY(10px);transition:opacity .45s ease, transform .45s cubic-bezier(.2,.7,.3,1)}
+[data-к].включён{opacity:1;transform:none}
+svg [data-к]{transition:opacity .45s ease}
+@media (prefers-reduced-motion: reduce){[data-к]{opacity:1;transform:none;transition:none}}
+
+/* ===== общие детали ===== */
+.блок{position:absolute;border:1px solid var(--грань);border-radius:20px;padding:22px 26px 24px;
+  background:linear-gradient(180deg, rgba(12,22,38,.9), rgba(5,8,16,.68))}
+.блок .имя{font-size:12.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--приглуш);line-height:1.35}
+.блок .заг{margin-top:8px;font-size:19px;font-weight:700;line-height:1.25;display:flex;align-items:center;gap:10px}
+.ии{font-family:'Unbounded',sans-serif;font-size:10px;letter-spacing:.14em;padding:4px 8px;border-radius:999px;
+  border:1px solid var(--кмг);color:var(--кмг)}
+.поток{fill:none;stroke:var(--циан);stroke-width:2;stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset .9s ease}
+.поток.назад{stroke:var(--зелёный)}
+.поток.включён{stroke-dashoffset:0}
+svg .поток[data-к]{transform:none}
+.поток_подпись{font-family:'Golos Text',sans-serif;font-size:14px;fill:var(--текст2)}
+.поток_подпись.мята{fill:var(--мята)}
+
+/* ===== слайд 1: архив → OCR → база знаний в контуре → вопрос → ответ ===== */
+.архив{position:absolute;left:0;top:40px;width:330px}
+.архив .стопка{position:relative;height:250px}
+.лист{position:absolute;left:0;width:200px;height:150px;border-radius:8px;
+  border:1px solid rgba(2,174,240,.45);background:rgba(12,22,38,.95);padding:14px 16px;
+  opacity:0;transform:translateY(20px);transition:opacity .4s ease,transform .5s cubic-bezier(.2,.8,.3,1)}
+.архив.включён .лист{opacity:1;transform:none}
+.лист i{display:block;height:5px;border-radius:3px;background:rgba(2,174,240,.35);margin:7px 0}
+.лист i.к{width:60%}.лист i.с{width:85%}
+.лист .графа{margin-top:10px;height:36px;border-radius:4px;
+  background:repeating-linear-gradient(90deg, rgba(2,174,240,.4) 0 2px, transparent 2px 9px)}
+.лист .карт{margin-top:10px;height:36px;border-radius:4px;
+  background:radial-gradient(circle at 30% 50%, rgba(62,230,184,.5), transparent 40%),radial-gradient(circle at 70% 40%, rgba(2,174,240,.5), transparent 45%)}
+.лист .табл{margin-top:10px;height:36px;border-radius:4px;
+  background:repeating-linear-gradient(0deg, rgba(2,174,240,.35) 0 1px, transparent 1px 9px),repeating-linear-gradient(90deg, rgba(2,174,240,.35) 0 1px, transparent 1px 30px)}
+.архив .подп{margin-top:14px;font-size:15px;color:var(--текст2);line-height:1.45}
+.архив .подп b{display:block;font-size:30px;color:var(--кмг);font-family:'Unbounded',sans-serif;line-height:1.1;margin-bottom:6px}
+
+.окр{position:absolute;left:380px;top:120px;width:170px;text-align:center}
+.окр svg{width:110px;height:110px;display:block;margin:0 auto}
+.окр b{display:block;margin-top:10px;font-size:16px}
+.окр span{display:block;margin-top:4px;font-size:13px;color:var(--приглуш);line-height:1.35}
+
+.контур{position:absolute;left:600px;top:20px;width:560px;height:540px;border-radius:26px;
+  border:1.5px dashed rgba(62,213,152,.55);padding:26px 28px}
+.контур .замок{position:absolute;right:22px;top:18px;display:flex;align-items:center;gap:8px;
+  font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--мята)}
+.контур .замок svg{width:18px;height:18px}
+.контур .имя{font-size:12.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--приглуш)}
+.контур .заг{margin-top:8px;font-size:19px;font-weight:700;display:flex;align-items:center;gap:10px}
+.граф{margin-top:16px;width:100%;height:290px;display:block}
+.граф circle{fill:rgba(2,174,240,.22);stroke:var(--кмг);stroke-width:1.5}
+.граф circle.ц{fill:rgba(62,213,152,.25);stroke:var(--мята)}
+.граф line{stroke:rgba(79,227,255,.55);stroke-width:1.2}
+.граф text{font-family:'Golos Text',sans-serif;font-size:12px;fill:var(--текст2)}
+.контур .низ{margin-top:12px;display:flex;gap:10px;flex-wrap:wrap}
+.контур .низ span{font-size:12.5px;padding:5px 10px;border-radius:999px;border:1px solid var(--грань);color:var(--текст2)}
+
+.вопрос{position:absolute;left:1220px;top:60px;width:504px;border-radius:18px;padding:18px 22px;
+  border:1px solid rgba(2,174,240,.5);background:rgba(2,174,240,.09)}
+.вопрос .кто{font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--кмг)}
+.вопрос p{margin-top:8px;font-size:18px;line-height:1.4;color:var(--текст)}
+.ответ{position:absolute;left:1220px;top:230px;width:504px;border-radius:18px;padding:18px 22px;
+  border:1px solid rgba(62,213,152,.5);background:rgba(62,213,152,.09)}
+.ответ .кто{font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--мята)}
+.ответ p{margin-top:8px;font-size:16.5px;line-height:1.45;color:var(--текст)}
+.ответ .ссылки{margin-top:12px;display:flex;flex-direction:column;gap:6px}
+.ответ .ссылки span{font-size:13.5px;color:var(--мята);display:flex;align-items:center;gap:8px}
+.ответ .ссылки span::before{content:"";width:8px;height:8px;border-radius:2px;border:1px solid var(--мята)}
+.ответ .время{margin-top:12px;font-size:13px;color:var(--приглуш)}
+
+/* ===== слайд 2: зачем ===== */
+.цифры{margin-top:44px;display:grid;grid-template-columns:repeat(4,1fr);gap:30px}
+.цифра{border:1px solid var(--грань);border-radius:22px;padding:34px 32px 30px;min-height:250px;
+  background:linear-gradient(180deg, rgba(12,22,38,.85), rgba(5,8,16,.6));display:flex;flex-direction:column}
+.цифра .шапка{font-size:12.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--приглуш)}
+.цифра .крупно{margin-top:auto;font-size:64px;font-weight:700;line-height:1;color:var(--кмг);font-family:'Unbounded',sans-serif}
+.цифра .крупно.стрелой{font-size:44px;line-height:1.1}
+.цифра .пояс{margin-top:14px;font-size:17px;color:var(--текст2);line-height:1.4}
+.качества{margin-top:auto;display:grid;grid-template-columns:repeat(3,1fr);gap:30px}
+.качество{border-top:2px solid rgba(62,213,152,.5);padding-top:18px}
+.качество b{display:block;font-size:24px;color:var(--мята)}
+.качество span{display:block;margin-top:8px;font-size:17px;line-height:1.5;color:var(--текст2)}
+.итог_стр{margin-top:44px;margin-bottom:auto;font-size:22px;line-height:1.45;color:var(--текст);max-width:1600px}
+.итог_стр b{color:var(--кмг);font-weight:600}
+
+.низ{position:absolute;left:98px;right:98px;bottom:44px;display:flex;align-items:center;justify-content:space-between;gap:24px;pointer-events:none}
+.низ > *{pointer-events:auto}
+#лого{height:100px;filter:brightness(0) invert(1);opacity:.85}
+.точки{display:flex;gap:11px}
+.точки button{width:9px;height:9px;border-radius:50%;background:var(--грань);transition:background .25s ease, transform .25s ease}
+.точки button[aria-current="true"]{background:var(--кмг);transform:scale(1.34);box-shadow:0 0 12px rgba(2,174,240,.6)}
+.счётчик{font-family:'Unbounded',sans-serif;font-size:13px;letter-spacing:.14em;color:var(--приглуш)}
+
+@media print{
+  @page{size:1920px 1080px;margin:0}
+  html,body{height:auto;overflow:visible;background:#fff}
+  #обёртка{position:static;display:block;overflow:visible}
+  #кадр{transform:none!important;position:static;margin:0;width:1920px;height:auto;overflow:visible}
+  #кадр::before,#кадр::after{display:none}
+  .слайд{position:relative;opacity:1!important;visibility:visible!important;transform:none!important;width:1920px;height:1080px;page-break-after:always;
+    background:radial-gradient(1200px 620px at 50% -12%, rgba(2,174,240,.14), transparent 68%),linear-gradient(180deg,#060B16 0%,#050810 55%,#04070E 100%)}
+  [data-к]{opacity:1!important;transform:none!important}
+  .низ{position:absolute}
+  -webkit-print-color-adjust:exact;print-color-adjust:exact
+}
+</style>
+</head>
+<body>
+<div id="обёртка">
+<div id="кадр">
+
+<!-- ================= 1. что такое =================
+     Пять кадров: архив отчётов, накопленный за десятилетия → OCR читает сканы
+     → всё ложится в базу знаний с граф-связями внутри закрытого контура →
+     геолог спрашивает словами → ответ за секунды, со ссылкой на документ и
+     страницу. Цифры и формулировки — с листа заказчика. -->
+<section class="слайд виден" id="с1" aria-label="Что такое Geological RAG">
+  <div class="бровь">Геологоразведка и добыча · ИИ</div>
+  <h2 class="заголовок дисплей">Geological RAG — ИИ-ассистент геолога</h2>
+  <p class="идея">Мгновенный анализ геологических данных месторождения, накопленных за всё время, —
+    в закрытом контуре, без риска утечки.</p>
+
+  <div class="полотно">
+    <svg class="потоки" viewBox="0 0 1724 640" style="position:absolute;left:0;top:0;width:1724px;height:640px;pointer-events:none" aria-hidden="true">
+      <defs>
+        <marker id="ст_циан" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#4FE3FF"/></marker>
+        <marker id="ст_мята" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#3ED598"/></marker>
+      </defs>
+      <path class="поток" pathLength="1" marker-end="url(#ст_циан)" d="M336 200 H372" data-к="2"/>
+      <path class="поток" pathLength="1" marker-end="url(#ст_циан)" d="M556 200 H592" data-к="3"/>
+      <path class="поток" pathLength="1" marker-end="url(#ст_циан)" d="M1214 120 H1170 V300" data-к="4"/>
+      <text class="поток_подпись" x="1180" y="106" text-anchor="end" data-к="4">вопрос</text>
+      <path class="поток назад" pathLength="1" marker-end="url(#ст_мята)" d="M1160 330 H1212" data-к="5"/>
+      <text class="поток_подпись мята" x="1186" y="356" text-anchor="middle" data-к="5">ответ</text>
+    </svg>
+
+    <!-- 1. архив -->
+    <div class="архив" data-к="1">
+      <div class="стопка">
+        <div class="лист" style="top:70px;left:0;transition-delay:0ms"><i class="к"></i><i class="с"></i><div class="табл"></div><i class="с"></i></div>
+        <div class="лист" style="top:40px;left:40px;transition-delay:160ms"><i class="к"></i><i class="с"></i><div class="карт"></div><i class="с"></i></div>
+        <div class="лист" style="top:10px;left:80px;transition-delay:320ms"><i class="к"></i><i class="с"></i><div class="графа"></div><i class="с"></i></div>
+      </div>
+      <div class="подп"><b>80 000+</b>геологических отчётов, накопленных за десятилетия: сканы, таблицы, карты, каротаж</div>
+    </div>
+
+    <!-- 2. OCR -->
+    <div class="окр" data-к="2">
+      <svg viewBox="0 0 110 110" fill="none" stroke="#02AEF0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="18" y="14" width="74" height="82" rx="8"/>
+        <path d="M32 36h46M32 50h46M32 64h30" opacity=".6"/>
+        <path d="M10 55h90" stroke="#3EE6B8" stroke-width="2.4"/>
+        <circle cx="10" cy="55" r="3" fill="#3EE6B8" stroke="none"/><circle cx="100" cy="55" r="3" fill="#3EE6B8" stroke="none"/>
+      </svg>
+      <b>Распознавание</b>
+      <span>OCR читает сканы: таблицы, графики, карты, каротаж</span>
+    </div>
+
+    <!-- 3. база знаний в закрытом контуре -->
+    <div class="контур" data-к="3">
+      <div class="замок"><svg viewBox="0 0 24 24" fill="none" stroke="#3EE6B8" stroke-width="2"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>закрытый контур</div>
+      <div class="имя">База знаний</div>
+      <div class="заг">Граф-связи + reasoning <span class="ии">AI</span></div>
+      <svg class="граф" viewBox="0 0 500 290" aria-hidden="true">
+        <line x1="250" y1="140" x2="110" y2="70"/><line x1="250" y1="140" x2="120" y2="220"/><line x1="250" y1="140" x2="390" y2="60"/>
+        <line x1="250" y1="140" x2="400" y2="210"/><line x1="110" y1="70" x2="120" y2="220"/><line x1="390" y1="60" x2="400" y2="210"/>
+        <line x1="250" y1="140" x2="250" y2="260"/><line x1="120" y1="220" x2="250" y2="260"/>
+        <circle cx="250" cy="140" r="26" class="ц"/><text x="250" y="145" text-anchor="middle">Тасбулак</text>
+        <circle cx="110" cy="70" r="20"/><text x="110" y="42" text-anchor="middle">пласт Ю-I</text>
+        <circle cx="120" cy="220" r="20"/><text x="120" y="256" text-anchor="middle">скважина 14</text>
+        <circle cx="390" cy="60" r="20"/><text x="390" y="32" text-anchor="middle">запасы С1</text>
+        <circle cx="400" cy="210" r="20"/><text x="400" y="246" text-anchor="middle">каротаж 2019</text>
+        <circle cx="250" cy="260" r="16"/><text x="250" y="288" text-anchor="middle">отчёт 2023</text>
+      </svg>
+      <div class="низ"><span>собственная модель</span><span>open-weight, внутри инфраструктуры</span><span>обучена на реальных отчётах</span></div>
+    </div>
+
+    <!-- 4. вопрос -->
+    <div class="вопрос" data-к="4">
+      <div class="кто">Геолог · запрос словами</div>
+      <p>«Какие интервалы по скважине 14 давали приток, и что по ним говорит каротаж 2019 года?»</p>
+    </div>
+    <!-- 5. ответ -->
+    <div class="ответ" data-к="5">
+      <div class="кто">Ассистент · ответ за секунды</div>
+      <p>Приток получен в интервале 1 842–1 856 м (пласт Ю-I). Каротаж 2019 года подтверждает
+        коллектор по ГК и НГК; расхождение с отчётом 2023 года — по нижней границе.</p>
+      <div class="ссылки"><span>Отчёт по разведке Тасбулак, 2023 — стр. 47, табл. 12</span><span>Каротаж скв. 14, 2019 — лист 3</span></div>
+      <div class="время">ответ со ссылками на документ и страницу — без галлюцинаций</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 2. зачем ================= -->
+<section class="слайд" id="с2" aria-label="Зачем нужен Geological RAG">
+  <div class="бровь">Геологоразведка и добыча · ИИ</div>
+  <h2 class="заголовок дисплей">От поиска по архивам — к ответам за минуты</h2>
+
+  <div class="цифры">
+    <div class="цифра" data-к="1"><div class="шапка">Подготовка справок</div>
+      <div class="крупно стрелой">недели → минуты</div><div class="пояс">аналитические справки и сводки по отчётам</div></div>
+    <div class="цифра" data-к="2"><div class="шапка">База</div>
+      <div class="крупно">80 000+</div><div class="пояс">документов, доступных по запросу в одном окне</div></div>
+    <div class="цифра" data-к="3"><div class="шапка">Интерпретация</div>
+      <div class="крупно">×2–3</div><div class="пояс">быстрее интерпретация геоданных</div></div>
+    <div class="цифра" data-к="4"><div class="шапка">Данные</div>
+      <div class="крупно">100%</div><div class="пояс">закрытый контур — ни один документ не покидает периметр</div></div>
+  </div>
+
+  <div class="качества">
+    <div class="качество" data-к="5"><b>Приватность ↑</b><span>Собственная open-weight модель разворачивается во внутренней инфраструктуре. Данных наружу нет.</span></div>
+    <div class="качество" data-к="6"><b>Скорость ↑</b><span>Знания десятилетий — за минуты: вопрос словами вместо недель поиска по архивам.</span></div>
+    <div class="качество" data-к="7"><b>Доверие ↑</b><span>Каждый ответ со ссылкой на документ и страницу. Reasoning-выводы, без галлюцинаций.</span></div>
+  </div>
+
+  <p class="итог_стр" data-к="7">Готовые запросы в один клик: <b>executive summary</b>, <b>риски и несостыковки</b>, <b>ключевые метрики</b>, режим Vision по сканам. Все знания по геологии — в одном окне, по запросу.</p>
+</section>
+
+<div class="низ">
+  <img id="лого" src="медиа/лого_кмг.png" alt="КазМунайГаз">
+  <div class="точки" id="точки" role="tablist" aria-label="Слайды"></div>
+  <div class="счётчик" id="счётчик"></div>
+</div>
+</div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var слайды=[].slice.call(document.querySelectorAll(".слайд")), точки=document.getElementById("точки"),
+      счёт=document.getElementById("счётчик"), кадр=document.getElementById("кадр"), текущий=0, состояние={};
+  function вписать(){ кадр.style.transform="scale("+Math.min(window.innerWidth/1920, window.innerHeight/1080)+")"; }
+  window.addEventListener("resize",вписать); вписать();
+  function кадрыСлайда(с){ var n=0; [].forEach.call(с.querySelectorAll("[data-к]"),function(э){ n=Math.max(n,+э.getAttribute("data-к")); }); return n; }
+  function показатьКадры(с,до){
+    [].forEach.call(с.querySelectorAll("[data-к]"),function(э){ э.classList.toggle("включён", +э.getAttribute("data-к")<=до); });
+    состояние[с.id]=до;
+  }
+  слайды.forEach(function(с,i){
+    var т=document.createElement("button"); т.type="button"; т.setAttribute("aria-label","Слайд "+(i+1));
+    т.addEventListener("click",function(){ показать(i,true); }); точки.appendChild(т); показатьКадры(с,0);
+  });
+  var кнопки=[].slice.call(точки.children);
+  function показать(i,целиком){
+    if(i<0||i>=слайды.length||i===текущий) return;
+    слайды[текущий].classList.remove("виден"); текущий=i; var с=слайды[i]; с.classList.add("виден");
+    показатьКадры(с, целиком?кадрыСлайда(с):0);
+    кнопки.forEach(function(к,j){ к.setAttribute("aria-current", j===i?"true":"false"); });
+    счёт.textContent=("0"+(i+1)).slice(-2)+" / "+("0"+слайды.length).slice(-2);
+  }
+  кнопки[0].setAttribute("aria-current","true"); счёт.textContent="01 / "+("0"+слайды.length).slice(-2);
+  function вперёд(){ var с=слайды[текущий], всего=кадрыСлайда(с), было=состояние[с.id]||0; if(было<всего){ показатьКадры(с,было+1); return; } показать(текущий+1,false); }
+  function назад(){ var с=слайды[текущий], было=состояние[с.id]||0; if(было>0){ показатьКадры(с,было-1); return; } показать(текущий-1,true); }
+  document.addEventListener("keydown",function(с){ var к=с.key;
+    if(к==="ArrowRight"||к==="PageDown"||к===" "||к==="Enter"){ с.preventDefault(); вперёд(); }
+    else if(к==="ArrowLeft"||к==="PageUp"||к==="Backspace"){ с.preventDefault(); назад(); }
+    else if(к==="Home"){ с.preventDefault(); показать(0,true); }
+    else if(к==="End"){ с.preventDefault(); показать(слайды.length-1,true); }
+    else if(к==="f"||к==="F"||к==="а"||к==="А"){ if(document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen(); }
+  });
+  document.addEventListener("click",function(с){ if(с.target.closest(".точки")) return; if(с.shiftKey) назад(); else вперёд(); });
+})();
+</script>
+</body>
+</html>
