@@ -273,7 +273,7 @@ svg .сбор[data-к]{transform:none}
 .лента .кузов{fill:rgba(2,174,240,.2);stroke:var(--кмг);stroke-width:1.6}
 .лента .колесо{fill:var(--фон0);stroke:var(--кмг);stroke-width:1.6}
 .лента .груз[data-к]{transform:translate(0,0);transition:opacity .4s ease,transform 1.3s cubic-bezier(.4,0,.2,1)}
-.лента .груз[data-к].включён{transform:translate(218px,0)}
+.лента .груз[data-к].включён{transform:translate(240px,0)}
 .лента .веха.выполнено{fill:rgba(62,213,152,.25);stroke:var(--мята)}
 .лента .документ .док{fill:rgba(2,174,240,.14)}
 .лента .т.серый{fill:var(--приглуш)}
@@ -382,6 +382,17 @@ svg .ось[data-к]{transform:none}
 .пилот li b{font-weight:600;color:var(--текст);flex:1 1 auto;line-height:1.3}
 .пилот li span{color:var(--приглуш);font-size:13px;flex:0 0 190px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .пилот li em{font-style:normal;color:var(--мята);font-size:14.5px;flex:0 0 180px;text-align:right;white-space:nowrap}
+/* скрины систем: рамка в палитре показа, картинка по ширине; четыре экрана — сеткой 2×2 */
+.скрин{position:absolute;max-height:100%;border:1.5px solid rgba(2,174,240,.45);border-radius:14px;overflow:hidden;background:#0C1626;
+  box-shadow:0 0 40px rgba(2,174,240,.18)}
+.скрин img{display:block;width:100%;height:auto}
+.скрин .рамка{position:absolute;border:2.5px solid var(--мята);border-radius:6px;box-shadow:0 0 0 4px rgba(62,230,184,.18),0 0 24px rgba(62,230,184,.5)}
+.скрин .подпись_рамки{position:absolute;font-size:15px;font-weight:700;color:var(--мята);padding:6px 12px;border-radius:999px;
+  background:rgba(5,8,16,.85);border:1px solid rgba(62,230,184,.6)}
+.четыре{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:20px 24px;height:740px}
+.четыре .скрин{position:relative;margin:0;display:flex;flex-direction:column}
+.четыре .скрин img{flex:1 1 0px;height:0;object-fit:cover;object-position:top;min-height:0}
+.четыре figcaption{flex:0 0 auto;padding:8px 14px;font-size:14px;color:var(--текст);background:rgba(2,174,240,.14);border-top:1px solid rgba(2,174,240,.35)}
 .след{position:absolute;font-size:16px;line-height:1.45;color:var(--текст2);border-left:2px solid var(--кмг);padding-left:14px}
 /* шаг 1: шина сбора */
 .сбор.шина{opacity:.35}
@@ -477,35 +488,35 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
       <div class="н">01</div>
       <img class="ик" src="медиа/иконки_закупки/шаг1.png" alt="">
       <h3>Формирование потребности</h3>
-      <div class="сис"><b class="платформа">KMG AISAP</b><span>модуль формирования потребности</span></div>
+      <div class="сис"><b class="платформа">KMG AISAP</b><span>Модуль «Формирование потребностей»</span></div>
       <div class="ст" data-к="2" style="transition-delay:0ms"><b>Реализован</b><span>ИИ-модель на дообучении</span></div>
     </div>
     <div class="шаг7 готово" data-к="1">
       <div class="н">02</div>
       <img class="ик" src="медиа/иконки_закупки/шаг2.png" alt="">
       <h3>Проведение маркетингового анализа</h3>
-      <div class="сис"><b class="платформа">KMG AISAP</b><span>модуль маркетинга цен</span></div>
+      <div class="сис"><b class="платформа">KMG AISAP</b><span>Модуль «Маркетинг цен»</span></div>
       <div class="ст" data-к="2" style="transition-delay:90ms"><b>Реализован</b></div>
     </div>
     <div class="шаг7 готово" data-к="1">
       <div class="н">03</div>
       <img class="ик" src="медиа/иконки_закупки/шаг3.png" alt="">
       <h3>Подтверждение наличия бюджета</h3>
-      <div class="сис"><b class="внешняя">Система бюджетирования</b><span>внешняя система</span></div>
+      <div class="сис"><b class="платформа">Система бюджетирования</b></div>
       <div class="ст" data-к="2" style="transition-delay:180ms"><b>Реализован</b></div>
     </div>
     <div class="шаг7 обмен готово" data-к="1">
       <div class="н">04</div>
       <img class="ик" src="медиа/иконки_закупки/шаг4.png" alt="">
       <h3>Поиск товаров внутри ДЗО</h3>
-      <div class="сис"><b class="платформа">KMG AISAP</b><span>модуль AI-Broker</span></div>
+      <div class="сис"><b class="платформа">KMG AISAP</b><span>Модуль «AI-Broker»</span></div>
       <div class="ст" data-к="2" style="transition-delay:270ms"><b>Реализован</b><span>на тестировании</span></div>
     </div>
     <div class="шаг7 работа" data-к="1">
       <div class="н">05</div>
       <img class="ик" src="медиа/иконки_закупки/шаг5.png" alt="">
       <h3>Формирование плана закупок</h3>
-      <div class="сис"><b class="платформа">KMG AISAP</b><span>модуль планирования закупок</span></div>
+      <div class="сис"><b class="платформа">KMG AISAP</b><span>Модуль «Планирование закупок»</span></div>
       <div class="ст" data-к="2" style="transition-delay:360ms"><b>В работе</b><span>срок · 30 октября 2026</span></div>
     </div>
     <div class="шаг7 работа" data-к="1">
@@ -519,7 +530,7 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
       <div class="н">07</div>
       <img class="ик" src="медиа/иконки_закупки/шаг7.png" alt="">
       <h3>Исполнение договорных обязательств</h3>
-      <div class="сис"><b class="платформа">KMG AISAP</b><span>модуль исполнения договоров</span></div>
+      <div class="сис"><b class="платформа">KMG AISAP</b><span>Модуль «Исполнение договоров»</span></div>
       <div class="ст" data-к="2" style="transition-delay:540ms"><b>В работе</b><span>срок · 25 декабря 2026</span></div>
     </div>
   </div>
@@ -527,6 +538,44 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
     <line x1="30" y1="30" x2="1694" y2="30" class="ось"/>
     <path d="M1682 22l12 8-12 8" class="ось"/>
   </svg>
+</section>
+
+<!-- ================= 1б. товары пилота =================
+     Созвон 05.09: отдельным слайдом — список товаров, выбранных для пилота,
+     с кодом АСУ НСИ. Перечень и коды — из таблицы заказчика. -->
+<section class="слайд" id="с1б" aria-label="Товары пилота">
+  <div class="бровь">Пилот · Мангистауэнергомунай</div>
+  <h2 class="заголовок дисплей">Для пилота выбрано 25 товаров</h2>
+  <div class="подзаг">формирование потребности по ним ИИ ведёт полностью автоматически</div>
+  <div class="полотно">
+    <ol class="пилот">
+        <li style="transition-delay:0ms" data-к="1"><i>1</i><b>Вода питьевая 0,5л</b><span>Напитки</span><em>0103.019064</em></li>
+        <li style="transition-delay:35ms" data-к="1"><i>2</i><b>Вода питьевая 19л</b><span>Напитки</span><em>0103.019066</em></li>
+        <li style="transition-delay:70ms" data-к="1"><i>3</i><b>Бензин-растворитель Уайт-спирит ГОСТ 3134-78</b><span>Запчасти к специальной технике</span><em>02030103.031558</em></li>
+        <li style="transition-delay:105ms" data-к="1"><i>4</i><b>Уголок горячекатаный равнополочный 100х100х8мм ст3сп ГОСТ 8509-93</b><span>Стройматериалы</span><em>06030301.526079</em></li>
+        <li style="transition-delay:140ms" data-к="1"><i>5</i><b>Труба электросварная прямошовная 57х3мм ст3сп</b><span>Стройматериалы</span><em>08010201.476634</em></li>
+        <li style="transition-delay:175ms" data-к="1"><i>6</i><b>Лента сигнальная Осторожно кабель 250ммх100м</b><span>Изделия резиновые и пластмассовые</span><em>16050302.466672</em></li>
+        <li style="transition-delay:210ms" data-к="1"><i>7</i><b>Эмаль нитроцеллюлозная НЦ-132 желтый</b><span>Хозяйственные товары</span><em>170101.009063</em></li>
+        <li style="transition-delay:245ms" data-к="1"><i>8</i><b>Мыло хозяйственное 72% 250г</b><span>Хозяйственные товары</span><em>17080501.022814</em></li>
+        <li style="transition-delay:280ms" data-к="1"><i>9</i><b>Выключатель автоматический Iном.32А Iоткл.6кА Uном.230В 1р IP20</b><span>Оборудование электрическое</span><em>2302020101.009044</em></li>
+        <li style="transition-delay:315ms" data-к="1"><i>10</i><b>Фотореле электронное ФР-1</b><span>Запчасти к специальной технике</span><em>2302060111.023159</em></li>
+        <li style="transition-delay:350ms" data-к="1"><i>11</i><b>Электропатрон карболитовый E27</b><span>Осветительное оборудование</span><em>2306020104.017928</em></li>
+        <li style="transition-delay:385ms" data-к="1"><i>12</i><b>Зажим аппаратный А2А-35</b><span>Оборудование электрическое</span><em>2306020302.027248</em></li>
+        <li style="transition-delay:420ms" data-к="1"><i>13</i><b>Наконечник кабельный ТМЛ-35-10-10 35мм2 медный</b><span>Электротехнические изделия</span><em>23060203040104.463656</em></li>
+        <li style="transition-delay:455ms" data-к="1"><i>14</i><b>Перемычка ПГС 25-560 гибкая</b><span>Электротехнические изделия</span><em>23060205.468022</em></li>
+        <li style="transition-delay:490ms" data-к="1"><i>15</i><b>Изолятор штырьевой фарфоровый ШФ 20-Г</b><span>Электроизоляционные материалы</span><em>2308030102.461396</em></li>
+        <li style="transition-delay:525ms" data-к="1"><i>16</i><b>Колпачок К-9</b><span>Изделия резиновые и пластмассовые</span><em>2308030401.037121</em></li>
+        <li style="transition-delay:560ms" data-к="1"><i>17</i><b>Провод СИП-3 1х35</b><span>Кабель</span><em>240404.022178</em></li>
+        <li style="transition-delay:595ms" data-к="1"><i>18</i><b>Ножовка по металлу 300х1мм</b><span>Инструменты</span><em>2807020109.036828</em></li>
+        <li style="transition-delay:630ms" data-к="1"><i>19</i><b>Картридж CE285A черный</b><span>Офисная оргтехника с комплектующими и расходными материалами к ним</span><em>290607.022210</em></li>
+        <li style="transition-delay:665ms" data-к="1"><i>20</i><b>Бумага A4 80г/м2 500л.</b><span>Канцелярские товары</span><em>420101.010604</em></li>
+        <li style="transition-delay:700ms" data-к="1"><i>21</i><b>Бумага туалетная 2-слойная 17м</b><span>Хозяйственные товары</span><em>420119.488106</em></li>
+        <li style="transition-delay:735ms" data-к="1"><i>22</i><b>Опора железобетонная СВ 164-12 16400мм</b><span>Стройматериалы</span><em>460801.442296</em></li>
+        <li style="transition-delay:770ms" data-к="1"><i>23</i><b>Каска защитная белая р.52-65</b><span>Средства индивидуальной защиты</span><em>6109.436815</em></li>
+        <li style="transition-delay:805ms" data-к="1"><i>24</i><b>Кисть плоская 50мм натуральная</b><span>Инструменты</span><em>74060201.018267</em></li>
+        <li style="transition-delay:840ms" data-к="1"><i>25</i><b>Знак безопасности Заземление круглый 50мм металл</b><span>Знаки, указатели</span><em>74080803.551988</em></li>
+    </ol>
+  </div>
 </section>
 
 <!-- ================= 1. ИИ формирует потребность =================
@@ -593,41 +642,14 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
   </div>
 </section>
 
-<!-- ================= 1б. товары пилота =================
-     Созвон 05.09: отдельным слайдом — список товаров, выбранных для пилота,
-     с кодом АСУ НСИ. Перечень и коды — из таблицы заказчика. -->
-<section class="слайд" id="с1б" aria-label="Товары пилота">
-  <div class="бровь">Пилот · Мангистауэнергомунай</div>
-  <h2 class="заголовок дисплей">Для пилота выбрано 25 товаров</h2>
-  <div class="подзаг">формирование потребности по ним ИИ ведёт полностью автоматически</div>
+<!-- ================= 1с. скрин: потребность в системе =================
+     Созвон 05.09 (второй): после «формирует потребность» — скрин DS Warehouse.
+     Меню, имя системы и ФИО отрезаны по просьбе заказчика; оригинал в папке
+     материалов, не в репозитории. -->
+<section class="слайд" id="с1с" aria-label="Скрин шага 1">
+  <div class="бровь">Шаг 1 · так это выглядит в системе</div>
   <div class="полотно">
-    <ol class="пилот">
-        <li style="transition-delay:0ms" data-к="1"><i>1</i><b>Вода питьевая 0,5л</b><span>Напитки</span><em>0103.019064</em></li>
-        <li style="transition-delay:35ms" data-к="1"><i>2</i><b>Вода питьевая 19л</b><span>Напитки</span><em>0103.019066</em></li>
-        <li style="transition-delay:70ms" data-к="1"><i>3</i><b>Бензин-растворитель Уайт-спирит ГОСТ 3134-78</b><span>Запчасти к специальной технике</span><em>02030103.031558</em></li>
-        <li style="transition-delay:105ms" data-к="1"><i>4</i><b>Уголок горячекатаный равнополочный 100х100х8мм ст3сп ГОСТ 8509-93</b><span>Стройматериалы</span><em>06030301.526079</em></li>
-        <li style="transition-delay:140ms" data-к="1"><i>5</i><b>Труба электросварная прямошовная 57х3мм ст3сп</b><span>Стройматериалы</span><em>08010201.476634</em></li>
-        <li style="transition-delay:175ms" data-к="1"><i>6</i><b>Лента сигнальная Осторожно кабель 250ммх100м</b><span>Изделия резиновые и пластмассовые</span><em>16050302.466672</em></li>
-        <li style="transition-delay:210ms" data-к="1"><i>7</i><b>Эмаль нитроцеллюлозная НЦ-132 желтый</b><span>Хозяйственные товары</span><em>170101.009063</em></li>
-        <li style="transition-delay:245ms" data-к="1"><i>8</i><b>Мыло хозяйственное 72% 250г</b><span>Хозяйственные товары</span><em>17080501.022814</em></li>
-        <li style="transition-delay:280ms" data-к="1"><i>9</i><b>Выключатель автоматический Iном.32А Iоткл.6кА Uном.230В 1р IP20</b><span>Оборудование электрическое</span><em>2302020101.009044</em></li>
-        <li style="transition-delay:315ms" data-к="1"><i>10</i><b>Фотореле электронное ФР-1</b><span>Запчасти к специальной технике</span><em>2302060111.023159</em></li>
-        <li style="transition-delay:350ms" data-к="1"><i>11</i><b>Электропатрон карболитовый E27</b><span>Осветительное оборудование</span><em>2306020104.017928</em></li>
-        <li style="transition-delay:385ms" data-к="1"><i>12</i><b>Зажим аппаратный А2А-35</b><span>Оборудование электрическое</span><em>2306020302.027248</em></li>
-        <li style="transition-delay:420ms" data-к="1"><i>13</i><b>Наконечник кабельный ТМЛ-35-10-10 35мм2 медный</b><span>Электротехнические изделия</span><em>23060203040104.463656</em></li>
-        <li style="transition-delay:455ms" data-к="1"><i>14</i><b>Перемычка ПГС 25-560 гибкая</b><span>Электротехнические изделия</span><em>23060205.468022</em></li>
-        <li style="transition-delay:490ms" data-к="1"><i>15</i><b>Изолятор штырьевой фарфоровый ШФ 20-Г</b><span>Электроизоляционные материалы</span><em>2308030102.461396</em></li>
-        <li style="transition-delay:525ms" data-к="1"><i>16</i><b>Колпачок К-9</b><span>Изделия резиновые и пластмассовые</span><em>2308030401.037121</em></li>
-        <li style="transition-delay:560ms" data-к="1"><i>17</i><b>Провод СИП-3 1х35</b><span>Кабель</span><em>240404.022178</em></li>
-        <li style="transition-delay:595ms" data-к="1"><i>18</i><b>Ножовка по металлу 300х1мм</b><span>Инструменты</span><em>2807020109.036828</em></li>
-        <li style="transition-delay:630ms" data-к="1"><i>19</i><b>Картридж CE285A черный</b><span>Офисная оргтехника с комплектующими и расходными материалами к ним</span><em>290607.022210</em></li>
-        <li style="transition-delay:665ms" data-к="1"><i>20</i><b>Бумага A4 80г/м2 500л.</b><span>Канцелярские товары</span><em>420101.010604</em></li>
-        <li style="transition-delay:700ms" data-к="1"><i>21</i><b>Бумага туалетная 2-слойная 17м</b><span>Хозяйственные товары</span><em>420119.488106</em></li>
-        <li style="transition-delay:735ms" data-к="1"><i>22</i><b>Опора железобетонная СВ 164-12 16400мм</b><span>Стройматериалы</span><em>460801.442296</em></li>
-        <li style="transition-delay:770ms" data-к="1"><i>23</i><b>Каска защитная белая р.52-65</b><span>Средства индивидуальной защиты</span><em>6109.436815</em></li>
-        <li style="transition-delay:805ms" data-к="1"><i>24</i><b>Кисть плоская 50мм натуральная</b><span>Инструменты</span><em>74060201.018267</em></li>
-        <li style="transition-delay:840ms" data-к="1"><i>25</i><b>Знак безопасности Заземление круглый 50мм металл</b><span>Знаки, указатели</span><em>74080803.551988</em></li>
-    </ol>
+    <div class="скрин" style="left:62px;top:0;width:1600px" data-к="1"><img src="медиа/скрины_закупки/шаг1_потребность.png" alt=""></div>
   </div>
 </section>
 
@@ -745,6 +767,32 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
     </div>
   </div>
 
+</section>
+
+<!-- ================= 2с. скрины: маркетинг цен и бюджет =================
+     Четыре экрана системы маркетинга на одном слайде — порядок со слов
+     заказчика: заявки из МЭМ → заявка и её шаги → поставщики → закрытые.
+     Потом отдельный скрин: статус «Бюджетирование завершено» вернулся в МЭМ. -->
+<section class="слайд" id="с2с" aria-label="Скрины шага 2">
+  <div class="бровь">Шаг 2 · так это выглядит в системе</div>
+  <div class="полотно">
+    <div class="четыре">
+      <figure class="скрин" data-к="1" style="transition-delay:0ms"><img src="медиа/скрины_закупки/шаг2_заявки.png" alt=""><figcaption>1 · Заявки пришли из МЭМ — 218, идёт маркетинговое исследование</figcaption></figure>
+      <figure class="скрин" data-к="1" style="transition-delay:150ms"><img src="медиа/скрины_закупки/шаг2_заявка.png" alt=""><figcaption>2 · Заявка: шаги workflow выполняются автоматически</figcaption></figure>
+      <figure class="скрин" data-к="1" style="transition-delay:300ms"><img src="медиа/скрины_закупки/шаг2_поставщики.png" alt=""><figcaption>3 · Подобраны поставщики — 85, приглашения отправлены</figcaption></figure>
+      <figure class="скрин" data-к="1" style="transition-delay:450ms"><img src="медиа/скрины_закупки/шаг2_закрытые.png" alt=""><figcaption>4 · Закрытые заявки: маркетинговое исследование завершено</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<section class="слайд" id="с3с" aria-label="Скрин шага 3">
+  <div class="бровь">Шаг 3 · так это выглядит в системе</div>
+  <div class="полотно">
+    <div class="скрин" style="left:62px;top:0;width:1600px" data-к="1"><img src="медиа/скрины_закупки/шаг3_бюджет.png" alt="">
+      <div class="рамка" style="left:0;top:87.4%;width:100%;height:6.6%" data-к="2"></div>
+      <div class="подпись_рамки" style="right:16px;top:79%" data-к="2">Бюджетирование завершено · наличие в бюджете: Да</div>
+    </div>
+  </div>
 </section>
 
 <!-- ================= 4. AI-Broker =================
@@ -936,31 +984,31 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
       <div class="заг">Модуль исполнения договоров <span class="ии">AI</span></div>
       <div class="статус" data-к="1" style="margin-top:10px">договор принят · карточка договора сформирована автоматически</div>
       <svg viewBox="0 0 680 330" class="лента" style="margin-top:6px;width:1000px;height:485px;display:block;margin-left:auto;margin-right:auto">
-        <!-- 2. даты из договора -->
+        <!-- 2. даты из договора: потребность на 1 января, поставка и платёж — в конце декабря -->
         <line x1="20" y1="110" x2="660" y2="110" class="ось" data-к="2"/>
         <g data-к="2" style="transition-delay:250ms">
-          <circle cx="170" cy="110" r="8" class="веха"/><text x="170" y="86" class="т" text-anchor="middle">платёж</text><text x="170" y="134" class="т мята" text-anchor="middle">до 15.02.2027</text>
-          <circle cx="430" cy="110" r="8" class="веха"/><text x="430" y="86" class="т" text-anchor="middle">поставка</text><text x="430" y="134" class="т мята" text-anchor="middle" data-к="2" data-до="3">до 01.03.2027</text>
-          <circle cx="620" cy="110" r="8" class="веха"/><text x="620" y="86" class="т" text-anchor="middle">закрытие</text>
+          <circle cx="330" cy="110" r="8" class="веха"/><text x="330" y="86" class="т" text-anchor="middle">поставка</text><text x="330" y="134" class="т мята" text-anchor="middle" data-к="2" data-до="3">до 28.12.2026</text>
+          <circle cx="510" cy="110" r="8" class="веха"/><text x="510" y="86" class="т" text-anchor="middle">платёж</text><text x="510" y="134" class="т мята" text-anchor="middle" data-к="2" data-до="5">до 30.12.2026</text>
+          <circle cx="630" cy="110" r="8" class="веха"/><text x="630" y="86" class="т" text-anchor="middle">закрытие</text>
         </g>
         <g data-к="2" style="transition-delay:500ms">
           <text x="20" y="168" class="т">Модуль сам достаёт из договора:</text>
-          <text x="20" y="190" class="т">· график платежей</text>
-          <text x="20" y="212" class="т">· график поставок</text>
+          <text x="20" y="190" class="т">· график поставок</text>
+          <text x="20" y="212" class="т">· график платежей</text>
           <text x="20" y="234" class="т">· перечень закрывающих документов</text>
         </g>
         <!-- 3. напоминание -->
         <g data-к="3">
-          <path d="M338 96c0-9 6-14 12-14s12 5 12 14v10h-24z" class="колокол"/><circle cx="350" cy="110" r="3" class="колокол"/>
-          <text x="350" y="58" class="т мята" text-anchor="middle">за 10 дней до поставки: уведомляет заказчика, напоминает поставщику</text>
+          <path d="M228 96c0-9 6-14 12-14s12 5 12 14v10h-24z" class="колокол"/><circle cx="240" cy="110" r="3" class="колокол"/>
+          <text x="240" y="58" class="т мята" text-anchor="middle">за 10 дней до поставки: уведомляет заказчика, напоминает поставщику</text>
         </g>
-        <!-- 4. поставка: груз идёт по оси от платежа к поставке -->
+        <!-- 4. поставка: груз идёт по оси к вехе поставки -->
         <g class="груз" data-к="4">
-          <rect x="156" y="94" width="28" height="18" rx="3" class="кузов"/><rect x="184" y="100" width="10" height="12" rx="2" class="кузов"/>
-          <circle cx="164" cy="114" r="4" class="колесо"/><circle cx="186" cy="114" r="4" class="колесо"/>
+          <rect x="40" y="94" width="28" height="18" rx="3" class="кузов"/><rect x="68" y="100" width="10" height="12" rx="2" class="кузов"/>
+          <circle cx="48" cy="114" r="4" class="колесо"/><circle cx="70" cy="114" r="4" class="колесо"/>
         </g>
-        <circle cx="430" cy="110" r="8" class="веха выполнено" data-к="4" style="transition-delay:1400ms"/>
-        <text x="430" y="134" class="т мята" text-anchor="middle" data-к="4" style="transition-delay:1400ms">поставлено ✓</text>
+        <circle cx="330" cy="110" r="8" class="веха выполнено" data-к="4" style="transition-delay:1400ms"/>
+        <text x="330" y="134" class="т мята" text-anchor="middle" data-к="4" style="transition-delay:1400ms">поставлено ✓</text>
         <!-- 5. проверка документов -->
         <g data-к="5">
           <text x="300" y="178" class="т">проверяет закрывающие документы</text>
@@ -977,16 +1025,18 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
           <path d="M480 190h20l8 8v30h-28z" class="док"/><path d="M500 190v8h8" class="док"/><path d="M486 214l5 5 10-10" class="галка" style="transition-delay:1100ms"/>
           <text x="494" y="244" class="т" text-anchor="middle">акт</text>
         </g>
-        <!-- 6. акты подписаны — или претензия -->
+        <!-- 6. документы в порядке — платёж -->
+        <circle cx="510" cy="110" r="8" class="веха выполнено" data-к="6" style="transition-delay:300ms"/>
+        <text x="510" y="134" class="т мята" text-anchor="middle" data-к="6" style="transition-delay:300ms">платёж проведён ✓</text>
         <g data-к="6">
           <text x="300" y="276" class="т мята">документы в порядке — акты подписаны, платёж проведён</text>
           <text x="20" y="316" class="т серый">если поставки к сроку нет — претензионное письмо поставщику, автоматически</text>
         </g>
         <!-- 7. исполнен -->
         <g data-к="7">
-          <circle cx="620" cy="110" r="22" class="круг мята"/><circle cx="620" cy="110" r="15" class="круг мята"/>
-          <path d="M612 111l6 6 11-11" class="галка мята"/>
-          <text x="620" y="152" class="т мята" text-anchor="middle">договор исполнен</text>
+          <circle cx="630" cy="110" r="20" class="круг мята"/><circle cx="630" cy="110" r="14" class="круг мята"/>
+          <path d="M623 111l5 5 10-10" class="галка мята"/>
+          <text x="676" y="156" class="т мята" text-anchor="end">договор исполнен</text>
         </g>
       </svg>
     </div>
