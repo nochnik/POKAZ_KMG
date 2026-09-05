@@ -248,7 +248,7 @@ svg .сбор[data-к]{transform:none}
 .участник b{font-size:12.5px;color:var(--текст2);font-weight:600}
 .галка{fill:none;stroke:var(--мята);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;
   stroke-dasharray:30;stroke-dashoffset:30;transition:stroke-dashoffset .5s ease}
-.участник.включён .галка,.галка.включён{stroke-dashoffset:0}
+.участник.включён .галка,.документ.включён .галка,.галка.включён{stroke-dashoffset:0}
 .участник.победитель{border-color:rgba(62,213,152,.6);box-shadow:0 0 18px rgba(62,213,152,.35)}
 .участник.победитель b{color:var(--мята)}
 .участник.победитель::after{content:"выбран";font-size:11px;color:var(--мята)}
@@ -269,6 +269,14 @@ svg .сбор[data-к]{transform:none}
 .лента .крест{stroke:var(--приглуш);stroke-width:2;fill:none}
 .лента .галка.мята{stroke:var(--мята);stroke-dashoffset:0}
 .лента g[data-к]{transition:opacity .5s ease}
+/* шаг 7: груз едет по оси от платежа к поставке; веха поставки загорается мятой */
+.лента .кузов{fill:rgba(2,174,240,.2);stroke:var(--кмг);stroke-width:1.6}
+.лента .колесо{fill:var(--фон0);stroke:var(--кмг);stroke-width:1.6}
+.лента .груз[data-к]{transform:translate(0,0);transition:opacity .4s ease,transform 1.3s cubic-bezier(.4,0,.2,1)}
+.лента .груз[data-к].включён{transform:translate(218px,0)}
+.лента .веха.выполнено{fill:rgba(62,213,152,.25);stroke:var(--мята)}
+.лента .документ .док{fill:rgba(2,174,240,.14)}
+.лента .т.серый{fill:var(--приглуш)}
 svg .ось[data-к]{transform:none}
 .карточка.календ b{font-size:15px}
 
@@ -299,13 +307,13 @@ svg .ось[data-к]{transform:none}
 .шаг7 .сис b.платформа{color:var(--кмг)}
 .шаг7 .сис span{display:block;margin-top:4px}
 /* семь шагов открываются одним нажатием — каскадом слева направо */
-.семь .шаг7:nth-child(1){transition-delay:0s}
-.семь .шаг7:nth-child(2){transition-delay:.11s}
-.семь .шаг7:nth-child(3){transition-delay:.22s}
-.семь .шаг7:nth-child(4){transition-delay:.33s}
-.семь .шаг7:nth-child(5){transition-delay:.44s}
-.семь .шаг7:nth-child(6){transition-delay:.55s}
-.семь .шаг7:nth-child(7){transition-delay:.66s}
+.семь .шаг7:nth-child(3){transition-delay:0s}
+.семь .шаг7:nth-child(4){transition-delay:.11s}
+.семь .шаг7:nth-child(5){transition-delay:.22s}
+.семь .шаг7:nth-child(6){transition-delay:.33s}
+.семь .шаг7:nth-child(7){transition-delay:.44s}
+.семь .шаг7:nth-child(8){transition-delay:.55s}
+.семь .шаг7:nth-child(9){transition-delay:.66s}
 .лента7{transition-delay:.8s}
 /* полосы над колонками: четыре реализованных шага и три в работе */
 .семь .полоса{font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--приглуш);padding-bottom:10px;
@@ -914,41 +922,71 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
       </defs>
       <path class="поток" pathLength="1" marker-end="url(#стрелка_циан5)" d="M330 200 H392" data-к="1"/>
     </svg>
+    <!-- кадр 0: договор с прошлого слайда -->
     <div class="карточка договор" style="left:0;top:150px;width:330px" data-к="0">
       <svg viewBox="0 0 64 64" class="печать"><circle cx="32" cy="32" r="28" class="круг"/><circle cx="32" cy="32" r="20" class="круг"/>
         <path d="M20 33l8 8 16-16" class="галка включён"/></svg>
       <div><b>Договор заключён</b><span>с выбранным поставщиком</span></div>
     </div>
-    <!-- модуль исполнения -->
+
+    <!-- кадры 1–7: модуль забирает договор → даты → напоминание → поставка → документы → акты → исполнен.
+         Как именно устроен модуль, заказчик не подтверждал; сцена — по его описанию карточки договора. -->
     <div class="склад" style="left:400px;top:40px;width:1324px" data-к="1">
       <div class="имя">Шаг 7 · KMG AISAP</div>
       <div class="заг">Модуль исполнения договоров <span class="ии">AI</span></div>
-      <svg viewBox="0 0 680 350" class="лента" style="margin-top:14px;width:1000px;height:515px;display:block;margin-left:auto;margin-right:auto">
-        <line x1="20" y1="142" x2="660" y2="142" class="ось" data-к="1"/>
-        <g data-к="1" style="transition-delay:200ms">
-          <circle cx="140" cy="142" r="8" class="веха"/><text x="140" y="118" class="т" text-anchor="middle">платёж</text>
-          <circle cx="400" cy="142" r="8" class="веха"/><text x="400" y="118" class="т" text-anchor="middle">поставка</text>
-          <text x="20" y="184" class="т">Карточка договора — из договора, сама:</text>
-          <text x="20" y="206" class="т">· график платежей</text>
-          <text x="20" y="228" class="т">· график поставок</text>
-          <text x="20" y="250" class="т">· перечень закрывающих документов</text>
+      <div class="статус" data-к="1" style="margin-top:10px">договор принят · карточка договора сформирована автоматически</div>
+      <svg viewBox="0 0 680 330" class="лента" style="margin-top:6px;width:1000px;height:485px;display:block;margin-left:auto;margin-right:auto">
+        <!-- 2. даты из договора -->
+        <line x1="20" y1="110" x2="660" y2="110" class="ось" data-к="2"/>
+        <g data-к="2" style="transition-delay:250ms">
+          <circle cx="170" cy="110" r="8" class="веха"/><text x="170" y="86" class="т" text-anchor="middle">платёж</text><text x="170" y="134" class="т мята" text-anchor="middle">до 15.02.2027</text>
+          <circle cx="430" cy="110" r="8" class="веха"/><text x="430" y="86" class="т" text-anchor="middle">поставка</text><text x="430" y="134" class="т мята" text-anchor="middle" data-к="2" data-до="3">до 01.03.2027</text>
+          <circle cx="620" cy="110" r="8" class="веха"/><text x="620" y="86" class="т" text-anchor="middle">закрытие</text>
         </g>
-        <g data-к="2">
-          <path d="M330 128c0-9 6-14 12-14s12 5 12 14v10h-24z" class="колокол"/><circle cx="342" cy="142" r="3" class="колокол"/>
-          <text x="342" y="90" class="т мята" text-anchor="middle">за 10 дней: уведомляет заказчика, напоминает поставщику</text>
+        <g data-к="2" style="transition-delay:500ms">
+          <text x="20" y="168" class="т">Модуль сам достаёт из договора:</text>
+          <text x="20" y="190" class="т">· график платежей</text>
+          <text x="20" y="212" class="т">· график поставок</text>
+          <text x="20" y="234" class="т">· перечень закрывающих документов</text>
         </g>
+        <!-- 3. напоминание -->
         <g data-к="3">
-          <path d="M400 150v78" class="ось"/>
-          <path d="M400 228L289 271" class="ось мята"/><path d="M400 228L445 265" class="ось серая"/>
-          <circle cx="270" cy="278" r="16" class="круг мята"/><path d="M262 278l6 6 10-10" class="галка мята"/>
-          <text x="270" y="314" class="т мята" text-anchor="middle">поставлено — акты и</text><text x="270" y="330" class="т мята" text-anchor="middle">закрывающие документы</text>
-          <circle cx="460" cy="278" r="16" class="круг серая"/><path d="M454 272l12 12M466 272l-12 12" class="крест"/>
-          <text x="460" y="314" class="т" text-anchor="middle">нет — претензионное</text><text x="460" y="330" class="т" text-anchor="middle">письмо</text>
+          <path d="M338 96c0-9 6-14 12-14s12 5 12 14v10h-24z" class="колокол"/><circle cx="350" cy="110" r="3" class="колокол"/>
+          <text x="350" y="58" class="т мята" text-anchor="middle">за 10 дней до поставки: уведомляет заказчика, напоминает поставщику</text>
         </g>
-        <g data-к="4">
-          <circle cx="598" cy="278" r="26" class="круг мята"/><circle cx="598" cy="278" r="19" class="круг мята"/>
-          <path d="M587 279l7 7 15-15" class="галка мята"/>
-          <text x="598" y="330" class="т мята" text-anchor="middle">договор исполнен</text>
+        <!-- 4. поставка: груз идёт по оси от платежа к поставке -->
+        <g class="груз" data-к="4">
+          <rect x="156" y="94" width="28" height="18" rx="3" class="кузов"/><rect x="184" y="100" width="10" height="12" rx="2" class="кузов"/>
+          <circle cx="164" cy="114" r="4" class="колесо"/><circle cx="186" cy="114" r="4" class="колесо"/>
+        </g>
+        <circle cx="430" cy="110" r="8" class="веха выполнено" data-к="4" style="transition-delay:1400ms"/>
+        <text x="430" y="134" class="т мята" text-anchor="middle" data-к="4" style="transition-delay:1400ms">поставлено ✓</text>
+        <!-- 5. проверка документов -->
+        <g data-к="5">
+          <text x="300" y="178" class="т">проверяет закрывающие документы</text>
+        </g>
+        <g class="документ" data-к="5" style="transition-delay:200ms">
+          <path d="M300 190h20l8 8v30h-28z" class="док"/><path d="M320 190v8h8" class="док"/><path d="M306 214l5 5 10-10" class="галка" style="transition-delay:600ms"/>
+          <text x="314" y="244" class="т" text-anchor="middle">накладная</text>
+        </g>
+        <g class="документ" data-к="5" style="transition-delay:450ms">
+          <path d="M390 190h20l8 8v30h-28z" class="док"/><path d="M410 190v8h8" class="док"/><path d="M396 214l5 5 10-10" class="галка" style="transition-delay:850ms"/>
+          <text x="404" y="244" class="т" text-anchor="middle">счёт-фактура</text>
+        </g>
+        <g class="документ" data-к="5" style="transition-delay:700ms">
+          <path d="M480 190h20l8 8v30h-28z" class="док"/><path d="M500 190v8h8" class="док"/><path d="M486 214l5 5 10-10" class="галка" style="transition-delay:1100ms"/>
+          <text x="494" y="244" class="т" text-anchor="middle">акт</text>
+        </g>
+        <!-- 6. акты подписаны — или претензия -->
+        <g data-к="6">
+          <text x="300" y="276" class="т мята">документы в порядке — акты подписаны, платёж проведён</text>
+          <text x="20" y="316" class="т серый">если поставки к сроку нет — претензионное письмо поставщику, автоматически</text>
+        </g>
+        <!-- 7. исполнен -->
+        <g data-к="7">
+          <circle cx="620" cy="110" r="22" class="круг мята"/><circle cx="620" cy="110" r="15" class="круг мята"/>
+          <path d="M612 111l6 6 11-11" class="галка мята"/>
+          <text x="620" y="152" class="т мята" text-anchor="middle">договор исполнен</text>
         </g>
       </svg>
     </div>
