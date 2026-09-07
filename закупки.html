@@ -47,12 +47,14 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 #кадр{width:1920px;height:1080px;position:absolute;left:50%;top:50%;
   margin-left:-960px;margin-top:-540px;transform-origin:center center;
   background:var(--фон0);overflow:hidden}
-#кадр::before{content:"";position:absolute;inset:0;pointer-events:none;
+#кадр::before{content:"";position:absolute;inset:0;pointer-events:none;z-index:0;
   background:
     radial-gradient(1200px 620px at 50% -12%, rgba(2,174,240,.14), transparent 68%),
     radial-gradient(900px 520px at 92% 108%, rgba(62,213,152,.07), transparent 70%),
     linear-gradient(180deg, #060B16 0%, var(--фон0) 55%, #04070E 100%)}
-#кадр::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:.5;
+/* фоновая сетка лежала поверх слайдов (псевдоэлемент рисуется после содержимого) —
+   на скринах систем читалась как клетка. Слои: фон под, слайды и футер над. */
+#кадр::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:.5;z-index:0;
   background-image:
     linear-gradient(rgba(27,46,72,.30) 1px, transparent 1px),
     linear-gradient(90deg, rgba(27,46,72,.30) 1px, transparent 1px);
@@ -459,6 +461,7 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
   .низ{position:absolute}
   -webkit-print-color-adjust:exact;print-color-adjust:exact
 }
+.слайд,.низ{z-index:1}
 </style>
 </head>
 <body>
