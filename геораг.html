@@ -152,6 +152,20 @@ svg .поток[data-к]{transform:none}
 .качество{border-top:2px solid rgba(62,213,152,.5);padding-top:18px}
 .качество b{display:block;font-size:24px;color:var(--мята)}
 .качество span{display:block;margin-top:8px;font-size:17px;line-height:1.5;color:var(--текст2)}
+/* скрин системы с описанием справа; рамки — подсветка по кадрам (как в закупках) */
+.полотно.экран{display:flex;gap:40px;align-items:flex-start}
+.экран .скрин{position:relative;flex:0 0 auto;border:1.5px solid rgba(2,174,240,.45);border-radius:14px;overflow:hidden;
+  background:#0C1626;box-shadow:0 0 40px rgba(2,174,240,.18)}
+.экран .скрин img{display:block;max-height:740px;width:auto;max-width:1240px}
+.скрин .рамка{position:absolute;border:2.5px solid var(--мята);border-radius:6px;box-shadow:0 0 0 4px rgba(62,230,184,.18),0 0 24px rgba(62,230,184,.5)}
+.скрин .подпись_рамки{position:absolute;font-size:14px;font-weight:700;color:var(--мята);padding:5px 11px;border-radius:999px;
+  background:rgba(5,8,16,.88);border:1px solid rgba(62,230,184,.6);white-space:nowrap}
+.что_ии{flex:1 1 auto;min-width:380px;padding-top:6px}
+.что_ии .имя{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--приглуш)}
+.что_ии h3{margin-top:12px;font-size:28px;line-height:1.25;font-weight:700}
+.что_ии ul{margin:22px 0 0;padding:0;list-style:none}
+.что_ии li{position:relative;padding-left:26px;margin-top:14px;font-size:19px;line-height:1.4;color:var(--текст2)}
+.что_ии li::before{content:"";position:absolute;left:0;top:11px;width:10px;height:10px;border-radius:50%;background:var(--мята);box-shadow:0 0 10px rgba(62,230,184,.7)}
 .итог_стр{margin-top:44px;margin-bottom:auto;font-size:22px;line-height:1.45;color:var(--текст);max-width:1600px}
 .итог_стр b{color:var(--кмг);font-weight:600}
 
@@ -264,6 +278,32 @@ svg .поток[data-к]{transform:none}
       <div class="ссылки"><span>Отчёт по разведке Тасбулак, 2023 — стр. 47, табл. 12</span><span>Каротаж скв. 14, 2019 — лист 3</span></div>
       <div class="время">ответ со ссылками на документ и страницу — без галлюцинаций</div>
     </div>
+  </div>
+</section>
+
+<!-- ================= 1с. так это выглядит =================
+     Правка 07.09: скрин из живой системы. Геолог спросил словами — ассистент
+     ответил структурой из книги с точной ссылкой (Еременко, 1968, гл. VII,
+     с. 368). Рамки подсвечивают вопрос и ссылку на источник по кадрам. -->
+<section class="слайд" id="с1с" aria-label="Скрин ассистента">
+  <div class="бровь">Geological RAG · так это выглядит в системе</div>
+  <div class="полотно экран">
+    <div class="скрин" data-к="1"><img src="медиа/скрины_геораг/ассистент.png" alt="">
+      <div class="рамка" style="left:26.2%;top:7.6%;width:72.4%;height:4.4%" data-к="2"></div>
+      <div class="подпись_рамки" style="left:26.2%;top:1.2%" data-к="2">вопрос словами</div>
+      <div class="рамка" style="left:55.6%;top:15.6%;width:40.2%;height:4.2%" data-к="3"></div>
+      <div class="подпись_рамки" style="right:1.6%;top:20.6%" data-к="3">ссылка на источник: книга, глава, страница</div>
+    </div>
+    <aside class="что_ии" data-к="4">
+      <div class="имя">Что делает ассистент</div>
+      <h3>Вопрос словами — ответ со ссылкой</h3>
+      <ul>
+        <li>Геолог спросил: «Какие типы залежей бывают?»</li>
+        <li>Ассистент нашёл ответ в базе знаний и назвал источник: Еременко, «Геология нефти и газа», 1968, глава VII, с. 368</li>
+        <li>Ответ структурирован: три группы залежей по Броду, подгруппы, примеры месторождений</li>
+        <li>Открытая модель работает внутри контура — ответ за секунды, данные наружу не уходят</li>
+      </ul>
+    </aside>
   </div>
 </section>
 
