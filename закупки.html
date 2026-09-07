@@ -389,10 +389,17 @@ svg .ось[data-к]{transform:none}
 .скрин .рамка{position:absolute;border:2.5px solid var(--мята);border-radius:6px;box-shadow:0 0 0 4px rgba(62,230,184,.18),0 0 24px rgba(62,230,184,.5)}
 .скрин .подпись_рамки{position:absolute;font-size:15px;font-weight:700;color:var(--мята);padding:6px 12px;border-radius:999px;
   background:rgba(5,8,16,.85);border:1px solid rgba(62,230,184,.6)}
-.четыре{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:20px 24px;height:740px}
-.четыре .скрин{position:relative;margin:0;display:flex;flex-direction:column}
-.четыре .скрин img{flex:1 1 0px;height:0;object-fit:cover;object-position:top;min-height:0}
-.четыре figcaption{flex:0 0 auto;padding:8px 14px;font-size:14px;color:var(--текст);background:rgba(2,174,240,.14);border-top:1px solid rgba(2,174,240,.35)}
+/* один скрин на слайд, справа — что делает ИИ; картинка в исходном разрешении, не ужата */
+.полотно.экран{display:flex;gap:40px;align-items:flex-start}
+.экран .скрин{position:relative;flex:0 0 auto;max-width:1220px}
+.экран .скрин img{max-height:760px;width:auto;max-width:1220px}
+.что_ии{flex:1 1 auto;min-width:380px;padding-top:6px}
+.что_ии .имя{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--приглуш)}
+.что_ии h3{margin-top:12px;font-size:28px;line-height:1.25;font-weight:700}
+.что_ии ul{margin:22px 0 0;padding:0;list-style:none}
+.что_ии li{position:relative;padding-left:26px;margin-top:14px;font-size:19px;line-height:1.4;color:var(--текст2)}
+.что_ии li::before{content:"";position:absolute;left:0;top:11px;width:10px;height:10px;border-radius:50%;background:var(--мята);box-shadow:0 0 10px rgba(62,230,184,.7)}
+.что_ии li:nth-child(1){transition-delay:.05s}.что_ии li:nth-child(2){transition-delay:.15s}.что_ии li:nth-child(3){transition-delay:.25s}.что_ии li:nth-child(4){transition-delay:.35s}.что_ии li:nth-child(5){transition-delay:.45s}
 .след{position:absolute;font-size:16px;line-height:1.45;color:var(--текст2);border-left:2px solid var(--кмг);padding-left:14px}
 /* шаг 1: шина сбора */
 .сбор.шина{opacity:.35}
@@ -646,10 +653,22 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
      Созвон 05.09 (второй): после «формирует потребность» — скрин DS Warehouse.
      Меню, имя системы и ФИО отрезаны по просьбе заказчика; оригинал в папке
      материалов, не в репозитории. -->
-<section class="слайд" id="с1с" aria-label="Скрин шага 1">
+<section class="слайд" id="с1с" aria-label="Шаг 1 · так это выглядит в системе">
   <div class="бровь">Шаг 1 · так это выглядит в системе</div>
-  <div class="полотно">
-    <div class="скрин" style="left:62px;top:0;width:1600px" data-к="1"><img src="медиа/скрины_закупки/шаг1_потребность.png" alt=""></div>
+  <div class="полотно экран">
+    <div class="скрин" data-к="1"><img src="медиа/скрины_закупки/шаг1_потребность.png" alt="">
+    </div>
+    <aside class="что_ии" data-к="2">
+      <div class="имя">Что делает ИИ</div>
+      <h3>Потребность на 2027 год рассчитана и зафиксирована</h3>
+      <ul>
+        <li>Запуск по расписанию — без заявки от человека</li>
+        <li>Спрогнозировал потребление по истории и нормам</li>
+        <li>Учёл текущий остаток и уровни min-max</li>
+        <li>Сформировал документ: 15 позиций, ABC-класс по каждой</li>
+        <li>Статус «Маркетинг» — документ сам ушёл на следующий шаг</li>
+      </ul>
+    </aside>
   </div>
 </section>
 
@@ -773,25 +792,96 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
      Четыре экрана системы маркетинга на одном слайде — порядок со слов
      заказчика: заявки из МЭМ → заявка и её шаги → поставщики → закрытые.
      Потом отдельный скрин: статус «Бюджетирование завершено» вернулся в МЭМ. -->
-<section class="слайд" id="с2с" aria-label="Скрины шага 2">
+<section class="слайд" id="с2а" aria-label="Шаг 2 · так это выглядит в системе">
   <div class="бровь">Шаг 2 · так это выглядит в системе</div>
-  <div class="полотно">
-    <div class="четыре">
-      <figure class="скрин" data-к="1" style="transition-delay:0ms"><img src="медиа/скрины_закупки/шаг2_заявки.png" alt=""><figcaption>1 · Заявки пришли из МЭМ — 218, идёт маркетинговое исследование</figcaption></figure>
-      <figure class="скрин" data-к="1" style="transition-delay:150ms"><img src="медиа/скрины_закупки/шаг2_заявка.png" alt=""><figcaption>2 · Заявка: шаги workflow выполняются автоматически</figcaption></figure>
-      <figure class="скрин" data-к="1" style="transition-delay:300ms"><img src="медиа/скрины_закупки/шаг2_поставщики.png" alt=""><figcaption>3 · Подобраны поставщики — 85, приглашения отправлены</figcaption></figure>
-      <figure class="скрин" data-к="1" style="transition-delay:450ms"><img src="медиа/скрины_закупки/шаг2_закрытые.png" alt=""><figcaption>4 · Закрытые заявки: маркетинговое исследование завершено</figcaption></figure>
+  <div class="полотно экран">
+    <div class="скрин" data-к="1"><img src="медиа/скрины_закупки/шаг2_заявки.png" alt="">
     </div>
+    <aside class="что_ии" data-к="2">
+      <div class="имя">Что делает ИИ</div>
+      <h3>Заявки из МЭМ приняты автоматически</h3>
+      <ul>
+        <li>218 заявок пришли из МЭМ без ручного ввода</li>
+        <li>По каждой запущено маркетинговое исследование</li>
+        <li>Исполнитель назначен системой</li>
+        <li>Человек видит ход работы, но не участвует</li>
+      </ul>
+    </aside>
   </div>
 </section>
 
-<section class="слайд" id="с3с" aria-label="Скрин шага 3">
-  <div class="бровь">Шаг 3 · так это выглядит в системе</div>
-  <div class="полотно">
-    <div class="скрин" style="left:62px;top:0;width:1600px" data-к="1"><img src="медиа/скрины_закупки/шаг3_бюджет.png" alt="">
-      <div class="рамка" style="left:0;top:87.4%;width:100%;height:6.6%" data-к="2"></div>
-      <div class="подпись_рамки" style="right:16px;top:79%" data-к="2">Бюджетирование завершено · наличие в бюджете: Да</div>
+<section class="слайд" id="с2б" aria-label="Шаг 2 · так это выглядит в системе">
+  <div class="бровь">Шаг 2 · так это выглядит в системе</div>
+  <div class="полотно экран">
+    <div class="скрин" data-к="1"><img src="медиа/скрины_закупки/шаг2_заявка.png" alt="">
     </div>
+    <aside class="что_ии" data-к="2">
+      <div class="имя">Что делает ИИ</div>
+      <h3>Заявка проходит шаги workflow сама</h3>
+      <ul>
+        <li>Подбирает поставщиков по коду ЕНС ТРУ / КХД</li>
+        <li>Проверяет и исключает неподходящих</li>
+        <li>Отправляет приглашения и собирает КП</li>
+        <li>Рассчитывает заключение и возвращает результат в МЭМ</li>
+        <li>Колонка «Авто: Да» — каждый шаг без человека</li>
+      </ul>
+    </aside>
+  </div>
+</section>
+
+<section class="слайд" id="с2в" aria-label="Шаг 2 · так это выглядит в системе">
+  <div class="бровь">Шаг 2 · так это выглядит в системе</div>
+  <div class="полотно экран">
+    <div class="скрин" data-к="1"><img src="медиа/скрины_закупки/шаг2_поставщики.png" alt="">
+    </div>
+    <aside class="что_ии" data-к="2">
+      <div class="имя">Что делает ИИ</div>
+      <h3>Поставщики подобраны по коду товара</h3>
+      <ul>
+        <li>85 поставщиков найдены по ЕНС ТРУ и истории закупок</li>
+        <li>84 приглашения отправлены автоматически</li>
+        <li>Контакты — из справочника, без ручного поиска</li>
+        <li>Лишних можно исключить, остальное делает система</li>
+      </ul>
+    </aside>
+  </div>
+</section>
+
+<section class="слайд" id="с2г" aria-label="Шаг 2 · так это выглядит в системе">
+  <div class="бровь">Шаг 2 · так это выглядит в системе</div>
+  <div class="полотно экран">
+    <div class="скрин" data-к="1"><img src="медиа/скрины_закупки/шаг2_закрытые.png" alt="">
+    </div>
+    <aside class="что_ии" data-к="2">
+      <div class="имя">Что делает ИИ</div>
+      <h3>Маркетинговое исследование завершено</h3>
+      <ul>
+        <li>КП собраны, цена определена</li>
+        <li>Заключение сформировано и отправлено в МЭМ</li>
+        <li>Статус потребности стал «Маркетинг завершён»</li>
+        <li>Следующий шаг — проверка бюджета — стартует сам</li>
+      </ul>
+    </aside>
+  </div>
+</section>
+
+<section class="слайд" id="с3с" aria-label="Шаг 3 · так это выглядит в системе">
+  <div class="бровь">Шаг 3 · так это выглядит в системе</div>
+  <div class="полотно экран">
+    <div class="скрин" data-к="1"><img src="медиа/скрины_закупки/шаг3_бюджет.png" alt="">
+      <div class="рамка" style="left:0;top:88.4%;width:100%;height:6.4%" data-к="2"></div>
+      <div class="подпись_рамки" style="right:16px;top:80%" data-к="2">Бюджетирование завершено · наличие в бюджете: Да</div>
+    </div>
+    <aside class="что_ии" data-к="3">
+      <div class="имя">Что делает ИИ</div>
+      <h3>Бюджет проверен, статус вернулся в потребность</h3>
+      <ul>
+        <li>Запрос в систему бюджетирования ушёл автоматически</li>
+        <li>Ответ: наличие в бюджете — Да</li>
+        <li>Статус позиции — «Бюджетирование завершено»</li>
+        <li>Дальше — передача к закупу, тоже без человека</li>
+      </ul>
+    </aside>
   </div>
 </section>
 
@@ -891,6 +981,83 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
   </div>
 
 </section>
+
+<!-- ================= 4с. AI-Broker живьём =================
+     Комментарий заказчика 06.09: «Разве AI-Broker уже не работает? Давайте его
+     скрин живого агента тоже покажем». Скрины из работающей системы. -->
+<section class="слайд" id="с4а" aria-label="Шаг 4 · AI-Broker · живая система">
+  <div class="бровь">Шаг 4 · AI-Broker · живая система</div>
+  <div class="полотно экран">
+    <div class="скрин" data-к="1"><img src="медиа/скрины_закупки/брокер_каталог.png" alt="">
+    </div>
+    <aside class="что_ии" data-к="2">
+      <div class="имя">Что делает ИИ</div>
+      <h3>AI-Broker сопоставил план закупок с остатками на складах</h3>
+      <ul>
+        <li>1 398 совпадений: позиция плана ↔ остаток на складе другого ДЗО</li>
+        <li>Оценка ИИ по каждой паре: точное совпадение — 100 %, неточное — доля</li>
+        <li>Покупатель и продавец — разные компании группы</li>
+        <li>Совпадение одним нажатием становится сделкой</li>
+      </ul>
+    </aside>
+  </div>
+</section>
+
+<section class="слайд" id="с4б" aria-label="Шаг 4 · AI-Broker · живая система">
+  <div class="бровь">Шаг 4 · AI-Broker · живая система</div>
+  <div class="полотно экран">
+    <div class="скрин" data-к="1"><img src="медиа/скрины_закупки/брокер_совпадение_покупатель.png" alt="">
+    </div>
+    <aside class="что_ии" data-к="2">
+      <div class="имя">Что делает ИИ</div>
+      <h3>Одно совпадение: что нужно и что лежит на складе</h3>
+      <ul>
+        <li>Покупатель — план: труба общего назначения, 6,44 т, июль 2026</li>
+        <li>Продавец — склад: труба бесшовная 159×12, 15,225 т, лежит с апреля 2025</li>
+        <li>Уверенность совпадения — 85 %: названия разные, товар один</li>
+        <li>ИИ читает описание и характеристики, а не только код</li>
+      </ul>
+    </aside>
+  </div>
+</section>
+
+<section class="слайд" id="с4в" aria-label="Шаг 4 · AI-Broker · живая система">
+  <div class="бровь">Шаг 4 · AI-Broker · живая система</div>
+  <div class="полотно экран">
+    <div class="скрин" data-к="1"><img src="медиа/скрины_закупки/брокер_сделка.png" alt="">
+    </div>
+    <aside class="что_ии" data-к="2">
+      <div class="имя">Что делает ИИ</div>
+      <h3>Сделка внутри группы: покупатель и продавец принимают</h3>
+      <ul>
+        <li>АО ОМГ покупает деэмульгатор у АО ЭМГ — со склада, не с рынка</li>
+        <li>Количество, цена и сумма подставлены из плана и остатка</li>
+        <li>Обе стороны принимают сделку в одном окне</li>
+        <li>ИИ сравнивает техспецификации сторон и даёт вывод</li>
+      </ul>
+    </aside>
+  </div>
+</section>
+
+<section class="слайд" id="с4г" aria-label="Шаг 4 · AI-Broker · живая система">
+  <div class="бровь">Шаг 4 · AI-Broker · живая система</div>
+  <div class="полотно экран">
+    <div class="скрин" data-к="1"><img src="медиа/скрины_закупки/брокер_аналитика.png" alt="">
+    </div>
+    <aside class="что_ии" data-к="2">
+      <div class="имя">Что делает ИИ</div>
+      <h3>Сколько закупок можно закрыть внутри группы</h3>
+      <ul>
+        <li>План закупок — 583,6 млрд ₸, ликвидных на складах — 292,1 млрд ₸</li>
+        <li>Точные сделки — 543,4 млн ₸, нечёткие — 3,5 млрд ₸</li>
+        <li>Остаётся в группе — 4,0 млрд ₸, внешний закуп меньше на 1,2 млрд ₸</li>
+        <li>Потоки обмена: кто кому может продать со склада</li>
+      </ul>
+    </aside>
+  </div>
+</section>
+
+
 
 <!-- ================= 4. закупка, договор, поставка =================
      Сцена вместо трёх блоков с перечнями. Девять кадров документа остались,
