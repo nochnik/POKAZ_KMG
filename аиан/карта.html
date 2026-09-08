@@ -1,0 +1,573 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KMG.AIAN — карта обеспеченности</title>
+<style>
+/* Отдельная страница показа: карта запасов с фильтрами. Ссылок на интро
+   здесь нет намеренно — со страницы нельзя попасть на главный экран. */
+@font-face{font-family:'Unbounded';font-weight:500 700;font-display:swap;
+  src:url('медиа/шрифты/унб_500_cyrillic.woff2') format('woff2');
+  unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
+@font-face{font-family:'Unbounded';font-weight:500 700;font-display:swap;
+  src:url('медиа/шрифты/унб_500_latin.woff2') format('woff2');
+  unicode-range:U+0000-00FF,U+2000-206F}
+@font-face{font-family:'Golos Text';font-weight:400 600;font-display:swap;
+  src:url('медиа/шрифты/голос_400_cyrillic.woff2') format('woff2');
+  unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
+@font-face{font-family:'Golos Text';font-weight:400 600;font-display:swap;
+  src:url('медиа/шрифты/голос_400_latin.woff2') format('woff2');
+  unicode-range:U+0000-00FF,U+2000-206F}
+
+:root{
+  --циан:#4FE3FF; --мята:#3EE6B8; --янтарь:#F0AE4A;
+  --красный:#FF5A4F; --оранжевый:#FF9A3C; --жёлтый:#F0D24A; --зелёный:#3ED598;
+  --фон0:#050810; --текст:#D7E2F2; --приглуш:#7C8DA6;
+  --стекло:linear-gradient(165deg,rgba(14,28,46,.94),rgba(6,12,24,.9));
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;background:var(--фон0);overflow:hidden;
+  font-family:'Golos Text',system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  color:var(--текст)}
+.дисплей{font-family:'Unbounded',system-ui,sans-serif}
+.град_текст{background:linear-gradient(100deg,#BFF2FF 4%,var(--циан) 38%,var(--мята) 92%);
+  -webkit-background-clip:text;background-clip:text;color:transparent}
+
+/* ---------- заставка: AIAN думает ---------- */
+/* Два такта: 1 — логотип, 2 — AIAN думает (бесконечно, пока не нажмут);
+   по нажатию думает ещё две секунды, потом логотип уезжает влево,
+   заставка гаснет и открывается карта */
+#заставка{position:fixed;inset:0;z-index:20;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:2.6vmin;background:var(--фон0);
+  transition:opacity .7s ease .55s;cursor:pointer}
+#заставка.ушла{opacity:0;pointer-events:none}
+#заставка .имя{font-size:clamp(34px,6.4vmin,76px);font-weight:700;letter-spacing:.02em;
+  transition:transform .9s cubic-bezier(.6,0,.2,1)}
+#заставка.уводит .имя{transform:translate(-31vw,-38vh) scale(.42)}
+#заставка .думает{display:flex;align-items:center;gap:.8vmin;
+  font-size:clamp(13px,2vmin,22px);color:var(--приглуш);letter-spacing:.04em;
+  opacity:0;transition:opacity .4s ease}
+#заставка.думает_идёт .думает{opacity:1}
+#заставка.уводит .думает{opacity:0}
+#заставка .думает i{width:6px;height:6px;border-radius:50%;background:var(--мята);
+  animation:точка 1.2s infinite}
+#заставка .думает i:nth-child(2){animation-delay:.2s}
+#заставка .думает i:nth-child(3){animation-delay:.4s}
+@keyframes точка{0%,60%,100%{opacity:.25}30%{opacity:1}}
+
+/* ---------- шапка и фильтры ---------- */
+#шапка{position:fixed;left:0;right:0;top:0;z-index:6;
+  display:flex;align-items:center;gap:2vmin;flex-wrap:wrap;
+  padding:2vmin 3vw 1.6vmin;opacity:0;transition:opacity .6s ease;
+  background:linear-gradient(180deg,rgba(5,8,16,.92),rgba(5,8,16,0))}
+#шапка.видна{opacity:1}
+#легенда,#подвал{opacity:0;transition:opacity .6s ease}
+#легенда.видна,#подвал.видна{opacity:1}
+#шапка .знак{font-size:clamp(16px,2.4vmin,28px);font-weight:700;letter-spacing:.03em}
+#шапка .подзаг{font-size:clamp(11px,1.5vmin,17px);color:var(--приглуш)}
+.фильтр{display:flex;align-items:center;gap:.5vmin}
+.фильтр:first-of-type{margin-left:auto}
+#шапка{flex-wrap:nowrap}
+.фильтр .ярлык{font-family:'Unbounded',system-ui,sans-serif;font-weight:500;
+  font-size:clamp(9px,1.2vmin,13px);letter-spacing:.16em;text-transform:uppercase;
+  color:var(--приглуш);margin-right:.6vmin}
+.кнопка{padding:.8vmin 1.4vmin;border-radius:9px;white-space:nowrap;background:var(--стекло);
+  border:1px solid rgba(79,227,255,.28);border-top-color:rgba(215,226,242,.14);
+  font-size:clamp(12px,1.7vmin,19px);color:var(--приглуш);cursor:pointer;
+  transition:all .25s ease;font-family:inherit}
+.кнопка:hover{color:var(--текст);border-color:rgba(79,227,255,.5)}
+.кнопка.выбрана{color:#EAF4FF;border-color:var(--циан);
+  background:linear-gradient(165deg,rgba(20,44,68,.96),rgba(8,16,30,.92));
+  box-shadow:0 0 20px rgba(79,227,255,.22)}
+.кнопка:focus-visible{outline:2px solid var(--циан);outline-offset:2px}
+/* показатель, который для этого топлива не считается */
+.кнопка.глухая{opacity:.35;cursor:default;border-color:rgba(124,141,166,.25)}
+.кнопка.глухая:hover{color:var(--приглуш);border-color:rgba(124,141,166,.25)}
+
+/* ---------- карта ---------- */
+#поле{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+svg.карта{width:min(80vw,132vh);height:auto;opacity:0;transition:opacity .9s ease}
+svg.карта.видна{opacity:1}
+.область{fill:rgba(16,34,52,.5);stroke:rgba(79,227,255,.45);stroke-width:1.1;
+  transition:fill .7s ease,stroke .7s ease;cursor:pointer}
+.область:hover{stroke:#EAF4FF;stroke-width:2}
+.область.уровень1{fill:rgba(255,90,79,.66);stroke:rgba(255,150,140,.85)}
+.область.уровень2{fill:rgba(255,154,60,.62);stroke:rgba(255,195,140,.8)}
+/* жёлтый поднят по насыщенности: поверх тёмного рельефа он уходил в хаки */
+.область.уровень3{fill:rgba(245,215,90,.6);stroke:rgba(250,232,160,.8)}
+.область.уровень4{fill:rgba(62,213,152,.5);stroke:rgba(140,240,195,.78)}
+.рельеф_подложка{opacity:.55}
+/* Подписи — плашки тёмного стекла, как карточки в основной презентации:
+   название, крупное число, единица. Голый текст поверх заливки читался
+   плохо и не давал понять, что означает число (правка заказчика). */
+.обёртка{position:relative;display:inline-block;line-height:0}
+.слой_подписей{position:absolute;inset:0;pointer-events:none}
+.плашка{position:absolute;transform:translate(-50%,-50%);
+  display:flex;flex-direction:column;align-items:flex-start;gap:.2vmin;white-space:nowrap;
+  padding:.45vmin .9vmin .45vmin .7vmin;border-radius:9px;
+  background:linear-gradient(165deg,rgba(12,24,40,.9),rgba(5,11,20,.86));
+  border:1px solid rgba(140,170,210,.22);border-top-color:rgba(215,226,242,.2);
+  box-shadow:0 6px 18px rgba(0,0,0,.5);line-height:1.15}
+.плашка .точка{width:8px;height:8px;border-radius:50%;flex:0 0 auto}
+.плашка .имя{font-size:clamp(9px,1.1vmin,13px);font-weight:600;
+  color:rgba(226,236,250,.9);letter-spacing:.01em}
+.плашка .число{font-family:'Unbounded',system-ui,sans-serif;font-weight:700;
+  font-size:clamp(12px,1.55vmin,19px);color:#FFFFFF;
+  font-variant-numeric:tabular-nums}
+.плашка .единица{font-size:clamp(9px,1.1vmin,13px);color:var(--приглуш)}
+/* вторая строка плашки: сколько ещё едет в область */
+.верх{display:flex;align-items:center;gap:.6vmin;white-space:nowrap}
+.плашка .путь{display:none;font-size:clamp(9px,1.15vmin,14px);
+  color:var(--янтарь);letter-spacing:.01em;margin-top:.2vmin}
+.плашка .путь.есть{display:block}
+/* города-миллионники: отдельный вид плашки и выноска к самой точке */
+.плашка.город{padding-left:.9vmin;border-color:rgba(62,230,184,.4)}
+.плашка.город .имя{color:var(--мята)}
+/* «город» ярлычком: сразу видно, что это не область */
+.плашка .вид{font-family:'Unbounded',system-ui,sans-serif;font-weight:500;
+  font-size:clamp(7px,.92vmin,11px);letter-spacing:.14em;text-transform:uppercase;
+  color:rgba(62,230,184,.75)}
+.выноска{stroke:rgba(62,230,184,.55);stroke-width:1.4;stroke-dasharray:3 3;fill:none}
+.точка_города{fill:var(--мята);stroke:rgba(5,8,16,.9);stroke-width:2}
+
+/* ---------- легенда и подвал ---------- */
+#легенда{position:fixed;left:3vw;bottom:9vh;z-index:5;padding:1.6vmin 2vmin;
+  border-radius:14px;background:var(--стекло);
+  border:1px solid rgba(79,227,255,.3);border-top-color:rgba(215,226,242,.16);
+  box-shadow:0 12px 40px rgba(0,0,0,.5)}
+#легенда .ярлык{font-family:'Unbounded',system-ui,sans-serif;font-weight:500;
+  font-size:clamp(9px,1.2vmin,13px);letter-spacing:.16em;text-transform:uppercase;
+  color:var(--приглуш);margin-bottom:1.2vmin}
+#легенда .ряд{display:flex;align-items:center;gap:1vmin;margin-top:.7vmin;
+  font-size:clamp(11px,1.5vmin,17px)}
+#легенда .плитка{width:16px;height:16px;border-radius:4px;flex:0 0 auto}
+#легенда .сноска{margin-top:1.2vmin;padding-top:1.1vmin;
+  border-top:1px solid rgba(140,170,210,.2);
+  font-size:clamp(9px,1.15vmin,14px);color:var(--приглуш);max-width:24ch;line-height:1.35}
+
+#подвал{position:fixed;left:0;right:0;bottom:0;z-index:5;padding:1.8vmin 3vw 2.2vmin;
+  text-align:center;font-size:clamp(13px,1.9vmin,23px);color:var(--приглуш);
+  background:linear-gradient(0deg,rgba(5,8,16,.92),rgba(5,8,16,0))}
+#подвал b{color:var(--текст);font-weight:600}
+#подвал .цепь span{color:var(--мята)}
+
+/* ---------- подсказка при наведении ---------- */
+#шар{position:fixed;z-index:9;padding:1.2vmin 1.6vmin;border-radius:10px;
+  background:var(--стекло);border:1px solid rgba(79,227,255,.4);
+  box-shadow:0 10px 30px rgba(0,0,0,.6);pointer-events:none;opacity:0;
+  transition:opacity .2s ease}
+#шар.виден{opacity:1}
+#шар b{display:block;font-size:clamp(12px,1.7vmin,20px);margin-bottom:.5vmin}
+#шар .строка{font-size:clamp(10px,1.4vmin,16px);color:var(--приглуш);line-height:1.5}
+#шар .строка i{font-style:normal;color:#EAF4FF}
+
+@media (prefers-reduced-motion: reduce){
+  #заставка .думает i{animation:none}
+}
+</style>
+</head>
+<body>
+
+<!-- Заставка: логотип → «думает» → уход влево и карта -->
+<div id="заставка">
+  <div class="имя дисплей">KMG.<b class="град_текст">AIAN</b></div>
+  <div class="думает"><i></i><i></i><i></i> собирает данные по регионам</div>
+</div>
+
+<header id="шапка">
+  <div>
+    <div class="знак дисплей">KMG.<b class="град_текст">AIAN</b></div>
+    <div class="подзаг" id="подзаголовок">обеспеченность регионов нефтепродуктами</div>
+  </div>
+  <div class="фильтр" id="фильтр_топливо"><span class="ярлык">Топливо</span></div>
+  <div class="фильтр" id="фильтр_показатель"><span class="ярлык">Показатель</span></div>
+  <div class="фильтр" id="фильтр_путь"><span class="ярлык">Учёт</span></div>
+</header>
+
+<div id="поле"></div>
+
+<div id="легенда">
+  <div class="ярлык" id="легенда_ярлык">Обеспеченность</div>
+  <div id="легенда_ряды"></div>
+</div>
+
+<footer id="подвал">
+  Теплота карты зависит от данных:
+  <span class="цепь">НПЗ <span>→</span> КТЖ <span>→</span> импорт / экспорт <span>→</span>
+  нефтебазы и нефтехранилища <span>→</span> АЗС</span>
+</footer>
+
+<div id="шар"><b></b><div class="строка"></div></div>
+
+<script>
+"use strict";
+
+/* ── Пороговая логика ────────────────────────────────────────────────────
+   Для дней пороги заданы заказчиком: 0–4 красный, 5–8 оранжевый,
+   9–14 жёлтый, дальше зелёный. Для объёма и числа АЗС абсолютных порогов
+   нет, поэтому шкала относительная — по квартилям текущей выборки:
+   меньшая четверть красная, дальше оранжевый, жёлтый, зелёный. */
+/* ── Пороговая логика ────────────────────────────────────────────────────
+   Цвет карты ВСЕГДА считается по дням запаса: объём в тоннах несравним
+   между регионами — Алматы держит больше тонн, но и расходует больше.
+   Дни = запас / среднесуточное потребление, поэтому область с 4 днями
+   красная и в Алматы, и в Ұлытау. Фильтр «объём» меняет только число на
+   плашке, не смысл цвета. Пороги заказчика: 0–4 · 5–8 · 9–14 · дальше. */
+const ПОРОГИ_ДНЕЙ = [4, 8, 14];
+const ПОКАЗАТЕЛИ = {
+  'дни':   { имя:'Дни запаса', единица:'сут' },
+  'объём': { имя:'Объём',      единица:'тыс. т' }
+};
+
+let ДАННЫЕ = null, ОБЛАСТИ = null;
+/* Состояние можно задать ссылкой: ?топливо=ДТ&показатель=объём —
+   удобно для репетиции и для покадровой проверки */
+const параметры = new URLSearchParams(location.search);
+let топливо = параметры.get('топливо') || 'АИ-92';
+let показатель = параметры.get('показатель') || 'дни';
+/* учитывать ли то, что уже едет в область (правка заказчика): переключатель
+   пересобирает и числа, и тепловую карту */
+let сПутём = параметры.get('путь') === '1';
+
+/* ── Проекция карты (та же, что в интро) ──────────────────────────────── */
+const КОС = Math.cos(48*Math.PI/180);
+let ПРОЕКЦИЯ = null;
+function проецируй(лон, лат){
+  const {х0,у0,к} = ПРОЕКЦИЯ;
+  return [ (лон-х0)*КОС*к, (у0-лат)*к ];
+}
+
+const НС = 'http://www.w3.org/2000/svg';
+const свг = имя => document.createElementNS(НС, имя);
+
+async function запустить(){
+  [ОБЛАСТИ, ДАННЫЕ] = await Promise.all([
+    fetch('данные/области_кз.json').then(о=>о.json()),
+    fetch('данные/запасы.json').then(о=>о.json())
+  ]);
+  // подпись говорит, какая именно выгрузка на экране и на какую дату
+  document.getElementById('подзаголовок').textContent =
+    `${(ДАННЫЕ.источник || 'остатки').toLowerCase()} · данные на ${ДАННЫЕ.обновлено}`;
+  if(!естьДанные(топливо, показатель)) показатель = 'объём';
+  собратьФильтры();
+  построитьКарту();
+  перекрасить();
+  завестиТакты();
+}
+
+/* ── Такты заставки ──────────────────────────────────────────────────── */
+function завестиТакты(){
+  const заставка = document.getElementById('заставка');
+  let такт = 0, занято = false;
+  const дальше = ()=>{
+    if(занято) return;
+    if(такт === 0){                       // логотип → бесконечное «думает»
+      такт = 1;
+      заставка.classList.add('думает_идёт');
+      return;
+    }
+    if(такт === 1){                       // ещё две секунды раздумья, затем карта
+      такт = 2; занято = true;
+      setTimeout(()=>{
+        заставка.classList.add('уводит');   // логотип уезжает влево
+        заставка.classList.add('ушла');
+        document.querySelector('svg.карта').classList.add('видна');
+        ['шапка','легенда','подвал'].forEach(и=>
+          document.getElementById(и).classList.add('видна'));
+      }, 2000);
+    }
+  };
+  /* ?сразу=1 — открыть карту без заставки (репетиция, проверка кадров) */
+  if(параметры.has('сразу')){
+    заставка.classList.add('уводит','ушла');
+    document.querySelector('svg.карта').classList.add('видна');
+    ['шапка','легенда','подвал'].forEach(и=>
+      document.getElementById(и).classList.add('видна'));
+    такт = 2; занято = true;
+  }
+  addEventListener('click', дальше);
+  addEventListener('keydown', е=>{
+    if(е.key==='ArrowRight'||е.key===' '||е.key==='PageDown'){ е.preventDefault(); дальше(); }
+  });
+}
+
+/* ── Фильтры ─────────────────────────────────────────────────────────── */
+function кнопка(текст, выбрана, действие){
+  const б = document.createElement('button');
+  б.className = 'кнопка' + (выбрана ? ' выбрана' : '');
+  б.textContent = текст;
+  б.onclick = действие;
+  return б;
+}
+/* Есть ли у выбранного топлива данные по показателю: у авиатоплива дни
+   запаса не считаются, и кнопка для него гаснет */
+function естьДанные(вид, пок){
+  if(пок === 'объём') return true;
+  // дни считаются, только если известно среднесуточное потребление
+  return Object.values(ДАННЫЕ.регионы).some(р =>
+    р[вид] && (р[вид]['дни'] !== null && р[вид]['дни'] !== undefined || р[вид]['сутки']));
+}
+function собратьФильтры(){
+  const т = document.getElementById('фильтр_топливо');
+  ДАННЫЕ.топливо.forEach(вид=>{
+    т.appendChild(кнопка(вид, вид===топливо, ()=>{
+      топливо = вид;
+      // на топливе без дней запаса переключаемся на объём, а не показываем пустую карту
+      if(!естьДанные(топливо, показатель)) показатель = 'объём';
+      собратьФильтры(); перекрасить();
+    }));
+  });
+  const п = document.getElementById('фильтр_показатель');
+  Object.entries(ПОКАЗАТЕЛИ).forEach(([ключ,оп])=>{
+    const доступен = естьДанные(топливо, ключ);
+    const б = кнопка(оп.имя, ключ===показатель && доступен, ()=>{
+      if(!доступен) return;
+      показатель = ключ; собратьФильтры(); перекрасить();
+    });
+    if(!доступен){
+      б.classList.add('глухая');
+      б.title = 'для этого топлива показатель не рассчитывается';
+    }
+    п.appendChild(б);
+  });
+  const у = document.getElementById('фильтр_путь');
+  у.appendChild(кнопка(сПутём ? 'С НП в пути' : 'Только на нефтебазах', сПутём, ()=>{
+    сПутём = !сПутём; собратьФильтры(); перекрасить();
+  }));
+  /* старые кнопки убираем, ярлык оставляем: пересборка добавляет новые
+     в конец, поэтому лишними всегда оказываются первые */
+  const сколько = new Map([[т, ДАННЫЕ.топливо.length],
+                          [п, Object.keys(ПОКАЗАТЕЛИ).length], [у, 1]]);
+  for(const [узел, надо] of сколько){
+    const кнопки = [...узел.querySelectorAll('.кнопка')];
+    for(let и=0; и<кнопки.length-надо; и++) кнопки[и].remove();
+  }
+}
+
+/* ── Карта ───────────────────────────────────────────────────────────── */
+function построитьКарту(){
+  let минЛон=999,максЛон=-999,минЛат=999,максЛат=-999;
+  for(const о of Object.values(ОБЛАСТИ)) for(const кольцо of о.кольца)
+    for(const [лон,лат] of кольцо){
+      минЛон=Math.min(минЛон,лон); максЛон=Math.max(максЛон,лон);
+      минЛат=Math.min(минЛат,лат); максЛат=Math.max(максЛат,лат);
+    }
+  const Ш=1500, В=830;
+  const к = Math.min(Ш/((максЛон-минЛон)*КОС), В/(максЛат-минЛат));
+  ПРОЕКЦИЯ = {х0:минЛон, у0:максЛат, к};
+  const шир=(максЛон-минЛон)*КОС*к, выс=(максЛат-минЛат)*к;
+
+  const путь = о => о.кольца.map(кольцо =>
+    'M'+кольцо.map(п=>проецируй(п[0],п[1]).map(ч=>ч.toFixed(1)).join(',')).join('L')+'Z'
+  ).join(' ');
+
+  const s = свг('svg');
+  s.setAttribute('viewBox', `0 0 ${шир} ${выс}`);
+  s.classList.add('карта');
+
+  // рельеф из интро, обрезанный точным контуром страны
+  const дефы = свг('defs'), обрезка = свг('clipPath');
+  обрезка.id = 'контур_страны';
+  for(const о of Object.values(ОБЛАСТИ)){
+    const п = свг('path'); п.setAttribute('d', путь(о)); обрезка.appendChild(п);
+  }
+  дефы.appendChild(обрезка); s.appendChild(дефы);
+  const рельеф = свг('image');
+  рельеф.setAttribute('href','медиа/рельеф.jpg');
+  рельеф.setAttribute('x',-40); рельеф.setAttribute('y',-40);
+  рельеф.setAttribute('width',шир+80); рельеф.setAttribute('height',выс+80);
+  рельеф.setAttribute('preserveAspectRatio','xMidYMid slice');
+  рельеф.setAttribute('clip-path','url(#контур_страны)');
+  рельеф.classList.add('рельеф_подложка');
+  s.appendChild(рельеф);
+
+  for(const [ключ,о] of Object.entries(ОБЛАСТИ)){
+    const p = свг('path');
+    p.setAttribute('d', путь(о));
+    p.classList.add('область');
+    p.dataset.ключ = ключ;
+    p.addEventListener('mousemove', е=>показатьШар(е, ключ, о.имя));
+    p.addEventListener('mouseleave', спрятатьШар);
+    s.appendChild(p);
+  }
+
+  /* Подписи-плашки живут HTML-слоем поверх карты: так им доступны стекло,
+     шрифты и единицы измерения. Проценты берём от viewBox — слой совпадает
+     с картой при любом размере окна. */
+  const обёртка = document.createElement('div');
+  обёртка.className = 'обёртка';
+  const слой = document.createElement('div');
+  слой.className = 'слой_подписей';
+  /* Города-миллионники уводим от их областей, а тесные соседи получают
+     небольшие сдвиги: иначе плашки наезжают друг на друга */
+  /* Алматы ставим прямо под точкой города — короткая выноска вниз читается
+     яснее длинной диагонали (правка заказчика) */
+  const СДВИГ_ГОРОДОВ = { astana:[76,20], almaty:[0,58], shymkent:[-96,58] };
+  /* Развод плашек: они стали выше (вторая строка про НП в пути), поэтому
+     тесным соседям заданы более широкие сдвиги. Значения подобраны по
+     кадрам 1920×1080 — при правке проверять снимком. */
+  const НУДЖИ = { pavlodar:[26,-52], akmola:[-40,-18], vko:[54,34],
+                  abai:[-30,44], turkestan:[-62,-58], karaganda:[70,108],
+                  kostanay:[-70,-44], zhambyl:[-56,64], kyzylorda:[-26,-46],
+                  almaty_obl:[58,-6], zhetysu:[64,28] };
+  for(const [ключ,о] of Object.entries(ОБЛАСТИ)){
+    const кольцо = о.кольца[0];
+    let сх=0, су=0;
+    for(const [лон,лат] of кольцо){ const [x,y]=проецируй(лон,лат); сх+=x; су+=y; }
+    сх/=кольцо.length; су/=кольцо.length;
+    const сдвиг = СДВИГ_ГОРОДОВ[ключ];
+    const [цх,цу] = [сх, су];               // истинная точка региона
+    if(сдвиг){ сх += сдвиг[0]; су += сдвиг[1]; }
+    else if(НУДЖИ[ключ]){ сх += НУДЖИ[ключ][0]; су += НУДЖИ[ключ][1]; }
+    if(сдвиг){
+      // выноска от плашки к самому городу — иначе непонятно, чей это ярлык
+      const л = свг('path');
+      л.setAttribute('d', `M${цх},${цу} L${сх},${су}`);
+      л.classList.add('выноска');
+      s.appendChild(л);
+      const т = свг('circle');
+      т.setAttribute('cx',цх); т.setAttribute('cy',цу); т.setAttribute('r',5);
+      т.classList.add('точка_города');
+      s.appendChild(т);
+    }
+    const пл = document.createElement('div');
+    пл.className = 'плашка' + (сдвиг ? ' город' : '');
+    пл.dataset.ключ = ключ;
+    пл.style.left = (сх/шир*100)+'%';
+    пл.style.top  = (су/выс*100)+'%';
+    const шапочка = сдвиг ? '<span class="вид">город</span>' : '';
+    /* верхняя строка одним неразрывным блоком: в режиме объёма единица
+       переносилась на новую строку и плашки начинали наезжать */
+    пл.innerHTML = `<div class="верх"><span class="точка"></span>${шапочка}` +
+                   `<span class="имя">${коротко(о.имя)}</span>` +
+                   `<span class="число">—</span><span class="единица"></span></div>` +
+                   `<span class="путь"></span>`;
+    слой.appendChild(пл);
+  }
+  обёртка.appendChild(s); обёртка.appendChild(слой);
+  document.getElementById('поле').appendChild(обёртка);
+}
+
+/* Города республиканского значения — Астана, Алматы, Шымкент; всё
+   остальное области. Длинные названия сокращаем, но «обл.» оставляем:
+   без него «Абайская» и «Алматы» читаются как однородные подписи. */
+const ГОРОДА = ['astana','almaty','shymkent'];
+function коротко(имя){
+  return имя
+    .replace('Западно-Казахстанская область','ЗКО')
+    .replace('Восточно-Казахстанская область','ВКО')
+    .replace('Северо-Казахстанская область','СКО')
+    .replace(' область',' обл.');
+}
+
+/* ── Раскраска ───────────────────────────────────────────────────────── */
+function данные(ключ){
+  const р = ДАННЫЕ.регионы[ключ];
+  return р ? р[топливо] : null;
+}
+/* Дни запаса — единственная сравнимая между регионами величина, поэтому
+   именно они красят карту. С включённым переключателем в расчёт входит и
+   то, что уже едет в область. */
+function дниРегиона(ключ){
+  const д = данные(ключ);
+  if(!д) return null;
+  const готовые = сПутём ? д['дни_с_путём'] : д['дни'];
+  if(готовые !== null && готовые !== undefined) return готовые;
+  if(!д['сутки']) return null;                       // авиатопливо: дни не считаются
+  return (д['запас'] + (сПутём ? д['в_пути'] : 0)) / д['сутки'];
+}
+function значение(ключ){
+  const д = данные(ключ);
+  if(!д) return null;
+  if(показатель === 'объём') return д['запас'] + (сПутём ? д['в_пути'] : 0);
+  return дниРегиона(ключ);
+}
+function уровень(дни){
+  if(дни === null || дни === undefined) return 0;
+  if(дни <= ПОРОГИ_ДНЕЙ[0]) return 1;   // критично
+  if(дни <= ПОРОГИ_ДНЕЙ[1]) return 2;   // внимание
+  if(дни <= ПОРОГИ_ДНЕЙ[2]) return 3;   // приемлемо
+  return 4;                              // уверенный запас
+}
+function перекрасить(){
+  const оп = ПОКАЗАТЕЛИ[показатель];
+  document.querySelectorAll('.область').forEach(п=>{
+    const у = уровень(дниРегиона(п.dataset.ключ));
+    п.classList.remove('уровень1','уровень2','уровень3','уровень4');
+    if(у) п.classList.add('уровень'+у);
+  });
+  const ЦВЕТА = ['rgba(140,170,210,.4)','var(--красный)','var(--оранжевый)',
+                 'var(--жёлтый)','var(--зелёный)'];
+  document.querySelectorAll('.плашка').forEach(пл=>{
+    const ключ = пл.dataset.ключ, д = данные(ключ);
+    const з = значение(ключ);
+    пл.querySelector('.точка').style.background = ЦВЕТА[уровень(дниРегиона(ключ))];
+    пл.querySelector('.число').textContent =
+      з === null || з === undefined ? '—'
+        : (показатель === 'объём' ? з.toFixed(1).replace('.', ',') : Math.round(з));
+    пл.querySelector('.единица').textContent =
+      з === null || з === undefined ? 'нет данных' : оп.единица;
+    // вторая строка: сколько ещё едет в область — в тех же единицах
+    const строка = пл.querySelector('.путь');
+    // «+0» не пишем: строка должна что-то значить, а не занимать место
+    if(!д || !д['в_пути'] || д['в_пути'] < 0.05){
+      строка.textContent = ''; строка.classList.remove('есть'); return; }
+    строка.classList.add('есть');
+    if(показатель === 'объём'){
+      строка.textContent = (сПутём ? 'в т. ч. ' : '') +
+        '+' + д['в_пути'].toFixed(1).replace('.', ',') + ' тыс. т в пути';
+    } else {
+      // доп. сутки считает выгрузка тем же способом, что заказчик:
+      // целая часть от «в пути / потребление в сутки»
+      const плюс = д['доп_сутки'] ?? (д['сутки'] ? Math.floor(д['в_пути']/д['сутки']) : 0);
+      строка.textContent = (сПутём ? 'в т. ч. ' : '') +
+        (плюс < 1 ? 'меньше суток в пути' : '+' + плюс + ' сут в пути');
+    }
+  });
+  обновитьЛегенду(оп);
+}
+function обновитьЛегенду(оп){
+  document.getElementById('легенда_ярлык').textContent =
+    'Обеспеченность, суток' + (сПутём ? ' (с НП в пути)' : '');
+  const цвета = ['var(--красный)','var(--оранжевый)','var(--жёлтый)','var(--зелёный)'];
+  const [а,б,в] = ПОРОГИ_ДНЕЙ;
+  const подписи = [`0–${а} сут`, `${а+1}–${б} сут`, `${б+1}–${в} сут`, `больше ${в} сут`];
+  document.getElementById('легенда_ряды').innerHTML = подписи.map((т,и)=>
+    `<div class="ряд"><span class="плитка" style="background:${цвета[и]}"></span>${т}</div>`
+  ).join('') +
+  /* объём в тоннах между регионами несравним: у Алматы и запас больше, и
+     расход больше — поэтому цвет всегда по дням, и об этом сказано прямо */
+  `<div class="сноска">${показатель === 'объём'
+     ? 'на плашках — тонны, цвет — по дням запаса'
+     : 'цвет и число — дни запаса'}</div>`;
+}
+
+/* ── Подсказка ───────────────────────────────────────────────────────── */
+const шар = document.getElementById('шар');
+function показатьШар(е, ключ, имя){
+  const д = данные(ключ);
+  if(!д) return;
+  const дни = дниРегиона(ключ);
+  const без = д['дни'] ?? (д['сутки'] ? д['запас']/д['сутки'] : null);
+  const с = д['дни_с_путём'] ?? (д['сутки'] ? (д['запас']+д['в_пути'])/д['сутки'] : null);
+  шар.querySelector('b').textContent = имя;
+  шар.querySelector('.строка').innerHTML =
+    `${топливо}<br>` +
+    `на нефтебазах: <i>${д['запас'].toFixed(1).replace('.',',')}</i> тыс. т` +
+    (без !== null ? ` · <i>${Math.round(без)}</i> сут` : '') + '<br>' +
+    `в пути: <i>${д['в_пути'].toFixed(1).replace('.',',')}</i> тыс. т<br>` +
+    `итого: <i>${(д['запас']+д['в_пути']).toFixed(1).replace('.',',')}</i> тыс. т` +
+    (с !== null ? ` · <i>${Math.round(с)}</i> сут` : '') +
+    (д['сутки'] ? `<br>расход: ${д['сутки'].toFixed(2).replace('.',',')} тыс. т в сутки` : '');
+  шар.classList.add('виден');
+  const сдвиг = 18;
+  шар.style.left = Math.min(е.clientX + сдвиг, innerWidth - шар.offsetWidth - 12) + 'px';
+  шар.style.top  = Math.min(е.clientY + сдвиг, innerHeight - шар.offsetHeight - 12) + 'px';
+}
+function спрятатьШар(){ шар.classList.remove('виден'); }
+
+запустить();
+</script>
+</body>
+</html>
