@@ -1012,6 +1012,9 @@ body.без_мыши, body.без_мыши *{cursor:none !important}
       /* Пауза у площадки всегда ошибка: её никто не ставит намеренно.
          Событие приходит раньше и точнее, чем срабатывает общий таймер. */
       ролик.addEventListener("pause", function(){
+        /* Исключение — сон под встроенным показом (ЦД, AIAN): его ставит
+           разбудитьРамку() намеренно, чтобы петли не делили видеокарту с 3D. */
+        if(ролик.hasAttribute("data-усыплена")) return;
         var о = ролик.play();
         if(о && о.catch) о.catch(function(){});
       });
@@ -1411,6 +1414,27 @@ body.без_мыши, body.без_мыши *{cursor:none !important}
     }, 200);
   }
 
+  /* ЦД во встроенном режиме спит: рендерит 4 кадра в секунду и не трассирует,
+     пока родитель не пришлёт «слайд:показать» (так он ждал подводку в
+     AIAN_DEMO). Сцена сообщения не слала — отсюда «жёстко лагает» при
+     открытии ЦД (08.09). Будим по загрузке рамки; повтор через секунду — на
+     случай, если слушатель в рамке встал позже события load. */
+  function разбудитьРамку(){
+    var р = document.getElementById("внешний_показ");
+    function скажи(){ try{ р.contentWindow && р.contentWindow.postMessage("слайд:показать", "*"); }catch(е){} }
+    скажи(); setTimeout(скажи, 1000); setTimeout(скажи, 3000);
+    /* Под рамкой продолжали крутиться пять петель площадок и декодировались
+       впустую — их не видно, а ЦД с ними делит видеокарту. Ставим на паузу,
+       завестиПетли() поднимет их при возврате в цепочку. */
+    Array.prototype.forEach.call(document.querySelectorAll("video"), function(в){
+      if(!экран_системы.contains(в) && !в.paused){ в.pause(); в.setAttribute("data-усыплена", "1"); }
+    });
+  }
+  function разбудитьПетли(){
+    Array.prototype.forEach.call(document.querySelectorAll('video[data-усыплена]'), function(в){
+      в.removeAttribute("data-усыплена"); var п = в.play(); if(п && п.catch) п.catch(function(){});
+    });
+  }
   function открытьСистему(б, м){
     системаОткрыта = true;
     б._узлы.forEach(function(у){
@@ -1469,7 +1493,7 @@ body.без_мыши, body.без_мыши *{cursor:none !important}
     /* Презентации внутри рамки листаются стрелками со своей страницы. Без
        фокуса в рамке стрелки уходят нашему показу — докладчик жмёт, а слайд
        стоит. Фокус ставится по загрузке: раньше рамки ещё нет. */
-    if(сразуСнаружи) рамка.addEventListener("load", function ф(){ рамка.removeEventListener("load", ф); рамка.focus(); });
+    if(сразуСнаружи) рамка.addEventListener("load", function ф(){ рамка.removeEventListener("load", ф); рамка.focus(); разбудитьРамку(); });
 
     /* Метки пересобираются под каждую систему: они привязаны к её ролику.
        Старые часы гасятся здесь же — иначе при быстром переходе от системы к
@@ -1565,6 +1589,7 @@ body.без_мыши, body.без_мыши *{cursor:none !important}
        на Three.js, и оставленная работать она жгла бы кадры под нашим показом. */
     экран_системы.classList.remove("снаружи");
     document.getElementById("внешний_показ").src = "about:blank";
+    разбудитьПетли();
     document.getElementById("сис_кролику").hidden = true;
     var в = экран_системы.querySelector("video");
     if(в){ в.pause(); в.currentTime = 0; }
@@ -1583,7 +1608,7 @@ body.без_мыши, body.без_мыши *{cursor:none !important}
     var в = экран_системы.querySelector("video");
     if(в) в.pause();
     var рамка = document.getElementById("внешний_показ");
-    рамка.addEventListener("load", function ф(){ рамка.removeEventListener("load", ф); рамка.focus(); });
+    рамка.addEventListener("load", function ф(){ рамка.removeEventListener("load", ф); рамка.focus(); разбудитьРамку(); });
     рамка.src = текущаяСистема.внешний;
     экран_системы.classList.add("снаружи");
     document.getElementById("сис_кролику").hidden = true;
@@ -1603,6 +1628,7 @@ body.без_мыши, body.без_мыши *{cursor:none !important}
        на Three.js, и оставленная работать она жгла бы кадры под нашим показом. */
     экран_системы.classList.remove("снаружи");
     document.getElementById("внешний_показ").src = "about:blank";
+    разбудитьПетли();
     document.getElementById("сис_кролику").hidden = true;
     var в = экран_системы.querySelector("video");
     if(в){ в.pause(); в.currentTime = 0; }
@@ -1870,7 +1896,9 @@ body.без_мыши, body.без_мыши *{cursor:none !important}
     if(заставкаНаЭкране()) return;
     Array.prototype.forEach.call(document.querySelectorAll(".площадка video"), function(в){
       if(в.preload === "none") в.preload = "auto";
-      if(в.paused){
+      /* усыплённые под встроенным показом не трогаем — сторож тикает раз в
+         четыре секунды и иначе будил бы их обратно под ЦД */
+      if(в.paused && !в.hasAttribute("data-усыплена")){
         var п = в.play();
         /* play() отдаёт промис и отклоняет его, если браузер запретил
            автозапуск. Молчаливое падение здесь недопустимо — но и ронять показ
