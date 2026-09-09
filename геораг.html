@@ -229,7 +229,8 @@ svg .поток[data-к]{transform:none}
         <div class="лист" style="top:40px;left:40px;transition-delay:160ms"><i class="к"></i><i class="с"></i><div class="карт"></div><i class="с"></i></div>
         <div class="лист" style="top:10px;left:80px;transition-delay:320ms"><i class="к"></i><i class="с"></i><div class="графа"></div><i class="с"></i></div>
       </div>
-      <div class="подп"><b>80 000+</b>геологических отчётов, накопленных за десятилетия: сканы, таблицы, карты, каротаж</div>
+      <!-- 09.09: «80 000+ отчётов» снято — геологи дали свою статистику (KMG GeoAI.docx): 7,7 ТБ, почти 2 млн файлов. -->
+      <div class="подп"><b>7,7 ТБ</b>геолого-геофизических данных, почти 2 млн файлов: сканы, таблицы, карты</div>
     </div>
 
     <!-- 2. OCR -->
@@ -241,14 +242,14 @@ svg .поток[data-к]{transform:none}
         <circle cx="10" cy="55" r="3" fill="#3EE6B8" stroke="none"/><circle cx="100" cy="55" r="3" fill="#3EE6B8" stroke="none"/>
       </svg>
       <b>Распознавание</b>
-      <span>OCR читает сканы: таблицы, графики, карты, каротаж</span>
+      <span>OCR читает сканы: таблицы, графики, карты</span>
     </div>
 
     <!-- 3. база знаний в закрытом контуре -->
     <div class="контур" data-к="3">
       <div class="замок"><svg viewBox="0 0 24 24" fill="none" stroke="#3EE6B8" stroke-width="2"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>закрытый контур</div>
       <div class="имя">База знаний</div>
-      <div class="заг">Отчёты + LLM-wiki по книгам · граф-связи <span class="ии">AI</span></div>
+      <div class="заг">База знаний со связями (LLM Wiki) + отчёты <span class="ии">AI</span></div>
       <svg class="граф" viewBox="0 0 500 300" aria-hidden="true">
         <line x1="223.2" y1="126.6" x2="131.5" y2="80.7"/>
         <line x1="224.5" y1="155.7" x2="140.4" y2="207.4"/>
@@ -265,7 +266,8 @@ svg .поток[data-к]{transform:none}
         <circle cx="400" cy="210" r="20"/><text x="400" y="246" text-anchor="middle">каротаж 2019</text>
         <circle cx="250" cy="260" r="16"/><text x="250" y="292" text-anchor="middle">отчёт 2023</text>
       </svg>
-      <div class="низ"><span>собственная модель</span><span>open-weight, внутри инфраструктуры</span><span>обучена на реальных отчётах</span><span>wiki по фундаментальной литературе</span></div>
+      <!-- 09.09, геологи: не «собственная» и не «обучена» — локально развёрнутая open-source модель, подвязанная к отчётам; «wiki» гостям не объяснить — «база знаний». -->
+      <div class="низ"><span>локальная open-source модель</span><span>внутри контура КМГ</span><span>подвязана к отчётам</span><span>база знаний по литературе</span></div>
     </div>
 
     <!-- 4. вопрос -->
@@ -404,7 +406,7 @@ svg .поток[data-к]{transform:none}
     <div class="цифра" data-к="1"><div class="шапка">Подготовка справок</div>
       <div class="крупно стрелой">недели → минуты</div><div class="пояс">аналитические справки и сводки по отчётам</div></div>
     <div class="цифра" data-к="2"><div class="шапка">База</div>
-      <div class="крупно">80 000+</div><div class="пояс">документов, доступных по запросу в одном окне</div></div>
+      <div class="крупно">7,7 ТБ</div><div class="пояс">геолого-геофизических данных, почти 2 млн файлов — в одном окне</div></div>
     <div class="цифра" data-к="3"><div class="шапка">Интерпретация</div>
       <div class="крупно">×2–3</div><div class="пояс">быстрее интерпретация геоданных</div></div>
     <div class="цифра" data-к="4"><div class="шапка">Данные</div>
@@ -412,7 +414,7 @@ svg .поток[data-к]{transform:none}
   </div>
 
   <div class="качества">
-    <div class="качество" data-к="5"><b>Приватность ↑</b><span>Собственная open-weight модель разворачивается во внутренней инфраструктуре. Данных наружу нет.</span></div>
+    <div class="качество" data-к="5"><b>Приватность ↑</b><span>Локально развёрнутая open-source модель во внутренней инфраструктуре. Данных наружу нет.</span></div>
     <div class="качество" data-к="6"><b>Скорость ↑</b><span>Знания десятилетий — за минуты: вопрос словами вместо недель поиска по архивам.</span></div>
     <div class="качество" data-к="7"><b>Доверие ↑</b><span>Каждый ответ со ссылкой на документ и страницу. Reasoning-выводы, без галлюцинаций.</span></div>
   </div>
