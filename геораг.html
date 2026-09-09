@@ -249,6 +249,7 @@ svg .поток[data-к]{transform:none}
     <div class="контур" data-к="3">
       <div class="замок"><svg viewBox="0 0 24 24" fill="none" stroke="#3EE6B8" stroke-width="2"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>закрытый контур</div>
       <div class="имя">База знаний</div>
+      <!-- 09.09, геологи: граф связей построен только по книгам — узлы здесь понятия из литературы, не сущности отчётов. Отчёты — источник фактов для ответа, в граф не входят. -->
       <div class="заг">База знаний со связями (LLM Wiki) + отчёты <span class="ии">AI</span></div>
       <svg class="граф" viewBox="0 0 500 300" aria-hidden="true">
         <line x1="223.2" y1="126.6" x2="131.5" y2="80.7"/>
@@ -259,12 +260,12 @@ svg .поток[data-к]{transform:none}
         <line x1="391.6" y1="83.9" x2="398.4" y2="186.1"/>
         <line x1="250.0" y1="170.0" x2="250.0" y2="240.0"/>
         <line x1="142.9" y1="227.1" x2="230.9" y2="254.1"/>
-        <circle cx="250" cy="140" r="26" class="ц"/><text x="250" y="145" text-anchor="middle">Тасбулак</text>
-        <circle cx="110" cy="70" r="20"/><text x="110" y="42" text-anchor="middle">пласт Ю-I</text>
-        <circle cx="120" cy="220" r="20"/><text x="120" y="256" text-anchor="middle">скважина 14</text>
-        <circle cx="390" cy="60" r="20"/><text x="390" y="32" text-anchor="middle">запасы С1</text>
-        <circle cx="400" cy="210" r="20"/><text x="400" y="246" text-anchor="middle">каротаж 2019</text>
-        <circle cx="250" cy="260" r="16"/><text x="250" y="292" text-anchor="middle">отчёт 2023</text>
+        <circle cx="250" cy="140" r="26" class="ц"/><text x="250" y="145" text-anchor="middle">Ловушка</text>
+        <circle cx="110" cy="70" r="20"/><text x="110" y="42" text-anchor="middle">коллектор</text>
+        <circle cx="120" cy="220" r="20"/><text x="120" y="256" text-anchor="middle">пористость</text>
+        <circle cx="390" cy="60" r="20"/><text x="390" y="32" text-anchor="middle">покрышка</text>
+        <circle cx="400" cy="210" r="20"/><text x="400" y="246" text-anchor="middle">миграция УВ</text>
+        <circle cx="250" cy="260" r="16"/><text x="250" y="292" text-anchor="middle">риск POS</text>
       </svg>
       <!-- 09.09, геологи: не «собственная» и не «обучена» — локально развёрнутая open-source модель, подвязанная к отчётам; «wiki» гостям не объяснить — «база знаний». -->
       <div class="низ"><span>локальная open-source модель</span><span>внутри контура КМГ</span><span>подвязана к отчётам</span><span>250 фундаментальных книг в базе знаний</span></div>
