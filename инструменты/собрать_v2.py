@@ -108,13 +108,15 @@ CSS = r'''
 /* ================= v2: процессная схема передела ================= */
 /* Лежит там же, где веер: фиксированный слой поверх сцены, в экранных
    координатах. Слева остаётся подпись передела и площадка под ней. */
-#процесс{position:fixed;left:42%;right:2.5%;top:17%;bottom:4%;z-index:12;display:none;flex-direction:column;gap:18px;pointer-events:none}
+#процесс{position:fixed;left:31%;right:2.5%;top:15%;bottom:4%;z-index:12;display:none;flex-direction:column;gap:20px;pointer-events:none;overflow:hidden}
 body.вглубь #процесс{display:flex}
 #процесс > *{pointer-events:auto}
 #процесс .бровь{font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--приглуш);opacity:0;transition:opacity .4s ease}
 #процесс.виден .бровь{opacity:1}
-.шаги_процесса{display:flex;align-items:stretch;gap:0;flex:1 1 auto;min-height:0}
-.шаг_процесса{flex:1 1 0;min-width:0;border:1px solid var(--грань);border-radius:20px;padding:20px 20px 18px;
+/* ряд шагов не растягивается на высоту панели: карточки высотой по содержимому,
+   иначе три чипа в одной карточке вылезали за её низ (скрин Адиля 10.09) */
+.шаги_процесса{display:flex;align-items:stretch;gap:0;flex:0 0 auto}
+.шаг_процесса{flex:1 1 0;min-width:0;border:1px solid var(--грань);border-radius:20px;padding:18px 18px 16px;
   background:linear-gradient(180deg, rgba(12,22,38,.92), rgba(5,8,16,.72));display:flex;flex-direction:column;
   opacity:0;transform:translateY(14px);transition:opacity .45s ease, transform .45s cubic-bezier(.2,.7,.3,1), border-color .25s, box-shadow .25s}
 #процесс.виден .шаг_процесса{opacity:1;transform:none}
@@ -135,14 +137,14 @@ body.вглубь #процесс{display:flex}
 .проект_чип span{font-size:clamp(12px,.82vw,15px);font-weight:600;line-height:1.25;color:var(--текст)}
 .проект_чип .печать_ии{position:static;width:24px;height:24px;flex:0 0 24px;font-size:8.5px;line-height:22px;transform:none;margin-left:auto}
 /* полоса поддержки */
-.поддержка{border-top:1px solid var(--грань);padding-top:14px;display:flex;flex-direction:column;gap:10px;
+.поддержка{border-top:1px solid var(--грань);padding-top:14px;display:flex;flex-direction:column;gap:10px;flex:0 0 auto;
   opacity:0;transform:translateY(10px);transition:opacity .45s ease .25s, transform .45s ease .25s}
 #процесс.виден .поддержка{opacity:1;transform:none}
 .поддержка .ряд{display:flex;gap:14px;flex-wrap:wrap}
 .группа_поддержки{flex:1 1 0;min-width:0;border:1px dashed rgba(124,141,166,.45);border-radius:16px;padding:12px 14px 12px}
 .группа_поддержки .имя_группы{font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--приглуш);margin-bottom:8px}
 .группа_поддержки .проекты_шага{margin-top:0;flex-direction:row;flex-wrap:wrap}
-.группа_поддержки .проект_чип{flex:1 1 180px}
+.группа_поддержки .проект_чип{flex:1 1 200px}
 #процесс .примечание{font-size:11.5px;color:var(--приглуш);letter-spacing:.02em}
 /* в режиме v2 веер не рисуется */
 body.процессы .веер{display:none}
@@ -221,7 +223,7 @@ JS = r'''
     '    document.getElementById("где").textContent = СТАДИИ[п.стадия].имя + " / " + п.имя;\n    /* v2: вместо веера — процессная схема */\n    показатьПроцесс(п);')
 зам('    скрытьУзлы();\n    подпись_передела.classList.remove("виден");', '    скрытьУзлы();\n    скрытьПроцесс();\n    подпись_передела.classList.remove("виден");')
 # площадка при наезде должна уместиться левее схемы: граница веера сдвигается с 60% к 44%
-зам('  var ВЕЕР_X    = 60;', '  var ВЕЕР_X    = 44;   /* v2: правее начинается процессная схема */')
+зам('  var ВЕЕР_X    = 60;', '  var ВЕЕР_X    = 32;   /* v2: правее начинается процессная схема */')
 зам('  var ЦЕЛЬ_Y = 52;', '  var ЦЕЛЬ_Y = 64;   /* v2: площадка ниже, под текстом подписи (Адиль 10.09, стрелки на скрине) */')
 # наезд v2: площадка стоит под подписью слева, схема справа не задевается
 зам('''  function открыть(п){
@@ -229,9 +231,9 @@ JS = r'''
      подписью — правее начинается схема, и площадка не должна её задевать. */
   function наездПодПросвет(){
     var сцШ = сцена.offsetWidth, сцЛево = (window.innerWidth - сцШ) / 2;
-    var просвет = 0.30 * window.innerWidth;
+    var просвет = 0.22 * window.innerWidth;
     var к = Math.min(НАЕЗД_МАКС, просвет / (ШИРИНА_МОДУЛЯ/100 * сцШ));
-    var серединаПx = 0.19 * window.innerWidth;
+    var серединаПx = 0.15 * window.innerWidth;
     return { к:к, цельX: (серединаПx - сцЛево) / сцШ * 100 };
   }
   function открыть(п){
