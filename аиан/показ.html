@@ -75,13 +75,13 @@ html,body{width:100%;height:100%;background:#000;overflow:hidden;
    поэтому выбеливаем фильтром, а не правим файл. */
 #лого{height:clamp(40px,6vmin,68px);filter:brightness(0) invert(1) drop-shadow(0 0 18px rgba(79,227,255,.25));opacity:.92}
 #имя{font-family:'Unbounded',system-ui,sans-serif;
-  font-size:clamp(40px,8vmin,96px);font-weight:700;letter-spacing:.02em;
+  font-size:clamp(52px,11vmin,132px);font-weight:700;letter-spacing:.02em; /* 10.09 ДАЦ: надпись в начале крупнее */
   text-shadow:0 0 60px rgba(79,227,255,.35)}
 #имя b{font-weight:700}
 /* градиент имени един во всех тактах: без этого правило #имя b перебивало
    прозрачность текста и AIAN на титуле оставался плоско-циановым */
 #имя .град_текст, #знак_аян .град_текст{color:transparent;text-shadow:none}
-#подзаг{font-size:clamp(17px,3.1vmin,36px);color:var(--приглуш);letter-spacing:.06em;
+#подзаг{font-size:clamp(20px,3.8vmin,44px);color:var(--приглуш);letter-spacing:.06em;
   text-shadow:0 2px 18px rgba(0,0,0,.95)} /* ложится на яркую полосу потока */
 
 /* ---------- зачем (тезисы для государства) ---------- */
@@ -441,17 +441,18 @@ body.снимок #финал_знак{transition:none !important;opacity:1 !imp
 #дорожка b{color:var(--текст);font-weight:600}
 
 /* ---------- откуда данные ---------- */
-#данные .центр{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2.6vmin}
-#данные_заг{font-size:clamp(22px,4.2vmin,52px);font-weight:700;letter-spacing:.01em;opacity:0;transform:translateY(10px);transition:all .8s ease .2s}
+#данные .центр{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.8vmin}
+#данные_заг{font-size:clamp(22px,3.8vmin,48px);font-weight:700;letter-spacing:.01em;opacity:0;transform:translateY(10px);transition:all .8s ease .2s}
 #данные.активен #данные_заг{opacity:1;transform:none}
 /* ширина плитки упирается и в ширину, и в высоту: две строки с подписями плюс заголовок должны влезть в кадр */
-#мозаика{display:grid;grid-template-columns:repeat(2,min(38vw,60vh));gap:1.6vmin}
-#мозаика figure{margin:0;border-radius:14px;overflow:hidden;border:1px solid rgba(79,227,255,.3);
+/* 10.09 ДАЦ (Шарипова): дашборды крупнее, подписи сверху, крупнее и ярким цветом */
+#мозаика{display:grid;grid-template-columns:repeat(2,min(46vw,66vh));gap:1.6vmin}
+#мозаика figure{margin:0;border-radius:14px;overflow:hidden;border:1px solid rgba(79,227,255,.3);display:flex;flex-direction:column;
   background:#0a1626;opacity:0;transform:translateY(24px);transition:all .8s ease}
 #мозаика video{display:block;width:100%;aspect-ratio:16/9;object-fit:cover}
-#мозаика figcaption{padding:1.2vmin 2vmin;font-size:clamp(13px,2vmin,22px);display:flex;gap:1.4vmin;align-items:baseline;
-  background:rgba(7,14,26,.92);border-top:1px solid rgba(79,227,255,.25)}
-#мозаика figcaption b{color:var(--мята);font-weight:700}
+#мозаика figcaption{order:-1;padding:1.1vmin 2vmin;font-size:clamp(15px,2.5vmin,28px);display:flex;gap:1.4vmin;align-items:baseline;
+  background:rgba(7,14,26,.92);border-bottom:1px solid rgba(79,227,255,.25)}
+#мозаика figcaption b{color:#FFC94D;font-weight:700}
 #мозаика figcaption{justify-content:center;text-align:center}
 .экран_источника{display:block;text-decoration:none;color:inherit;cursor:pointer}
 .экран_источника:hover figure{border-color:rgba(62,230,184,.8)}
@@ -696,12 +697,12 @@ body.снимок #финал .эффект, body.снимок #финал #ци
            если на стенде попросят «покажите систему», клик по экрану
            открывает её новой вкладкой; стрелка вправо — просто следующий такт.
            Клик по экрану не должен листать показ — stopPropagation. -->
-      <div id="данные_заг" class="дисплей">Источники данных</div>
+      <div id="данные_заг" class="дисплей">Источники данных KMG.AIAN</div>
       <div id="мозаика">
-        <a class="экран_источника" href="https://iis.thkmg.kz/iis/processing/2/report" target="_blank" rel="noopener"><figure><video src="медиа/данные/рапорт.mp4" muted loop playsinline preload="auto"></video><figcaption><b>Данные нефтеперерабатывающих заводов</b></figcaption></figure></a>
-        <a class="экран_источника" href="https://iis.thkmg.kz/iis/transport/ktzh/move" target="_blank" rel="noopener"><figure><video src="медиа/данные/ктж.mp4" muted loop playsinline preload="auto"></video><figcaption><b>Данные АО НК «Қазақстан темір жолы»</b></figcaption></figure></a>
-        <a class="экран_источника" href="https://iis.thkmg.kz/iis/remain_rk" target="_blank" rel="noopener"><figure><video src="медиа/данные/запасы.mp4" muted loop playsinline preload="auto"></video><figcaption><b>Данные Министерства энергетики РК</b></figcaption></figure></a>
-        <a class="экран_источника" href="https://iis.thkmg.kz/kgd/dashboard/kmg-petroleu" target="_blank" rel="noopener"><figure><video src="медиа/данные/кгд.mp4" muted loop playsinline preload="auto"></video><figcaption><b>Данные Комитета государственных доходов МФ РК</b></figcaption></figure></a>
+        <a class="экран_источника" href="https://iis.thkmg.kz/iis/processing/2/report" target="_blank" rel="noopener"><figure><video src="медиа/данные/рапорт.mp4" muted loop playsinline preload="auto"></video><figcaption><b>Поставка, переработка сырья, производство, отгрузка нефтепродуктов</b></figcaption></figure></a>
+        <a class="экран_источника" href="https://iis.thkmg.kz/iis/transport/ktzh/move" target="_blank" rel="noopener"><figure><video src="медиа/данные/ктж.mp4" muted loop playsinline preload="auto"></video><figcaption><b>Дислокация вагонов по РК и импорт</b></figcaption></figure></a>
+        <a class="экран_источника" href="https://iis.thkmg.kz/iis/remain_rk" target="_blank" rel="noopener"><figure><video src="медиа/данные/запасы.mp4" muted loop playsinline preload="auto"></video><figcaption><b>Запасы нефтепродуктов на нефтебазах РК</b></figcaption></figure></a>
+        <a class="экран_источника" href="https://iis.thkmg.kz/kgd/dashboard/kmg-petroleu" target="_blank" rel="noopener"><figure><video src="медиа/данные/кгд.mp4" muted loop playsinline preload="auto"></video><figcaption><b>Реализация нефтепродуктов в регионах РК</b></figcaption></figure></a>
       </div>
     </div>
   </section>
