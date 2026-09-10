@@ -1,0 +1,2414 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>КМГ — цифровая цепочка · v2 процессы</title>
+<style>
+/* Палитра и шрифты перенесены из ЦД через AIAN: заказчик просил у всех показов
+   один стиль. Собственного набора цветов здесь нет намеренно — показы стоят
+   рядом на одном стенде, и разнобой читается как разные продукты.
+   Фирменный синий КМГ добавлен отдельно: он замерен по логотипу подсчётом
+   пикселей, а не подобран на глаз. */
+:root{
+  --кмг:#02AEF0; --кмг_свет:#90D6F7;
+  --циан:#4FE3FF; --мята:#3EE6B8; --янтарь:#F0AE4A; --зелёный:#3ED598; --красный:#FF5A4F;
+  --фон0:#050810; --фон1:#0C1626;
+  --грань:#1B2E48; --грань_мягкая:#142338;
+  --текст:#D7E2F2; --текст2:#AFC0D8; --приглуш:#7C8DA6;
+  /* Ширина узла веера. Держится здесь, потому что от неё зависит и раскладка
+     узлов, и масштаб наезда: JS читает её у настоящего элемента. */
+  --узел-ширина:min(26vw,300px);
+}
+/* Шрифты самохостятся: в зале может не быть интернета, а показ обязан
+   открыться. Фоллбек на системные — если woff2 не дойдёт, экран живёт. */
+@font-face{font-family:'Unbounded';font-weight:500 700;font-display:swap;
+  src:url('медиа/шрифты/унб_700_cyrillic.woff2') format('woff2');
+  unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
+@font-face{font-family:'Unbounded';font-weight:500 700;font-display:swap;
+  src:url('медиа/шрифты/унб_700_latin.woff2') format('woff2');
+  unicode-range:U+0000-00FF,U+2000-206F}
+@font-face{font-family:'Golos Text';font-weight:400 600;font-display:swap;
+  src:url('медиа/шрифты/голос_400_cyrillic.woff2') format('woff2');
+  unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
+@font-face{font-family:'Golos Text';font-weight:400 600;font-display:swap;
+  src:url('медиа/шрифты/голос_400_latin.woff2') format('woff2');
+  unicode-range:U+0000-00FF,U+2000-206F}
+
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{
+  /* Фон страницы чёрный, а свет стола лежит внутри сцены (.подложка).
+     Причина не косметическая: .сцена создаёт свой контекст наложения из-за
+     transform, и площадки в режиме screen смешивались не с градиентом
+     страницы, а с прозрачностью внутри контекста — из-за чего вокруг каждой
+     площадки стоял чёрный прямоугольник. Проверено подменой режима на normal:
+     прямоугольники становились явными, на чёрном фоне исчезали совсем. */
+  background:#000;
+  color:var(--текст);
+  font-family:'Golos Text',system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  font-size:15px;line-height:1.55;overflow:hidden;touch-action:manipulation;
+  -webkit-font-smoothing:antialiased;
+}
+/* дисплейный шрифт — только знаковым вещам: имя экрана, названия переделов,
+   имя проекта. Подписи остаются в Golos: Unbounded широкий, строки не влезут */
+.дисплей{font-family:'Unbounded',system-ui,sans-serif;letter-spacing:.01em}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+:focus-visible{outline:2px solid var(--кмг);outline-offset:4px;border-radius:4px}
+.надпись{font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--приглуш)}
+
+/* ================= шапка и путь ================= */
+.шапка{position:fixed;inset:0 0 auto 0;z-index:40;padding:20px 34px 0;
+  display:flex;justify-content:space-between;align-items:flex-start;gap:20px;
+  pointer-events:none}
+.шапка > *{pointer-events:auto}
+h1{font-size:clamp(19px,2vw,27px);font-weight:700;margin-top:5px}
+/* Трёхточечный градиент на коротком слове читался пятном: светлый край,
+   тёмная середина, светлый край — заказчик это и заметил. Он предложил либо
+   убрать градиент, либо оживить его. Оживляю: блик медленно проходит по слову,
+   и то, что было пятном, читается как движение света.
+
+   Полотно втрое шире слова, поэтому блик успевает уйти и вернуться, а не
+   дёргается на месте. Двенадцать секунд — на грани заметности: докладчик
+   говорит, а не смотрит на заголовок.
+
+   Перелив идёт только на уровне 0. Внутри передела и на экране системы
+   заголовок остаётся, и мерцающая строка там отвлекала бы от того, ради чего
+   туда провалились. */
+h1 .град{background:linear-gradient(100deg,
+    var(--кмг) 0%, var(--кмг) 30%, #EAF9FF 42%, var(--кмг_свет) 54%, var(--кмг) 70%, var(--кмг) 100%);
+  background-size:300% 100%;background-position:100% 0;
+  -webkit-background-clip:text;background-clip:text;color:transparent}
+body:not(.вглубь) h1 .град{animation:перелив 12s ease-in-out infinite}
+@keyframes перелив{0%{background-position:100% 0}
+  55%{background-position:0% 0}100%{background-position:100% 0}}
+.шапка_п{display:flex;align-items:center;gap:14px}
+/* Логотип заказчика тёмный и на чёрном не читается: выбеливаем фильтром,
+   исходный файл остаётся как был. Инверсную версию надо запросить у
+   пресс-службы — перекраска фирменного знака это временная мера. */
+/* 60 px, а не 40: заказчик дважды просил крупнее — с расстояния стенда 40 px
+   читался как штамп в углу, а не как имя компании. */
+#лого{height:60px;filter:brightness(0) invert(1);opacity:.92}
+
+/* Отступ пересчитан после того, как из шапки убрали строку форумов: она
+   держала высоту, и без неё между заголовком и строкой возврата зияла дыра. */
+.путь{position:fixed;left:34px;top:82px;z-index:40;display:flex;align-items:center;gap:12px;
+  opacity:0;pointer-events:none;transition:opacity .3s}
+body.вглубь .путь{opacity:1;pointer-events:auto}
+.путь button{display:inline-flex;align-items:center;gap:8px;color:var(--текст2);
+  border:1px solid var(--грань);border-radius:8px;padding:7px 13px;font-size:11.5px;
+  transition:border-color .2s,color .2s,background .2s}
+.путь button:hover{border-color:var(--кмг);color:var(--кмг);background:rgba(2,174,240,.08)}
+.путь .где{font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--приглуш)}
+
+/* ================= стол и сцена ================= */
+.стол{position:fixed;inset:0;display:grid;place-items:center;overflow:hidden}
+.сцена{position:relative;width:min(100vw, calc(100vh * 2560 / 1098));
+  aspect-ratio:2560/1098;transform-origin:0 0;
+  transition:transform 900ms cubic-bezier(.22,.7,.24,1)}
+
+/* Свет стола. Растянут далеко за пределы сцены, чтобы его край не влез в кадр,
+   и намеренно оставлен внутри .сцены: при наезде он едет вместе с макетом, как
+   и положено свету, падающему на стол. */
+.подложка{position:absolute;inset:-60%;pointer-events:none;
+  background:radial-gradient(46% 40% at 50% 62%, var(--фон1) 0%, var(--фон0) 46%, #000 76%);
+  animation:дыхание 19s ease-in-out infinite}
+@keyframes дыхание{0%,100%{opacity:.86}50%{opacity:1}}
+
+/* Линия связи рисуется кодом, а не лежит в картинке: она обязана тянуться
+   между площадками при любом их сдвиге, а нарисованную пришлось бы
+   перегенерировать после каждой правки раскладки. */
+.линия{position:absolute;left:0;right:0;top:var(--низ,66%);height:2px;
+  background:linear-gradient(90deg,transparent 0%,var(--кмг) 6%,var(--кмг) 94%,transparent 100%);
+  box-shadow:0 0 14px rgba(2,174,240,.75);opacity:.9}
+/* Импульсы по линии — единственное движение, которое честно означает смысл:
+   по цепочке идёт поток. Остальная фоновая анимация только оживляет кадр. */
+.импульс{position:absolute;top:-3px;width:64px;height:8px;border-radius:4px;
+  background:linear-gradient(90deg,transparent,var(--кмг_свет),transparent);
+  filter:blur(1px);animation:бег 7s linear infinite}
+@keyframes бег{0%{left:-6%;opacity:0}8%{opacity:1}92%{opacity:1}100%{left:102%;opacity:0}}
+
+/* Площадки лежат на чёрном фоне до нуля по яркости (замерено: углы 0,1–0,3 из
+   255), поэтому кладутся режимом screen — чёрное ничего не добавляет. Вырезать
+   их порогом не нужно: на прошлой сборке порог съедал грунт по контуру. */
+.площадка{position:absolute;mix-blend-mode:screen;
+  transition:opacity .42s ease;
+  animation:парение var(--период,9s) ease-in-out var(--сдвиг,0s) infinite;
+  will-change:transform}
+.площадка img,.площадка video{width:100%;height:100%;display:block}
+/* Периоды у площадок разные и не кратные друг другу: с одинаковым периодом
+   ряд начинает дышать как один предмет, и макет читается картинкой, а не
+   набором объектов. */
+/* Размах замерен, а не подобран: при 0,9% высоты слоя смещение выходило
+   2,6 px на экране 1600 px — движения не видно вовсе. 1,8% дают около 5 px:
+   боковым зрением читается, речи докладчика не мешает. */
+@keyframes парение{0%,100%{transform:translateY(0)}50%{transform:translateY(-1.8%)}}
+
+/* Ореол под основанием: пульсирует в том же ритме, что и парение своей
+   площадки, поэтому свет читается принадлежащим объекту, а не фону. */
+.ореол{position:absolute;pointer-events:none;border-radius:50%;
+  background:radial-gradient(closest-side, rgba(2,174,240,.30), transparent 72%);
+  animation:тление var(--период,9s) ease-in-out var(--сдвиг,0s) infinite}
+@keyframes тление{0%,100%{opacity:.5;transform:scale(1)}50%{opacity:1;transform:scale(1.06)}}
+
+/* Зона клика невидима совсем. Раньше при наведении она подсвечивалась
+   прямоугольником — заказчику это не понравилось, и по делу: модуль
+   восьмиугольный, стоит на чёрном столе, а вокруг него загоралась
+   прямоугольная плашка. Она выдавала разметку интерфейса там, где зритель
+   видит предмет на столе.
+
+   Вместо подсветки предмет РЕАГИРУЕТ: приподнимается и ярче светится ореол под
+   ним. Это то же самое, что сделал бы человек, беря макет в руки, и не требует
+   рисовать ни одной новой фигуры. */
+.зона{position:absolute;cursor:pointer}
+body.вглубь .зона{pointer-events:none}
+
+/* Подъём вешается на картинку внутри площадки, а не на саму площадку: у
+   площадки уже занят transform анимацией парения, и второй transform на том же
+   элементе её бы перебил. */
+.площадка img,.площадка video{transition:transform .34s cubic-bezier(.34,1.4,.5,1)}
+.площадка.поднята img,.площадка.поднята video{transform:translateY(-2.2%) scale(1.02)}
+/* Ореол ярчает фильтром, а не прозрачностью: прозрачность и масштаб у него
+   заняты анимацией тления. */
+.ореол{transition:filter .34s ease}
+.ореол.ярче{filter:brightness(2.1) saturate(1.15)}
+
+.бирка{position:absolute;transform:translate(-50%,0);text-align:center;
+  white-space:nowrap;pointer-events:none;transition:opacity .32s ease}
+.бирка .номер{font-size:11px;letter-spacing:.24em;color:var(--кмг);opacity:.8}
+.бирка .имя{font-size:13.5px;font-weight:700;margin-top:2px;text-shadow:0 2px 14px #000}
+.бирка .счёт{font-size:11.5px;color:var(--приглуш);margin-top:1px}
+
+/* Скобки стадий. Подписаны над цепочкой, а не в легенде: докладчик показывает
+   рукой на группу объектов, и надпись должна быть там же, где рука. */
+.скоба{position:absolute;text-align:center;pointer-events:none;transition:opacity .32s}
+.скоба .черта{height:1px;width:100%;opacity:.6}
+/* Крупнее по просьбе заказчика: стадия — это то, что докладчик называет
+   первым, и с расстояния она читалась хуже подписей переделов под ней. */
+.скоба .имя{font-family:'Unbounded',system-ui,sans-serif;font-size:15px;letter-spacing:.24em;
+  text-transform:uppercase;margin-bottom:8px}
+body.вглубь .скоба{opacity:0}
+
+/* ================= ИИ на экране ================= */
+/* Сквозных слоёв в разметке больше нет — ни полосы, ни второй линии, ни
+   связок. Сняты по решению совещания 02.09; история попыток записана в JS у
+   ПЕРЕДЕЛЫ. */
+/* Два способа «вытянуть ИИ» — заказчик просил показать оба и выбрать на
+   встрече. Печать: круглый штамп «AI» у значка каждой системы с ИИ — ей это
+   нравится больше («как печать, лейбл»). Заголовок: «Цифровая цепочка на ИИ» —
+   так называется и сам сценарий показа. Оба включаются классами на body по
+   параметру адреса ?ии=печать|заголовок|оба, по умолчанию оба. Штамп чуть повёрнут — так он читается оттиском, а не
+   ещё одним кружком в ряду. */
+.печать_ии{display:none;position:absolute;right:-8px;top:-6px;width:36px;height:36px;
+  border-radius:50%;border:1.5px solid var(--кмг);color:var(--кмг);
+  font:700 11.5px/33px 'Unbounded',system-ui,sans-serif;letter-spacing:.08em;
+  text-align:center;background:rgba(5,8,16,.88);transform:rotate(-12deg);
+  box-shadow:0 0 0 3px rgba(2,174,240,.14),0 0 14px rgba(2,174,240,.25)}
+body.ии_печать .печать_ии{display:block}
+/* У span своё имя класса, не то же, что у body: с одинаковым именем правило
+   display:none накрывало и body — в режиме заголовка исчезала вся страница.
+   Поймано замером: элемент с классом нашёлся, но им оказался body. */
+/* Отступ даёт настоящий пробел в разметке, а не margin: с margin в тексте
+   страницы стояло «цепочкана ИИ» — так это и читалось при копировании и
+   в озвучке экранного диктора. */
+.ии_в_заголовке{display:none;color:var(--кмг);font-weight:700}
+body.ии_заголовок .ии_в_заголовке{display:inline}
+
+/* ================= узлы систем ================= */
+/* Узлы живут в экранных координатах, а не внутри .сцены: сцена при наезде
+   масштабируется в 2,4 раза, и подписи узлов уехали бы вместе с ней в палец
+   высотой. Место веера считается числом, а не замеряется у элемента — во
+   время перехода замер отдаёт промежуточные значения. */
+.веер{position:fixed;inset:0;z-index:12;pointer-events:none}
+.узел{position:absolute;transform:translate(-50%,-50%);text-align:center;
+  cursor:pointer;opacity:0;pointer-events:none;transition:opacity .45s ease;
+  width:var(--узел-ширина)}
+.узел.виден{opacity:1;pointer-events:auto}
+.узел.ушёл{opacity:0;pointer-events:none}
+/* Размер знака рос дважды по замечаниям заказчика: 52 → 72 → 110. Правая
+   половина кадра под веер всё равно оставалась полупустой, а иконка с рисунком
+   при 72 px читалась хуже подписи под ней — знак должен опознаваться раньше,
+   чем прочитано имя, иначе он лишний. Ограничение сверху — просвет между
+   подписью передела и веером: он меряется в наездПодПросвет(), и слишком
+   широкий узел начинает сдавливать саму площадку. */
+.узел .кружок{width:110px;height:110px;margin:0 auto;border-radius:50%;position:relative;
+  display:grid;place-items:center;transition:transform .2s}
+.узел:hover .кружок{transform:scale(1.1)}
+/* Ядро осталось запасным видом: если иконка для системы не найдена, узел
+   рисуется точкой, а не пустым кружком. Молча ломаться он не должен. */
+.узел .ядро{width:32px;height:32px;border-radius:50%;background:currentColor}
+/* Знак сохраняет собственный фирменный синий и не красится в цвет стадии:
+   цвет стадии несут волна под ним, подпись передела и строка возврата, а
+   иконка отвечает за узнавание продукта. Один цвет не может значить двух
+   вещей — стадию и систему. */
+.узел .знак{width:100%;height:100%;display:block;object-fit:contain;
+  filter:drop-shadow(0 0 12px rgba(2,174,240,.55))}
+.узел .волна{position:absolute;inset:0;border-radius:50%;background:currentColor;
+  animation:пульс 3.2s ease-in-out infinite}
+@keyframes пульс{0%,100%{transform:scale(1);opacity:.26}50%{transform:scale(1.5);opacity:.05}}
+/* Кегль подписи против размера значка. При значке 110 px подпись в 15 px
+   занимала около 14% его высоты и читалась приписью к картинке, а не именем
+   системы — заказчик это и заметил. 20 px дают примерно 18%: имя весит
+   наравне со значком, но не спорит с ним.
+
+   Плашка состояния поднята следом. Она служебная и должна оставаться мельче
+   имени, но на 9,5 px рядом с двадцатым кеглем читалась случайной крошкой. */
+.узел .подпись{font-family:'Unbounded',system-ui,sans-serif;font-size:20px;font-weight:700;
+  color:var(--текст);margin-top:15px;line-height:1.25;text-shadow:0 2px 12px #000}
+.узел .сост{margin-top:10px}
+
+.сост{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;letter-spacing:.09em;
+  text-transform:uppercase;padding:4px 10px;border-radius:5px;white-space:nowrap}
+.сост::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.сост.готово{background:rgba(62,213,152,.13);color:var(--зелёный)}
+.сост.демо{background:rgba(62,230,184,.13);color:var(--мята)}
+.сост.делается{background:rgba(255,90,79,.13);color:var(--красный)}
+.сост.слайды{background:rgba(124,141,166,.15);color:var(--приглуш)}
+.сост.черновик{background:rgba(240,174,74,.13);color:var(--янтарь)}
+/* «в проработке» — рабочая пометка, не статус продукта: янтарь, как у незаполненного эффекта */
+.сост.пусто{background:rgba(240,174,74,.13);color:var(--янтарь);border:1px dashed rgba(240,174,74,.5)}
+.сост.скоро{background:rgba(124,141,166,.12);color:var(--приглуш);border:1px dashed rgba(124,141,166,.5)}
+/* Узел «coming soon» серый и полупрозрачный, значок обесцвечен — заказчик
+   так и сказал: «серые, неактивные». Но не выключен: по нему можно
+   провалиться и прочитать, что это будет. */
+.узел.скоро .кружок{filter:grayscale(1);opacity:.55}
+.узел.скоро .подпись{color:var(--приглуш)}
+.узел.скоро .печать_ии{display:none}   /* печать сквозь grayscale и .55 давала 2,5:1 — на «скоро» ей делать нечего */
+/* Тесный веер — когда узлов больше девяти. Двенадцать узлов добычи в четыре
+   обычных столбца уходили за правый край: замер дал правую кромку 2337 px при
+   ширине окна 1912. Ужимается всё, из чего раскладка считает шаг: ширина узла,
+   кружок, подпись, печать. Раскладка меряет пробный узел уже с этим классом,
+   поэтому шаг сетки пересчитывается сам. */
+.веер.тесно{--узел-ширина:min(19vw,220px)}
+.веер.тесно .узел .кружок{width:82px;height:82px}
+.веер.тесно .узел .подпись{font-size:15px}
+.веер.тесно .печать_ии{width:30px;height:30px;font-size:10px;line-height:27px;right:-6px;top:-5px}
+
+/* ================= стартовый экран роли ================= */
+/* На стенде пять-шесть экранов по кругу, каждый — свой передел. По решению
+   02.09 каждый экран открывается цепочкой и говорит: «в этой цепочке я занимаю
+   вот эту роль». Адрес ?экран=добыча (или ?экран=добыча,переработка — у ИСУТО
+   переделов два) приглушает чужие площадки и оставляет свои в полную силу.
+   Провал по клику работает как обычно. Приглушение 0,3, а не 0,06 как при
+   наезде: на общем экране соседи должны читаться, иначе теряется сама
+   цепочка, ради которой всё и затевалось. */
+body.экран_роли .площадка:not(.своя){opacity:.3}
+body.экран_роли .ореол:not(.своя){opacity:0}
+body.экран_роли .бирка:not(.своя){opacity:.6}
+.роль_экрана{position:absolute;left:50%;transform:translateX(-50%);
+  font-size:clamp(11px,.95vw,15px);letter-spacing:.14em;text-transform:uppercase;
+  color:var(--текст2);white-space:nowrap;pointer-events:none;
+  transition:opacity .4s}
+body.вглубь .роль_экрана{opacity:0}
+
+/* ================= подпись передела ================= */
+#подпись_передела{position:fixed;z-index:14;left:34px;pointer-events:none;
+  display:flex;flex-direction:column;gap:7px;max-width:min(34ch,30vw);
+  opacity:0;transform:translateY(10px);
+  transition:opacity .45s ease .1s,transform .45s ease .1s}
+#подпись_передела.виден{opacity:1;transform:none}
+#подпись_передела .стадия{font-size:11.5px;letter-spacing:.2em;text-transform:uppercase;font-weight:600}
+#подпись_передела h2{font-family:'Unbounded',system-ui,sans-serif;font-weight:700;
+  font-size:clamp(20px,2.4vw,30px);line-height:1.1}
+#подпись_передела p{font-size:13px;color:var(--приглуш);line-height:1.45}
+.ответственный{font-size:11.5px;color:var(--приглуш);letter-spacing:.02em}
+/* речь докладчика лежит свёрнутой: на стенде она мешает, на репетиции нужна */
+.речь{pointer-events:auto;margin-top:4px}
+.речь summary{font-size:11.5px;padding:6px 0;letter-spacing:.12em;text-transform:uppercase;color:var(--кмг);
+  cursor:pointer;list-style:none;padding:4px 0}
+.речь summary::-webkit-details-marker{display:none}
+.речь summary::before{content:"▸ ";display:inline-block}
+.речь[open] summary::before{content:"▾ "}
+.речь p{font-size:12.5px;color:var(--текст2);line-height:1.5;
+  border-left:2px solid var(--грань);padding-left:10px;margin-top:4px}
+
+/* ================= экран системы ================= */
+/* Не окно, а конечное состояние перелёта: въезжает из точки узла, потому что
+   пространственная связь между узлом и экраном рваться не должна. */
+/* Слой выше шапки и строки возврата: экран системы это полный захват кадра,
+   а не окно поверх показа. В прежнем файле он перекрывал их потому, что шапка
+   лежала внутри общего блока; здесь она закреплена отдельно, поэтому порядок
+   задаётся числом. */
+/* Собственного въезда у экрана больше нет: его выводит морф, а экран просто
+   проявляется поверх уже выросшего кадра. Прежний scale(.92) при этом дёргал
+   картинку второй раз — кадр приезжал морфом и тут же ехал ещё раз. */
+/* visibility, а не только opacity: закрытый экран иначе остаётся в порядке
+   Tab, и фокус с кликера уходил бы на невидимые кнопки. */
+#экран_системы{position:fixed;inset:0;z-index:60;opacity:0;pointer-events:none;visibility:hidden;
+  background:var(--фон0);overflow:hidden;
+  /* visibility прячется с задержкой в длину растворения и показывается
+     мгновенно (0s): так экран не пропадает рывком, а при открытии не
+     зависит от того, играют ли переходы — в окне без фокуса они стоят. */
+  transition:opacity .3s ease,visibility 0s linear .3s}
+#экран_системы.открыт{opacity:1;pointer-events:auto;visibility:visible;transition:opacity .3s ease,visibility 0s}
+.фон_системы{position:absolute;inset:0;background-size:cover;background-position:center;
+  background-color:#0A1A2C}
+.фон_системы video{width:100%;height:100%;object-fit:cover}
+/* Шторка слева обеспечивает контраст текста. Кадр генеративный, его тон
+   гарантировать нельзя, поэтому читаемость держится затемнением, а не
+   надеждой на удачный кадр. */
+/* Метки поверх ролика. Стиль перенесён из показа AIAN дословно: два показа
+   КМГ стоят на одном стенде, и подпись, оформленная по-своему, читалась бы
+   как чужая система.
+
+   Текст держится в HTML, а не вжигается в ролик, по двум причинам. Правка
+   формулировки не должна стоить перегенерации, а кириллицу генератор рисует
+   нечитаемой псевдографикой — на роликах это уже проверено. */
+.метка_видео{position:absolute;left:auto;right:clamp(28px,4vw,64px);bottom:14vh;
+  display:flex;align-items:center;gap:9px;max-width:min(46ch,42vw);
+  padding:10px 16px;border-radius:9px;
+  background:linear-gradient(165deg,rgba(10,20,34,.9),rgba(6,12,22,.84));
+  border:1px solid rgba(2,174,240,.38);border-top-color:rgba(215,226,242,.16);
+  font-size:clamp(13px,1.5vw,20px);letter-spacing:.02em;color:var(--текст);
+  opacity:0;transform:translateY(10px);transition:opacity .6s ease,transform .6s ease;
+  pointer-events:none;backdrop-filter:blur(6px)}
+.метка_видео::before{content:'';width:8px;height:8px;border-radius:50%;flex:0 0 auto;
+  background:var(--кмг);box-shadow:0 0 10px var(--кмг)}
+.метка_видео.горит{opacity:1;transform:none}
+
+.шторка{position:absolute;inset:0;background:linear-gradient(100deg,
+  rgba(5,8,16,.97) 0%, rgba(5,8,16,.92) 34%, rgba(5,8,16,.55) 62%, rgba(5,8,16,.35) 100%)}
+.текст_системы{position:absolute;left:0;top:0;height:100%;width:min(52%,720px);
+  padding:clamp(28px,5vh,72px) clamp(28px,4vw,64px);
+  display:flex;flex-direction:column;justify-content:center;gap:14px}
+.текст_системы .стадия{font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;font-weight:600}
+.текст_системы h2{font-family:'Unbounded',system-ui,sans-serif;font-weight:700;
+  font-size:clamp(26px,3.8vw,52px);line-height:1.06;letter-spacing:-.01em;text-wrap:balance}
+.сис_эффект{font-size:clamp(15px,1.5vw,21px);color:var(--кмг);line-height:1.35;
+  border-left:2px solid var(--кмг);padding-left:14px}
+/* 10.09 ДАЦ (Шарипова): текст слева крупнее */
+.сис_суть{font-size:clamp(16px,1.45vw,21px);color:var(--текст2);line-height:1.5;max-width:60ch;white-space:pre-line}
+.сис_отв{font-size:12px;color:var(--приглуш);letter-spacing:.02em}
+.сис_низ{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:8px}
+.кнопка{padding:13px 22px;border-radius:8px;border:1px solid var(--грань);
+  font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--текст2);
+  text-decoration:none;display:inline-flex;align-items:center;cursor:pointer;
+  transition:border-color .2s,color .2s,background .2s}
+.кнопка:hover:not([disabled]){border-color:var(--кмг);color:var(--кмг);background:rgba(2,174,240,.08)}
+.кнопка[disabled]{opacity:.55;cursor:default}
+.кнопка[hidden]{display:none}
+.назад_система{position:absolute;left:clamp(28px,4vw,64px);bottom:clamp(22px,4vh,44px);
+  font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--текст2);
+  border:1px solid var(--грань);border-radius:7px;padding:8px 14px;cursor:pointer;
+  transition:border-color .2s,color .2s}
+.назад_система:hover{border-color:var(--кмг);color:var(--кмг)}
+@media (max-width:900px){ .текст_системы{width:100%} }
+
+/* ================= морф ================= */
+/* Кадр системы вырастает из кружка узла и садится обратно в него. Это не
+   украшение: между уровнями показа не должно быть разрыва, иначе докладчик
+   каждый раз объясняет, куда он попал. Расширенный узел и есть экран системы.
+
+   Анимируется коробка (left/top/width/height), а не transform. Transform был
+   бы дешевле, но он масштабирует кадр неравномерно — у кружка и у экрана
+   разное отношение сторон, и кадр внутри плющило бы. Элемент один, 620 мс,
+   ради этого можно потерпеть перерасчёт раскладки. */
+.морф{position:fixed;z-index:55;pointer-events:none;opacity:0;
+  background-size:cover;background-position:center;background-color:#0A1A2C;
+  box-shadow:0 0 0 1px rgba(2,174,240,.5), 0 24px 80px rgba(0,0,0,.6);
+  will-change:left,top,width,height,border-radius}
+.морф.идёт{transition:left .62s cubic-bezier(.3,.02,.15,1),
+  top .62s cubic-bezier(.3,.02,.15,1), width .62s cubic-bezier(.3,.02,.15,1),
+  height .62s cubic-bezier(.3,.02,.15,1), border-radius .62s ease, opacity .2s ease}
+
+.возврат{position:absolute;right:clamp(20px,3vw,40px);top:clamp(20px,3vh,36px);
+  display:flex;gap:10px;z-index:3}
+
+/* Встроенный показ ЦД занимает экран целиком: у него своя навигация, свои
+   подписи и своя панель контура. Наша текстовая колонка рядом с ними читалась
+   бы как второй интерфейс поверх первого, поэтому на этом экране она снимается,
+   и остаются только кнопки возврата. */
+#внешний_показ{position:absolute;inset:0;border:0;width:100%;height:100%;
+  opacity:0;pointer-events:none;transition:opacity .4s ease;background:var(--фон0)}
+#экран_системы.снаружи #внешний_показ{opacity:1;pointer-events:auto}
+#экран_системы.снаружи .текст_системы,
+#экран_системы.снаружи .шторка,
+#экран_системы.снаружи #метки_ролика{opacity:0;pointer-events:none}
+
+/* Чистый первый прогон. Ролик открывается на весь кадр: ни шторки, ни
+   текстовой колонки. Заказчик смотрел показ и сказал прямо — при нажатии
+   должно пойти видео, а не страница о видео.
+
+   Так и по делу: докладчик в этот момент говорит сам, и колонка повторяет за
+   ним теми же словами. Она нужна на стенде, где к экрану подходят без
+   докладчика, — поэтому не убрана совсем, а выходит после первого круга.
+
+   Подписи-метки остаются: они справа, ролика не закрывают и несут то, чего в
+   кадре нет словами. Их заказчик как раз просил добавить.
+
+   Отклонён вариант с кнопкой «показать описание». Ещё одна кнопка в кадре —
+   ещё одно решение докладчику на сцене; строку «Все проекты / Только показ»
+   сняли ровно по этой причине. */
+#экран_системы.чисто .текст_системы,
+#экран_системы.чисто .шторка{opacity:0;pointer-events:none}
+.текст_системы,.шторка{transition:opacity .55s ease}
+
+/* ================= заставка ================= */
+/* Ролик заказчика: цепочка от сейсморазведки до карты страны и знака КМГ.
+   Идёт первым делом при загрузке, потом уходит в цепочку.
+
+   z-index выше экрана системы (60) и морфа (55): заставка перекрывает всё, что
+   в показе вообще бывает на экране.
+
+   Кадр 16:9, сцена шире — поэтому cover, а не contain: чёрные поля по бокам на
+   стенде читаются как «видео не на весь экран», а срез сверху и снизу у этого
+   ролика ничего не отнимает, композиция в нём центральная. */
+#заставка{position:fixed;inset:0;z-index:90;background:#000;
+  opacity:1;transition:opacity .7s ease}
+#заставка video{width:100%;height:100%;object-fit:cover;display:block}
+#заставка.ушла{opacity:0;pointer-events:none}
+#заставка[hidden]{display:none}
+/* Кнопки — там же, где кнопки возврата на экране системы: докладчик уже знает
+   этот угол, и рука идёт туда без поиска. */
+#заставка .кнопка{background:rgba(5,8,16,.55);backdrop-filter:blur(6px)}
+/* Кнопки «Начать показ» и пелены под ней здесь больше нет: заказчик попросил
+   оставить в начале просто паузу на первом кадре. Ролик пускает любое действие
+   человека — щелчок, касание, клавиша, — а кнопка только объясняла то, что и
+   так делается само собой. Единственная надпись на кадре — «Пропустить →». */
+
+/* Курсор уходит через 2,5 с покоя: на большом экране стрелка, забытая посреди
+   кадра, видна всему залу и читается как недоделанный показ.
+
+   !important нужен по делу, а не от лени. У кнопок, узлов и площадок свой
+   cursor:pointer, и он выиграл бы у правила с тем же весом — стрелка пропала
+   бы везде, кроме ровно тех мест, где она заметнее всего. */
+body.без_мыши, body.без_мыши *{cursor:none !important}
+
+@media (prefers-reduced-motion:reduce){
+  .площадка,.ореол,.подложка,.импульс,.узел .волна,h1 .град{animation:none}
+  .морф.идёт{transition-duration:.01ms}
+  .сцена,#подпись_передела,.узел{transition-duration:.01ms}
+}
+@media (max-width:900px){
+  .шапка{padding:14px 16px 0;flex-direction:column;gap:10px}
+  #подпись_передела{display:none}
+}
+
+/* ================= v2: процессная схема передела ================= */
+/* Лежит там же, где веер: фиксированный слой поверх сцены, в экранных
+   координатах. Слева остаётся подпись передела и площадка под ней. */
+#процесс{position:fixed;left:42%;right:2.5%;top:17%;bottom:4%;z-index:12;display:none;flex-direction:column;gap:18px;pointer-events:none}
+body.вглубь #процесс{display:flex}
+#процесс > *{pointer-events:auto}
+#процесс .бровь{font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--приглуш);opacity:0;transition:opacity .4s ease}
+#процесс.виден .бровь{opacity:1}
+.шаги_процесса{display:flex;align-items:stretch;gap:0;flex:1 1 auto;min-height:0}
+.шаг_процесса{flex:1 1 0;min-width:0;border:1px solid var(--грань);border-radius:20px;padding:20px 20px 18px;
+  background:linear-gradient(180deg, rgba(12,22,38,.92), rgba(5,8,16,.72));display:flex;flex-direction:column;
+  opacity:0;transform:translateY(14px);transition:opacity .45s ease, transform .45s cubic-bezier(.2,.7,.3,1), border-color .25s, box-shadow .25s}
+#процесс.виден .шаг_процесса{opacity:1;transform:none}
+.шаг_процесса.охват{border-color:rgba(62,230,184,.75);box-shadow:0 0 0 3px rgba(62,230,184,.14),0 0 28px rgba(62,230,184,.28)}
+.шаг_процесса .номер{font-family:'Unbounded',system-ui,sans-serif;font-size:12px;letter-spacing:.2em;color:var(--кмг)}
+.шаг_процесса h3{font-family:'Unbounded',system-ui,sans-serif;font-size:clamp(14px,1.05vw,20px);font-weight:700;line-height:1.2;margin-top:10px;color:var(--текст)}
+.шаг_процесса .суть_шага{margin-top:8px;font-size:clamp(12px,.8vw,15px);line-height:1.45;color:var(--текст2)}
+.шаг_процесса .ведётся{margin-top:auto;padding-top:14px;font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--приглуш)}
+.шаг_процесса .ведётся.проработка{color:var(--янтарь)}
+.стрелка_шага{flex:0 0 26px;display:flex;align-items:center;justify-content:center;color:var(--циан);font-size:22px;opacity:.7}
+/* проект под шагом: значок + имя, кликается как узел веера */
+.проекты_шага{margin-top:14px;display:flex;flex-direction:column;gap:8px}
+.проект_чип{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:12px;border:1px solid transparent;
+  cursor:pointer;text-align:left;background:rgba(2,174,240,.06);transition:background .2s, border-color .2s}
+.проект_чип:hover,.проект_чип:focus-visible{background:rgba(2,174,240,.14);border-color:rgba(2,174,240,.5);outline:none}
+.проект_чип img{width:38px;height:38px;flex:0 0 38px;object-fit:contain;filter:drop-shadow(0 0 8px rgba(2,174,240,.5))}
+.проект_чип .точка{width:14px;height:14px;flex:0 0 14px;margin:0 12px;border-radius:50%;background:var(--кмг)}
+.проект_чип span{font-size:clamp(12px,.82vw,15px);font-weight:600;line-height:1.25;color:var(--текст)}
+.проект_чип .печать_ии{position:static;width:24px;height:24px;flex:0 0 24px;font-size:8.5px;line-height:22px;transform:none;margin-left:auto}
+/* полоса поддержки */
+.поддержка{border-top:1px solid var(--грань);padding-top:14px;display:flex;flex-direction:column;gap:10px;
+  opacity:0;transform:translateY(10px);transition:opacity .45s ease .25s, transform .45s ease .25s}
+#процесс.виден .поддержка{opacity:1;transform:none}
+.поддержка .ряд{display:flex;gap:14px;flex-wrap:wrap}
+.группа_поддержки{flex:1 1 0;min-width:0;border:1px dashed rgba(124,141,166,.45);border-radius:16px;padding:12px 14px 12px}
+.группа_поддержки .имя_группы{font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--приглуш);margin-bottom:8px}
+.группа_поддержки .проекты_шага{margin-top:0;flex-direction:row;flex-wrap:wrap}
+.группа_поддержки .проект_чип{flex:1 1 180px}
+#процесс .примечание{font-size:11.5px;color:var(--приглуш);letter-spacing:.02em}
+/* в режиме v2 веер не рисуется */
+body.процессы .веер{display:none}
+</style>
+</head>
+<body>
+
+<!-- Заставка идёт перед цепочкой при загрузке. Стоит первой в разметке и выше
+     всех по z-index: цепочка под ней уже собрана и петли уже играют, поэтому
+     после снятия заставки зритель попадает на живой экран, а не на сборку. -->
+<div id="заставка">
+  <video id="ролик_заставки" src="медиа/ролики/заставка.mp4"
+         playsinline preload="auto" poster="медиа/ролики/заставка_кадр.jpg"></video>
+  <!-- Первый кадр стоит неподвижно, пока не нажали. Нажатие и есть то самое
+       действие человека, без которого браузер не даёт звука. Ни кнопки, ни
+       пелены поверх кадра нет: заказчик попросил оставить просто паузу. -->
+  <div class="возврат">
+    <button class="кнопка" id="пропустить" type="button">Пропустить →</button>
+  </div>
+</div>
+
+<header class="шапка">
+  <div>
+    <h1 class="дисплей"><span class="град">Цифровая цепочка</span> <span class="ии_в_заголовке">на ИИ</span></h1>
+  </div>
+  <div class="шапка_п">
+    <img id="лого" src="медиа/лого_кмг.png" alt="КазМунайГаз">
+    <!-- Плашка «Драфт» снята 08.09 по просьбе заказчика: показ идёт заказчикам, штамп мешал. -->
+  </div>
+</header>
+
+<div class="путь">
+  <button id="назад" type="button">← Вся цепочка</button>
+  <span class="где" id="где"></span>
+</div>
+
+<div class="стол"><div class="сцена" id="сцена">
+  <div class="подложка"></div>
+  <div class="линия" id="линия"></div>
+</div></div>
+
+<div class="веер" id="веер"></div>
+<div id="процесс" aria-live="polite"></div>
+<div id="подпись_передела"></div>
+
+
+<!-- Морф: кадр системы вырастает из самого узла, по которому кликнули.
+     Лежит между веером и экраном системы, живёт только во время перехода. -->
+<div class="морф" id="морф" aria-hidden="true"></div>
+
+<!-- Экран системы — не окно, а конечное состояние перелёта. Фон и будущий
+     ролик занимают один слот, поэтому согласованное видео ляжет сюда без
+     правки разметки. -->
+<div id="экран_системы" aria-hidden="true">
+  <div class="фон_системы" id="фон_системы"></div>
+  <!-- Слот под чужой показ: сюда встраивается ЦД. Пустой, пока не понадобится:
+       iframe с адресом грузил бы 25 МБ моделей при каждом открытии экрана. -->
+  <iframe id="внешний_показ" title="Цифровой двойник пласта" allow="fullscreen"></iframe>
+  <div class="шторка"></div>
+  <div id="метки_ролика"></div>
+  <div class="текст_системы">
+    <span class="стадия" id="сис_стадия">—</span>
+    <h2 id="сис_имя">—</h2>
+    <p class="сис_эффект" id="сис_эффект">—</p>
+    <p class="сис_суть" id="сис_суть">—</p>
+    <p class="сис_отв" id="сис_отв">—</p>
+    <div class="сис_низ">
+      <span class="сост" id="сис_состояние">—</span>
+      <a class="кнопка" id="сис_демо" target="_blank" rel="noopener">Открыть демо</a>
+      <button class="кнопка" id="сис_ролик" type="button" disabled>Ролик на согласовании</button>
+    </div>
+  </div>
+  <!-- Возврат справа сверху по просьбе заказчика: докладчик стоит справа от
+       экрана и тянется туда, а не в дальний нижний угол. Две ступени, потому
+       что из системы одинаково часто нужно и к своему переделу, и сразу ко
+       всей цепочке. -->
+  <div class="возврат">
+    <!-- Появляется только там, где у системы есть и ролик, и живой показ:
+         сначала ролик, потом система, потом назад — порядок совещания 02.09. -->
+    <button class="кнопка" id="сис_кролику" type="button" hidden>Дальше — система →</button>
+    <button class="кнопка" id="сис_назад" type="button">← К переделу</button>
+    <button class="кнопка" id="сис_вцепочку" type="button">Вся цепочка</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ================= данные показа ================= */
+  /* Раскладка проектов по переделам — из рабочего файла «Показы КМГ.xlsx» и
+     правок заказчика. Перенесена из «цепочки» дословно: состав правился шесть
+     раз, и перепечатка вручную — самый дешёвый способ потерять одну правку. */
+  var ПЕРЕДЕЛЫ = [
+    /* Разведка и геология — один блок по решению совещания 02.09: «разведку
+       и геологию можно объединить». Что осталось геологического — база данных
+       и GeoRAG (с 07.09 — KMG Geo AI, рабочее имя от Департамента геологии); двойник пласта и рейтинг новых скважин ушли в добычу вместе со
+       всеми модулями ABAI. */
+    { код:"разведка", номер:"01", имя:"Разведка и геология", стадия:"верх",
+      суть:"Более двадцати лет геологоразведочных данных: отчёты, керны, сейсмика.",
+      ответственный:"Управление геологии и геофизики КМГ",
+      рассказчик:"Начало цепочки — разведка и геология. У КМГ более двадцати лет геологоразведочных данных: отчёты, керны, сейсмика. Раньше — недели ручного поиска. KMG Geo AI работает в закрытом контуре и даёт не просто ссылку, а reasoning-вывод. Геолог получает ответ за секунды.",
+      проекты:[
+        /* Ролик черновой, сгенерирован под смысл продукта: тёмный архив
+           геологических отчётов и кернов, луч сканирования по раскрытому тому,
+           с бумаги поднимаются контуры и точки данных. Это «двадцать лет
+           бумажной геологии становятся искомыми», а не интерфейс ассистента —
+           интерфейс на стенде показывается живым демо, а не роликом. */
+        { имя:"KMG Geo AI", состояние:"черновик", хроно:"0:35", эффект:"Скорость геоаналитики +30–60% · оценка", площадки:"Все площадки", ярлыки:["ИИ"],
+          /* Презентация ГеоРАГ встроена тем же механизмом, что ЦД: после
+             ролика кнопка «Дальше — система» поднимает её в рамке. */
+          внешний:"геораг.html",
+          /* Рабочее демо системы (dev-контур) — пока такая ссылка, 08.09. */
+          демо:"https://georag-dev.kmg.kz/",
+          /* 08.09: ролик пересобран коллегой в Higgsfield (Seedance 2.5, 30 с) по
+             замечанию Садирова — «в начале не хватает хаоса»: теперь в облаке
+             не только бумаги, а отчёты, керны, каротажные ленты, буровой
+             инструмент; потом решётка индексации, вспышка и граф связей.
+             Звук: 10.09 наложена озвучка заказчика (см. метки ниже); до этого
+             ролик шёл немым — дорожку прежнего ролика заказчик снял.
+             Прежний georag.mp4 оставлен рядом как запасной. Промпт — в ИСХОДНИКАХ. */
+          видео:"медиа/ролики/kmg_geo_ai.mp4",
+          /* Границы актов по листу кадров: хаос 0–9, решётка 10–19, вспышка
+             19–20, граф 20–30. Подписи — те же тезисы, что раньше. */
+          /* 10.09: озвучка заказчика (Jasper, ElevenLabs, 42 с) наложена — см.
+             ИСХОДНИКИ/геология/звук_geoai.py: паузы срезаны, голос +10 %, видео
+             −15 % → 34,5 с. Метки — по фразам диктора, тезисы из «облаков мыслей»
+             KMG GeoAI.docx. Диктор говорит «более 300 книг», презентация — 250:
+             в метке числа нет, пока геологи не сверят. */
+          метки:[
+            {от:0.3,  до:2.4,  текст:"Информация — фундамент геологоразведки"},
+            {от:2.8,  до:10.4, текст:"7 ТБ геолого-геофизических данных · 2 млн файлов"},
+            {от:11.0, до:13.5, текст:"ИИ превращает массив данных в систему знаний"},
+            {от:14.0, до:19.0, текст:"База знаний — на фундаментальных книгах по геологии"},
+            {от:19.6, до:22.8, текст:"KMG Geo AI — RAG-ассистент геолога"},
+            {от:23.3, до:31.0, текст:"Анализирует взаимосвязи: аналоги, противоречия, риски"},
+            {от:31.6, до:34.3, текст:"Вывод — со ссылкой на первоисточник"}
+          ],
+          описание:"ИИ-ассистент по геоданным, обученный на реальных геологических отчётах. Работает в закрытом контуре — без рисков утечки. Выдаёт reasoning-вывод со ссылкой на первоисточник." },
+        /* Созвон с К. Садировым 08.09: «цифровой геологии» как проекта нет — временно
+           скрыта, Кайрат переговорит с Жанной. Вернуть, сняв комментарий:
+        { имя:"Цифровая геология", состояние:"слайды", хроно:"—", эффект:"Закрытый контур — без утечки данных", площадки:"Все площадки", ярлыки:[],
+          описание:"Цифровая база геологоразведочных данных: отчёты, керны, сейсмика за двадцать с лишним лет в едином хранилище." }
+        */
+        /* Вместо неё — МПГРР. Имя писать полностью, не аббревиатурой: «чтобы на
+           стенде не гадали». Ролик — апрельский корпоративный (3:10), режется до
+           минуты и переозвучивается; цифры в нём устарели — ждём от Нурлана. */
+        { имя:"Масштабная программа геологоразведочных работ", состояние:"черновик", хроно:"1:15", эффект:"748 млн т запасов A+B+C1 · 22 проекта · цифровые модели 5 бассейнов", площадки:"Все площадки", ярлыки:[],
+          /* 08.09: монтаж 1:15 из апрельского корпоративного ролика. Пока БЕЗ
+             звука: синтез голоса (Seed Audio, Vlad) заказчик счёл грубым, а
+             музыка с синтезированными шумами — «вообще не то». Музыку и
+             озвучку наложат отдельно (ElevenLabs), тогда файл заменить.
+             Цифры в подписях апрельские, ждут Нурлана. */
+          видео:"медиа/ролики/мпгрр.mp4",
+          метки:[
+            /* Начала реплик: 0,8 · 6,4 · 20,5 · 29,7 · 40,4 · 49,2 · 56,2 · 63,7 с. */
+            {от:12.0, до:19.5, текст:"748 млн т запасов A+B+C1"},
+            {от:21.0, до:28.5, текст:"Цифровые модели 5 осадочных бассейнов"},
+            {от:30.5, до:39.0, текст:"6 700 км 2D · 1 900 км² 3D"},
+            {от:49.5, до:55.0, текст:"Каратон подсолевой · 5 750 м · фонтанный приток"},
+            {от:56.5, до:62.5, текст:"Партнёры: CNOOC, Sinopec"},
+            {от:64.0, до:73.0, текст:"22 проекта · 25 поисковых скважин · 4,7 млрд т у.т."}
+          ],
+          описание:"Развитие ресурсной базы: сейсморазведка 2D/3D, цифровые бассейновые модели, поисковое бурение, партнёры. Цикл: запасы → сейсмика → подземная картина → перспективы → контракты → бурение." },
+      ]},
+    /* Самый плотный блок, и это осознанно: заказчик сказал прямо, что добыча
+       и реализация — основной бизнес, и «в добыче нас вообще много будет».
+       Здесь двойник пласта, все модули ABAI и то, что раньше стояло в сквозном
+       слое безопасности, — TUMAR, Коргау, ЭНД, ИИ в УТО. Сквозные слои сняты по
+       решению совещания 02.09: «они не должны жить отдельной жизнью». */
+    { код:"добыча", номер:"02", имя:"Добыча и доразведка", стадия:"верх",
+      суть:"От модели пласта до действующего фонда: где бурить, как закачивать, что делать со скважиной — и безопасность людей на промысле.",
+      ответственный:"ЭМГ · ОМГ · КМГ Инжиниринг · KMG Automation",
+      рассказчик:"Добыча — самый плотный участок. Цифровой двойник пласта мы строим на Эмбамунайгазе — внутри него и геолого-гидродинамическая модель. Дальше по циклу: рейтинг новых скважин говорит, где бурить; управление заводнением следит за балансом закачки и отбора по каждой ячейке; подбор ГТМ — что сделать с конкретной скважиной; подбор оборудования и техрежим — на подходе. На дорогах промысла — тепловая карта нарушений спецтехники. И безопасность людей на том же промысле: TUMAR, электронный наряд-допуск, Коргау.",
+      проекты:[
+        /* Единственная система, у которой есть готовый интерактивный показ.
+           Открывается он сам, а не стоп-кадр: пересказывать 3D-макет картинкой
+           бессмысленно, когда макет можно показать.
+
+           `?слой=plast` уводит сразу в контур пласта, минуя обзорную панель, —
+           заказчик просил «сразу с 3D». Ключ у показа ЦД уже был, заводить
+           ничего не пришлось.
+
+           Файлы скопированы в `цд/`, а не подтянуты по ссылке с их Pages:
+           показ обязан открываться без интернета. 25 МБ — цена этого правила. */
+        { имя:"Цифровой двойник", состояние:"готово", хроно:"1:40", эффект:"Снижение CAPEX −5% · оценка", площадки:"Все площадки", ярлыки:["ядро показа"],
+          внешний:"цд/первый_слайд_v3.html?слой=plast",
+          /* Ролик — вводный монтаж самого проекта ЦД: глобус, Казахстан,
+             регион, промысел, цифровой двойник поверх качалки. Пережат с
+             2560x1440 и 117 МБ до 1080p и 22 МБ; оригинал не тронут.
+             В данных у системы стоит хронометраж 1:40, а этот ролик 37 секунд —
+             если тот, длинный, где-то есть, он встанет на это же место. */
+          видео:"медиа/ролики/цд_пласта.mp4",
+          метки:[
+            {от:1.5,  до:6.0,  текст:"Пилот — Молдабек Восточный, ЭМГ"},
+            {от:9.0,  до:14.0, текст:"Постоянно действующая модель пласта"},
+            {от:18.0, до:24.0, текст:"Планирование от геологии, а не от пробуренных скважин"},
+            {от:28.0, до:35.0, текст:"Снижение CAPEX −5% · оценка"}
+          ],
+          описание:"Цифровой двойник пласта: планирование не от пробуренных скважин, а от ограничений пласта и геологии. Пилот — Молдабек Восточный, ЭМГ. Есть готовая интерактивная 3D-модель, разобранная по слоям." },
+        /* Два модуля ABAI, работающие с действующим фондом, и они отвечают на
+           разные вопросы. Заводнение — про пласт целиком: сколько воды
+           закачиваем и куда она уходит. Подбор ГТМ — про отдельную скважину:
+           что с ней сделать.
+
+           ГГДМ, ГНО и техрежим стоят здесь по решению совещания 02.09: «все
+           модули ABAI здесь должны сидеть, даже серые — coming soon». Утром
+           того же дня ГНО и техрежим снимали; решение совещания новее, и оно
+           прямо противоположное. ГГДМ — «слайды», а не «coming soon»: модель
+           живая, её показывают главе государства через Numix; чего нет — так
+           это ролика и ссылки. Значков у трёх новых строк пока нет — узел
+           рисуется точкой. */
+        /* ГГДМ скрыт 09.09 по просьбе Адиля: модель пласта покажут внутри
+           Цифрового двойника. Сам ЦД позже переименуется — как один из модулей
+           ABAI (имя ещё не дано). Вернуть — снять комментарий:
+        { имя:"ABAI — ГГДМ, модель пласта", состояние:"слайды", хроно:"—", эффект:"650 сценариев разработки за неделю вместо полугода", площадки:"ЭМГ", ярлыки:[],
+          описание:"Геолого-гидродинамическая модель месторождения — основа цифрового двойника. На ней прогоняются сценарии разработки: вместо шести нагнетательных скважин по результатам прогона решено бурить две горизонтальные." },
+        */
+        /* Порядок узлов добычи с 09.09 — жизненный цикл месторождения:
+           модель пласта → где бурить → заводнение → ГТМ → оборудование →
+           режим → дороги промысла → люди (TUMAR, ЭНД, Коргау). Готовность и
+           так видна цветом узла, а цикл объясняет докладчику, за чем что идёт.
+
+           ЦРНС стоит здесь, а не в геологии, по решению совещания 02.09:
+           «все модули ABAI в добыче, начиная с ГГДМ». Блок при этом
+           переименован в «Добыча и доразведка» — и выбор точки нового бурения
+           это и есть доразведка. Логика сошлась сама.
+
+           Числа ретроспективы взяты из материалов заказчика: модель обучили на
+           данных до 2024 года, проверили на фактах 2024–2025. */
+        { имя:"ABAI — цифровой рейтинг новых скважин", состояние:"черновик", хроно:"1:25", эффект:"≈26 млрд ₸ за 3 года · +244 тыс. т нефти", площадки:"Все площадки", ярлыки:["ИИ"],
+          /* Ролик заказчика от 30.03 (ver.02), с озвучкой. Обрезан 08.09: снят
+             хвост 1:18–1:31 про эффект всех модулей ABAI (156 млрд ₸) — он про
+             всю систему, а здесь один модуль; логотип в конце оставлен.
+             Исходник — ИСХОДНИКИ/геология/ЦРНС_видео_ГГ_v02_март.mp4. */
+          видео:"медиа/ролики/abai_црнс.mp4",
+          метки:[
+            {от:3.0,  до:10.5, текст:"Фонд — более 17 000 скважин"},
+            {от:12.0, до:21.5, текст:"10 лет · ~3 400 новых скважин · 1,6 трлн ₸"},
+            {от:31.5, до:49.5, текст:"Сейсмика, карты разработки, структурные карты, давления, коллекторы"},
+            {от:50.5, до:65.0, текст:"Приоритизация участков бурения · точность растёт с данными"},
+            {от:66.0, до:78.0, текст:"≈26 млрд ₸ за 3 года · +244 тыс. т нефти"}
+          ],
+          описание:"Месторождение режется сеткой секторов, и каждому считается рейтинг от нуля до единицы — по истории добычи и закачки, обводнённости и геологическим картам. Сектора с действующими скважинами исключаются: ищутся именно новые точки. На ретроспективе в топ-10% рекомендованных зон успешность бурения вышла 85–90%. Предложения ИИ, акционера и ДЗО ложатся на одну карту и сравниваются между собой." },
+        { имя:"ABAI — управление заводнением", состояние:"слайды", хроно:"—", эффект:"+3% добычи на пилоте без бурения · оценка", площадки:"Все площадки", ярлыки:["ИИ"],
+          описание:"Базовая единица — ячейка заводнения: нагнетательная скважина и добывающие, на которые она влияет. Главная метрика — компенсация, отношение закачки к отобранной жидкости; норма 90–150%, отклонение в любую сторону видно на карте цветом. Влияние считается не по радиусу, а по связности с временным лагом: подняли закачку в марте — добыча откликнулась в апреле. Дальше факторный анализ потерь, план мероприятий и контроль факта." },
+        { имя:"ABAI — подбор и анализ эффективности ГТМ", состояние:"слайды", хроно:"—", эффект:"Ранжирование кандидатов по ожидаемой успешности · KPI уточняются", площадки:"Все площадки", ярлыки:["ИИ"],
+          описание:"Что сделать с действующей скважиной — гидроразрыв, реперфорация, дострел, обработка призабойной зоны — и что дало предыдущее мероприятие. Кандидатов отбирают детерминированные критерии, ИИ определяет доминирующую физическую причину падения продуктивности по окнам 30, 60 и 90 дней и ранжирует по ожидаемой успешности. Заключение выдаётся словами, с факторами риска и уровнем надёжности; решение о включении в программу остаётся за человеком." },
+        { имя:"ABAI — подбор ГНО", состояние:"скоро", хроно:"—", эффект:"Энергия насосного оборудования −10% · оценка", площадки:"Все площадки", ярлыки:["ИИ"],
+          описание:"Подбор глубинно-насосного оборудования под режим скважины: компоновка насоса и прогноз наработки." },
+        { имя:"ABAI — технологический режим", состояние:"скоро", хроно:"—", эффект:"KPI уточняются", площадки:"Все площадки", ярлыки:["ИИ"],
+          описание:"Расчёт потенциала и технологического режима скважины по всему фонду." },
+        /* Временно скрыт по просьбе Адиля 07.09 — вернуть, сняв комментарий:
+        { имя:"KMG Automation — ММГ", состояние:"слайды", хроно:"—", эффект:"Онлайн-отчётность промысла", площадки:"Все площадки", ярлыки:["запрошено демо"],
+          описание:"Диспетчеризация промысла на Мангистаумунайгазе." },
+        */
+        /* Дальше — то, что стояло в сквозном слое «Безопасность и люди». По
+           решению 02.09 сквозных слоёв нет, проекты внутри переделов. ЭНД
+           стоит в трёх переделах отдельными строками — так и было сказано:
+           «должен быть и в добыче, и в транспортировке, и в переработке»;
+           имена по функции, как договорились про AIAN. Формулировки
+           предварительные, до подтверждения ответственного за ЭНД. */
+        /* У ИС УТО две ветки — умная маршрутизация спецтехники и контроль
+           нарушений на дорогах промысла; на стенде показывается вторая.
+           Единственный узел показа, где цифры не оценка, а факт системы.
+           Стоит между ABAI и безопасностью: дороги промысла — мост от техники
+           к людям. */
+        /* 09.09, созвон с ИСУТО (Рамиль): проект называется УТО целиком, не
+           «тепловая карта» — карта остаётся финалом ролика и живым демо. Число
+           нарушений с узла снято: «компрометирующее», взамен — охват. */
+        { имя:"УТО — управление транспортным обеспечением", состояние:"демо", хроно:"живое", эффект:"7 ДЗО · 3 116 единиц техники · 220 тыс. заявок с начала 2026", площадки:"ЭМГ · ОМГ · ММГ · КБМ · ОСК · ОКК · ОТК", ярлыки:["ИИ"],
+          описание:"«Управление поездками»: электронные заявки на транспорт, план-разнарядка, путевые листы, ремонт — в одном окне по семи ДЗО; 130 цехов, 785 пользователей, 220 тысяч заявок с начала 2026 года. ИИ-часть — безопасность движения: нарушения скоростного режима спецтехники ложатся тепловой картой на снимок месторождения: чем горячее участок, тем чаще там превышают. Подсвечиваются реальные отрезки дорог — как пробки в навигаторе, только вместо заторов нарушения. Ролевой доступ: каждая организация видит только свои данные. Доложена Комитету безопасности КМГ." },
+        { имя:"TUMAR", состояние:"слайды", хроно:"—", эффект:"Контроль СИЗ и опасных зон онлайн · KPI уточняются", площадки:"Все площадки", ярлыки:["ИИ"],
+          описание:"Компьютерное зрение на площадке: наличие СИЗ, вход в опасную зону при спуске-подъёме, работа с гидроключом. Предупреждает светом и звуком." },
+        { имя:"ЭНД — наряды-допуски на промысле", состояние:"слайды", хроно:"—", эффект:"ИИ-предзаполнение наряда-допуска · KPI уточняются", площадки:"Все площадки", ярлыки:["ИИ"],
+          описание:"Наряды-допуски на работы повышенной опасности: ИИ предзаполняет форму по типу работ." },
+        { имя:"Коргау — сообщения об опасности на промысле", состояние:"слайды", хроно:"—", эффект:"Предиктив происшествий по истории · KPI уточняются", площадки:"Все площадки", ярлыки:["ИИ"],
+          описание:"Работник сканирует QR и сообщает об опасности; ИИ предсказывает происшествия по исторической картине." },
+      ]},
+    { код:"транспорт", номер:"03", имя:"Транспортировка", стадия:"средний",
+      суть:"Транспорт как прозрачное звено между добычей, переработкой и рынком.",
+      ответственный:"Диспетчерско-аналитический центр КМГ",
+      рассказчик:"Нефть нужно доставить на завод — по магистральным трубопроводам, от промысла до переработки.",
+      проекты:[
+        /* Письмо АИАН 07.09: AIAN сейчас про нефтепродукты — убран отсюда в
+           маркетинг. Здесь должна быть транспортировка нефти по трубопроводам,
+           материала по ней пока нет, список пуст до присылки. */
+      ]},
+    { код:"переработка", номер:"04", имя:"Переработка", стадия:"низ",
+      суть:"Атырауский НПЗ: предиктив оборудования, энергомониторинг, тренажёры операторов.",
+      ответственный:"ТОО «KMG Automation»",
+      рассказчик:"Нефть — на заводе. KMG Automation развернула на Атырауском НПЗ предиктивную аналитику: система прогнозирует состояние динамического оборудования на месяцы вперёд. Power Monitoring Expert оптимизирует энергопотребление. Тренажёры OTS обучают операторов на цифровых двойниках установок — без риска для реального производства.",
+      проекты:[
+        { имя:"Предиктивная аналитика АНПЗ", состояние:"слайды", хроно:"—", эффект:"Прогноз состояния оборудования за 7 мес. · оценка", площадки:"Все площадки", ярлыки:["запрошено демо","ИИ"],
+          описание:"Система «слышит» динамическое оборудование Атырауского НПЗ заранее и выявляет неисправности на ранней стадии." },
+        { имя:"PME — энергомониторинг", состояние:"слайды", хроно:"—", эффект:"Оптимизация энергопотребления", площадки:"Все площадки", ярлыки:["запрошено демо"],
+          описание:"Power Monitoring Expert: тепловая карта потребления по установкам завода." },
+        { имя:"OTS — тренажёры операторов", состояние:"слайды", хроно:"—", эффект:"Обучение на цифровых двойниках установок", площадки:"Все площадки", ярлыки:["запрошено демо"],
+          описание:"Оператор тренируется на цифровом двойнике установки — без риска для реального производства." },
+        { имя:"Компьютерное зрение — безопасность на заводе", состояние:"слайды", хроно:"—", эффект:"Контроль СИЗ и опасных зон на всех этапах завода · KPI уточняются", площадки:"АНПЗ · ПНХЗ · ПКОП", ярлыки:["ИИ"],
+          описание:"Компьютерное зрение на заводе — «заводской TUMAR»: охватывает все этапы от приёма сырья до отгрузки; масштаб и сложность больше промыслового. Запуск — до конца года." },
+        { имя:"ЭНД — наряды-допуски на заводе", состояние:"слайды", хроно:"—", эффект:"ИИ-предзаполнение наряда-допуска · KPI уточняются", площадки:"Все площадки", ярлыки:["ИИ"],
+          описание:"Наряды-допуски на работы повышенной опасности: ИИ предзаполняет форму по типу работ." },
+        { имя:"Коргау — сообщения об опасности на заводе", состояние:"слайды", хроно:"—", эффект:"Предиктив происшествий по истории · KPI уточняются", площадки:"Все площадки", ярлыки:["ИИ"],
+          описание:"Работник сканирует QR и сообщает об опасности; ИИ предсказывает происшествия по исторической картине." },
+      ]},
+    /* «Маркетинг», не «реализация» и не «сбыт». Слово менялось дважды.
+
+       02.09 заказчик отверг «сбыт» («не пойму, что мы там будем показывать в
+       сбыте») и из «маркетинга» и «реализации» выбрал второе. 03.09 вернулся к
+       первому: «пятый раздел, где указано реализация, просто переименуем на
+       маркетинг». Код блока и файлы площадки, петли и кадра переименованы
+       вместе с именем — иначе сущность зовётся в коде одним словом, а на
+       совещании другим, и правка ищется через слой перевода.
+
+       Сюда же пришли AI-Broker и ProcuPriceMetal из снятого слоя «Корпоративный
+       интеллект»: закупки — ближе всего к коммерции. Это моё предложение, а не
+       решение заказчика; у него для них есть и другой путь — стенд Самрук. */
+    { код:"маркетинг", номер:"05", имя:"Маркетинг", стадия:"низ",
+      /* 09.09: заказчик ждал здесь вчерашний текст «Финал цепочки — рынок. AIAN
+         замыкает контур…» — он был записан в рассказчика, а рассказчик скрыт
+         08.09. Поэтому текст стоит в видимой сути. */
+      суть:"Финал цепочки — рынок. AIAN замыкает контур: прогнозирует дефицит и профицит нефтепродуктов, держит топливный баланс страны на контроле. Аналитик видит весь путь — от завода до состояния рынка и обеспечения потребителей. Рядом закупки: AI-Broker находит, где внутри группы товар уже лежит на складе, KMG AISAP ведёт закупку от потребности до исполнения договора без участия человека.",
+      ответственный:"Диспетчерско-аналитический центр КМГ · Департамент закупок КМГ",
+      рассказчик:"Финал цепочки — рынок. AIAN замыкает контур: прогнозирует дефицит и профицит нефтепродуктов, держит топливный баланс страны на контроле. Аналитик видит весь путь — от завода до состояния рынка и обеспечения потребителей. Рядом закупки: AI-Broker находит, где внутри группы товар уже лежит на складе, KMG AISAP ведёт закупку от потребности до исполнения договора без участия человека.",
+      проекты:[
+        /* Письмо АИАН 07.09: имя и эффект дословно, «контроль серого оборота»
+           убран, описание снято по просьбе Адиля. Пока ведёт на демо AIAN
+           (карта распределения) — «как было, чтобы показать». */
+        /* Текст карточки — дословно от заказчика 08.09; абзацы разделены переводом
+           строки, .сис_суть рисует их через pre-line. Демо — показ AIAN. */
+        { имя:"KMG AIAN", состояние:"согласование", ответственный:"Диспетчерско-аналитический центр КМГ", хроно:"~0:40", эффект:"Интеллектуальный ассистент для управления топливным балансом — инфраструктура странового масштаба", площадки:"Все площадки", ярлыки:["ядро показа","ИИ"],
+          /* Показ AIAN скопирован в `аиан/` (как ЦД в `цд/`): открывается внутри
+             экрана, а не новой вкладкой — «не покидать один экран» (Адильжан
+             08.09). Источник — репозиторий AIAN_DEMO; обновлять копией
+             `git archive`, не править здесь.
+             09.09: заказчик поменял местами — «Открыть демо» ведёт в показ AIAN
+             (презентация и видео, копия в аиан/), «Открыть систему» — в саму
+             систему. Чужой сайт в рамку не встанет и требует интернета —
+             открывается новой вкладкой, см. обработчик сис_кролику. */
+          внешний:"https://aian.kmg.kz/",
+          демо:"аиан/показ.html",
+          /* 10.09, совещание по цепочке (Арман, со ссылкой на замечание председателя
+             правления «меньше текста»): два абзаца говорили одно и то же —
+             слиты в один, «от разрозненных данных — к единому интеллекту» снято. */
+          описание:"Единая AI-платформа аналитики и прогнозирования дефицита и профицита нефтепродуктов для обеспечения топливно-энергетической безопасности и социальной стабильности страны.\n\nKMG.AIAN — это переход от реактивного управления к проактивному."},
+        /* AI-Broker скрыт 10.09 (Адиль): он будет внутри презентации AISAP.
+           Вернуть — снять комментарий:
+        { имя:"AI-Broker", состояние:"слайды", хроно:"—", эффект:"Обмен запасами вместо новых закупок · KPI уточняются", площадки:"Все площадки", ярлыки:["ИИ"],
+          описание:"У одной ДЗО спрос, у другой товар простаивает на складе — ИИ сматчивает их и сверяет спецификации семантически, по смыслу." },
+        */
+        /* 07.09: ProcuPriceMetal переименован в KMG AISAP — AI Satyp Alu
+           Platformasy, имя от заказчика (созвон 03.09). Ролика нет, поэтому
+           презентация по закупкам открывается сразу, как встроенный показ. */
+        { имя:"KMG AISAP", состояние:"слайды", хроно:"—", эффект:"Сквозной процесс закупок посредством ИИ, без участия человека · 4 шага из 7 реализованы", площадки:"Все площадки", ярлыки:["ИИ"],
+          внешний:"закупки.html", сразу:true,
+          описание:"AI Satyp Alu Platformasy — единая платформа полного цикла закупок и снабжения КМГ: потребность, маркетинг цен, бюджет, AI-Broker, план закупок, тендер и исполнение договора — всё без участия человека." },
+      ]}
+  ];
+
+  /* Сквозных слоёв больше нет. Совещание 02.09, дословно: «я категорически
+     против выделять корпоративный интеллект и безопасность людей — это
+     сквозная в каждом направлении». Их проекты разнесены по переделам, ЭНД —
+     в три сразу. Что пробовали до этого и почему не подошло:
+       — две полосы под цепочкой: перетягивали внимание, читались как ещё два
+         передела;
+       — вторая линия со своими площадками: ровнее, но всё равно «отдельная
+         жизнь», и ровно это заказчик и отверг. */
+
+  /* Снятое с показа отсеивается один раз при старте. Раньше это делал
+     переключатель «Все проекты / Только показ»; он снят, но сам механизм нужен —
+     состав показа режут, а строку данных при этом лучше не терять. */
+  ПЕРЕДЕЛЫ.forEach(function(б){
+    б.проекты = б.проекты.filter(function(пр){ return !пр.снят; });
+  });
+
+  /* Фон берётся по блоку, а не по системе: кадр передаёт среду — промысел,
+     завод, площадку, — а не конкретный продукт. Поле «кадр» у проекта
+     перебивает блочный, если для системы понадобится свой. */
+  ПЕРЕДЕЛЫ.forEach(function(б){ б._кадр = "медиа/кадры/" + б.код + ".jpg"; });
+
+  /* Переключатель «Все проекты / Только показ» снят заказчиком, и вместе с ним
+     ушло понятие «видимые». Он всё равно ничего не делал: поле «снят» не стояло
+     ни у одного проекта, оба списка совпадали, и экран обещал выбор, которого
+     не было. Если состав показа придётся резать — вернуть несложно, но тогда
+     сначала расставить «снят», а не наоборот. */
+
+  var СТАДИИ = {
+    верх:    { имя:"Upstream",   цвет:"var(--кмг)" },
+    средний: { имя:"Midstream",  цвет:"var(--мята)" },
+    низ:     { имя:"Downstream", цвет:"var(--янтарь)" }
+  };
+  var СОСТОЯНИЯ = {
+    /* 10.09, Адиль: подписи готовности («ролик готов», «живое демо», «ролик
+       черновой») сняты — на стенде это внутренняя кухня. Состояния остаются в
+       данных для сортировки и логики; чип рисуется только у «coming soon» и
+       «на согласовании». Имя пустое = чипа нет. */
+    готово:   { класс:"готово",   имя:"" },
+    демо:     { класс:"демо",     имя:"" },
+    делается: { класс:"делается", имя:"ролик в производстве" },
+    /* 09.09: ролик AIAN сдан заказчику и ждёт подписи — отдельное состояние,
+       тот же цвет, что у «в производстве». */
+    согласование: { класс:"делается", имя:"ролик на согласовании" },
+    /* 09.09: подпись «только презентация» снята — заказчик: «везде будет
+       ролик + ссылка на систему». Состояние остаётся в данных, чип с пустым
+       именем не рисуется. */
+    слайды:   { класс:"слайды",   имя:"" },
+    /* «Coming soon» — по решению 02.09: все модули ABAI стоят в добыче, «даже
+       если серые, неактивные, пусть будут». Надпись латиницей — так её назвал
+       заказчик. Узел с этим состоянием приглушён, но открывается: экран
+       системы с описанием, а когда появится концептуальный ролик — с ним. */
+    скоро:    { класс:"скоро",    имя:"coming soon" },
+    /* Ролик собран, но заказчиком не согласован. Прежде такие стояли как
+       «делается» — и чип «ролик в производстве» висел поверх играющего ролика,
+       зритель видел одно и читал другое. Янтарь здесь тот же, что у пометки
+       «Драфт»: оба про готовность материала, это один смысл. */
+    черновик: { класс:"черновик", имя:"" }
+  };
+
+  function склонение(н){
+    var е = н % 10, с = н % 100;
+    if(е === 1 && с !== 11) return "проект";
+    if(е >= 2 && е <= 4 && (с < 12 || с > 14)) return "проекта";
+    return "проектов";
+  }
+
+  /* ================= раскладка сцены ================= */
+  /* Снаружи известно ровно одно: где внутри каждого файла лежит сам модуль.
+     Замерено скриптом по яркости, в долях размера файла. Раскладка из этого
+     считается здесь, в браузере.
+
+     Раньше раскладка лежала готовыми числами, посчитанными снаружи. Когда
+     НИЗ_МОДУЛЯ подняли с 74 до 66, площадки остались на старом месте, а линия
+     связи и бирки уехали к новому: два источника правды разошлись молча.
+     Теперь источник один. */
+  var ГАБАРИТЫ = {
+    "разведка": {л:19.22, п:78.91, в:3.33, н:86.25, отн:1.3333},
+    "добыча": {л:13.75, п:86.72, в:3.12, н:84.58, отн:1.3333},
+    "транспорт": {л:17.19, п:84.38, в:9.58, н:83.12, отн:1.3333},
+    "переработка": {л:23.75, п:75.94, в:3.96, н:83.33, отн:1.3333},
+    "маркетинг": {л:15.78, п:83.75, в:5.83, н:81.04, отн:1.3333}
+  };
+  /* Место каждого из пяти блоков: центр по ширине, ширина модуля и высота
+     низа. Центры 10…90 с шагом 20 — модули стоят равномерно и симметрично
+     относительно середины сцены. Шаг 20 при ширине 16 даёт просвет 4% между
+     соседями; при шести модулях просвет был 1%, и площадки почти касались. */
+  var ЦЕНТРЫ = { разведка:10, добыча:30, транспорт:50, переработка:70, маркетинг:90 };
+  /* 18, а не 15, как было при шести: пятерым места больше, и на первом же
+     снимке при 16 цепочка выглядела мелкой посреди пустого стола. Просвет
+     между соседями 2% — как раз чтобы площадки не касались. */
+  var ШИРИНА_МОДУЛЯ = 18.0;   /* проценты ширины сцены */
+  /* Второй линии под цепочкой больше нет, и цепочка опущена к середине: при
+     54% нижняя треть сцены стояла пустой. 68% проверено замером на 1912×844:
+     верх самого высокого модуля (переработка с дымом) и скоба над ним не
+     заходят под шапку, под бирками остаётся воздух. */
+  var НИЗ_МОДУЛЯ    = 68.0;   /* проценты высоты сцены */
+  var ОТН_СЦЕНЫ     = 2560 / 1098;
+
+  /* Файл ставится так, чтобы его модуль встал в заданное место заданной
+     ширины: доля модуля в файле гуляет от 51 до 73 процентов, и по краям
+     файлов модули вышли бы разного размера. */
+  function раскладка(код){
+    var г = ГАБАРИТЫ[код], м = МЕСТО[код];
+    var шф = м.ширина / ((г.п - г.л) / 100);
+    var вф = шф * ОТН_СЦЕНЫ / г.отн;
+    return { лево: м.центр - м.ширина/2 - г.л/100*шф,
+             верх: м.низ - г.н/100*вф,
+             ширина: шф, высота: вф, центр: м.центр,
+             ширинаМодуля: м.ширина, низМодуля: м.низ,
+             высотаМодуля: (г.н - г.в)/100 * вф };
+  }
+
+  var ПАРЕНИЕ = { разведка:[8.4,0], добыча:[7.2,2.1], транспорт:[9.8,0.7],
+                  переработка:[11.4,2.8], маркетинг:[8.0,1.7] };
+
+  /* МЕСТО собирается из ЦЕНТРЫ и одного набора размеров: все пять блоков —
+     переделы, стоят на НИЗ_МОДУЛЯ шириной ШИРИНА_МОДУЛЯ. */
+  var МЕСТО = {};
+  ПЕРЕДЕЛЫ.forEach(function(п){
+    МЕСТО[п.код] = { центр:ЦЕНТРЫ[п.код], ширина:ШИРИНА_МОДУЛЯ, низ:НИЗ_МОДУЛЯ };
+  });
+
+  var сцена     = document.getElementById("сцена");
+  var веер      = document.getElementById("веер");
+  var линия     = document.getElementById("линия");
+  var подпись_передела = document.getElementById("подпись_передела");
+  var экран_системы = document.getElementById("экран_системы");
+  /* Вариант подачи ИИ выбирается адресом, чтобы на встрече открыть два окна
+     рядом и сравнить, а не пересобирать показ между репликами. */
+  /* По умолчанию оба: заказчик после макета попросил ИИ на главный экран, в
+     заголовок — печать на узлах видна только после провала в передел. */
+  var ИИ_РЕЖИМ = new URLSearchParams(location.search).get("ии") || "оба";
+  if(ИИ_РЕЖИМ === "печать" || ИИ_РЕЖИМ === "оба") document.body.classList.add("ии_печать");
+  if(ИИ_РЕЖИМ === "заголовок" || ИИ_РЕЖИМ === "оба") document.body.classList.add("ии_заголовок");
+  /* Заставка объявлена здесь, а не рядом со своей логикой в конце файла:
+     петли площадок собираются раньше и должны знать, идёт ли заставка. */
+  var заставка = document.getElementById("заставка");
+  var роликЗаставки = document.getElementById("ролик_заставки");
+  var сторожЗаставки = null;
+  var заставкаСнята = false;
+  /* Признак берётся из своей переменной, а не из hidden: hidden ставится через
+     720 мс, после проявления, а петли надо заводить в тот же миг, когда
+     заставка пошла на выход. */
+  function заставкаНаЭкране(){ return !!заставка && !заставкаСнята; }
+  var текущий = null, системаОткрыта = false;
+
+  сцена.style.setProperty("--низ", НИЗ_МОДУЛЯ + "%");
+
+  function узел(тег, класс, родитель){
+    var э = document.createElement(тег);
+    if(класс) э.className = класс;
+    if(родитель) родитель.appendChild(э);
+    return э;
+  }
+
+  /* ================= постройка уровня 0 ================= */
+  for(var и = 0; и < 3; и++){
+    var имп = узел("div", "импульс", линия);
+    имп.style.animationDelay = (и * 2.4) + "s";
+  }
+
+  /* Петли рисуются вместо картинки там, где они есть. Список остался списком,
+     а не флагом «все петли готовы»: если ролик придётся снять с показа, он
+     убирается одной строкой, и площадка возвращается к кадру.
+
+     Габариты выше замерены по первому кадру петли, а не по картинке:
+     кадрирование у ролика своё и отличается от исходной площадки на проценты. */
+  var ПЕТЛИ = {
+    разведка:    "медиа/петли/разведка_петля.mp4",
+    добыча:      "медиа/петли/добыча_петля.mp4",
+    транспорт:   "медиа/петли/транспорт_петля.mp4",
+    переработка: "медиа/петли/переработка_петля.mp4",
+    маркетинг:   "медиа/петли/маркетинг_петля.mp4"
+  };
+
+  ПЕРЕДЕЛЫ.forEach(function(п){
+    var р = раскладка(п.код), пар = ПАРЕНИЕ[п.код];
+    п._р = р;
+
+    /* Ореол кладётся под площадку отдельным слоем, а не рисуется в картинке:
+       он должен пульсировать, а нарисованный не умеет. */
+    var ор = узел("div", "ореол", сцена);
+    ор.style.left   = (р.центр - р.ширинаМодуля*0.72) + "%";
+    ор.style.width  = (р.ширинаМодуля*1.44) + "%";
+    ор.style.top    = (р.низМодуля - 7) + "%";
+    ор.style.height = "16%";
+    ор.style.setProperty("--период", пар[0] + "s");
+    ор.style.setProperty("--сдвиг",  (-пар[1]) + "s");
+    п._ореол = ор;
+
+    var сл = узел("div", "площадка", сцена);
+    сл.style.left   = р.лево + "%";
+    сл.style.top    = р.верх + "%";
+    сл.style.width  = р.ширина + "%";
+    сл.style.height = р.высота + "%";
+    сл.style.setProperty("--период", пар[0] + "s");
+    сл.style.setProperty("--сдвиг",  (-пар[1]) + "s");
+    /* Пока идёт заставка, петли не грузятся и не играют: preload="none" и без
+       autoplay. Пять роликов площадок, тянущихся и декодирующихся ровно в ту
+       секунду, когда стартует заставка, — это и есть подлагивание в начале,
+       про которое сказал заказчик. Заставка на экране одна, все декодеры её.
+
+       Постер оставлен: как только заставка уходит, площадка уже нарисована
+       своим кадром, и петля подхватывает движение через долю секунды —
+       пустых мест зритель не видит. Заводит петли завестиПетли(). */
+    var ждём = заставкаНаЭкране();
+    сл.innerHTML = ПЕТЛИ[п.код]
+      ? '<video src="' + ПЕТЛИ[п.код] + '" loop muted playsinline' +
+        (ждём ? ' preload="none"' : ' autoplay preload="auto"') +
+        ' poster="медиа/сцена/блок_' + п.код + '.jpg"></video>'
+      : '<img src="медиа/сцена/блок_' + п.код + '.jpg" alt="">';
+    var ролик = сл.querySelector("video");
+    if(ролик){
+      /* Пауза у площадки всегда ошибка: её никто не ставит намеренно.
+         Событие приходит раньше и точнее, чем срабатывает общий таймер. */
+      ролик.addEventListener("pause", function(){
+        /* Исключение — сон под встроенным показом (ЦД, AIAN): его ставит
+           разбудитьРамку() намеренно, чтобы петли не делили видеокарту с 3D. */
+        if(ролик.hasAttribute("data-усыплена")) return;
+        var о = ролик.play();
+        if(о && о.catch) о.catch(function(){});
+      });
+    }
+    п._площадка = сл;
+
+    /* Зона клика совпадает с модулем, а не с файлом: у файла вокруг модуля
+       чёрные поля, и по ним зоны соседних площадок перекрывались бы. */
+    var з = узел("div", "зона", сцена);
+    з.setAttribute("role", "button");
+    з.setAttribute("tabindex", "0");
+    з.setAttribute("aria-label", "Передел " + п.имя);
+    з.style.left   = (р.центр - р.ширинаМодуля/2) + "%";
+    з.style.width  = р.ширинаМодуля + "%";
+    з.style.top    = (р.низМодуля - р.высотаМодуля - 2) + "%";
+    з.style.height = (р.высотаМодуля + 4) + "%";
+    function поднять(да){
+      if(текущий) return;              /* внутри передела подъём не нужен */
+      сл.classList.toggle("поднята", да);
+      ор.classList.toggle("ярче", да);
+    }
+    з.addEventListener("mouseenter", function(){ поднять(true); });
+    з.addEventListener("mouseleave", function(){ поднять(false); });
+    з.addEventListener("focus", function(){ поднять(true); });
+    з.addEventListener("blur", function(){ поднять(false); });
+    з.addEventListener("click", function(){ поднять(false); открыть(п); });
+    з.addEventListener("keydown", function(с){
+      if(с.key === "Enter" || с.key === " "){ с.preventDefault(); поднять(false); открыть(п); }
+    });
+    п._зона = з;
+
+    var б = узел("div", "бирка дисплей", сцена);
+    б.style.left = р.центр + "%";
+    б.style.top  = (р.низМодуля + 2.5) + "%";
+    б.innerHTML = '<div class="номер">' + п.номер + '</div>' +
+                  '<div class="имя">' + п.имя + '</div>' +
+                  '<div class="счёт"></div>';
+    п._бирка = б;
+    п._счётчик = б.querySelector(".счёт");
+  });
+
+  /* Верх самого высокого модуля минус место под саму скобу. */
+  function самыйВысокий(){
+    var верх = 100;
+    for(var код in ЦЕНТРЫ){
+      var р = раскладка(код);
+      верх = Math.min(верх, НИЗ_МОДУЛЯ - р.высотаМодуля);
+    }
+    return Math.max(2, верх - 7);
+  }
+
+  /* Скобки стадий. Границы считаются из центров и ширины модуля, а не
+     вписываются числом: сдвинется раскладка — скобки поедут за ней. */
+  [ { стадия:"верх",    от:"разведка", до:"добыча" },
+    { стадия:"средний", от:"транспорт", до:"транспорт" },
+    { стадия:"низ",     от:"переработка", до:"маркетинг" } ].forEach(function(гр){
+    /* Запас внутрь, а не наружу: с запасом наружу соседние скобки сходились
+       краями — замер пересечений показал наложение 32 px. Между Upstream и
+       Midstream остаётся 2% ширины сцены, и черта одной стадии не упирается
+       в черту другой. */
+    var л = ЦЕНТРЫ[гр.от] - ШИРИНА_МОДУЛЯ/2 + 0.5;
+    var п = ЦЕНТРЫ[гр.до] + ШИРИНА_МОДУЛЯ/2 - 0.5;
+    var с = узел("div", "скоба", сцена);
+    с.style.left = л + "%";
+    с.style.width = (п - л) + "%";
+    /* Скобы ставятся над самым высоким модулем, а не на фиксированной высоте.
+       Числом уже ошибся: поднял цепочку с 66% до 54%, скобы остались на 17%, и
+       «UPSTREAM» легло на буровую вышку геологии — её модуль тянется до 11%.
+       Теперь высота считается из тех же габаритов, из которых строится сама
+       цепочка, и при следующем подъёме скобы поедут за ней. */
+    с.style.top = самыйВысокий() + "%";
+    с.innerHTML = '<div class="имя" style="color:' + СТАДИИ[гр.стадия].цвет + '">' +
+                  СТАДИИ[гр.стадия].имя + '</div>' +
+                  '<div class="черта" style="background:' + СТАДИИ[гр.стадия].цвет + '"></div>';
+  });
+
+  /* Иконки систем. Ключ — имя проекта, потому что своего кода у проекта в
+     данных нет: данные перенесены из «цепочки» дословно, и заводить там новое
+     поле значит развести два файла. Имя переименуют — иконка исчезнет молча,
+     поэтому совпадения считаются и выставлены в отладочный крючок. */
+  var ИКОНКИ = {
+    "KMG Geo AI":                      "georag",
+    "Цифровая геология":               "цифровая_геология",
+    "Масштабная программа геологоразведочных работ": "цифровая_геология",
+    /* Значки ABAI разведены по смыслу модуля, а не по прежним именам строк.
+       Сетка на пласте — это рейтинг секторов, то есть ЦРНС. Качалка в кольце —
+       цикл мероприятий на действующей скважине, то есть подбор ГТМ.
+       Заводнению нарисован свой значок: прежде оно делило кольцо с ГТМ. */
+    "ABAI — цифровой рейтинг новых скважин":   "abai_црнс",
+    "ABAI — управление заводнением":           "abai_заводнение",
+    "ABAI — подбор и анализ эффективности ГТМ":"abai_гтм",
+    "Цифровой двойник":                "цд_пласта",
+    "KMG Automation — ММГ":            "kmg_automation",
+    "Предиктивная аналитика АНПЗ":     "пкоп",
+    "PME — энергомониторинг":          "pme",
+    "OTS — тренажёры операторов":      "ots",
+    "KMG AIAN":                        "aian_баланс",
+    "TUMAR":                           "tumar",
+    "Коргау — сообщения об опасности на промысле": "коргау",
+    "Коргау — сообщения об опасности на заводе":   "коргау",
+    "ABAI — ГГДМ, модель пласта":      "abai_ггдм",
+    "ABAI — подбор ГНО":               "abai_гно",
+    "ABAI — технологический режим":    "abai_техрежим",
+    /* Один продукт в трёх переделах — три строки с именем по функции, значок
+       один. Так решено 02.09 на примере AIAN: «не будем писать, что это один
+       продукт, будем писать, что он делает здесь». */
+    "ЭНД — наряды-допуски на промысле":      "энд",
+    "ЭНД — наряды-допуски на заводе":        "энд",
+    "Компьютерное зрение — безопасность на заводе": "tumar",
+    "УТО — управление транспортным обеспечением": "ии_уто",
+    "AI-Broker":                       "ai_broker",
+    "KMG AISAP":                       "procupricemetal"
+  };
+
+
+  /* ================= процессы переделов (v2, 10.09) =================
+     Шаги — из драфта КОНЦЕПТ_ПРОЦЕССЫ_2026-09-10 (добыча и геология — по
+     отчёту об операционной модели, слайды 60–61 и 87; переработка — по
+     созвону 10.09; маркетинг — формулировки спорные, Ерлан просил переделать
+     с маркетингом). `проекты` — имена из ПЕРЕДЕЛЫ; `ведётся` — чем ведётся
+     шаг, если проекта показа нет; `охват` у поддержки — индексы шагов. */
+  var ПРОЦЕССЫ = {
+    разведка: {
+      шаги: [
+        { имя:"Стратегия ресурсной базы", суть:"Приоритеты геологоразведки", проекты:["Масштабная программа геологоразведочных работ"] },
+        { имя:"Оценка участков", суть:"Поиск и оценка перспективных участков, права недропользования", проекты:["KMG Geo AI"] },
+        { имя:"Реализация программы ГРР", суть:"Сейсморазведка, исследования, оценка запасов", проекты:["Масштабная программа геологоразведочных работ"] },
+        { имя:"Доразведка месторождений", суть:"Уточнение геологической картины и запасов", проекты:["KMG Geo AI"] }
+      ],
+      поддержка: [
+        { имя:"Закупки и снабжение", проекты:["KMG AISAP"], охват:[0,1,2,3] }
+      ],
+      примечание:"Названия шагов — укрупнение отчёта об операционной модели; подтвердить у геологов"
+    },
+    добыча: {
+      шаги: [
+        { имя:"Контроль сбора и качества данных", суть:"Подтверждённые данные о добыче и состоянии фонда", проекты:[], ведётся:"в проработке" },
+        { имя:"Диспетчеризация и оперативное управление", суть:"Отклонение → причина → мероприятие → контроль", проекты:["ABAI — управление заводнением","ABAI — подбор и анализ эффективности ГТМ","ABAI — технологический режим"] },
+        { имя:"Управление потенциалом актива", суть:"Модель пласта, сценарии разработки, точки бурения", проекты:["Цифровой двойник","ABAI — цифровой рейтинг новых скважин"] }
+      ],
+      поддержка: [
+        { имя:"Подбор погружного оборудования", проекты:["ABAI — подбор ГНО"], охват:[1] },
+        { имя:"Транспортное обеспечение", проекты:["УТО — управление транспортным обеспечением"], охват:[0,1,2] },
+        { имя:"Промышленная безопасность", проекты:["TUMAR","ЭНД — наряды-допуски на промысле","Коргау — сообщения об опасности на промысле"], охват:[0,1,2] },
+        { имя:"Закупки и снабжение", проекты:["KMG AISAP"], охват:[0,1,2] }
+      ],
+      примечание:"Три основных процесса — по «Процесс по добыче» и отчёту (слайд 87); сверить с Недра / КМГИ"
+    },
+    транспорт: {
+      шаги: [
+        { имя:"Планирование перевозки", суть:"Объёмы и график", проекты:[], ведётся:"в проработке" },
+        { имя:"Приём нефти", суть:"Количество и качество", проекты:[], ведётся:"в проработке" },
+        { имя:"Транспортировка", суть:"Режим и контроль перемещения", проекты:[], ведётся:"в проработке" },
+        { имя:"Сдача и учёт", суть:"Передача получателю, баланс", проекты:[], ведётся:"в проработке" }
+      ],
+      поддержка: [
+        { имя:"Закупки и снабжение", проекты:["KMG AISAP"], охват:[0,1,2,3] }
+      ],
+      примечание:"Проекты и границы процесса уточняет Департамент транспортировки"
+    },
+    переработка: {
+      шаги: [
+        { имя:"Планирование производства", суть:"План выпуска и загрузка установок", проекты:[], ведётся:"автоматизировано" },
+        { имя:"Приём сырья", суть:"Количество и качество", проекты:[], ведётся:"в системе управления производством" },
+        { имя:"Переработка сырья", суть:"Управление технологическим процессом", проекты:["PME — энергомониторинг"], ведётся:"в системе управления производством" },
+        { имя:"Хранение продукции", суть:"Запасы и качество", проекты:[], ведётся:"в системе управления производством" },
+        { имя:"Отгрузка продукции", суть:"Передача продукции, учёт", проекты:[], ведётся:"автоматизировано" }
+      ],
+      поддержка: [
+        { имя:"Надёжность оборудования", проекты:["Предиктивная аналитика АНПЗ"], охват:[1,2,3] },
+        { имя:"Промышленная безопасность", проекты:["Компьютерное зрение — безопасность на заводе","ЭНД — наряды-допуски на заводе","Коргау — сообщения об опасности на заводе"], охват:[0,1,2,3,4] },
+        { имя:"Подготовка операторов", проекты:["OTS — тренажёры операторов"], охват:[2] },
+        { имя:"Закупки и снабжение", проекты:["KMG AISAP"], охват:[0,1,2,3,4] }
+      ],
+      примечание:"Пять шагов и охваты — созвон по переработке 10.09 (Арман, Бахтияр); материальный баланс пронизывает все шаги и отдельным шагом не выделен"
+    },
+    маркетинг: {
+      шаги: [
+        { имя:"Консолидация баланса", суть:"Выпуск, запасы, поставки, потребление", проекты:["KMG AIAN"] },
+        { имя:"Прогноз дефицита и профицита", суть:"Ситуация на рынке нефтепродуктов по регионам", проекты:["KMG AIAN"] },
+        { имя:"Обеспечение внутреннего рынка", суть:"Решения по поставкам, социальная задача национальной компании", проекты:["KMG AIAN"] }
+      ],
+      поддержка: [
+        { имя:"Закупки и снабжение", проекты:["KMG AISAP"], охват:[0,1,2] }
+      ],
+      примечание:"Формулировки шагов спорные (созвон 10.09, Ерлан): переделать с Департаментом маркетинга"
+    }
+  };
+
+  /* ================= веер систем ================= */
+  /* Места узлов задаются в процентах окна, а не считаются от экранной рамки
+     площадки: во время наезда рамка отдаёт промежуточные значения, и веер
+     раскрывался бы по позиции, которой уже нет. */
+  function местаУзлов(б){
+    var список = б.проекты, н = список.length, места = [];
+    for(var и = 0; и < н; и++){
+      /* Веер один на все пять блоков. Раскрывается вправо по диагонали.
+         Разброс вокруг неё пробовали и отклонили: заказчик сказал, что узлы
+         стали смотреться обособленно друг от друга. */
+      /* Раскладка веера. Узлы держатся одной группой: шаг между соседями
+         одинаков при любом их числе, а лишнее место остаётся по краям.
+
+         Пока узлы влезают в один столбец — идут диагональю. Когда перестают,
+         веер разворачивается в сетку. Это не украшение: после того как подпись
+         подняли с 15 до 20 px, узел вырос со 168 до 211 px, и четыре системы
+         безопасности перестали помещаться в отведённые 60% высоты — замер
+         показал наложение до 18 px. Растягивать зону некуда, ужимать шаг
+         нельзя, значит второй столбец.
+
+         Разброс вокруг диагонали пробовали и отклонили: заказчик сказал, что
+         узлы стали смотреться обособленно друг от друга. */
+      var г = габаритУзла();
+      var шагY = (г.в * 1.06) / window.innerHeight * 100;
+      var шагX = (г.ш * 1.08) / window.innerWidth * 100;
+      var зонаY = НИЗ_ВЕЕРА - ВЕРХ_ВЕЕРА;
+      var влезает = Math.max(1, Math.floor(зонаY / шагY) + 1);
+      var колонок = Math.ceil(н / влезает);
+      var рядов = Math.ceil(н / колонок);
+      var серединаY = (ВЕРХ_ВЕЕРА + НИЗ_ВЕЕРА) / 2;
+      var серединаX = ВЕЕР_X + РАЗМАХ / 2;
+
+      if(колонок > 1){
+        /* Сетка: диагональ здесь только мешала бы — столбцы и так разводят
+           узлы по горизонтали, а наклон рядов сделал бы группу кривой. */
+        var кол = Math.floor(и / рядов), ряд = и % рядов;
+        места.push({ проект:список[и],
+                     x: серединаX + (кол - (колонок - 1) / 2) * шагX,
+                     y: серединаY + (ряд - (рядов - 1) / 2) * шагY });
+      } else {
+        var шагYодин = н > 1 ? Math.min(зонаY / (н - 1), шагY) : 0;
+        var шагXодин = шагYодин * (РАЗМАХ / зонаY);
+        var сдвиг = и - (н - 1) / 2;
+        места.push({ проект:список[и],
+                     x: серединаX + сдвиг * шагXодин,
+                     y: серединаY + сдвиг * шагYодин });
+      }
+    }
+    return места;
+  }
+
+  function построитьУзлы(б){
+    var цвет = СТАДИИ[б.стадия].цвет;
+    б._узлы = местаУзлов(б).map(function(м){
+      var г = узел("div", "узел" + (м.проект.состояние === "скоро" ? " скоро" : ""), веер);
+      г.style.left = м.x + "%";
+      г.style.top  = м.y + "%";
+      г.style.color = цвет;
+      г.setAttribute("role", "button");
+      г.setAttribute("tabindex", "-1");
+      г.setAttribute("aria-label", "Система " + м.проект.имя + (СОСТОЯНИЯ[м.проект.состояние].имя ? ", " + СОСТОЯНИЯ[м.проект.состояние].имя : ""));
+      var с = СОСТОЯНИЯ[м.проект.состояние];
+      var знак = ИКОНКИ[м.проект.имя];
+      г.innerHTML =
+        '<div class="кружок"><span class="волна"></span>' +
+        (знак ? '<img class="знак" src="медиа/иконки/' + знак + '.png" alt="">'
+              : '<span class="ядро"></span>') +
+        /* Печать «AI» на узле — один из двух вариантов «вытянуть ИИ», которые
+           заказчик просил показать оба; включается классом на body. Ставится
+           по ярлыку в данных, а не по имени: ярлык уже стоит у всех систем с
+           ИИ, и второй список вести незачем. */
+        ((м.проект.ярлыки || []).indexOf("ИИ") >= 0
+           ? '<span class="печать_ии" aria-label="Искусственный интеллект">AI</span>' : '') +
+        '</div>' +
+        '<div class="подпись">' + м.проект.имя + '</div>' +
+        (с.имя ? '<span class="сост ' + с.класс + '">' + с.имя + '</span>'
+               : (безМатериалов(м.проект) ? '<span class="сост пусто">в проработке</span>' : ''));
+      г.addEventListener("click", function(с){ с.stopPropagation(); открытьСистему(б, м); });
+      г.addEventListener("keydown", function(с){
+        if(с.key === "Enter" || с.key === " "){ с.preventDefault(); открытьСистему(б, м); }
+      });
+      return { проект:м.проект, группа:г };
+    });
+  }
+
+  /* Отложенные показы узлов держатся списком и снимаются при уходе с блока.
+
+     Без этого на стенде вылезала настоящая ошибка, и её заметил заказчик.
+     Узлы проявляются лесенкой через setTimeout; если докладчик кликнет на
+     соседний передел раньше, чем лесенка доиграла, скрытьУзлы гасит всё, но
+     отложенные показы предыдущего блока остаются в очереди и срабатывают уже
+     после — чужие узлы проявляются поверх нового передела.
+
+     Воспроизведено: клик по переработке через 200 мс после добычи давал шесть
+     видимых узлов вместо трёх, три из них чужие. Я сначала списал это на
+     застывший снимок панели, и это было неверно. */
+  var отложенные = [];
+
+  /* Больше девяти узлов — тесный веер. Девять ещё ложатся сеткой 3×3 в
+     обычном размере (замерено на добыче до возврата ГГДМ, ГНО и техрежима),
+     двенадцать — уже нет. Класс ставится при каждом показе, а не при
+     построении: узлы других блоков лежат в разметке готовыми, и режим веера
+     должен соответствовать открытому блоку, а не тому, при котором их
+     построили. */
+  var ТЕСНО_ОТ = 10;
+  function показатьУзлы(б){
+    скрытьУзлы();
+    var тесно = б.проекты.length >= ТЕСНО_ОТ;
+    if(веер.classList.contains("тесно") !== тесно){
+      веер.classList.toggle("тесно", тесно);
+      /* Узлы, построенные под другой режим, стоят не там: пересобрать. */
+      if(б._узлы){ б._узлы.forEach(function(у){ у.группа.remove(); }); б._узлы = null; }
+    }
+    if(!б._узлы) построитьУзлы(б);
+    б._узлы.forEach(function(у, и){
+      /* фокус даётся в тот же такт, что и видимость: если выставить tabindex
+         сразу, между кликом и появлением узла есть окно, когда Tab встаёт на
+         невидимый узел */
+      отложенные.push(setTimeout(function(){
+        у.группа.classList.add("виден");
+        у.группа.setAttribute("tabindex", "0");
+      }, 260 + и*90));
+    });
+  }
+
+  /* Гасится не по спискам блоков, а по разметке. Разница не косметическая:
+     список _узлы можно обнулить (так делает пересборка при смене размера окна),
+     и тогда узел, оставшийся в разметке, становится сиротой — ни один блок его
+     больше не знает, и обход по блокам его не погасит.
+
+     Один раз я снял такой кадр: подпись «Геология», под ней модуль сбыта, а на
+     экране шесть узлов из безопасности и корпоратива разом. Повторить на
+     замерах не удалось — состояние собралось из совпадения придушенных
+     таймеров в фоновой вкладке. Поэтому правка не по симптому, а по классу:
+     обход разметки гасит и сирот тоже, и повториться этому нечем.
+
+     На стенде цена ошибки высокая: докладчик открывает передел и видит чужие
+     системы под правильной подписью. */
+  function скрытьУзлы(){
+    отложенные.forEach(clearTimeout);
+    отложенные = [];
+    Array.prototype.forEach.call(document.querySelectorAll(".узел"), function(г){
+      г.classList.remove("виден", "ушёл");
+      г.setAttribute("tabindex", "-1");
+    });
+  }
+
+  /* ================= подпись передела ================= */
+  function показатьПодпись(б){
+    подпись_передела.innerHTML =
+      '<span class="стадия" style="color:' + СТАДИИ[б.стадия].цвет + '">' + СТАДИИ[б.стадия].имя + '</span>' +
+      '<h2>' + б.номер + ' · ' + б.имя + '</h2>' +
+      '<p>' + б.суть + '</p>' +
+      '<p class="ответственный">' + б.ответственный + '</p>' +
+      /* Текст рассказчика на экране скрыт (08.09: «пока скрой, подумаем, что с ним
+         делать»). В данных он остаётся — это шпаргалка докладчика и основа
+         озвучки; вернуть — раскомментировать строку. */
+      '';
+      // '<details class="речь"><summary>Текст рассказчика</summary><p>' + б.рассказчик + '</p></details>';
+    /* Верх подписи отсчитывается от нижнего края строки возврата, а не задаётся
+       числом: в прошлый раз фиксированные 100 px налезали заголовком на строку
+       возврата у сквозных слоёв, и это поймал заказчик, а не мой замер. */
+    var подПутём = Math.round(document.querySelector(".путь").getBoundingClientRect().bottom) + 22;
+    подпись_передела.style.top = подПутём + "px";
+    /* Класс ставится после принудительного reflow, а не в requestAnimationFrame.
+       rAF в невидимой вкладке не срабатывает вовсе — и подпись оставалась с
+       opacity 0 до следующего открытия. Поймано замером: h2 заполнен, класса
+       «виден» нет. На стенде это окно, потерявшее фокус в момент нажатия.
+       Чтение offsetHeight заставляет браузер применить top до смены класса,
+       и переход играет так же, как играл через rAF. */
+    void подпись_передела.offsetHeight;
+    подпись_передела.classList.add("виден");
+  }
+
+  /* ================= морф ================= */
+  /* Кадр вырастает из кружка узла и садится обратно в него. Узел, из которого
+     ушли, запоминается: при возврате кадр обязан сесть именно в него, иначе
+     переход читается как две разные анимации, а не как одно движение. */
+  var часыМеток = null;
+  var часыЧистого = null;
+  var текущаяСистема = null;   /* проект на открытом экране системы — для кликера и кнопки «дальше — система» */
+  var морф = document.getElementById("морф");
+  var откудаУзел = null;
+  var МОРФ_МС = 620;
+  /* Счётчик перелётов. Та же болезнь, что и у отложенных показов узлов:
+     завершение морфа висит на setTimeout, и быстрый второй клик приводил бы к
+     тому, что окончание первого перелёта срабатывает уже поверх второго —
+     прячет кадр, который только начал расти. Считается поколение: сработавшее
+     завершение проверяет, что оно ещё актуально. */
+  var поколение = 0;
+
+  function коробка(э){
+    var р = э.getBoundingClientRect();
+    return { л:р.left, в:р.top, ш:р.width, вы:р.height };
+  }
+
+  /* Морф прячется в два шага, и это не перестраховка. Замер поймал состояние,
+     в котором инлайн opacity уже 0, а вычисленная застряла на 1: переход не
+     доиграл, и кадр остался висеть поверх всего экрана. Полагаться на
+     завершение перехода нельзя — сначала гасим плавно, затем снимаем класс с
+     переходом, и записанный ноль применяется мгновенно и окончательно. */
+  function спрятатьМорф(){
+    морф.style.opacity = "0";
+    setTimeout(function(){
+      морф.classList.remove("идёт");
+      /* Снятия класса мало. Переход, который успел стартовать, снятием
+         transition-property не всегда обрывается, и с fill:backwards он
+         продолжает показывать своё НАЧАЛЬНОЕ значение — то есть непрозрачный
+         кадр поверх всего показа, хотя в стиле уже записан ноль.
+
+         Поймано замером: инлайн 0, вычисленная 1, класс без перехода, а на
+         элементе висят девять незавершённых переходов на currentTime 0.
+         В той панели браузера не выдавались кадры вовсе, так что переходы
+         не сэмплировались; на живом экране они бы доиграли. Но полагаться на
+         то, что кадры выдаются, для конечного состояния нельзя. */
+      морф.getAnimations().forEach(function(а){ а.cancel(); });
+      морф.style.opacity = "0";
+    }, 240);
+  }
+
+  function поставитьМорф(к, круглый){
+    морф.style.left = к.л + "px";
+    морф.style.top = к.в + "px";
+    морф.style.width = к.ш + "px";
+    морф.style.height = к.вы + "px";
+    морф.style.borderRadius = круглый ? "50%" : "0px";
+  }
+
+  function вырастить(узелЭ, кадр, готово){
+    var моё = ++поколение;
+    откудаУзел = узелЭ;
+    var кружок = узелЭ.querySelector(".кружок") || узелЭ;
+    морф.style.backgroundImage = кадр ? 'url("' + кадр + '")' : "";
+    морф.classList.remove("идёт");
+    поставитьМорф(коробка(кружок), true);
+    морф.style.opacity = "1";
+    /* Чтение вынуждает браузер применить начальное положение до того, как
+       включится переход. Без него анимации не будет вовсе: обе записи
+       свернутся в одну, и кадр просто окажется на месте. */
+    void морф.offsetWidth;
+    морф.classList.add("идёт");
+    поставитьМорф({ л:0, в:0, ш:window.innerWidth, вы:window.innerHeight }, false);
+    setTimeout(function(){ if(моё === поколение) готово(); }, МОРФ_МС);
+  }
+
+  function усадить(готово){
+    var моё = ++поколение;
+    if(!откудаУзел){ спрятатьМорф(); готово(); return; }
+    var кружок = откудаУзел.querySelector(".кружок") || откудаУзел;
+    морф.classList.remove("идёт");
+    поставитьМорф({ л:0, в:0, ш:window.innerWidth, вы:window.innerHeight }, false);
+    морф.style.opacity = "1";
+    void морф.offsetWidth;
+    морф.classList.add("идёт");
+    поставитьМорф(коробка(кружок), true);
+    setTimeout(function(){
+      if(моё !== поколение) return;
+      спрятатьМорф();
+      откудаУзел = null;
+      готово();
+    }, МОРФ_МС);
+  }
+
+  /* ================= экран системы ================= */
+  /* Колонка выходит, когда ролик пошёл по второму кругу. Круг ловится по
+     откату времени назад: ролик зациклен, и событие ended у него не приходит
+     вовсе — это уже ловилось на метках, где по той же причине не сработал
+     timeupdate.
+
+     Часы те же 200 мс, что и у меток. Порог в полсекунды нужен, чтобы дрожание
+     currentTime у декодера не сошло за откат.
+
+     Отдельная функция, а не кусок открытьСистему: у ЦД пласта ролик всё время
+     крутится под встроенным показом и успевает уйти на второй круг, пока
+     зритель смотрит 3D. Без повторного завода докладчик нажимал бы «дальше —
+     ролик» и получал кадр уже с колонкой. */
+  function завестиЧистое(ролик){
+    if(часыЧистого){ clearInterval(часыЧистого); часыЧистого = null; }
+    экран_системы.classList.add("чисто");
+    var было = ролик.currentTime;
+    часыЧистого = setInterval(function(){
+      var т = ролик.currentTime;
+      if(т + 0.5 < было){
+        экран_системы.classList.remove("чисто");
+        clearInterval(часыЧистого); часыЧистого = null;
+      }
+      было = т;
+    }, 200);
+  }
+
+  /* ЦД во встроенном режиме спит: рендерит 4 кадра в секунду и не трассирует,
+     пока родитель не пришлёт «слайд:показать» (так он ждал подводку в
+     AIAN_DEMO). Сцена сообщения не слала — отсюда «жёстко лагает» при
+     открытии ЦД (08.09). Будим по загрузке рамки; повтор через секунду — на
+     случай, если слушатель в рамке встал позже события load. */
+  function разбудитьРамку(){
+    var р = document.getElementById("внешний_показ");
+    function скажи(){ try{ р.contentWindow && р.contentWindow.postMessage("слайд:показать", "*"); }catch(е){} }
+    скажи(); setTimeout(скажи, 1000); setTimeout(скажи, 3000);
+    /* Под рамкой продолжали крутиться пять петель площадок и декодировались
+       впустую — их не видно, а ЦД с ними делит видеокарту. Ставим на паузу,
+       завестиПетли() поднимет их при возврате в цепочку. */
+    Array.prototype.forEach.call(document.querySelectorAll("video"), function(в){
+      if(!экран_системы.contains(в) && !в.paused){ в.pause(); в.setAttribute("data-усыплена", "1"); }
+    });
+  }
+  function разбудитьПетли(){
+    Array.prototype.forEach.call(document.querySelectorAll('video[data-усыплена]'), function(в){
+      в.removeAttribute("data-усыплена"); var п = в.play(); if(п && п.catch) п.catch(function(){});
+    });
+  }
+  /* Ни ролика, ни встроенного показа, ни ссылки — по этому проекту ещё нечего
+     показывать; пометка нужна Адилю как список, что дорабатывать. */
+  function безМатериалов(пр){ return !пр.видео && !пр.внешний && !пр.демо; }
+  function открытьСистему(б, м){
+    системаОткрыта = true;
+    (б._узлы || []).forEach(function(у){
+      у.группа.classList.toggle("ушёл", у.проект !== м.проект);
+    });
+
+    var пр = м.проект, с = СОСТОЯНИЯ[пр.состояние];
+    var стадия = document.getElementById("сис_стадия");
+    стадия.textContent = СТАДИИ[б.стадия].имя + " · " + б.имя;
+    стадия.style.color = СТАДИИ[б.стадия].цвет;
+    document.getElementById("сис_имя").textContent = пр.имя;
+    document.getElementById("сис_эффект").textContent = пр.эффект || "Эффект не заполнен";
+    document.getElementById("сис_суть").textContent = пр.описание;
+    /* У системы может быть свой ответственный, уже передела: AIAN — только
+       ДАЦ, без Департамента закупок (09.09). */
+    document.getElementById("сис_отв").textContent = пр.ответственный || б.ответственный;
+
+    var состояние = document.getElementById("сис_состояние");
+    состояние.className = "сост " + с.класс;
+    состояние.textContent = с.имя || (безМатериалов(пр) ? "в проработке" : "");
+    if(!с.имя && безМатериалов(пр)) состояние.className = "сост пусто";
+    состояние.hidden = !состояние.textContent;
+
+    var демо = document.getElementById("сис_демо");
+    if(пр.демо){ демо.href = пр.демо; демо.hidden = false; } else { демо.hidden = true; }
+    /* неактивная кнопка «Ролик на согласовании» снята везде (Адиль 10.09);
+       разметка оставлена на случай возврата */
+    document.getElementById("сис_ролик").hidden = true;
+
+    /* Стоп-кадр ставится всегда, ролик — поверх него. Не «или», а «поверх»:
+       если mp4 не дойдёт (не выложен, не докачался, кодек не поддержан), под
+       ним остаётся кадр, и экран системы не чернеет посреди показа. Проверять
+       наличие файла заранее нечем — ошибка приходит от самого элемента. */
+    var фон = document.getElementById("фон_системы");
+    var кадр = пр.кадр || б._кадр;
+    /* Прежний ролик глушится до очистки разметки. Пока ролики были немыми,
+       хватало innerHTML = "": картинка исчезала вместе с элементом. Со звуком
+       так нельзя — отсоединённый video продолжает звучать, и быстрый переход
+       от системы к системе накладывал бы две дорожки друг на друга. */
+    Array.prototype.forEach.call(фон.querySelectorAll("video"), function(в){
+      в.pause(); в.removeAttribute("src"); в.load();
+    });
+    фон.innerHTML = "";
+    фон.style.backgroundImage = кадр ? 'url("' + кадр + '")' : "";
+    /* Встроенный показ. Адрес ставится в момент открытия, а не заранее: iframe
+       с адресом в разметке тянул бы 25 МБ моделей при каждом заходе на любой
+       экран системы, даже туда, где никакого ЦД нет. */
+    var рамка = document.getElementById("внешний_показ");
+    var кСистеме = document.getElementById("сис_кролику");
+    текущаяСистема = пр;
+    /* Порядок «ролик → живая система» — решение совещания 02.09: «сразу
+       начинать с ролика, после ролика переходим к демонстрации живого
+       продукта». Прежде у ЦД было наоборот — сначала 3D-макет, потом кнопка
+       «дальше — ролик», — так просил Адиль до совещания; решение заказчика
+       новее. Встроенный показ открывается кнопкой всегда — и когда ролика
+       нет. Раньше без ролика он открывался сразу, и карточка «о чём проект»
+       (эффект, описание — текст заказчика) пропадала; ДАЦ 08.09 просил её
+       оставить. Теперь без ролика на экране стоп-кадр и карточка, кнопка
+       «Дальше — система» — та же. */
+    /* `сразу:true` у проекта — встроенный показ открывается без карточки
+       (AISAP, Адиль 10.09: «пусть сразу открывается преза»). */
+    var сразуСнаружи = !!пр.сразу && !!пр.внешний;
+    экран_системы.classList.remove("снаружи");
+    кСистеме.hidden = !пр.внешний;
+    кСистеме.textContent = пр.видео ? "Дальше — система →" : "Открыть систему →";
+    рамка.src = сразуСнаружи ? пр.внешний : "about:blank";
+    if(сразуСнаружи){ экран_системы.classList.add("снаружи"); кСистеме.hidden = true; }
+    /* Презентации внутри рамки листаются стрелками со своей страницы. Без
+       фокуса в рамке стрелки уходят нашему показу — докладчик жмёт, а слайд
+       стоит. Фокус ставится по загрузке: раньше рамки ещё нет. */
+    if(сразуСнаружи) рамка.addEventListener("load", function ф(){ рамка.removeEventListener("load", ф); рамка.focus(); разбудитьРамку(); });
+
+    /* Метки пересобираются под каждую систему: они привязаны к её ролику.
+       Старые часы гасятся здесь же — иначе при быстром переходе от системы к
+       системе их накапливалось бы по одному на каждый показ. */
+    var поле = document.getElementById("метки_ролика");
+    поле.innerHTML = "";
+    if(часыМеток){ clearInterval(часыМеток); часыМеток = null; }
+    if(часыЧистого){ clearInterval(часыЧистого); часыЧистого = null; }
+    экран_системы.classList.remove("чисто");
+    if(пр.видео){
+      var ролик = document.createElement("video");
+      ролик.src = пр.видео;
+      ролик.loop = true; ролик.playsInline = true; ролик.preload = "auto";
+      /* Ролики идут со звуком — заказчик попросил звук во всех, озвучка при
+         этом не нужна, так что это музыка и шумы, а не диктор.
+
+         autoplay здесь больше не ставится: атрибут запускает ролик до того,
+         как мы решим вопрос со звуком, и браузер запустил бы его молча.
+         Пускаем сами, ниже.
+
+         Разрешение на звук берётся от заставки: она не идёт, пока по ней не
+         нажали, а нажатие даёт странице «липкую активацию» — после него
+         браузер пускает со звуком уже всё. Поэтому к моменту, когда докладчик
+         доходит до системы, звук разрешён. Если показ открыли не через
+         заставку (пропустили кнопкой — это тоже нажатие) или запретили
+         автозапуск иначе, откат один: играем молча, картинка важнее. */
+      ролик.muted = false;
+      /* Звук — только на первом круге (Адиль 10.09: на втором-третьем круге
+         озвучка «чуть бесит»). Ролик зациклен, «ended» у loop не приходит —
+         круг ловится по откату currentTime назад. Каждое новое открытие
+         системы создаёт новый элемент, поэтому звук снова с первого круга. */
+      var былоВремя = 0;
+      ролик.addEventListener("timeupdate", function(){
+        if(ролик.currentTime + 0.5 < былоВремя && !ролик.muted) ролик.muted = true;
+        былоВремя = ролик.currentTime;
+      });
+      ролик.addEventListener("error", function(){ ролик.remove(); });
+      фон.appendChild(ролик);
+      (function пустить(){
+        var о = ролик.play();
+        if(о && о.catch) о.catch(function(е){
+          if(е && е.name === "NotAllowedError" && !ролик.muted){
+            ролик.muted = true;
+            var о2 = ролик.play();
+            if(о2 && о2.catch) о2.catch(function(){});
+          }
+        });
+      })();
+
+      завестиЧистое(ролик);
+
+      if(пр.метки && пр.метки.length){
+        var элементы = пр.метки.map(function(м){
+          var э = узел("div", "метка_видео", поле);
+          э.textContent = м.текст;
+          return { м:м, э:э };
+        });
+        /* Состояние метки считается опросом времени ролика, а не по событию
+           timeupdate. Событие показалось очевидным выбором и не сработало:
+           оно приходит только пока ролик реально проигрывается, а если браузер
+           его придержал — кадры не выдаются, окно свёрнуто, ролик стоит —
+           метки просто не загорались. Проверено замером: пять меток на месте,
+           ни одна не горит ни на одной секунде.
+
+           Опрос от этого не зависит: ролик остаётся источником времени, петля
+           сама обнуляет метки, а перемотка подхватывается следующим тиком.
+           Пятая доля секунды достаточна — метки висят по несколько секунд. */
+        var обновить = function(){
+          var т = ролик.currentTime;
+          элементы.forEach(function(п_){
+            п_.э.classList.toggle("горит", т >= п_.м.от && т < п_.м.до);
+          });
+        };
+        обновить();
+        часыМеток = setInterval(обновить, 200);
+      }
+    }
+
+    /* Экран проявляется не сразу, а когда кадр вырос: иначе зритель видит две
+       анимации подряд вместо одного движения. Узел ищется по проекту, а не
+       берётся из события — открытьСистему вызывается и из отладочного крючка. */
+    var свой = (б._узлы || []).filter(function(у){ return у.проект === м.проект; })[0];
+    вырастить(свой ? свой.группа : (м.группа || null), кадр, function(){
+      экран_системы.classList.add("открыт");
+      экран_системы.setAttribute("aria-hidden", "false");
+      спрятатьМорф();
+      document.getElementById("сис_назад").focus();
+    });
+  }
+
+  function закрытьСистему(){
+    if(!системаОткрыта) return;
+    системаОткрыта = false;
+    экран_системы.classList.remove("открыт");
+    экран_системы.setAttribute("aria-hidden", "true");
+    /* Ролик не просто ставится на паузу, а отматывается: докладчик открывает
+       систему заново и должен получить начало, а не середину прошлого показа. */
+    if(часыМеток){ clearInterval(часыМеток); часыМеток = null; }
+    if(часыЧистого){ clearInterval(часыЧистого); часыЧистого = null; }
+    экран_системы.classList.remove("чисто");
+    /* Встроенный показ выгружается, а не прячется: за рамкой живёт своя сцена
+       на Three.js, и оставленная работать она жгла бы кадры под нашим показом. */
+    экран_системы.classList.remove("снаружи");
+    document.getElementById("внешний_показ").src = "about:blank";
+    разбудитьПетли();
+    document.getElementById("сис_кролику").hidden = true;
+    var в = экран_системы.querySelector("video");
+    if(в){ в.pause(); в.currentTime = 0; }
+    /* Кадр садится обратно в свой узел, и только потом узлы возвращаются:
+       иначе они проявятся под ещё летящим кадром. */
+    усадить(function(){
+      if(текущий) открыть(текущий);
+    });
+  }
+  /* Шаг «дальше — система»: ролик уже показан, поверх него поднимается
+     встроенный живой показ. Адрес ставится только сейчас — iframe с адресом
+     тянул бы модели ЦД при каждом открытии экрана. Ролик ставится на паузу:
+     под рамкой его не видно, а декодер под 3D-сценой ни к чему. */
+  function открытьВРамке(адрес){
+    var в = экран_системы.querySelector("video");
+    if(в) в.pause();
+    var рамка = document.getElementById("внешний_показ");
+    рамка.addEventListener("load", function ф(){ рамка.removeEventListener("load", ф); рамка.focus(); разбудитьРамку(); });
+    рамка.src = адрес;
+    экран_системы.classList.add("снаружи");
+    document.getElementById("сис_кролику").hidden = true;
+  }
+  function снаружиСайт(адрес){ return /^https?:\/\//.test(адрес); }
+  document.getElementById("сис_кролику").addEventListener("click", function(){
+    if(!текущаяСистема || !текущаяСистема.внешний) return;
+    /* Живая система на чужом домене в рамку не встанет (X-Frame-Options) —
+       открывается вкладкой; свои показы (копии в репозитории) — в рамке. */
+    if(снаружиСайт(текущаяСистема.внешний)) window.open(текущаяСистема.внешний, "_blank", "noopener");
+    else открытьВРамке(текущаяСистема.внешний);
+  });
+  /* «Открыть демо» с локальным адресом — тоже в рамке, без новой вкладки. */
+  document.getElementById("сис_демо").addEventListener("click", function(с){
+    if(!текущаяСистема || !текущаяСистема.демо || снаружиСайт(текущаяСистема.демо)) return;
+    с.preventDefault(); открытьВРамке(текущаяСистема.демо);
+  });
+
+  document.getElementById("сис_назад").addEventListener("click", закрытьСистему);
+  /* Вторая ступень возврата: из системы сразу ко всей цепочке, минуя передел. */
+  document.getElementById("сис_вцепочку").addEventListener("click", function(){
+    if(!системаОткрыта){ закрыть(); return; }
+    системаОткрыта = false;
+    экран_системы.classList.remove("открыт");
+    экран_системы.setAttribute("aria-hidden", "true");
+    if(часыМеток){ clearInterval(часыМеток); часыМеток = null; }
+    if(часыЧистого){ clearInterval(часыЧистого); часыЧистого = null; }
+    экран_системы.classList.remove("чисто");
+    /* Встроенный показ выгружается, а не прячется: за рамкой живёт своя сцена
+       на Three.js, и оставленная работать она жгла бы кадры под нашим показом. */
+    экран_системы.classList.remove("снаружи");
+    document.getElementById("внешний_показ").src = "about:blank";
+    разбудитьПетли();
+    document.getElementById("сис_кролику").hidden = true;
+    var в = экран_системы.querySelector("video");
+    if(в){ в.pause(); в.currentTime = 0; }
+    усадить(закрыть);
+  });
+
+  /* ================= камера ================= */
+  /* Наезд — один transform на всю сцену: площадки едут вместе с биркой, линией
+     и светом стола, поэтому ничто не разъезжается между собой. Источник
+     площадки 2048 px, так что при увеличении видно деталь, а не пиксели —
+     ради этого площадки и генерировались поштучно.
+
+     Площадка уезжает в левую четверть кадра: справа освобождается место под
+     веер. Числа в процентах сцены, поэтому от размера окна не зависят и
+     одинаково работают на ноутбуке и на экране стенда. */
+  var НАЕЗД_МАКС = 2.4;
+  var ЦЕЛЬ_Y = 52;
+  /* Зона под веер очерчена заказчиком: правая половина кадра целиком.
+     Узлы раскладываются по ней диагональю, а не дугой. Дуга выносила вправо
+     только средний узел, крайние оставались у левого края зоны, и правая
+     треть пустовала — заказчик это и заметил. */
+  var ВЕЕР_X    = 44;   /* v2: правее начинается процессная схема */     /* верхний левый узел, проценты окна */
+  var РАЗМАХ    = 24;     /* насколько нижний узел правее верхнего */
+  /* Верх зоны 24, а не 20: при девяти узлах в добыче верхний ряд вставал на
+     54 px от верха окна и на 13 px заходил в полосу шапки, прямо под чип
+     «Драфт». Замер на 1912×844 после сдвига — верхний ряд начинается ниже
+     шапки, нижний не доходит до края. */
+  var ВЕРХ_ВЕЕРА = 24;
+  var НИЗ_ВЕЕРА  = 80;
+  /* Ширина узла меряется у настоящего узла, а не дублируется числом.
+     Дубль уже разошёлся с CSS: в расчёте мест стояло min(20vw,220px), в стилях
+     к тому моменту было min(26vw,300px), и строка узлов у сквозного слоя
+     вылезла за экран. Одно значение — одно место. */
+  var _габаритУзла = null;
+  /* Две пробы, по одной на режим веера: тесный узел меньше, и шаг сетки для
+     него другой. Кэш по режиму, иначе первая же проба задавала бы размер на
+     оба режима. */
+  var _габаритТесного = null;
+  function габаритУзла(){
+    var тесно = веер.classList.contains("тесно");
+    if(тесно && _габаритТесного) return _габаритТесного;
+    if(!тесно && _габаритУзла) return _габаритУзла;
+    /* В пробу ставится САМОЕ ДЛИННОЕ имя из всех систем, а не слово «Проба».
+
+       С коротким именем проба давала высоту узла с однострочной подписью, а у
+       половины систем имя переносится на две строки — «ИИ в УТО — тепловая
+       карта», «OTS — тренажёры операторов». Раскладка считала шаг по заниженной
+       высоте, и узлы налезали друг на друга: замер показал 14 px на добыче и
+       переработке сразу после того, как подпись подняли до 20 px.
+
+       Длиннейшее имя даёт худший случай, а раскладка обязана держаться именно
+       по нему — иначе она верна для одних блоков и ломается на других. */
+    var длинное = "";
+    ПЕРЕДЕЛЫ.forEach(function(б){
+      б.проекты.forEach(function(пр){
+        if(пр.имя.length > длинное.length) длинное = пр.имя;
+      });
+    });
+    var проба = узел("div", "узел", веер);
+    проба.style.visibility = "hidden";
+    проба.innerHTML = '<div class="кружок"></div><div class="подпись">' + длинное + '</div>' +
+                      '<span class="сост слайды">только презентация</span>';
+    var г = { ш: проба.offsetWidth, в: проба.offsetHeight };
+    проба.remove();
+    if(тесно) _габаритТесного = г; else _габаритУзла = г;
+    return г;
+  }
+  function ширинаУзла(){ return габаритУзла().ш; }
+
+  /* Просвет между подписью и веером меряется, а не назначается: подпись задана
+     шириной в символах и её край в пикселях от окна не зависит, а площадка
+     задана процентами сцены. Подобранные числа сходились на одном размере окна
+     и наезжали друг на друга на другом. */
+  function наездПодПросвет(){
+    var сцШ = сцена.offsetWidth;                 /* без учёта transform */
+    var сцЛево = (window.innerWidth - сцШ) / 2;
+    var подп = подпись_передела.getBoundingClientRect();
+    var слева = (подп.width ? подп.right : сцЛево) + 26;
+    var полУзла = ширинаУзла() / 2;
+    var справа = ВЕЕР_X/100 * window.innerWidth - полУзла - 26;
+    var просвет = Math.max(120, справа - слева);
+    var к = Math.min(НАЕЗД_МАКС, просвет / (ШИРИНА_МОДУЛЯ/100 * сцШ));
+    var серединаПx = слева + просвет/2;
+    return { к:к, цельX: (серединаПx - сцЛево) / сцШ * 100 };
+  }
+
+
+  /* ================= v2: процессная схема ================= */
+  var процесс = document.getElementById("процесс");
+  document.body.classList.add("процессы");
+  function найтиПроект(имя){
+    for(var i = 0; i < ПЕРЕДЕЛЫ.length; i++){
+      var б = ПЕРЕДЕЛЫ[i];
+      for(var j = 0; j < б.проекты.length; j++) if(б.проекты[j].имя === имя) return { б:б, пр:б.проекты[j] };
+    }
+    return null;
+  }
+  function чипПроекта(имя, родитель){
+    var н = найтиПроект(имя);
+    var ч = узел("button", "проект_чип", родитель); ч.type = "button";
+    if(!н){ ч.innerHTML = '<span class="точка"></span><span>' + имя + '</span>'; ч.disabled = true; return ч; }
+    var знак = ИКОНКИ[имя];
+    ч.innerHTML = (знак ? '<img src="медиа/иконки/' + знак + '.png" alt="">' : '<span class="точка"></span>') +
+      '<span>' + имя + '</span>' +
+      ((н.пр.ярлыки || []).indexOf("ИИ") >= 0 ? '<span class="печать_ии" aria-label="Искусственный интеллект">AI</span>' : '');
+    ч.addEventListener("click", function(с){ с.stopPropagation(); открытьСистему(н.б, { проект:н.пр, группа:ч }); });
+    return ч;
+  }
+  function показатьПроцесс(б){
+    скрытьПроцесс();
+    var д = ПРОЦЕССЫ[б.код]; if(!д) return;
+    var бровь = узел("div", "бровь", процесс); бровь.textContent = "Основной производственный процесс · " + б.имя;
+    var ряд = узел("div", "шаги_процесса", процесс);
+    var карточки = д.шаги.map(function(ш, i){
+      if(i){ var а = узел("div", "стрелка_шага", ряд); а.textContent = "→"; }
+      var к = узел("div", "шаг_процесса", ряд);
+      к.style.transitionDelay = (0.08 * i) + "s";
+      к.innerHTML = '<div class="номер">0' + (i + 1) + '</div><h3>' + ш.имя + '</h3><div class="суть_шага">' + ш.суть + '</div>';
+      if(ш.проекты && ш.проекты.length){
+        var п = узел("div", "проекты_шага", к);
+        ш.проекты.forEach(function(имя){ чипПроекта(имя, п); });
+      }
+      if(ш.ведётся){
+        var в = узел("div", "ведётся" + (/проработк/.test(ш.ведётся) ? " проработка" : ""), к); в.textContent = ш.ведётся;
+      }
+      return к;
+    });
+    var под = узел("div", "поддержка", процесс);
+    var б2 = узел("div", "бровь", под); б2.textContent = "Поддерживающая деятельность"; б2.style.opacity = "1";
+    var р = узел("div", "ряд", под);
+    д.поддержка.forEach(function(г){
+      var гр = узел("div", "группа_поддержки", р);
+      var и = узел("div", "имя_группы", гр); и.textContent = г.имя;
+      var п = узел("div", "проекты_шага", гр);
+      г.проекты.forEach(function(имя){ чипПроекта(имя, п); });
+      /* охват: наведение подсвечивает шаги, которые ведёт эта поддержка
+         (созвон по переработке: «наводим на компьютерное зрение — все пять
+         блоков подсвечиваются») */
+      function подсветить(да){ (г.охват || []).forEach(function(i){ if(карточки[i]) карточки[i].classList.toggle("охват", да); }); }
+      гр.addEventListener("mouseenter", function(){ подсветить(true); });
+      гр.addEventListener("mouseleave", function(){ подсветить(false); });
+      гр.addEventListener("focusin", function(){ подсветить(true); });
+      гр.addEventListener("focusout", function(){ подсветить(false); });
+    });
+    if(д.примечание){ var пр = узел("div", "примечание", процесс); пр.textContent = "Черновик: " + д.примечание; }
+    setTimeout(function(){ процесс.classList.add("виден"); }, 200);
+  }
+  function скрытьПроцесс(){ процесс.classList.remove("виден"); процесс.innerHTML = ""; }
+
+  function открыть(п){
+    текущий = п;
+    document.body.classList.add("вглубь");
+    /* Подпись заполняется первой: её измеренный край задаёт и просвет для
+       наезда, и начало строки узлов у сквозного слоя. */
+    показатьПодпись(п);
+
+    /* Наезд одинаков для всех пяти блоков: докладчик нажимает на такой же
+       значок и ждёт такого же ответа. */
+    var р = п._р, ц = наездПодПросвет();
+    var цy = р.низМодуля - р.высотаМодуля/2;
+    сцена.style.transform = "translate(" + (ц.цельX - ц.к*р.центр) + "%," +
+                            (ЦЕЛЬ_Y - ц.к*цy) + "%) scale(" + ц.к + ")";
+    п._наезд = ц;
+
+    /* Бирки гасятся все до одной, включая свою: передел назван в подписи, а
+       подпись под площадкой уезжает вместе со сценой и на таком увеличении
+       становится в палец высотой. */
+    ПЕРЕДЕЛЫ.forEach(function(д){
+      var свой = (д === п);
+      /* Соседи гасятся сильнее, чем кажется нужным: режим screen не даёт им
+         уйти в чёрный, и при 0,1 труба соседней площадки просвечивала прямо
+         под подписью узла. */
+      д._площадка.style.opacity  = свой ? "1" : "0.06";
+      д._ореол.style.opacity = свой ? ""  : "0";
+      д._бирка.style.opacity = "0";
+    });
+    document.getElementById("где").textContent = СТАДИИ[п.стадия].имя + " / " + п.имя;
+    /* v2: вместо веера — процессная схема */
+    показатьПроцесс(п);
+  }
+
+  function закрыть(){
+    системаОткрыта = false;
+    экран_системы.classList.remove("открыт");
+    экран_системы.setAttribute("aria-hidden", "true");
+    текущий = null;
+    document.body.classList.remove("вглубь");
+    сцена.style.transform = "none";
+    /* Инлайн снимается, а не ставится в «1»: в режиме экрана роли чужие
+       площадки и бирки приглушены правилами CSS, и «1» инлайном перебивало их
+       после первого же возврата — на общем экране соседи вспыхивали в полную
+       силу. Пустое значение возвращает слово стилям. */
+    ПЕРЕДЕЛЫ.forEach(function(д){
+      д._площадка.style.opacity  = "";
+      д._ореол.style.opacity = "";
+      д._бирка.style.opacity = "";
+    });
+    скрытьУзлы();
+    скрытьПроцесс();
+    подпись_передела.classList.remove("виден");
+    подпись_передела.innerHTML = "";
+  }
+  document.getElementById("назад").addEventListener("click", закрыть);
+
+  /* ================= счётчики проектов ================= */
+  function обновитьСписки(){
+    ПЕРЕДЕЛЫ.forEach(function(б){
+      б._счётчик.textContent = б.проекты.length + " " + склонение(б.проекты.length);
+    });
+  }
+  обновитьСписки();
+
+  /* ================= стартовый экран роли ================= */
+  /* ?экран=добыча — этот экран стенда отвечает за добычу; ?экран=добыча,переработка
+     — за два передела (так у ИСУТО). Чужие площадки приглушаются стилями по
+     классу «своя», под цепочкой строка «Этот экран — …». Неизвестный код в
+     адресе молча пропускается: показ на стенде не должен падать из-за опечатки
+     в ярлыке запуска. */
+  (function(){
+    var коды = (new URLSearchParams(location.search).get("экран") || "")
+      .split(",").map(function(с){ return с.trim(); }).filter(Boolean);
+    var свои = ПЕРЕДЕЛЫ.filter(function(б){ return коды.indexOf(б.код) >= 0; });
+    if(!свои.length) return;
+    document.body.classList.add("экран_роли");
+    свои.forEach(function(б){
+      б._площадка.classList.add("своя");
+      б._ореол.classList.add("своя");
+      б._бирка.classList.add("своя");
+    });
+    var р = узел("div", "роль_экрана", сцена);
+    р.textContent = "Этот экран — " + свои.map(function(б){ return б.имя; }).join(" · ");
+    /* Строка стоит под бирками: ниже низа модуля на высоту бирки с запасом. */
+    р.style.top = (НИЗ_МОДУЛЯ + 14) + "%";
+  })();
+
+  window.addEventListener("resize", function(){
+    /* Узлы пересобираются, а не только переставляются: их места считаются от
+       ширины окна и от края подписи, и при другом размере окна старые
+       координаты уже неверны. Ошибку нашёл замер: узлы, построенные при
+       нулевой ширине окна, дали `100 - 110/0` и координату NaN — браузер
+       молча пропустил свойство, и все три встали в левый край.
+
+       Сбрасываются узлы всех блоков, а не только открытого. Прежде
+       чистился один текущий, и это давало отложенную поломку: блоки, открытые
+       до смены размера, держали узлы, посчитанные под старую ширину, и при
+       следующем заходе в них подписи наезжали друг на друга, а часть узлов
+       уходила за кадр. Замер на 1912×844 после смены размера: в добыче три
+       наложения из трёх узлов, в другом блоке два узла за рамкой. После сброса
+       всех — ноль и ноль.
+
+       Условия «если блок открыт» здесь нет намеренно: чистить кэш надо и на
+       общем экране, иначе первый же заход в блок после смены размера получит
+       старые координаты. */
+    скрытьУзлы();          /* снимает и отложенные показы: они ссылаются на узлы,
+                              которых через строку уже не будет */
+    /* Пробы размера узла тоже устаревают: ширина узла задана в vw, и при другом
+       окне шаг сетки другой. Без сброса пересборка шла по старым числам. */
+    _габаритУзла = null; _габаритТесного = null;
+    ПЕРЕДЕЛЫ.forEach(function(б){
+      if(!б._узлы) return;
+      б._узлы.forEach(function(у){ у.группа.remove(); });
+      б._узлы = null;
+    });
+    if(текущий) открыть(текущий);
+  });
+
+  /* Докладчик стоит у экрана с кликером, а не с мышью — так решено 02.09
+     («планшет или кликер, тач-панель не нужна»). Кликер шлёт PageDown /
+     PageUp, иногда стрелки, и должен работать на каждом уровне:
+       — на цепочке «вперёд» открывает первый передел, «назад» — последний;
+       — в переделе «вперёд/назад» переводят на соседний передел;
+       — на экране системы «вперёд/назад» листают системы этого передела;
+       — Esc поднимает на шаг вверх.
+     Прежде стрелки работали только внутри передела, а с цепочки открыть
+     что-то без мыши можно было лишь Tab и Enter — это нашла проверка. */
+  document.addEventListener("keydown", function(с){
+    if(с.key === "Escape"){
+      if(системаОткрыта) закрытьСистему();
+      else if(текущий) закрыть();
+      return;
+    }
+    if(заставкаНаЭкране()) return;   /* пока стоит заставка, клавиши — её */
+    var вперёд = (с.key === "ArrowRight" || с.key === "PageDown");
+    var назад  = (с.key === "ArrowLeft"  || с.key === "PageUp");
+    if(!вперёд && !назад) return;
+    с.preventDefault();
+    var шаг = вперёд ? 1 : -1;
+    /* Открыта встроенная презентация (ГеоРАГ, KMG AISAP) — стрелки её, а не
+       наши: она листается со своей страницы теми же клавишами. Событие
+       пробрасывается в рамку напрямую, чтобы не зависеть от того, где фокус:
+       кликер шлёт клавиши окну, а не рамке. */
+    if(системаОткрыта && экран_системы.classList.contains("снаружи")){
+      var окноРамки = document.getElementById("внешний_показ").contentDocument;
+      if(окноРамки){ окноРамки.dispatchEvent(new KeyboardEvent("keydown", {key: с.key, bubbles: true})); return; }
+    }
+    if(системаОткрыта && текущий && текущий._узлы && текущаяСистема){
+      var узлы = текущий._узлы;
+      var i = -1;
+      узлы.forEach(function(у, к){ if(у.проект === текущаяСистема) i = к; });
+      if(i < 0) return;
+      открытьСистему(текущий, узлы[(i + шаг + узлы.length) % узлы.length]);
+      return;
+    }
+    if(!текущий){
+      открыть(вперёд ? ПЕРЕДЕЛЫ[0] : ПЕРЕДЕЛЫ[ПЕРЕДЕЛЫ.length - 1]);
+      return;
+    }
+    var где = ПЕРЕДЕЛЫ.indexOf(текущий);
+    открыть(ПЕРЕДЕЛЫ[(где + шаг + ПЕРЕДЕЛЫ.length) % ПЕРЕДЕЛЫ.length]);
+  });
+
+  /* ================= сторож петель =================
+     Заказчик заметил, что в какой-то момент площадки перестают двигаться.
+     Причина не в файлах: у них стоит loop, и сами по себе они не кончаются.
+     Останавливает их браузер — при сворачивании окна, переключении вкладки,
+     нехватке памяти или засыпании машины медиа ставится на паузу, и обратно
+     сама она не запускается: автозапуск срабатывает один раз при загрузке.
+
+     На стенде это выглядит хуже всего: докладчик отвёл взгляд, вернулся — а
+     макет мёртвый, и оживить его можно только перезагрузкой страницы.
+
+     Поэтому паузу здесь считаем всегда ошибкой и чиним тремя способами сразу.
+     Одного мало: событие pause приходит не во всех случаях, visibilitychange
+     не ловит сворачивание окна на части систем, а таймер один срабатывает
+     слишком редко, чтобы им ограничиться. */
+  function завестиПетли(){
+    /* Под заставкой петли не заводятся: экран занят её роликом, и делить с ним
+       декодер незачем. Сторож всё равно тикает раз в четыре секунды и заведёт
+       их сразу после — но заставка вызывает эту функцию сама, не дожидаясь. */
+    if(заставкаНаЭкране()) return;
+    Array.prototype.forEach.call(document.querySelectorAll(".площадка video"), function(в){
+      if(в.preload === "none") в.preload = "auto";
+      /* усыплённые под встроенным показом не трогаем — сторож тикает раз в
+         четыре секунды и иначе будил бы их обратно под ЦД */
+      if(в.paused && !в.hasAttribute("data-усыплена")){
+        var п = в.play();
+        /* play() отдаёт промис и отклоняет его, если браузер запретил
+           автозапуск. Молчаливое падение здесь недопустимо — но и ронять показ
+           нечем, поэтому просто гасим. */
+        if(п && п.catch) п.catch(function(){});
+      }
+    });
+  }
+
+  document.addEventListener("visibilitychange", function(){
+    if(!document.hidden) завестиПетли();
+  });
+  window.addEventListener("focus", завестиПетли);
+  window.addEventListener("pageshow", завестиПетли);
+  /* Раз в четыре секунды — на случаи, которые события не покрывают. Проверка
+     дешёвая: пять обращений к свойству paused. */
+  setInterval(завестиПетли, 4000);
+
+  /* ================= заставка ================= */
+  /* Ролик перед цепочкой. Правило одно: заставка не имеет права остаться на
+     экране. Всё, что ниже, — способы её снять, и их четыре, потому что ролик
+     на чужой машине может не пойти по причинам, которых мы отсюда не видим.
+
+     1. Кончился — обычный путь.
+     2. Докладчик нажал «Пропустить →».
+     3. Ролик отдал ошибку — файла нет, кодек не тот.
+     4. Ролик запущен, но время стоит; или данные не пришли за восемь секунд.
+
+     Четвёртый и есть главный. Ролик заказчика пришёл в HEVC Main 10; такой
+     файл в Chrome играет не везде, и в зале это выглядело бы как чёрный экран
+     вместо показа. Ролик перекодирован в H.264 — но сторож оставлен: он
+     закрывает и остальные причины, от кривой сборки до сорванного файла.
+
+     Дальше — две ловушки, в которые я по очереди попал на замерах.
+
+     Отклонено: «отказ play() снимает заставку». Заставка исчезала мгновенно —
+     у невидимой вкладки Chrome глушит video-only media ради экономии питания,
+     play() отдаёт AbortError. Показ, открытый заранее и выведенный на экран
+     перед выступлением, потерял бы заставку ещё до того, как на него
+     посмотрели. Теперь отказ пуска не снимает ничего: пуск повторяется.
+
+     Отклонено: «время стоит — значит сломалось». Тоже сняло заставку живьём.
+     Стоящее время само по себе ничего не значит: браузер вправе держать ролик
+     на паузе, и document.hidden этого не показывает — окно может быть не
+     видно, пока вкладка считается открытой. Простой считается поломкой только
+     у запущенного ролика: играет, а время не идёт — вот это декодер встал.
+     Придержанный браузером ролик просто ждёт, показывая первый кадр, и уйдёт
+     сам, как только окно выведут вперёд.
+
+     Отдельная защита на «файл не грузится»: восемь секунд без данных
+     (readyState < 2) — снимаем. Иначе на сорванной сборке заставка осталась бы
+     чёрным прямоугольником навсегда. */
+
+  /* Звук и старт по нажатию.
+
+     Браузер не пускает автозапуск со звуком, пока на странице не было ни
+     одного действия человека, — это политика браузера, а не настройка показа,
+     и обойти её со стороны страницы нельзя. Мы прошли по этому кругу трижды:
+     сначала ролик шёл молча, потом звук включала кнопка в углу, потом любое
+     действие. Заказчик выбрал последнее решение сам: ролик не идёт вовсе,
+     пока не нажали, а по нажатию идёт сразу со звуком, с первого кадра.
+
+     Это самый честный вариант из возможных. Нажатие — и есть то действие,
+     которого требует браузер, поэтому звук гарантирован, а не «как повезёт».
+     И зритель ничего не теряет: до нажатия висит первый кадр ролика, а не
+     чёрный экран.
+
+     Раньше этот вариант отклонялся мной из-за заглушки на проекторе — пока
+     никто не нажал, гость видит неподвижную картинку. Возражение снято тем,
+     что картинка эта — кадр самой заставки: степь на рассвете со знаком КМГ
+     в цепочке, вполне себе титульный экран.
+
+     Кнопки на нём нет: заказчик попросил просто паузу. Значит, докладчик должен
+     знать, что показ начинается с любого нажатия, — на экране об этом не
+     написано. Размен осознанный: надпись на титульном кадре стоит дороже, чем
+     одна строка в памятке. Строка есть в README.
+
+     Кнопка «Включить звук» больше не нужна и убрана: звук приходит сам вместе
+     со стартом. */
+  var заставка = document.getElementById("заставка");
+  var роликЗаставки = document.getElementById("ролик_заставки");
+  var сторожЗаставки = null;
+
+  function снятьЗаставку(){
+    if(!заставка || заставкаСнята) return;
+    заставкаСнята = true;
+    if(сторожЗаставки){ clearInterval(сторожЗаставки); сторожЗаставки = null; }
+    /* Петли заводятся в начале проявления, а не после: 720 мс им как раз
+       хватает, чтобы дотянуть первые кадры, и цепочка открывается уже живой. */
+    завестиПетли();
+    заставка.classList.add("ушла");
+    роликЗаставки.pause();
+    /* hidden ставится после проявления, а не сразу: display:none обрывает
+       переход и заставка исчезла бы рывком. */
+    setTimeout(function(){
+      заставка.hidden = true;
+      /* Ролик выгружается: 9 МБ декодера под показом ни к чему, а вернуть
+         заставку можно только перезагрузкой. */
+      роликЗаставки.removeAttribute("src");
+      роликЗаставки.load();
+    }, 720);
+  }
+
+  var заставкаПущена = false;
+
+  function пуститьЗаставку(){
+    if(!заставка || заставкаСнята || !заставкаПущена) return;
+    var о = роликЗаставки.play();
+    if(о && о.catch) о.catch(function(е){
+      /* Разбирается ровно одна причина. NotAllowedError после нажатия быть не
+         должно — нажатие и есть требуемое действие, — но если браузер всё же
+         откажет, картинка важнее звука: идём молча. Прочие отказы (AbortError
+         от экономии питания и подобные) лечатся повтором, его делает сторож. */
+      if(е && е.name === "NotAllowedError" && !роликЗаставки.muted){
+        роликЗаставки.muted = true;
+        var о2 = роликЗаставки.play();
+        if(о2 && о2.catch) о2.catch(function(){});
+      }
+    });
+  }
+
+  function начатьЗаставку(){
+    if(!заставка || заставкаСнята || заставкаПущена) return;
+    заставкаПущена = true;
+    роликЗаставки.muted = false;
+    роликЗаставки.currentTime = 0;
+    пуститьЗаставку();
+  }
+
+  if(заставка){
+    /* Пропуск — только кнопкой. Прежде заставку снимал щелчок по кадру и любая
+       клавиша; заказчик попросил убрать, и правильно: на стенде по экрану
+       трогают и просто так, а докладчик может смахнуть заставку локтем мыши.
+       Единственный выход остаётся видимым и нарочным. */
+    document.getElementById("пропустить").addEventListener("click", снятьЗаставку);
+
+    /* Начинает щелчок по кадру, касание или клавиша — всё это одно действие
+       человека, и оба пути ведут в одну функцию. Пропуск при этом остаётся
+       только на своей кнопке: щелчок по кадру заставку не снимает. */
+    заставка.addEventListener("pointerdown", начатьЗаставку);
+    document.addEventListener("keydown", function(с){
+      if(заставкаСнята) return;
+      /* Esc — единственная клавиша, которая пропускает, а не пускает. Она и
+         во всём остальном показе поднимает на шаг вверх, и рука докладчика
+         тянется к ней сама; пускать ею ролик значило бы делать обратное
+         тому, чего от неё ждут. */
+      if(с.key === "Escape") снятьЗаставку(); else начатьЗаставку();
+    });
+    роликЗаставки.addEventListener("ended", снятьЗаставку);
+    роликЗаставки.addEventListener("error", снятьЗаставку);
+    document.addEventListener("visibilitychange", function(){
+      if(!document.hidden) пуститьЗаставку();
+    });
+    window.addEventListener("focus", пуститьЗаставку);
+
+    var былоЗ = -1, стоит = 0, тиков = 0;
+    сторожЗаставки = setInterval(function(){
+      тиков += 1;
+      /* Восемь секунд без данных — файла нет или кодек не тот. Проверяется и до
+         нажатия: заставка не должна держать цепочку за кнопкой, за которой
+         ничего нет. */
+      if(роликЗаставки.readyState < 2){
+        if(тиков >= 16) снятьЗаставку();   /* 16 × 500 мс = восемь секунд без данных */
+        return;
+      }
+      /* До нажатия ролик стоит по замыслу, и сторожить тут нечего. */
+      if(!заставкаПущена) return;
+      if(роликЗаставки.paused){ стоит = 0; пуститьЗаставку(); return; }
+      var т = роликЗаставки.currentTime;
+      if(т === былоЗ){
+        стоит += 1;
+        if(стоит >= 6) снятьЗаставку();    /* 6 × 500 мс = три секунды на месте */
+      } else { стоит = 0; былоЗ = т; }
+    }, 500);
+  }
+
+  /* ================= курсор ================= */
+  /* Прячется после 2,5 с без движения мыши и возвращается от первого же
+     движения. Считается по mousemove, а не по pointermove: с касаний
+     pointermove приходит пачкой и на сенсорном экране стрелка мигала бы.
+
+     Таймер перезаводится, а не тикает постоянно: движений мыши в секунду
+     десятки, и дешевле один setTimeout, чем проверка на каждом событии. */
+  var ЧАС_КУРСОРА = 2500;
+  var курсорЧасы = null;
+  function показатьКурсор(){
+    document.body.classList.remove("без_мыши");
+    if(курсорЧасы) clearTimeout(курсорЧасы);
+    курсорЧасы = setTimeout(function(){
+      document.body.classList.add("без_мыши");
+    }, ЧАС_КУРСОРА);
+  }
+  document.addEventListener("mousemove", показатьКурсор);
+  /* Колесо и нажатие тоже считаются присутствием: докладчик может держать
+     руку на месте и крутить или щёлкать. */
+  document.addEventListener("mousedown", показатьКурсор);
+  document.addEventListener("wheel", показатьКурсор, { passive: true });
+  показатьКурсор();
+
+  /* Отладочный крючок — как window.__dbg в проекте ЦД. Нужен для замера: узлы
+     проявляются через setTimeout, а в фоновой вкладке браузер душит таймеры,
+     и синхронная проверка видит пустой экран. Через крючок состояние читается
+     напрямую, без ожидания анимации. */
+  window.__показ = {
+    БЛОКИ: ПЕРЕДЕЛЫ,
+    снятьЗаставку: снятьЗаставку,
+    заставкаИдёт: function(){
+      return !заставка.hidden && !роликЗаставки.paused;
+    },
+    открыть: открыть,
+    открытьСистему: открытьСистему,
+    закрытьСистему: закрытьСистему,
+    закрыть: закрыть,
+    текущий: function(){ return текущий ? текущий.код : null; },
+    раскладка: раскладка,
+    завестиПетли: завестиПетли,
+    петлиИдут: function(){
+      var в = [].slice.call(document.querySelectorAll(".площадка video"));
+      return в.filter(function(э){ return !э.paused; }).length + "/" + в.length;
+    },
+    системаОткрыта: function(){ return системаОткрыта; },
+    морф: морф,
+    МОРФ_МС: МОРФ_МС,
+    /* Сколько систем осталось без иконки: имя проекта — ключ, и переименование
+       оборвало бы связь беззвучно. */
+    безИконки: function(){
+      return ПЕРЕДЕЛЫ.reduce(function(нет, б){
+        return нет.concat(б.проекты.filter(function(пр){ return !ИКОНКИ[пр.имя]; })
+                                   .map(function(пр){ return пр.имя; }));
+      }, []);
+    },
+    спрятатьМорф: спрятатьМорф,
+    проявить: function(код){
+      var б = ПЕРЕДЕЛЫ.filter(function(д){ return д.код === код; })[0];
+      if(!б._узлы) построитьУзлы(б);
+      б._узлы.forEach(function(у){
+        у.группа.classList.add("виден");
+        у.группа.setAttribute("tabindex", "0");
+      });
+      return б._узлы.length;
+    }
+  };
+})();
+</script>
+</body>
+</html>
