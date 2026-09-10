@@ -451,13 +451,16 @@ body.снимок #финал_знак{transition:none !important;opacity:1 !imp
 #мозаика video{display:block;width:100%;aspect-ratio:16/9;object-fit:cover}
 #мозаика figcaption{padding:1.2vmin 2vmin;font-size:clamp(13px,2vmin,22px);display:flex;gap:1.4vmin;align-items:baseline;
   background:rgba(7,14,26,.92);border-top:1px solid rgba(79,227,255,.25)}
-#мозаика figcaption b{color:var(--мята);font-weight:700;white-space:nowrap}
+#мозаика figcaption b{color:var(--мята);font-weight:700}
+#мозаика figcaption{justify-content:center;text-align:center}
+.экран_источника{display:block;text-decoration:none;color:inherit;cursor:pointer}
+.экран_источника:hover figure{border-color:rgba(62,230,184,.8)}
 #мозаика figcaption span{color:var(--приглуш)}
 #данные.активен #мозаика figure{opacity:1;transform:none}
-#данные.активен #мозаика figure:nth-child(1){transition-delay:.4s}
-#данные.активен #мозаика figure:nth-child(2){transition-delay:.6s}
-#данные.активен #мозаика figure:nth-child(3){transition-delay:.8s}
-#данные.активен #мозаика figure:nth-child(4){transition-delay:1s}
+#данные.активен #мозаика a:nth-child(1) figure{transition-delay:.4s}
+#данные.активен #мозаика a:nth-child(2) figure{transition-delay:.6s}
+#данные.активен #мозаика a:nth-child(3) figure{transition-delay:.8s}
+#данные.активен #мозаика a:nth-child(4) figure{transition-delay:1s}
 #данные_под{font-size:clamp(13px,2.2vmin,26px);color:var(--приглуш);letter-spacing:.03em;opacity:0;transition:opacity .8s ease 1.3s}
 #данные.активен #данные_под{opacity:1}
 body.снимок #данные_заг,body.снимок #мозаика figure,body.снимок #данные_под{transition:none !important;opacity:1 !important;transform:none !important}
@@ -670,7 +673,7 @@ body.снимок #финал .эффект, body.снимок #финал #ци
       <div class="чат_реплика" data-шаг="1"><b>Проблемный регион</b>
         <span>запас ниже порога — дефицит наступит в ближайшие дни</span></div>
       <div class="чат_реплика" data-шаг="1"><b>Пути решения</b>
-        <span>скорректировать поставки · ускорить отгрузку · перераспределить объёмы</span></div>
+        <span>скорректировать поставки<br>ускорить отгрузку<br>перераспределить объёмы</span></div>
       <div class="чат_реплика итог" data-шаг="2"><b>Дефицит предотвращён — до того, как случился</b>
         <span>прозрачное распределение нефтепродуктов</span></div>
     </div>
@@ -684,16 +687,22 @@ body.снимок #финал .эффект, body.снимок #финал #ци
     <div style="position:absolute;inset:0;background:url('медиа/титул.jpg') center/cover;filter:brightness(.35)"></div>
     <div class="виньетка" style="background:radial-gradient(ellipse at center,rgba(0,0,0,.35) 0%,rgba(0,0,0,.8) 100%)"></div>
     <div class="центр">
-      <!-- «AIAN считает на живых данных» звучало странно (Адильжан 08.09):
-           заголовок — вопрос, который задаёт зритель, а строка под мозаикой отвечает -->
-      <div id="данные_заг" class="дисплей">Откуда AIAN берёт данные</div>
+      <!-- Созвон с ДАЦ 09.09: заголовок «Источники данных», подписи —
+           только «Данные …» с полным именем источника (Долгарь просил КГД и
+           КТЖ полностью), без пояснений про чеки и остатки — «данные, данные,
+           данные, а объяснит докладчик». Порядок: НПЗ слева вверху, КТЖ
+           справа вверху, Минэнерго слева внизу, КГД справа внизу.
+           Каждый экран — ссылка в живую систему на нужный отчёт (адреса ДАЦ):
+           если на стенде попросят «покажите систему», клик по экрану
+           открывает её новой вкладкой; стрелка вправо — просто следующий такт.
+           Клик по экрану не должен листать показ — stopPropagation. -->
+      <div id="данные_заг" class="дисплей">Источники данных</div>
       <div id="мозаика">
-        <figure><video src="медиа/данные/запасы.mp4" muted loop playsinline preload="auto"></video><figcaption><b>Запасы нефтепродуктов РК</b><span>остатки по стране и регионам</span></figcaption></figure>
-        <figure><video src="медиа/данные/кгд.mp4" muted loop playsinline preload="auto"></video><figcaption><b>КГД</b><span>реализация на АЗС — чеки и документы</span></figcaption></figure>
-        <figure><video src="медиа/данные/ктж.mp4" muted loop playsinline preload="auto"></video><figcaption><b>КТЖ</b><span>вагоны в пути — где груз сейчас</span></figcaption></figure>
-        <figure><video src="медиа/данные/рапорт.mp4" muted loop playsinline preload="auto"></video><figcaption><b>Рапорты нефтебаз</b><span>остатки и приёмка — без звонков</span></figcaption></figure>
+        <a class="экран_источника" href="https://iis.thkmg.kz/iis/processing/2/report" target="_blank" rel="noopener"><figure><video src="медиа/данные/рапорт.mp4" muted loop playsinline preload="auto"></video><figcaption><b>Данные нефтеперерабатывающих заводов</b></figcaption></figure></a>
+        <a class="экран_источника" href="https://iis.thkmg.kz/iis/transport/ktzh/move" target="_blank" rel="noopener"><figure><video src="медиа/данные/ктж.mp4" muted loop playsinline preload="auto"></video><figcaption><b>Данные АО НК «Қазақстан темір жолы»</b></figcaption></figure></a>
+        <a class="экран_источника" href="https://iis.thkmg.kz/iis/remain_rk" target="_blank" rel="noopener"><figure><video src="медиа/данные/запасы.mp4" muted loop playsinline preload="auto"></video><figcaption><b>Данные Министерства энергетики РК</b></figcaption></figure></a>
+        <a class="экран_источника" href="https://iis.thkmg.kz/kgd/dashboard/kmg-petroleu" target="_blank" rel="noopener"><figure><video src="медиа/данные/кгд.mp4" muted loop playsinline preload="auto"></video><figcaption><b>Данные Комитета государственных доходов МФ РК</b></figcaption></figure></a>
       </div>
-      <div id="данные_под">Интеграции, а не ручной ввод: заводы · КТЖ · КГД · нефтебазы · рынок</div>
     </div>
   </section>
 
@@ -991,7 +1000,7 @@ function курсорПроснулся(){
 }
 addEventListener('mousemove', курсорПроснулся);
 курсорПроснулся();
-addEventListener('click', ()=>вперёд());
+addEventListener('click', е=>{ if(е.target.closest('.экран_источника')) return; вперёд(); });
 
 /* цепочка не держит паузу на последнем кадре: луч уходит в небо — и сразу
    мост на карту (правка заказчика). Назад стрелкой вернуться по-прежнему можно. */
