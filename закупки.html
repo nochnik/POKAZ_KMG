@@ -180,6 +180,7 @@ h2.заголовок{font-size:36px;font-weight:700;line-height:1.15;margin-top
 .карточка{position:absolute;border-radius:16px;padding:18px 22px;
   border:1px solid rgba(62,213,152,.45);background:rgba(62,213,152,.09)}
 .карточка b{display:block;font-size:17px;color:var(--мята);font-weight:700}
+.карточка b .ии{margin-left:8px;vertical-align:middle}
 .карточка ul{margin-top:10px;list-style:none;display:flex;flex-direction:column;gap:5px}
 .карточка li{font-size:14.5px;color:var(--текст2);line-height:1.35}
 .карточка.синяя{border-color:rgba(2,174,240,.5);background:rgba(2,174,240,.09)}
@@ -284,7 +285,7 @@ svg .сбор[data-к]{transform:none}
 .справочник.включён li.совп span{color:var(--кмг)}
 .поставщик{position:absolute;width:240px;border:1px solid var(--грань);border-radius:12px;padding:10px 14px;
   background:linear-gradient(180deg, rgba(12,22,38,.9), rgba(5,8,16,.7))}
-.поставщик b{font-size:13px;color:var(--текст)}
+.поставщик b{font-size:13.5px;color:var(--текст);display:inline-block;min-width:150px}
 .поставщик .код{margin-left:8px;font-size:11px;color:var(--кмг)}
 /* 11.09: товаропроизводители (ТПФ) подчёркнуты — закупщики просили выделить */
 .поставщик .тпф{margin-left:8px;font-size:11px;color:var(--мята);border:1px solid rgba(62,230,184,.5);border-radius:5px;padding:1px 6px}
@@ -774,8 +775,8 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
      Цен в цифрах нет намеренно: любое число тут было бы выдумкой. КП показаны
      полосками разной длины, результат — отметками «низкая» и «средняя». -->
 <section class="слайд" id="с2" aria-label="Слайд 2">
-  <div class="бровь">Шаги 2–3 · KMG AISAP и Система бюджетирования</div>
-  <h2 class="заголовок дисплей">ИИ находит поставщиков, цену и проводит маркетинговый анализ</h2>
+  <div class="бровь">Шаги 2–3 · Проведение маркетингового анализа · KMG AISAP и Система бюджетирования</div>
+  <h2 class="заголовок дисплей">Проведение маркетингового анализа: список поставщиков формируется автоматически, цену определяет ИИ</h2>
 
   <div class="полотно">
     <svg class="потоки" viewBox="0 0 1724 720" style="position:absolute;left:0;top:0;width:1724px;height:720px;pointer-events:none" aria-hidden="true">
@@ -788,16 +789,14 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
       <path class="поток" pathLength="1" marker-end="url(#стрелка_циан2)" d="M320 210 H392" data-к="2"/>
       <line class="сбор" pathLength="1" x1="485" y1="270" x2="485" y2="460" data-к="3"/>
       <line class="сбор" pathLength="1" x1="735" y1="270" x2="735" y2="460" data-к="3"/>
-      <line class="сбор" pathLength="1" x1="760" y1="210" x2="900" y2="146" style="transition-delay:0ms" data-к="4"/>
-      <line class="сбор" pathLength="1" x1="760" y1="210" x2="900" y2="246" style="transition-delay:120ms" data-к="4"/>
-      <line class="сбор" pathLength="1" x1="760" y1="210" x2="900" y2="346" style="transition-delay:240ms" data-к="4"/>
-      <line class="сбор" pathLength="1" x1="760" y1="210" x2="900" y2="446" style="transition-delay:360ms" data-к="4"/>
-      <line class="сбор" pathLength="1" x1="760" y1="210" x2="900" y2="546" style="transition-delay:480ms" data-к="4"/>
-      <line class="сбор назад" pathLength="1" x1="1140" y1="146" x2="1180" y2="330" style="transition-delay:0ms" data-к="5"/>
-      <line class="сбор назад" pathLength="1" x1="1140" y1="246" x2="1180" y2="330" style="transition-delay:140ms" data-к="5"/>
-      <line class="сбор назад" pathLength="1" x1="1140" y1="346" x2="1180" y2="330" style="transition-delay:280ms" data-к="5"/>
-      <line class="сбор назад" pathLength="1" x1="1140" y1="446" x2="1180" y2="330" style="transition-delay:420ms" data-к="5"/>
-      <line class="сбор назад" pathLength="1" x1="1140" y1="546" x2="1180" y2="330" style="transition-delay:560ms" data-к="5"/>
+      <line class="сбор" pathLength="1" x1="760" y1="210" x2="900" y2="196" style="transition-delay:0ms" data-к="4"/>
+      <line class="сбор" pathLength="1" x1="760" y1="210" x2="900" y2="296" style="transition-delay:120ms" data-к="4"/>
+      <line class="сбор" pathLength="1" x1="760" y1="210" x2="900" y2="396" style="transition-delay:240ms" data-к="4"/>
+      <line class="сбор" pathLength="1" x1="760" y1="210" x2="900" y2="496" style="transition-delay:360ms" data-к="4"/>
+      <line class="сбор назад" pathLength="1" x1="1140" y1="196" x2="1180" y2="330" style="transition-delay:0ms" data-к="5"/>
+      <line class="сбор назад" pathLength="1" x1="1140" y1="296" x2="1180" y2="330" style="transition-delay:140ms" data-к="5"/>
+      <line class="сбор назад" pathLength="1" x1="1140" y1="396" x2="1180" y2="330" style="transition-delay:280ms" data-к="5"/>
+      <line class="сбор назад" pathLength="1" x1="1140" y1="496" x2="1180" y2="330" style="transition-delay:420ms" data-к="5"/>
       <path class="поток назад" pathLength="1" marker-end="url(#стрелка_мята2)" d="M1300 400 V650 H200 V432" data-к="6" data-до="6"/>
       <path class="поток" pathLength="1" marker-end="url(#стрелка_циан2)" d="M1430 330 H1462" data-к="7"/>
       <path class="поток назад" pathLength="1" marker-end="url(#стрелка_мята2)" d="M1596 470 V690 H150 V432" data-к="8"/>
@@ -814,60 +813,58 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
         <li><span>Количество</span><strong>500 м</strong></li>
         <li><span>Срок</span><strong>январь 2027</strong></li>
         <li><span>Место поставки</span><strong>пос. Ынтымак (база СПО)</strong></li>
-        <li class="поле_цена"><span>Цена</span><em data-до="5">не определена</em><strong class="мятн" data-к="6">648 ₸/м</strong></li>
+        <li class="поле_цена"><span>Цена</span><em data-до="5">не определена</em><strong class="мятн" data-к="6">638 ₸/м</strong></li>
         <li class="поле_бюдж"><span>Бюджет</span><em data-до="7">не определён</em><strong class="мятн" data-к="8">имеется ✓</strong></li>
       </ul>
     </div>
 
     <!-- модуль -->
-    <div class="склад" style="left:400px;top:150px;width:360px;height:120px" data-к="2">
+    <div class="склад" style="left:400px;top:150px;width:360px" data-к="2">
       <div class="имя">Шаг 2 · KMG AISAP</div>
-      <div class="заг">Модуль маркетинга цен <span class="ии">AI</span></div>
-      <p class="ищет">ищет по коду <strong>240404.022178</strong></p>
+      <div class="заг">Модуль маркетинга цен</div>
+      <p class="ищет">по коду <strong>240404.022178</strong> система автоматически формирует список поставщиков: Реестр КТП и прошлые победители закупок</p>
       <div class="сияние" data-к="3"></div>
     </div>
 
     <!-- справочники -->
     <div class="справочник" style="left:380px;top:460px;width:210px" data-к="3">
-      <b>Справочник производителей</b>
-      <ul><li class="совп">ТОО «Талдыкорганкабель»<span>ТПФ</span></li><li class="совп">ТОО «AluTech»<span>ТПФ</span></li><li class="">ТОО «Алматы КазКабель»<span>поставщик</span></li><li class="">ТОО «ЦентрСнабСтрой»<span>поставщик</span></li></ul>
+      <b>Реестр КТП</b>
+      <ul><li class="совп">ТОО «Талдыкорганкабель»<span>ТПФ</span></li><li class="совп">ТОО «AluTech»<span>ТПФ</span></li></ul>
     </div>
-    <div class="справочник" style="left:610px;top:460px;width:250px" data-к="3">
-      <b>Цены прошлых лет</b>
-      <ul><li class="совп">диапазон<span>500–900 ₸/м без НДС</span></li><li class="">ТОО «Талдыкорганкабель»<span>выиграл 2025</span></li><li class="">ТОО «AluTech»<span>выиграл 2024</span></li></ul>
+    <div class="справочник" style="left:600px;top:460px;width:290px" data-к="3">
+      <b>Исторические поставщики</b>
+      <ul><li class="совп">ТОО «Алматы КазКабель»<span>победитель 2025</span></li><li class="совп">ТОО «ЦентрСнабСтрой»<span>победитель 2024</span></li><li class="">цены прошлых лет<span>500–900 ₸/м без НДС</span></li></ul>
     </div>
 
-    <!-- поставщики -->
-    <div class="поставщик" style="left:900px;top:110px;transition-delay:0ms" data-к="4">
-      <b>ТОО «VK Corp»</b><span class="код">✓ код</span>
-      <div class="кп" data-к="5" style="transition-delay:0ms"><i style="width:69%"></i><em>690 ₸/м</em></div>
+    <!-- поставщики: 4 — по Правилам определения маркетинговых цен при двух
+         производителях в Реестре КТП берутся 2 КТП + 2 поставщика, средняя из
+         четырёх (Мария 11.09). Цены условные внутри диапазона 500–900 без НДС. -->
+    <div class="поставщик тп" style="left:900px;top:160px;transition-delay:0ms" data-к="4">
+      <b>ТОО «Талдыкорганкабель»</b><span class="тпф">ТПФ</span>
+      <div class="кп" data-к="5" style="transition-delay:0ms"><i style="width:58%"></i><em>580 ₸/м</em></div>
     </div>
-    <div class="поставщик" style="left:900px;top:210px;transition-delay:120ms" data-к="4">
-      <b>ТОО «ЦентрСнабСтрой»</b><span class="код">✓ код</span>
-      <div class="кп" data-к="5" style="transition-delay:140ms"><i style="width:74%"></i><em>740 ₸/м</em></div>
+    <div class="поставщик тп" style="left:900px;top:260px;transition-delay:120ms" data-к="4">
+      <b>ТОО «AluTech»</b><span class="тпф">ТПФ</span>
+      <div class="кп" data-к="5" style="transition-delay:140ms"><i style="width:61%"></i><em>610 ₸/м</em></div>
     </div>
-    <div class="поставщик" style="left:900px;top:310px;transition-delay:240ms" data-к="4">
-      <b>ТОО «Алматы КазКабель»</b>
+    <div class="поставщик" style="left:900px;top:360px;transition-delay:240ms" data-к="4">
+      <b>ТОО «Алматы КазКабель»</b><span class="код">поставщик</span>
       <div class="кп" data-к="5" style="transition-delay:280ms"><i style="width:62%"></i><em>620 ₸/м</em></div>
     </div>
-    <div class="поставщик тп" style="left:900px;top:410px;transition-delay:360ms" data-к="4">
-      <b>ТОО «Талдыкорганкабель»</b><span class="тпф">ТПФ</span>
-      <div class="кп" data-к="5" style="transition-delay:420ms"><i style="width:58%"></i><em>580 ₸/м</em></div>
-    </div>
-    <div class="поставщик тп" style="left:900px;top:510px;transition-delay:480ms" data-к="4">
-      <b>ТОО «AluTech»</b><span class="код">✓ код</span><span class="тпф">ТПФ</span>
-      <div class="кп" data-к="5" style="transition-delay:560ms"><i style="width:61%"></i><em>610 ₸/м</em></div>
+    <div class="поставщик" style="left:900px;top:460px;transition-delay:360ms" data-к="4">
+      <b>ТОО «ЦентрСнабСтрой»</b><span class="код">поставщик</span>
+      <div class="кп" data-к="5" style="transition-delay:420ms"><i style="width:74%"></i><em>740 ₸/м</em></div>
     </div>
 
     <!-- результат -->
     <div class="карточка" style="left:1180px;top:200px;width:250px" data-к="6">
-      <b>Цена определена</b>
+      <b>Цена определена <span class="ии">AI</span></b>
       <div class="товар_имя">Провод СИП-3 1х35</div>
-      <div class="средняя">средняя по 5 КП, без НДС<strong>648 ₸/м</strong></div>
+      <div class="средняя">средняя из 4 цен: 2 КТП + 2 поставщика, без НДС<strong>638 ₸/м</strong></div>
       <!-- 11.09: не только средняя по КП — история цен, сравнение с прошлыми
-           годами, аномалии исключены; решение по Правилам закупок Фонда.
+           годами, аномалии исключены; контроль Правил определения маркетинговых цен Фонда.
            Поставщики и цены условные — настоящие даст Анвар. -->
-      <ul><li>история цен, прошлые годы</li><li>аномальные КП исключены</li><li>по Правилам закупок Фонда</li></ul>
+      <ul><li>анализ истории цен за прошлые периоды</li><li>выявление аномальных цен</li><li>контроль Правил определения маркетинговых цен Фонда</li></ul>
     </div>
 
     <!-- бюджет -->
@@ -967,7 +964,7 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
       <h3>Бюджет проверен, статус вернулся в потребность</h3>
       <ul>
         <li>Запрос в систему бюджетирования ушёл автоматически</li>
-        <li>Ответ по проводу СИП-3: в бюджете — Да, цена 648 ₸/м без НДС, сумма 324 тыс. ₸</li>
+        <li>Ответ по проводу СИП-3: в бюджете — Да, цена 638 ₸/м без НДС, сумма 319 тыс. ₸</li>
         <li>Статус позиции — «Бюджетирование завершено»</li>
         <li>Дальше — передача к закупу, тоже без человека</li>
       </ul>
@@ -1046,7 +1043,7 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
         <li><span>Код АСУ НСИ</span><strong>240404.022178</strong></li>
         <li><span>Количество</span><strong>500 м</strong></li>
         <li><span>Срок</span><strong>январь 2027</strong></li>
-        <li><span>Цена</span><strong class="мятн">648 ₸/м без НДС</strong></li>
+        <li><span>Цена</span><strong class="мятн">638 ₸/м без НДС</strong></li>
         <li><span>Бюджет</span><strong class="мятн">имеется ✓</strong></li>
       </ul>
     </div>
@@ -1056,16 +1053,16 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
       <ul>
         <li>Товар «Провод СИП-3 1х35» — потребность, планируемая к закупке, — <strong>найден на складе ДЗО №1</strong>: 500 м, числится невостребованным остатком.</li>
         <li>Закрыть потребность через ДЗО №1 без выхода на рынок.</li>
-        <li class="прим">Результат поиска определяет поле «метод закупки» в плане закупок.</li>
+        <li class="прим">Результат поиска определяет поле «способ закупки» в плане закупок.</li>
       </ul>
     </div>
     <div class="стрела вниз" style="left:1391px;top:404px;height:34px" data-к="5"></div>
     <div class="карточка синяя" style="left:1060px;top:446px;width:664px" data-к="5">
       <b>Шаг 5 · Модуль планирования закупок</b>
       <ul>
-        <li>Модуль планирования сам заполняет все поля плана закупок, включая метод закупки.</li>
+        <li>Модуль планирования сам заполняет все поля плана закупок, включая способ закупки.</li>
         <li data-к="6"><strong class="акцент">Срок закупки указан: январь 2027.</strong></li>
-        <li data-к="6">Метод закупки: нашёл в ДЗО — <strong>из одного источника</strong>; не нашёл — <strong>процедуры закупок</strong>.</li>
+        <li data-к="6">Способ закупки: нашёл в ДЗО — <strong>из одного источника</strong>; не нашёл — <strong>Электронный магазин</strong>.</li>
       </ul>
     </div>
   </div>
@@ -1140,9 +1137,9 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
      «Заказ на поставку» подписывают вручную обе стороны. Показать как
      блокеры, целевой процесс — следующим слайдом. -->
 <section class="слайд" id="с4т" aria-label="Шаг 6 · текущее состояние">
-  <div class="бровь">Шаг 6 · текущее состояние · ИСЭЗ и SK Store</div>
-  <h2 class="заголовок дисплей">Сейчас план утверждается дважды, а заказ подписывают ЭЦП обе стороны</h2>
-  <p class="идея">Все закупки до 85 млн тенге по правилам Фонда проводятся в SK Store — но сначала они всё равно проходят через общий портал ИСЭЗ.</p>
+  <div class="бровь">Шаг 6 · текущее состояние · Zakup.sk и SK Store</div>
+  <h2 class="заголовок дисплей">Текущее состояние: два барьера на пути закупки</h2>
+  <p class="идея">Закупки посредством Zakup.sk и закупки посредством SK Store идут по одному плану: план утверждается ЭЦП в Zakup.sk, заказ на поставку подписывается ЭЦП обеих сторон.</p>
 
   <div class="полотно">
     <svg class="контуры" viewBox="0 0 1724 640" style="position:absolute;left:0;top:0;width:1724px;height:640px" aria-hidden="true">
@@ -1151,78 +1148,60 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
         <marker id="стр_янтарь_т" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#F0AE4A"/></marker>
       </defs>
 
-      <!-- контуры -->
+      <!-- ряд 1: план → барьер 1 → AISAP -->
       <g data-к="0">
-        <rect x="380" y="20" width="1344" height="250" rx="22" class="контур"/>
-        <text x="410" y="52" class="бирка">ИСЭЗ · портал закупок Фонда · крупные закупки</text>
-        <rect x="380" y="330" width="1344" height="290" rx="22" class="контур магазин"/>
-        <text x="410" y="362" class="бирка магазин">SK Store · магазин мелких закупок · до 85 млн ₸</text>
+        <rect x="0" y="80" width="480" height="180" rx="16" class="узел синий"/>
+        <text x="24" y="112" class="узел_заг синий">План закупок · KMG AISAP</text>
+        <text x="24" y="142" class="узел_т">Сформирован по подтверждённой потребности,</text>
+        <text x="24" y="166" class="узел_т">цене и бюджету; способ закупки определён.</text>
+        <text x="24" y="196" class="узел_т">Закупки посредством Zakup.sk и SK Store —</text>
+        <text x="24" y="220" class="узел_т">в одном плане.</text>
       </g>
-
-      <!-- план закупок AISAP -->
-      <g data-к="0">
-        <rect x="0" y="120" width="350" height="200" rx="16" class="узел синий"/>
-        <text x="24" y="152" class="узел_заг синий">План закупок · KMG AISAP</text>
-        <rect x="24" y="172" width="302" height="44" rx="8" class="слой крупный"/><text x="40" y="200" class="слой_т">крупные закупки · офис, техника, услуги</text>
-        <rect x="24" y="226" width="302" height="44" rx="8" class="слой мелкий"/><text x="40" y="254" class="слой_т">мелкие товары до 85 млн · бумага, хозтовары</text>
-        <text x="24" y="300" class="прим_т">заранее известно: мелкое уйдёт в SK Store</text>
-      </g>
-
-      <!-- в ИСЭЗ целиком -->
-      <path d="M350 200 H470" class="стр" marker-end="url(#стр_циан_т)" data-к="1"/>
+      <path d="M480 170 H612" class="стр" marker-end="url(#стр_циан_т)" data-к="1"/>
       <g data-к="1">
-        <rect x="480" y="90" width="330" height="150" rx="16" class="узел"/>
-        <text x="504" y="122" class="узел_заг">Утверждение плана целиком</text>
-        <text x="504" y="150" class="узел_т">крупные закупки вместе с мелкими</text>
-        <text x="504" y="174" class="узел_т">товарами — один документ</text>
-        <g transform="translate(730 176)"><circle r="20" class="печать_к"/><path d="M-8 0l6 6 11-12" class="галка_к"/></g>
+        <rect x="622" y="80" width="480" height="180" rx="16" class="узел блок"/>
+        <text x="646" y="112" class="узел_заг блок">Барьер 1 · утверждение плана в Zakup.sk</text>
+        <text x="646" y="142" class="узел_т">План закупок утверждается посредством ЭЦП</text>
+        <text x="646" y="166" class="узел_т">в портале Zakup.sk (ИСЭЗ).</text>
+        <g transform="translate(646 186)"><rect width="150" height="50" rx="8" class="подпись_к"/><path d="M12 36c10-16 18-20 22-10s6 10 14 0 12-14 22-4 16 8 26 2" class="росчерк"/><text x="75" y="14" class="подпись_т" text-anchor="middle">ЭЦП</text></g>
+        <rect x="820" y="196" width="258" height="30" rx="7" class="бейдж"/><text x="949" y="216" class="бейдж_т" text-anchor="middle">барьер · утверждение ЭЦП</text>
       </g>
-      <path d="M810 165 H960" class="стр" marker-end="url(#стр_циан_т)" data-к="1"/>
-      <g data-к="1">
-        <rect x="970" y="90" width="330" height="150" rx="16" class="узел"/>
-        <text x="994" y="122" class="узел_заг">Закупки крупных позиций</text>
-        <text x="994" y="150" class="узел_т">проводятся в ИСЭЗ — здесь</text>
-        <text x="994" y="174" class="узел_т">процесс не меняется</text>
-      </g>
-
-      <!-- мелкое выгружается вниз -->
-      <path d="M645 240 V400" class="стр янтарь" marker-end="url(#стр_янтарь_т)" data-к="2"/>
-      <text x="662" y="292" class="стр_т">мелкие товары</text>
-      <text x="662" y="312" class="стр_т">выгружаются отдельно</text>
+      <path d="M1102 170 H1234" class="стр" marker-end="url(#стр_циан_т)" data-к="2"/>
       <g data-к="2">
-        <rect x="480" y="410" width="330" height="180" rx="16" class="узел блок"/>
-        <text x="504" y="442" class="узел_заг блок">Утверждение плана ещё раз</text>
-        <text x="504" y="470" class="узел_т">тот же перечень мелких товаров</text>
-        <text x="504" y="494" class="узел_т">согласуется повторно</text>
-        <g transform="translate(730 500)"><circle r="20" class="печать_к янтарь"/><path d="M-8 0l6 6 11-12" class="галка_к янтарь"/></g>
-        <rect x="504" y="540" width="232" height="30" rx="7" class="бейдж"/><text x="620" y="560" class="бейдж_т" text-anchor="middle">блокер · двойное утверждение</text>
+        <rect x="1244" y="80" width="480" height="180" rx="16" class="узел"/>
+        <text x="1268" y="112" class="узел_заг">KMG AISAP · автоматически</text>
+        <text x="1268" y="142" class="узел_т">Создаёт детализацию категории закупки</text>
+        <text x="1268" y="166" class="узел_т">и выбирает карточку товара.</text>
+        <text x="1268" y="196" class="узел_т">Передаёт закупку в электронный магазин.</text>
       </g>
 
-      <!-- закуп и ЭЦП -->
-      <path d="M810 500 H960" class="стр" marker-end="url(#стр_циан_т)" data-к="3"/>
+      <!-- переход на ряд 2 -->
+      <path d="M1484 260 V320 H240 V380" class="стр" marker-end="url(#стр_циан_т)" data-к="3"/>
+
+      <!-- ряд 2: магазин → победитель → барьер 2 -->
       <g data-к="3">
-        <rect x="970" y="410" width="250" height="180" rx="16" class="узел"/>
-        <text x="994" y="442" class="узел_заг">Закуп в SK Store</text>
-        <text x="994" y="470" class="узел_т">конкурс, победитель,</text>
-        <text x="994" y="494" class="узел_т">заказ на поставку</text>
+        <rect x="0" y="390" width="480" height="180" rx="16" class="узел"/>
+        <text x="24" y="422" class="узел_заг">Электронный магазин SK Store</text>
+        <text x="24" y="452" class="узел_т">Торги объявляются автоматически</text>
+        <text x="24" y="476" class="узел_т">по карточке товара и плану закупок.</text>
       </g>
-      <path d="M1220 500 H1370" class="стр" marker-end="url(#стр_циан_т)" data-к="4"/>
+      <path d="M480 480 H612" class="стр" marker-end="url(#стр_циан_т)" data-к="4"/>
       <g data-к="4">
-        <rect x="1380" y="410" width="320" height="180" rx="16" class="узел блок"/>
-        <text x="1404" y="442" class="узел_заг блок">Заказ на поставку · ЭЦП</text>
-        <!-- две подписи: заказчик, потом поставщик -->
-        <g transform="translate(1404 458)">
-          <rect width="128" height="60" rx="8" class="подпись_к"/>
-          <path d="M12 42c10-18 18-22 22-12s6 12 14 2 12-16 22-6 16 10 26 4" class="росчерк"/>
-          <text x="64" y="16" class="подпись_т" text-anchor="middle">заказчик</text>
-        </g>
-        <path d="M1540 488 H1560" class="стр янтарь" marker-end="url(#стр_янтарь_т)"/>
-        <g transform="translate(1568 458)">
-          <rect width="120" height="60" rx="8" class="подпись_к"/>
-          <path d="M10 44c8-16 14-24 20-14s8 10 16 0 10-14 20-6 16 12 26 2" class="росчерк"/>
-          <text x="60" y="16" class="подпись_т" text-anchor="middle">поставщик</text>
-        </g>
-        <rect x="1404" y="540" width="232" height="30" rx="7" class="бейдж"/><text x="1520" y="560" class="бейдж_т" text-anchor="middle">блокер · подписание вручную</text>
+        <rect x="622" y="390" width="480" height="180" rx="16" class="узел"/>
+        <text x="646" y="422" class="узел_заг">Определение победителя</text>
+        <text x="646" y="452" class="узел_т">Победитель определяется по наименьшей цене.</text>
+        <text x="646" y="476" class="узел_т">Формируется заказ на поставку.</text>
+      </g>
+      <path d="M1102 480 H1234" class="стр" marker-end="url(#стр_циан_т)" data-к="5"/>
+      <g data-к="5">
+        <rect x="1244" y="390" width="480" height="180" rx="16" class="узел блок"/>
+        <text x="1268" y="422" class="узел_заг блок">Барьер 2 · заказ на поставку · ЭЦП</text>
+        <text x="1268" y="452" class="узел_т">Заказ подписывается посредством ЭЦП</text>
+        <text x="1268" y="476" class="узел_т">заказчиком, затем поставщиком.</text>
+        <g transform="translate(1268 492)"><rect width="120" height="50" rx="8" class="подпись_к"/><path d="M10 36c8-14 14-20 20-10s8 8 16-2 10-12 20-4 16 10 26 0" class="росчерк"/><text x="60" y="14" class="подпись_т" text-anchor="middle">заказчик</text></g>
+        <path d="M1396 517 H1412" class="стр янтарь" marker-end="url(#стр_янтарь_т)"/>
+        <g transform="translate(1420 492)"><rect width="120" height="50" rx="8" class="подпись_к"/><path d="M10 36c8-14 14-20 20-10s8 8 16-2 10-12 20-4 16 10 26 0" class="росчерк"/><text x="60" y="14" class="подпись_т" text-anchor="middle">поставщик</text></g>
+        <rect x="1556" y="502" width="150" height="30" rx="7" class="бейдж"/><text x="1631" y="522" class="бейдж_т" text-anchor="middle">барьер · ЭЦП</text>
       </g>
     </svg>
   </div>
@@ -1230,8 +1209,8 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
 
 <section class="слайд" id="с4" aria-label="Слайд 4">
   <div class="бровь">Шаг 6 · целевое видение · KMG AISAP и SK Store</div>
-  <h2 class="заголовок дисплей">Целевое видение: план уходит в SK Store, система сама проводит закуп</h2>
-  <p class="идея">Мелкие товары из KMG AISAP уходят сразу в SK Store, минуя ИСЭЗ; в ИСЭЗ — только крупные закупки.</p>
+  <h2 class="заголовок дисплей">Целевое видение: без утверждения плана в Zakup.sk и без заказа на поставку</h2>
+  <p class="идея">Закупки посредством SK Store: план из KMG AISAP передаётся в электронный магазин напрямую; торги, определение победителя и уведомление поставщика выполняются системой.</p>
 
   <div class="полотно">
     <svg class="потоки" viewBox="0 0 1724 640" style="position:absolute;left:0;top:0;width:1724px;height:640px;pointer-events:none" aria-hidden="true">
@@ -1259,7 +1238,7 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
     <div class="склад площадка" style="left:380px;top:150px;width:640px;height:264px" data-к="2">
       <div class="имя">Шаг 6 · SK Store · электронная площадка</div>
       <div class="заг">Процедура закупки: победитель — наименьшая цена <span class="ии">AI</span></div>
-      <div class="секретарь" data-к="2">план принят в работу · карточки товара созданы · конкурс объявлен — автоматически</div>
+      <div class="секретарь" data-к="2">план принят · детализация категории и карточка товара созданы · торги объявлены — автоматически</div>
       <div class="участник " style="left:30px;top:124px;transition-delay:0ms" data-к="3">
         <svg viewBox="0 0 40 48"><path d="M6 4h20l8 8v32H6z" class="док"/><path d="M26 4v8h8" class="док"/>
           <path d="M12 26l5 5 10-10" class="галка" style="transition-delay:600ms"/></svg>
@@ -1284,7 +1263,7 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
     <div class="карточка договор" style="left:1100px;top:200px;width:560px" data-к="4">
       <svg viewBox="0 0 64 64" class="печать"><circle cx="32" cy="32" r="28" class="круг"/><circle cx="32" cy="32" r="20" class="круг"/>
         <path d="M20 33l8 8 16-16" class="галка включён"/></svg>
-      <div><b>Уведомление поставщику</b><span>вы выиграли · поставка через 30 дней, по Правилам закупок · без подписания ЭЦП</span></div>
+      <div><b>Уведомление поставщику</b><span>победитель определён · срок поставки по Правилам закупок · заказ на поставку и ЭЦП не требуются</span></div>
     </div>
 
   </div>
@@ -1315,11 +1294,11 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
 
     <!-- кадры 1–7: модуль забирает договор → даты → напоминание → поставка → документы → акты → исполнен.
          Как именно устроен модуль, заказчик не подтверждал; сцена — по его описанию карточки договора. -->
-    <div class="склад" style="left:400px;top:40px;width:1324px" data-к="1">
+    <div class="склад" style="left:380px;top:20px;width:1344px" data-к="1">
       <div class="имя">Шаг 7 · KMG AISAP</div>
       <div class="заг">Модуль исполнения договоров <span class="ии">AI</span></div>
       <div class="статус" data-к="1" style="margin-top:10px">ИИ сам формирует карточку договора</div>
-      <svg viewBox="0 0 680 330" class="лента" style="margin-top:6px;width:1000px;height:485px;display:block;margin-left:auto;margin-right:auto">
+      <svg viewBox="0 0 680 330" class="лента" style="margin-top:6px;width:1180px;height:572px;display:block;margin-left:auto;margin-right:auto">
         <!-- 2. даты из договора: потребность на 1 января, поставка и платёж — в конце декабря -->
         <line x1="20" y1="110" x2="660" y2="110" class="ось" data-к="2"/>
         <g data-к="2" style="transition-delay:250ms">
