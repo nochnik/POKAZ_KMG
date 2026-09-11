@@ -43,18 +43,34 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 /* ===== сцена: кадр 1920×1080, масштабируется целиком =====
    Координаты процессных слайдов посчитаны под конкретную ширину, резиновая
    вёрстка заставила бы каждый раз перепроверять, куда уехали стрелки. */
+/* 11.09 (Адиль): в окне не 16:9 по краям кадра были чёрные полосы. Фон —
+   градиент и сетка — теперь на обёртке во всё окно, а кадр прозрачный;
+   размер клетки и градиентов умножен на масштаб кадра (--к), чтобы сетка
+   внутри и снаружи кадра была одной. */
 #обёртка{position:fixed;inset:0;overflow:hidden;background:var(--фон0)}
+#обёртка::before{content:"";position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(calc(1200px * var(--к,1)) calc(620px * var(--к,1)) at 50% -12%, rgba(2,174,240,.14), transparent 68%),
+    radial-gradient(calc(900px * var(--к,1)) calc(520px * var(--к,1)) at 92% 108%, rgba(62,213,152,.07), transparent 70%),
+    linear-gradient(180deg, #060B16 0%, var(--фон0) 55%, #04070E 100%)}
+#обёртка::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:.5;
+  background-image:
+    linear-gradient(rgba(27,46,72,.30) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(27,46,72,.30) 1px, transparent 1px);
+  background-size:calc(96px * var(--к,1)) calc(96px * var(--к,1));background-position:center;
+  -webkit-mask-image:radial-gradient(calc(1400px * var(--к,1)) calc(900px * var(--к,1)) at 50% 45%, #000 30%, transparent 82%);
+          mask-image:radial-gradient(calc(1400px * var(--к,1)) calc(900px * var(--к,1)) at 50% 45%, #000 30%, transparent 82%)}
 #кадр{width:1920px;height:1080px;position:absolute;left:50%;top:50%;
   margin-left:-960px;margin-top:-540px;transform-origin:center center;
-  background:var(--фон0);overflow:hidden}
-#кадр::before{content:"";position:absolute;inset:0;pointer-events:none;z-index:0;
+  background:transparent;overflow:hidden}
+#кадр::before{content:"";display:none;position:absolute;inset:0;pointer-events:none;z-index:0;
   background:
     radial-gradient(1200px 620px at 50% -12%, rgba(2,174,240,.14), transparent 68%),
     radial-gradient(900px 520px at 92% 108%, rgba(62,213,152,.07), transparent 70%),
     linear-gradient(180deg, #060B16 0%, var(--фон0) 55%, #04070E 100%)}
 /* фоновая сетка лежала поверх слайдов (псевдоэлемент рисуется после содержимого) —
    на скринах систем читалась как клетка. Слои: фон под, слайды и футер над. */
-#кадр::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:.5;z-index:0;
+#кадр::after{content:"";display:none;position:absolute;inset:0;pointer-events:none;opacity:.5;z-index:0;
   background-image:
     linear-gradient(rgba(27,46,72,.30) 1px, transparent 1px),
     linear-gradient(90deg, rgba(27,46,72,.30) 1px, transparent 1px);
@@ -84,6 +100,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 .контуры .слой.мелкий{fill:rgba(240,174,74,.1);stroke:rgba(240,174,74,.45)}
 .контуры .слой_т{font-family:'Golos Text',sans-serif;font-size:13px;fill:var(--текст)}
 .контуры .стр{fill:none;stroke:var(--циан);stroke-width:2;opacity:.85}
+.контуры .стр[data-к]:not(.включён){opacity:0}
 .контуры .стр.янтарь{stroke:#F0AE4A}
 .контуры .стр_т{font-family:'Golos Text',sans-serif;font-size:13px;fill:#F0AE4A}
 .контуры .печать_к{fill:none;stroke:var(--мята);stroke-width:2}
@@ -1498,6 +1515,7 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
   function вписать(){
     var к = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
     кадр.style.transform = "scale(" + к + ")";
+    document.documentElement.style.setProperty("--к", к);
   }
   window.addEventListener("resize", вписать);
   вписать();
