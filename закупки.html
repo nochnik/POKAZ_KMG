@@ -66,6 +66,32 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   flex-direction:column;opacity:0;visibility:hidden;
   transform:translateY(16px);transition:opacity .42s ease, transform .42s ease, visibility 0s .42s}
 .слайд.виден{opacity:1;visibility:visible;transform:none;transition:opacity .42s ease, transform .42s ease}
+.слайд.скрыт{display:none}
+/* ===== проблемы и эффекты (11.09, таблица Есмамбетова + «Концептуальное
+   видение по закупкам», цифры эффектов оттуда) ===== */
+.пэ_шапка{display:grid;grid-template-columns:1fr 1fr;gap:28px;margin-top:22px}
+.пэ_шапка div{font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--приглуш);padding-bottom:10px;border-bottom:1px solid rgba(124,141,166,.35)}
+.пэ_шапка div:last-child{color:var(--мята);border-bottom-color:rgba(62,230,184,.45)}
+.пэ{display:grid;grid-template-columns:1fr 1fr;column-gap:28px;row-gap:0;margin-top:4px}
+.пэ .ряд{display:contents}
+.пэ .я{padding:14px 0;border-bottom:1px solid rgba(124,141,166,.18);font-size:15.5px;line-height:1.38;color:var(--текст2);
+  opacity:0;transform:translateY(8px);transition:opacity .4s ease,transform .4s ease}
+.пэ .я.включён{opacity:1;transform:none}
+.пэ .я b{color:var(--текст);font-weight:700}
+.пэ .я.эф b{color:var(--мята)}
+.пэ .я .н{display:inline-block;width:26px;color:var(--кмг);font-family:'Unbounded',sans-serif;font-size:12px;font-weight:700}
+.пэ .я.эф .н{color:var(--мята)}
+.пэ .я em{font-style:normal;color:var(--кмг);font-weight:700}
+.пэ_цифры{margin-top:44px;display:flex;gap:18px}
+.пэ_цифры div{flex:1;border-top:2px solid rgba(2,174,240,.42);padding-top:10px}
+.пэ_цифры b{display:block;font-family:'Unbounded',sans-serif;font-size:26px;color:var(--кмг);font-weight:700;line-height:1.1}
+.пэ_цифры span{display:block;margin-top:5px;font-size:13px;line-height:1.35;color:var(--приглуш)}
+.пэ_прим{margin-top:8px;font-size:11.5px;color:var(--приглуш)}
+
+/* 11.09: блокеры текущего процесса — янтарём, как незакрытое */
+.карточка.блокер{border-color:rgba(240,174,74,.6);background:rgba(240,174,74,.08)}
+.карточка.блокер b{color:#F0AE4A}
+.карточка .метка_блокер{display:inline-block;margin-top:8px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#F0AE4A;border:1px solid rgba(240,174,74,.5);border-radius:6px;padding:3px 8px}
 @media (prefers-reduced-motion: reduce){
   .слайд{transition:opacity .01s linear, visibility 0s .01s;transform:none}
   .слайд.виден{transition:opacity .01s linear}
@@ -489,7 +515,7 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
 <section class="слайд" id="с0" aria-label="Helicopter view">
   <div class="бровь">Helicopter view</div>
   <div class="система_имя дисплей">KMG AISAP <span>AI Satyp Alu Platformasy</span></div>
-  <h2 class="заголовок дисплей">Сквозной процесс проведения закупок посредством ИИ</h2>
+  <h2 class="заголовок дисплей">Сквозной процесс проведения процедур закупок посредством ИИ</h2>
   <div class="подзаг">без участия человеческого фактора</div>
   <div class="семь">
     <div class="полоса готово" data-к="2"><b>Реализовано</b> · 4 шага из 7</div>
@@ -532,7 +558,7 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
     <div class="шаг7 работа" data-к="1">
       <div class="н">06</div>
       <img class="ик" src="медиа/иконки_закупки/шаг6.png" alt="">
-      <h3>Проведение тендерных процедур и заключение договора</h3>
+      <h3>Проведение процедур закупок</h3>
       <div class="сис"><b class="внешняя">SK Store</b><span>внешняя система</span></div>
       <div class="ст" data-к="2" style="transition-delay:450ms"><b>В работе</b><span>срок · 15 ноября 2026</span></div>
     </div>
@@ -548,6 +574,54 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
     <line x1="30" y1="30" x2="1694" y2="30" class="ось"/>
     <path d="M1682 22l12 8-12 8" class="ось"/>
   </svg>
+</section>
+
+<!-- ================= 0э. проблемы и эффекты =================
+     11.09: таблица «Текущие проблемы / Ожидаемые эффекты пилота» от
+     Есмамбетова (Teams), цифры остатков — оттуда же; проценты эффектов — из
+     «Концептуального видения по закупкам» (14.05.26), там они по лучшим
+     практикам. Показывается парами: проблема → эффект, одно нажатие на пару. -->
+<section class="слайд" id="с0э" aria-label="Проблемы и эффекты">
+  <div class="бровь">Зачем · текущие проблемы и ожидаемые эффекты пилота</div>
+  <h2 class="заголовок дисплей">Семь проблем закупок — семь эффектов пилота</h2>
+  <div class="пэ_шапка"><div>Текущие проблемы</div><div>Ожидаемые эффекты пилота</div></div>
+  <div class="пэ">
+    <div class="ряд">
+      <div class="я" data-к="1"><span class="н">01</span><b>Неэффективное планирование потребности и управление запасами.</b> Остатки: <em>88 млрд ₸</em> (2022) → <em>147 млрд ₸</em> (2025), +67 %; <em>85 млрд ₸</em> (58 %) — исторические остатки.</div>
+      <div class="я эф" data-к="1"><span class="н">01</span><b>Сокращение избыточных и дублирующих закупок</b> → вовлечение запасов в оборот → <b>высвобождение оборотных средств</b>.</div>
+    </div>
+    <div class="ряд">
+      <div class="я" data-к="2"><span class="н">02</span><b>Недостаточная актуальность и обоснованность рыночных цен.</b> Ручной поиск и анализ → корректировки бюджета и планов закупок.</div>
+      <div class="я эф" data-к="2"><span class="н">02</span><b>Закупки по актуальным рыночным ценам</b> → снижение завышенной плановой стоимости → <b>меньше корректировок бюджета и планов</b>.</div>
+    </div>
+    <div class="ряд">
+      <div class="я" data-к="3"><span class="н">03</span><b>Высокая доля ручных и рутинных операций.</b> Ручной ввод, Excel, переписка → высокие трудозатраты и ошибки.</div>
+      <div class="я эф" data-к="3"><span class="н">03</span><b>Автоматизация рутинных операций</b> → снижение трудозатрат → <b>снижение рисков и ошибок человеческого фактора</b>.</div>
+    </div>
+    <div class="ряд">
+      <div class="я" data-к="4"><span class="н">04</span><b>Длительные и многоуровневые согласования</b> → увеличение сроков закупочного процесса.</div>
+      <div class="я эф" data-к="4"><span class="н">04</span><b>Сокращение этапов согласования</b> → <b>ускорение закупочного цикла</b>.</div>
+    </div>
+    <div class="ряд">
+      <div class="я" data-к="5"><span class="н">05</span><b>Высокая доля несостоявшихся закупок</b> → повторные процедуры и задержки поставок.</div>
+      <div class="я эф" data-к="5"><span class="н">05</span><b>Снижение несостоявшихся и повторных закупок</b> → <b>своевременное обеспечение производства</b>.</div>
+    </div>
+    <div class="ряд">
+      <div class="я" data-к="6"><span class="н">06</span><b>Разрозненность информационных систем и данных между ДЗО.</b> SAP — <em>6</em>, 1С — <em>27</em>, Галактика — <em>1</em> организация.</div>
+      <div class="я эф" data-к="6"><span class="н">06</span><b>Сквозной обмен данными</b> → исключение повторного ручного ввода → <b>единый цифровой процесс</b>.</div>
+    </div>
+    <div class="ряд">
+      <div class="я" data-к="7"><span class="н">07</span><b>Отсутствие сквозной ответственности</b> за формирование потребности и использование запасов.</div>
+      <div class="я эф" data-к="7"><span class="н">07</span><b>Персональная ответственность</b> → прослеживаемость решений → <b>контроль от потребности до использования ТМЦ</b>.</div>
+    </div>
+  </div>
+  <div class="пэ_цифры" data-к="8">
+    <div><b>+50–69 %</b><span>эффективность процессов планирования, маркетинга цен и исполнения договоров</span></div>
+    <div><b>−32–38 %</b><span>шагов в процессе: 203 → 133 шага, 437 → 148 часов</span></div>
+    <div><b>−75 %</b><span>бумажных документов: 25 исходящих → 2</span></div>
+    <div><b>−10–20 %</b><span>времени процедуры планирования закупок</span></div>
+  </div>
+  <p class="пэ_прим" data-к="8">Оценки эффектов — по лучшим практикам, из концептуального видения по закупкам (май 2026).</p>
 </section>
 
 <!-- ================= 1б. товары пилота =================
@@ -617,19 +691,19 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
 
     <div class="склад" style="left:450px;top:150px;width:420px" data-к="1">
       <div class="имя">Шаг 1 · KMG AISAP · модуль формирования потребности</div>
-      <div class="заг">ИИ автоматически выявляет и формирует потребность <span class="ии">AI</span></div>
+      <div class="заг">ИИ анализирует данные и формирует потребность <span class="ии">AI</span></div>
       <p class="ищет" style="margin-top:8px">запуск по настраиваемому расписанию · без участия человека</p>
       <div class="сетка"><i class="ячейка" style="transition-delay:0ms"></i><i class="ячейка" style="transition-delay:18ms"></i><i class="ячейка" style="transition-delay:36ms"></i><i class="ячейка" style="transition-delay:54ms"></i><i class="ячейка" style="transition-delay:72ms"></i><i class="ячейка пусто" style="transition-delay:90ms"></i><i class="ячейка" style="transition-delay:108ms"></i><i class="ячейка" style="transition-delay:126ms"></i><i class="ячейка" style="transition-delay:144ms"></i><i class="ячейка" style="transition-delay:162ms"></i><i class="ячейка" style="transition-delay:180ms"></i><i class="ячейка" style="transition-delay:198ms"></i><i class="ячейка" style="transition-delay:216ms"></i><i class="ячейка" style="transition-delay:234ms"></i><i class="ячейка пусто" style="transition-delay:252ms"></i><i class="ячейка" style="transition-delay:270ms"></i><i class="ячейка" style="transition-delay:288ms"></i><i class="ячейка" style="transition-delay:306ms"></i><i class="ячейка" style="transition-delay:324ms"></i><i class="ячейка" style="transition-delay:342ms"></i><i class="ячейка" style="transition-delay:360ms"></i><i class="ячейка" style="transition-delay:378ms"></i><i class="ячейка пусто" style="transition-delay:396ms"></i><i class="ячейка" style="transition-delay:414ms"></i><i class="ячейка" style="transition-delay:432ms"></i><i class="ячейка" style="transition-delay:450ms"></i><i class="ячейка" style="transition-delay:468ms"></i><i class="ячейка пусто" style="transition-delay:486ms"></i><i class="ячейка" style="transition-delay:504ms"></i><i class="ячейка" style="transition-delay:522ms"></i><i class="ячейка" style="transition-delay:540ms"></i><i class="ячейка" style="transition-delay:558ms"></i></div>
       <div class="ключ"><span class="есть">есть</span><span class="нет">заканчивается</span></div>
       <div class="сияние" data-к="3"></div>
     </div>
 
-    <div class="исток остатки" style="left:0;top:6px;transition-delay:0ms" data-к="2">      <div class="мини"><svg viewBox="0 0 70 56"><rect x="4" y="4" width="12" height="12" rx="2" class="з"/><rect x="20" y="4" width="12" height="12" rx="2" class="з"/><rect x="36" y="4" width="12" height="12" rx="2" class="з"/><rect x="52" y="4" width="12" height="12" rx="2" class="з"/><rect x="4" y="20" width="12" height="12" rx="2" class="з"/><rect x="20" y="20" width="12" height="12" rx="2" class="з"/><rect x="36" y="20" width="12" height="12" rx="2" class="п"/><rect x="52" y="20" width="12" height="12" rx="2" class="з"/><rect x="4" y="36" width="12" height="12" rx="2" class="п"/><rect x="20" y="36" width="12" height="12" rx="2" class="з"/><rect x="36" y="36" width="12" height="12" rx="2" class="з"/><rect x="52" y="36" width="12" height="12" rx="2" class="з"/></svg></div>      <div><b>Анализирует текущие складские запасы</b></div>    </div>
-    <div class="исток минмакс" style="left:0;top:108px;transition-delay:120ms" data-к="2">      <div class="мини"><svg viewBox="0 0 70 56"><rect x="24" y="4" width="22" height="48" rx="4" class="к"/><rect x="24" y="40" width="22" height="12" rx="3" class="ур"/><line x1="12" y1="36" x2="58" y2="36" class="лин"/><text x="2" y="39" class="т">min</text><line x1="12" y1="8" x2="58" y2="8" class="лин мята"/><text x="2" y="11" class="т мята">max</text></svg></div>      <div><b>Анализирует min-max уровни запасов</b></div>    </div>
-    <div class="исток закупки" style="left:0;top:210px;transition-delay:240ms" data-к="2">      <div class="мини"><svg viewBox="0 0 70 56"><rect x="6" y="30" width="10" height="22" class="з"/><rect x="21" y="20" width="10" height="32" class="з"/><rect x="36" y="26" width="10" height="26" class="з"/><rect x="51" y="12" width="10" height="40" class="з"/></svg></div>      <div><b>Анализирует историю закупок</b></div>    </div>
-    <div class="исток потребление" style="left:0;top:312px;transition-delay:360ms" data-к="2">      <div class="мини"><svg viewBox="0 0 70 56"><circle cx="10" cy="12" r="3" class="з"/><circle cx="22" cy="12" r="3" class="з"/><circle cx="34" cy="12" r="3" class="з"/><circle cx="58" cy="12" r="3" class="з"/><circle cx="10" cy="28" r="3" class="з"/><circle cx="22" cy="28" r="3" class="з"/><circle cx="34" cy="28" r="3" class="з"/><circle cx="46" cy="28" r="3" class="з"/><circle cx="58" cy="28" r="3" class="з"/><circle cx="22" cy="44" r="3" class="з"/><circle cx="34" cy="44" r="3" class="з"/><circle cx="46" cy="44" r="3" class="з"/><circle cx="58" cy="44" r="3" class="з"/></svg></div>      <div><b>Анализирует историю потребления</b></div>    </div>
-    <div class="исток нормы" style="left:0;top:414px;transition-delay:480ms" data-к="2">      <div class="мини"><svg viewBox="0 0 70 56"><circle cx="16" cy="16" r="7" class="к"/><path d="M4 50c0-12 6-18 12-18s12 6 12 18" class="к"/><rect x="40" y="10" width="6" height="30" rx="2" class="з"/><rect x="50" y="10" width="6" height="30" rx="2" class="з"/><rect x="60" y="10" width="6" height="30" rx="2" class="з"/><text x="40" y="52" class="т">x3</text></svg></div>      <div><b>Анализирует нормы потребления</b></div>    </div>
-    <div class="исток паспорта" style="left:0;top:516px;transition-delay:600ms" data-к="2">      <div class="мини"><svg viewBox="0 0 70 56"><circle cx="22" cy="28" r="14" class="к"/><circle cx="22" cy="28" r="5" class="з"/><rect x="42" y="12" width="7" height="7" rx="1" class="к"/><rect x="51" y="12" width="7" height="7" rx="1" class="к"/><rect x="60" y="12" width="7" height="7" rx="1" class="з"/><rect x="42" y="21" width="7" height="7" rx="1" class="к"/><rect x="51" y="21" width="7" height="7" rx="1" class="к"/><rect x="60" y="21" width="7" height="7" rx="1" class="з"/><rect x="42" y="30" width="7" height="7" rx="1" class="к"/><rect x="51" y="30" width="7" height="7" rx="1" class="к"/><rect x="60" y="30" width="7" height="7" rx="1" class="к"/><rect x="42" y="39" width="7" height="7" rx="1" class="к"/><rect x="51" y="39" width="7" height="7" rx="1" class="к"/><rect x="60" y="39" width="7" height="7" rx="1" class="к"/></svg></div>      <div><b>Анализирует паспорта, техспецификацию и техдокументацию</b></div>    </div>
+    <div class="исток остатки" style="left:0;top:6px;transition-delay:0ms" data-к="2">      <div class="мини"><svg viewBox="0 0 70 56"><rect x="4" y="4" width="12" height="12" rx="2" class="з"/><rect x="20" y="4" width="12" height="12" rx="2" class="з"/><rect x="36" y="4" width="12" height="12" rx="2" class="з"/><rect x="52" y="4" width="12" height="12" rx="2" class="з"/><rect x="4" y="20" width="12" height="12" rx="2" class="з"/><rect x="20" y="20" width="12" height="12" rx="2" class="з"/><rect x="36" y="20" width="12" height="12" rx="2" class="п"/><rect x="52" y="20" width="12" height="12" rx="2" class="з"/><rect x="4" y="36" width="12" height="12" rx="2" class="п"/><rect x="20" y="36" width="12" height="12" rx="2" class="з"/><rect x="36" y="36" width="12" height="12" rx="2" class="з"/><rect x="52" y="36" width="12" height="12" rx="2" class="з"/></svg></div>      <div><b>Текущие складские запасы</b></div>    </div>
+    <div class="исток минмакс" style="left:0;top:108px;transition-delay:120ms" data-к="2">      <div class="мини"><svg viewBox="0 0 70 56"><rect x="24" y="4" width="22" height="48" rx="4" class="к"/><rect x="24" y="40" width="22" height="12" rx="3" class="ур"/><line x1="12" y1="36" x2="58" y2="36" class="лин"/><text x="2" y="39" class="т">min</text><line x1="12" y1="8" x2="58" y2="8" class="лин мята"/><text x="2" y="11" class="т мята">max</text></svg></div>      <div><b>Min-max уровни запасов</b></div>    </div>
+    <div class="исток закупки" style="left:0;top:210px;transition-delay:240ms" data-к="2">      <div class="мини"><svg viewBox="0 0 70 56"><rect x="6" y="30" width="10" height="22" class="з"/><rect x="21" y="20" width="10" height="32" class="з"/><rect x="36" y="26" width="10" height="26" class="з"/><rect x="51" y="12" width="10" height="40" class="з"/></svg></div>      <div><b>История закупок</b></div>    </div>
+    <div class="исток потребление" style="left:0;top:312px;transition-delay:360ms" data-к="2">      <div class="мини"><svg viewBox="0 0 70 56"><circle cx="10" cy="12" r="3" class="з"/><circle cx="22" cy="12" r="3" class="з"/><circle cx="34" cy="12" r="3" class="з"/><circle cx="58" cy="12" r="3" class="з"/><circle cx="10" cy="28" r="3" class="з"/><circle cx="22" cy="28" r="3" class="з"/><circle cx="34" cy="28" r="3" class="з"/><circle cx="46" cy="28" r="3" class="з"/><circle cx="58" cy="28" r="3" class="з"/><circle cx="22" cy="44" r="3" class="з"/><circle cx="34" cy="44" r="3" class="з"/><circle cx="46" cy="44" r="3" class="з"/><circle cx="58" cy="44" r="3" class="з"/></svg></div>      <div><b>История потребления</b></div>    </div>
+    <div class="исток нормы" style="left:0;top:414px;transition-delay:480ms" data-к="2">      <div class="мини"><svg viewBox="0 0 70 56"><circle cx="16" cy="16" r="7" class="к"/><path d="M4 50c0-12 6-18 12-18s12 6 12 18" class="к"/><rect x="40" y="10" width="6" height="30" rx="2" class="з"/><rect x="50" y="10" width="6" height="30" rx="2" class="з"/><rect x="60" y="10" width="6" height="30" rx="2" class="з"/><text x="40" y="52" class="т">x3</text></svg></div>      <div><b>Нормы потребления</b></div>    </div>
+    <div class="исток паспорта" style="left:0;top:516px;transition-delay:600ms" data-к="2">      <div class="мини"><svg viewBox="0 0 70 56"><circle cx="22" cy="28" r="14" class="к"/><circle cx="22" cy="28" r="5" class="з"/><rect x="42" y="12" width="7" height="7" rx="1" class="к"/><rect x="51" y="12" width="7" height="7" rx="1" class="к"/><rect x="60" y="12" width="7" height="7" rx="1" class="з"/><rect x="42" y="21" width="7" height="7" rx="1" class="к"/><rect x="51" y="21" width="7" height="7" rx="1" class="к"/><rect x="60" y="21" width="7" height="7" rx="1" class="з"/><rect x="42" y="30" width="7" height="7" rx="1" class="к"/><rect x="51" y="30" width="7" height="7" rx="1" class="к"/><rect x="60" y="30" width="7" height="7" rx="1" class="к"/><rect x="42" y="39" width="7" height="7" rx="1" class="к"/><rect x="51" y="39" width="7" height="7" rx="1" class="к"/><rect x="60" y="39" width="7" height="7" rx="1" class="к"/></svg></div>      <div><b>Паспорта, техспецификация, техдокументация</b></div>    </div>
     <div class="исток другие" style="left:0;top:618px;transition-delay:720ms" data-к="2">      <div class="мини"><svg viewBox="0 0 70 56"><circle cx="18" cy="28" r="6" class="з"/><circle cx="35" cy="14" r="6" class="з"/><circle cx="35" cy="42" r="6" class="з"/><circle cx="52" cy="28" r="6" class="з"/><path d="M24 28h22M35 20v16" class="к"/></svg></div>      <div><b>Другие источники данных</b></div>    </div>
 
     <!-- данные товара — из таблицы заказчика «ТМЦ на 2027 по бюджету МЭМ Пилот25»; количество условное -->
@@ -656,7 +730,7 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
      Созвон 05.09 (второй): после «формирует потребность» — скрин DS Warehouse.
      Меню, имя системы и ФИО отрезаны по просьбе заказчика; оригинал в папке
      материалов, не в репозитории. -->
-<section class="слайд" id="с1с" aria-label="Шаг 1 · так это выглядит в системе">
+<section class="слайд скрыт" id="с1с" aria-label="Шаг 1 · так это выглядит в системе">
   <div class="бровь">Шаг 1 · так это выглядит в системе</div>
   <div class="полотно экран">
     <div class="скрин" data-к="1"><img src="медиа/скрины_закупки/шаг1_потребность.png" alt="">
@@ -772,11 +846,14 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
     </div>
 
     <!-- результат -->
-    <div class="карточка" style="left:1180px;top:240px;width:250px;height:160px" data-к="6">
+    <div class="карточка" style="left:1180px;top:200px;width:250px" data-к="6">
       <b>Цена определена</b>
       <div class="товар_имя">Провод СИП-3 1х35</div>
       <div class="средняя">средняя по 5 КП<strong>1 218 ₸/м</strong></div>
-      <ul><li>Маркетинговое заключение</li></ul>
+      <!-- 11.09: не только средняя по КП — история цен, сравнение с прошлыми
+           годами, аномалии исключены; решение по Правилам закупок Фонда.
+           Поставщики и цены условные — настоящие даст Анвар. -->
+      <ul><li>история цен, прошлые годы</li><li>аномальные КП исключены</li><li>по Правилам закупок Фонда</li></ul>
     </div>
 
     <!-- бюджет -->
@@ -794,7 +871,7 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
      Четыре экрана системы маркетинга на одном слайде — порядок со слов
      заказчика: заявки из МЭМ → заявка и её шаги → поставщики → закрытые.
      Потом отдельный скрин: статус «Бюджетирование завершено» вернулся в МЭМ. -->
-<section class="слайд" id="с2а" aria-label="Шаг 2 · так это выглядит в системе">
+<section class="слайд скрыт" id="с2а" aria-label="Шаг 2 · так это выглядит в системе">
   <div class="бровь">Шаг 2 · так это выглядит в системе</div>
   <div class="полотно экран">
     <div class="скрин" data-к="1"><img src="медиа/скрины_закупки/шаг2_заявки.png" alt="">
@@ -811,7 +888,7 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
   </div>
 </section>
 
-<section class="слайд" id="с2б" aria-label="Шаг 2 · так это выглядит в системе">
+<section class="слайд скрыт" id="с2б" aria-label="Шаг 2 · так это выглядит в системе">
   <div class="бровь">Шаг 2 · так это выглядит в системе</div>
   <div class="полотно экран">
     <div class="скрин" data-к="1"><img src="медиа/скрины_закупки/шаг2_заявка.png" alt="">
@@ -830,7 +907,7 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
   </div>
 </section>
 
-<section class="слайд" id="с2в" aria-label="Шаг 2 · так это выглядит в системе">
+<section class="слайд скрыт" id="с2в" aria-label="Шаг 2 · так это выглядит в системе">
   <div class="бровь">Шаг 2 · так это выглядит в системе</div>
   <div class="полотно экран">
     <div class="скрин" data-к="1"><img src="медиа/скрины_закупки/шаг2_поставщики.png" alt="">
@@ -846,7 +923,7 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
   </div>
 </section>
 
-<section class="слайд" id="с2г" aria-label="Шаг 2 · так это выглядит в системе">
+<section class="слайд скрыт" id="с2г" aria-label="Шаг 2 · так это выглядит в системе">
   <div class="бровь">Шаг 2 · так это выглядит в системе</div>
   <div class="полотно экран">
     <div class="скрин" data-к="1"><img src="медиа/скрины_закупки/шаг2_закрытые.png" alt="">
@@ -864,7 +941,7 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
   </div>
 </section>
 
-<section class="слайд" id="с3с" aria-label="Шаг 3 · так это выглядит в системе">
+<section class="слайд скрыт" id="с3с" aria-label="Шаг 3 · так это выглядит в системе">
   <div class="бровь">Шаг 3 · так это выглядит в системе</div>
   <div class="полотно экран">
     <div class="скрин" data-к="1"><img src="медиа/скрины_закупки/шаг3_бюджет.png" alt="">
@@ -891,8 +968,8 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
 <section class="слайд" id="с3" aria-label="Слайд 3">
   <div class="бровь">Шаги 4–5 · KMG AISAP</div>
   <h2 class="заголовок дисплей">Поиск внутренних остатков по ДЗО</h2>
-  <p class="идея">AI-Broker проверяет, можно ли закрыть потребность за счёт неликвидных или
-    невостребованных остатков на складах других ДЗО внутри группы компаний КМГ.</p>
+  <p class="идея">AI-Broker проверяет, можно ли закрыть потребность за счёт невостребованных
+    остатков на складах других ДЗО внутри группы компаний КМГ.</p>
 
   <div class="полотно">
     <div class="карта" data-к="1">
@@ -943,7 +1020,7 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
         <circle class="волна" cx="149.2" cy="459.9" r="9" data-к="1"/>
         <circle class="мэм" cx="149.2" cy="459.9" r="9" data-к="1"/>
         <text class="имя_точки" x="167.2" y="465.9" data-к="1">МЭМ · потребность</text>
-        <text class="имя_найден" x="322.8" y="186.5" data-к="3">ДЗО №1: найден остаток, неликвид</text>
+        <text class="имя_найден" x="322.8" y="186.5" data-к="3">ДЗО №1: найден невостребованный остаток</text>
       </svg>
     </div>
 
@@ -963,7 +1040,7 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
     <div class="карточка" style="left:1060px;top:218px;width:664px" data-к="4">
       <b>Шаг 4 · Рекомендация AI-Broker</b>
       <ul>
-        <li>Товар «Провод СИП-3 1х35» — потребность, планируемая к закупке, — <strong>найден на складе ДЗО №1</strong>: 500 м, не используется, числится неликвидом.</li>
+        <li>Товар «Провод СИП-3 1х35» — потребность, планируемая к закупке, — <strong>найден на складе ДЗО №1</strong>: 500 м, числится невостребованным остатком.</li>
         <li>Закрыть потребность через ДЗО №1 без выхода на рынок.</li>
         <li class="прим">AI-Broker влияет на поле «метод закупки» в плане закупок.</li>
       </ul>
@@ -974,7 +1051,7 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
       <ul>
         <li>Потребность определена, все поля плана закупок заполнены.</li>
         <li data-к="6"><strong class="акцент">Срок закупки указан: январь 2027.</strong></li>
-        <li data-к="6">Метод закупки: нашёл в ДЗО — <strong>из одного источника</strong>; не нашёл — <strong>классический тендер</strong>.</li>
+        <li data-к="6">Метод закупки: нашёл в ДЗО — <strong>из одного источника</strong>; не нашёл — <strong>процедуры закупок</strong>.</li>
       </ul>
     </div>
   </div>
@@ -984,7 +1061,7 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
 <!-- ================= 4с. AI-Broker живьём =================
      Комментарий заказчика 06.09: «Разве AI-Broker уже не работает? Давайте его
      скрин живого агента тоже покажем». Скрины из работающей системы. -->
-<section class="слайд" id="с4а" aria-label="Шаг 4 · AI-Broker · живая система">
+<section class="слайд скрыт" id="с4а" aria-label="Шаг 4 · AI-Broker · живая система">
   <div class="бровь">Шаг 4 · AI-Broker · живая система</div>
   <div class="полотно экран">
     <div class="скрин" data-к="1"><img src="медиа/скрины_закупки/брокер_каталог.png" alt="">
@@ -1002,7 +1079,7 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
   </div>
 </section>
 
-<section class="слайд" id="с4б" aria-label="Шаг 4 · AI-Broker · живая система">
+<section class="слайд скрыт" id="с4б" aria-label="Шаг 4 · AI-Broker · живая система">
   <div class="бровь">Шаг 4 · AI-Broker · живая система</div>
   <div class="полотно экран">
     <div class="скрин" data-к="1"><img src="медиа/скрины_закупки/брокер_совпадение_покупатель.png" alt="">
@@ -1020,7 +1097,7 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
   </div>
 </section>
 
-<section class="слайд" id="с4в" aria-label="Шаг 4 · AI-Broker · живая система">
+<section class="слайд скрыт" id="с4в" aria-label="Шаг 4 · AI-Broker · живая система">
   <div class="бровь">Шаг 4 · AI-Broker · живая система</div>
   <div class="полотно экран">
     <div class="скрин" data-к="1"><img src="медиа/скрины_закупки/брокер_сделка.png" alt="">
@@ -1043,9 +1120,73 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
      но каждый теперь показан предметом: календарь с наступившим сроком,
      документ-заявка, три участника и победитель, печать «договор заключён»,
      лента поставок с колокольчиком и развилкой, зелёная печать «закрыт». -->
+<!-- ================= 4т. шаг 6 как сейчас =================
+     Созвон 11.09 (Адиль, закупщики): план закупок утверждается дважды —
+     целиком в ИСЭЗ, потом мелкие товары до 85 млн ещё раз в SK Store; и ЦП
+     «Заказ на поставку» подписывают вручную обе стороны. Показать как
+     блокеры, целевой процесс — следующим слайдом. -->
+<section class="слайд" id="с4т" aria-label="Шаг 6 · как сейчас">
+  <div class="бровь">Шаг 6 · как сейчас · ИСЭЗ и SK Store</div>
+  <h2 class="заголовок дисплей">Сейчас план утверждается дважды, а заказ подписывается вручную</h2>
+  <p class="идея">Все закупки до 85 млн тенге по правилам Фонда проводятся в SK Store — но сначала они всё равно проходят через общий портал ИСЭЗ.</p>
+
+  <div class="полотно">
+    <svg class="потоки" viewBox="0 0 1724 640" style="position:absolute;left:0;top:0;width:1724px;height:640px;pointer-events:none" aria-hidden="true">
+      <defs>
+        <marker id="стрелка_циан4т" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0 0L10 5L0 10z" fill="#4FE3FF"/></marker>
+      </defs>
+      <path class="поток" pathLength="1" marker-end="url(#стрелка_циан4т)" d="M380 230 H440" data-к="1"/>
+      <path class="поток" pathLength="1" marker-end="url(#стрелка_циан4т)" d="M840 230 H900" data-к="2"/>
+      <path class="поток" pathLength="1" marker-end="url(#стрелка_циан4т)" d="M1300 230 H1360" data-к="3"/>
+    </svg>
+
+    <div class="карточка синяя" style="left:0;top:120px;width:380px" data-к="0">
+      <b>План закупок · KMG AISAP</b>
+      <ul>
+        <li>Крупные закупки: офис, техника, услуги.</li>
+        <li>Внутри того же плана — мелкие товары: бумага, канцелярия, хозтовары.</li>
+        <li class="прим">Заранее известно: всё до 85 млн уйдёт в SK Store.</li>
+      </ul>
+    </div>
+    <div class="карточка" style="left:440px;top:120px;width:400px" data-к="1">
+      <b>ИСЭЗ · портал закупок Фонда</b>
+      <ul>
+        <li>План утверждается целиком — крупные закупки вместе с мелкими товарами.</li>
+        <li>Крупные закупки проводятся здесь.</li>
+      </ul>
+    </div>
+    <div class="карточка блокер" style="left:900px;top:120px;width:400px" data-к="2">
+      <b>SK Store · магазин мелких закупок</b>
+      <ul>
+        <li>Мелкие товары выгружаются из ИСЭЗ отдельным планом.</li>
+        <li>Тот же план <strong class="акцент">утверждается ещё раз</strong>, потом проводится закуп.</li>
+      </ul>
+      <span class="метка_блокер">блокер · двойное утверждение</span>
+    </div>
+    <div class="карточка блокер" style="left:1360px;top:120px;width:364px" data-к="3">
+      <b>ЦП «Заказ на поставку»</b>
+      <ul>
+        <li>Электронный документ в SK Store подписывают <strong class="акцент">вручную</strong>: сначала заказчик, потом поставщик.</li>
+      </ul>
+      <span class="метка_блокер">блокер · ручное подписание</span>
+    </div>
+
+    <div class="карточка" style="left:0;top:430px;width:1724px" data-к="4">
+      <b>Что тормозит</b>
+      <ul>
+        <li>Один и тот же план закупок утверждается два-три раза — в ИСЭЗ и в SK Store.</li>
+        <li>Мелкие товары идут через общий портал, хотя закупаться будут в SK Store.</li>
+        <li>Заказ на поставку требует подписи обеих сторон — человек в каждом шаге.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
 <section class="слайд" id="с4" aria-label="Слайд 4">
-  <div class="бровь">Шаги 5–6 · KMG AISAP и SK Store</div>
-  <h2 class="заголовок дисплей">Система автоматически проводит тендер и определяет победителя</h2>
+  <div class="бровь">Шаги 5–6 · целевой процесс · KMG AISAP и SK Store</div>
+  <h2 class="заголовок дисплей">Целевой процесс: план уходит в SK Store, система сама проводит закуп</h2>
+  <p class="идея">Мелкие товары из KMG AISAP уходят сразу в SK Store, минуя ИСЭЗ; в ИСЭЗ — только крупные закупки.</p>
 
   <div class="полотно">
     <svg class="потоки" viewBox="0 0 1724 640" style="position:absolute;left:0;top:0;width:1724px;height:640px;pointer-events:none" aria-hidden="true">
@@ -1066,14 +1207,14 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
     <div class="заявка" style="left:312px;top:232px" data-к="2">
       <svg viewBox="0 0 40 48"><path d="M6 4h20l8 8v32H6z" class="док"/><path d="M26 4v8h8" class="док"/>
         <path d="M12 22h16M12 30h16M12 38h10" class="строки"/></svg>
-      <span>передано<br>к закупу</span>
+      <span>план —<br>в SK Store</span>
     </div>
 
     <!-- 3. площадка -->
     <div class="склад площадка" style="left:380px;top:150px;width:640px;height:264px" data-к="2">
       <div class="имя">Шаг 6 · SK Store · электронная площадка</div>
-      <div class="заг">Тендер: определяется победитель <span class="ии">AI</span></div>
-      <div class="секретарь" data-к="2">карточка договора заполнена автоматически</div>
+      <div class="заг">Процедура закупки: победитель — наименьшая цена <span class="ии">AI</span></div>
+      <div class="секретарь" data-к="2">план принят в работу · карточки товара созданы · конкурс объявлен — автоматически</div>
       <div class="участник " style="left:30px;top:124px;transition-delay:0ms" data-к="3">
         <svg viewBox="0 0 40 48"><path d="M6 4h20l8 8v32H6z" class="док"/><path d="M26 4v8h8" class="док"/>
           <path d="M12 26l5 5 10-10" class="галка" style="transition-delay:600ms"/></svg>
@@ -1091,10 +1232,14 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
       </div>
     </div>
     <!-- 4. договор -->
-    <div class="карточка договор" style="left:1100px;top:220px;width:520px" data-к="4">
+    <!-- 11.09: ЦП «Заказ на поставку» в целевом процессе снимается —
+         поставщику уходит уведомление о победе и сроке поставки по Правилам,
+         подписи обеих сторон не нужны («это типа революция»). Юридическую
+         сторону закупщики берут на себя. -->
+    <div class="карточка договор" style="left:1100px;top:200px;width:560px" data-к="4">
       <svg viewBox="0 0 64 64" class="печать"><circle cx="32" cy="32" r="28" class="круг"/><circle cx="32" cy="32" r="20" class="круг"/>
         <path d="M20 33l8 8 16-16" class="галка включён"/></svg>
-      <div><b>Договор заключён</b><span>с выбранным поставщиком</span></div>
+      <div><b>Уведомление поставщику</b><span>вы выиграли · поставка через 30 дней, по Правилам закупок · без подписания ЦП</span></div>
     </div>
 
   </div>
@@ -1106,7 +1251,7 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
      договоров. Договор с прошлого слайда — входная карточка слева. -->
 <section class="слайд" id="с5" aria-label="Слайд 5">
   <div class="бровь">Шаг 7 · KMG AISAP</div>
-  <h2 class="заголовок дисплей">Модуль исполнения договоров ведёт договор до закрытия</h2>
+  <h2 class="заголовок дисплей">ИИ формирует карточку договора и ведёт его до закрытия</h2>
 
   <div class="полотно">
     <svg class="потоки" viewBox="0 0 1724 640" style="position:absolute;left:0;top:0;width:1724px;height:640px;pointer-events:none" aria-hidden="true">
@@ -1120,7 +1265,7 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
     <div class="карточка договор" style="left:0;top:150px;width:330px" data-к="0">
       <svg viewBox="0 0 64 64" class="печать"><circle cx="32" cy="32" r="28" class="круг"/><circle cx="32" cy="32" r="20" class="круг"/>
         <path d="M20 33l8 8 16-16" class="галка включён"/></svg>
-      <div><b>Договор заключён</b><span>с выбранным поставщиком</span></div>
+      <div><b>Поставщик выбран</b><span>по итогам процедуры закупки в SK Store</span></div>
     </div>
 
     <!-- кадры 1–7: модуль забирает договор → даты → напоминание → поставка → документы → акты → исполнен.
@@ -1128,7 +1273,7 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
     <div class="склад" style="left:400px;top:40px;width:1324px" data-к="1">
       <div class="имя">Шаг 7 · KMG AISAP</div>
       <div class="заг">Модуль исполнения договоров <span class="ии">AI</span></div>
-      <div class="статус" data-к="1" style="margin-top:10px">договор принят · карточка договора сформирована автоматически</div>
+      <div class="статус" data-к="1" style="margin-top:10px">ИИ сам формирует карточку договора</div>
       <svg viewBox="0 0 680 330" class="лента" style="margin-top:6px;width:1000px;height:485px;display:block;margin-left:auto;margin-right:auto">
         <!-- 2. даты из договора: потребность на 1 января, поставка и платёж — в конце декабря -->
         <line x1="20" y1="110" x2="660" y2="110" class="ось" data-к="2"/>
@@ -1138,10 +1283,11 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
           <circle cx="630" cy="110" r="8" class="веха"/><text x="630" y="86" class="т" text-anchor="middle">закрытие</text>
         </g>
         <g data-к="2" style="transition-delay:500ms">
-          <text x="20" y="168" class="т">Модуль сам достаёт из договора:</text>
+          <text x="20" y="168" class="т">ИИ формирует по карточке договора:</text>
           <text x="20" y="190" class="т">· график поставок</text>
           <text x="20" y="212" class="т">· график платежей</text>
           <text x="20" y="234" class="т">· перечень закрывающих документов</text>
+          <text x="20" y="256" class="т">· уведомление поставщику о сроке поставки</text>
         </g>
         <!-- 3. напоминание -->
         <g data-к="3">
@@ -1155,6 +1301,7 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
         </g>
         <circle cx="330" cy="110" r="8" class="веха выполнено" data-к="4" style="transition-delay:1400ms"/>
         <text x="330" y="134" class="т мята" text-anchor="middle" data-к="4" style="transition-delay:1400ms">поставлено ✓</text>
+        <text x="330" y="154" class="т серый" text-anchor="middle" data-к="4" style="transition-delay:1500ms">приёмку проводит человек</text>
         <!-- 5. проверка документов -->
         <g data-к="5">
           <text x="300" y="178" class="т">проверяет закрывающие документы</text>
@@ -1175,8 +1322,8 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
         <circle cx="510" cy="110" r="8" class="веха выполнено" data-к="6" style="transition-delay:300ms"/>
         <text x="510" y="134" class="т мята" text-anchor="middle" data-к="6" style="transition-delay:300ms">платёж проведён ✓</text>
         <g data-к="6">
+          <!-- 11.09: строка «претензионное письмо» снята по просьбе закупщиков -->
           <text x="300" y="276" class="т мята">документы в порядке — акты подписаны, платёж проведён</text>
-          <text x="20" y="316" class="т серый">если поставки к сроку нет — претензионное письмо поставщику, автоматически</text>
         </g>
         <!-- 7. исполнен -->
         <g data-к="7">
@@ -1202,7 +1349,9 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
 <script>
 (function(){
   "use strict";
-  var слайды = [].slice.call(document.querySelectorAll(".слайд"));
+  /* 11.09: слайды со скринами систем скрыты, не удалены — «путают, вырывают
+     из контекста»; вернуть, сняв класс «скрыт». */
+  var слайды = [].slice.call(document.querySelectorAll(".слайд:not(.скрыт)"));
   var точки  = document.getElementById("точки");
   var счёт   = document.getElementById("счётчик");
   var кадр   = document.getElementById("кадр");
