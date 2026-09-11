@@ -536,6 +536,10 @@ body.без_мыши, body.без_мыши *{cursor:none !important}
 body.вглубь #процесс{display:flex}
 #процесс > *{pointer-events:auto}
 #процесс .бровь{font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--приглуш);opacity:0;transition:opacity .4s ease}
+.заголовок_процесса{display:inline-flex;align-items:center;gap:14px;padding:0;font:inherit;letter-spacing:inherit;text-transform:inherit;color:var(--кмг);cursor:pointer}
+.заголовок_процесса span{font-family:'Unbounded',system-ui,sans-serif;font-size:15px;letter-spacing:.06em;text-transform:none;color:var(--текст)}
+.заголовок_процесса i{font-style:normal;font-size:11px;color:var(--кмг);border:1px solid rgba(2,174,240,.45);border-radius:6px;padding:3px 9px;transition:background .2s}
+.заголовок_процесса:hover i{background:rgba(2,174,240,.12)}
 #процесс.виден .бровь{opacity:1}
 /* 11.09 (Адиль): линия цепочки проходила прямо под надписью «Поддерживающая
    деятельность» и смазывала её. Надпись сидит на плашке в цвет фона и чуть
@@ -1367,6 +1371,7 @@ body.процессы .веер{display:none}
       примечание:"Три шага — вечернее обсуждение 11.09 с геологами; поддержки у геологии нет (закупки и TUMAR не используют)"
     },
     добыча: {
+      заголовок: { текст:"Цифровой двойник месторождения", проект:"Цифровой двойник" },
       /* 11.09, «Сквозной процесс Upstream»: четыре раздела верхнего уровня.
          Системы — только свои (вендоров не показываем); внутри «Добычи» —
          шесть процессов 2-го уровня из «Процесс по добыче». Procu — модуль
@@ -2145,7 +2150,16 @@ body.процессы .веер{display:none}
   function показатьПроцесс(б){
     скрытьПроцесс();
     var д = ПРОЦЕССЫ[б.код]; if(!д) return;
-    var бровь = узел("div", "бровь", процесс); бровь.textContent = "Основной производственный процесс · " + б.имя;
+    var бровь = узел("div", "бровь", процесс);
+    /* 11.09 (Адиль): у добычи заголовок процесса — «Цифровой двойник
+       месторождения», он охватывает все этапы; заголовок кликабелен и
+       открывает сам ЦД. У остальных переделов — прежняя подпись. */
+    if(д.заголовок){
+      var н = найтиПроект(д.заголовок.проект);
+      var кн = узел("button", "заголовок_процесса", бровь); кн.type = "button";
+      кн.innerHTML = '<span>' + д.заголовок.текст + '</span><i>открыть →</i>';
+      if(н) кн.addEventListener("click", function(с){ с.stopPropagation(); открытьСистему(н.б, { проект:н.пр, группа:кн }); });
+    } else бровь.textContent = "Основной производственный процесс · " + б.имя;
     var ряд = узел("div", "шаги_процесса", процесс);
     var карточки = д.шаги.map(function(ш, i){
       if(i){ var а = узел("div", "стрелка_шага", ряд); а.textContent = "→"; }
