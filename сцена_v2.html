@@ -118,7 +118,11 @@ body.вглубь .путь{opacity:1;pointer-events:auto}
 
 /* ================= стол и сцена ================= */
 .стол{position:fixed;inset:0;display:grid;place-items:center;overflow:hidden}
-.сцена{position:relative;width:min(calc(100 * 19.2px), calc(calc(100 * 10.8px) * 2560 / 1098));
+/* Ширина сцены — от размера стола, а не 1920: в окне с панелью браузера стол
+   шире 1920 единиц, и цепочка на фиксированной ширине стояла мелкой с пустыми
+   полями по бокам (Адиль 11.09). Теперь сцена занимает всю ширину стола,
+   пока позволяет высота — как раньше с vw/vh. */
+.сцена{position:relative;width:min(var(--стол_ш,1920px), calc(var(--стол_в,1080px) * 2560 / 1098));
   aspect-ratio:2560/1098;transform-origin:0 0;
   transition:transform 900ms cubic-bezier(.22,.7,.24,1)}
 
