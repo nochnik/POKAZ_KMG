@@ -116,6 +116,61 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 .пэ_цифры b{display:block;font-family:'Unbounded',sans-serif;font-size:26px;color:var(--кмг);font-weight:700;line-height:1.1}
 .пэ_цифры span{display:block;margin-top:5px;font-size:13px;line-height:1.35;color:var(--приглуш)}
 .пэ_прим{margin-top:8px;font-size:11.5px;color:var(--приглуш)}
+/* ===== проблемы и эффекты как цепочка (закупщики 11.09: «там только текст») ===== */
+.пэ_полотно{margin-top:26px;display:flex;flex-direction:column;gap:34px;flex:1}
+.пэ_цепь{position:relative;display:grid;grid-template-columns:repeat(7,1fr);gap:18px;padding-top:24px}
+.пэ_нить{position:absolute;left:0;right:0;top:0;height:8px;width:100%}
+.пэ_нить .нить{stroke:rgba(2,174,240,.55);stroke-width:2;stroke-dasharray:1;stroke-dashoffset:0}
+.пэ_цепь.проблемы .нить{stroke:rgba(124,141,166,.5);stroke-dasharray:6 8}
+.пэ_цепь.эффекты .нить{stroke:var(--мята);stroke-dashoffset:1;transition:stroke-dashoffset 1.6s ease}
+.пэ_цепь.эффекты .нить.включён{stroke-dashoffset:0}
+.пэ_шаг{display:flex;flex-direction:column;gap:6px;padding:14px 12px 10px;border-radius:14px;border:1px solid var(--грань);
+  background:linear-gradient(180deg,rgba(12,22,38,.9),rgba(5,8,16,.7))}
+.пэ_шаг img{width:64px;height:64px;object-fit:contain;transition:filter .6s ease,opacity .6s ease}
+.пэ_цепь.проблемы .пэ_шаг img{filter:grayscale(1) brightness(.6)}
+.пэ_цепь.проблемы .пэ_шаг{border-color:rgba(240,174,74,.35)}
+.пэ_цепь.проблемы .пэ_шаг i{color:#F0AE4A}
+.пэ_цепь.эффекты .пэ_шаг{border-color:rgba(62,230,184,.4)}
+.пэ_цепь.эффекты .пэ_шаг i{color:var(--мята)}
+.пэ_шаг i{font-family:'Unbounded',sans-serif;font-style:normal;font-size:12px;font-weight:700;letter-spacing:.1em}
+.пэ_шаг b{font-size:15.5px;line-height:1.25;color:var(--текст);min-height:2.5em}
+.пэ_шаг span{font-size:12.5px;line-height:1.35;color:var(--приглуш)}
+.пэ_низ{display:grid;grid-template-columns:1.1fr .9fr;gap:34px;align-items:stretch}
+.пэ_низ > div{border:1px solid var(--грань);border-radius:16px;padding:18px 22px;background:rgba(12,22,38,.6)}
+.пэ_низ .имя{font-size:11.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--приглуш)}
+.столбики{display:flex;gap:40px;align-items:flex-end;height:150px;margin-top:16px;padding-left:6px}
+.столб{position:relative;width:64px;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center}
+.столб i{display:block;width:100%;height:var(--в);border-radius:6px 6px 0 0;background:linear-gradient(180deg,rgba(2,174,240,.55),rgba(2,174,240,.15));
+  transform:scaleY(0);transform-origin:bottom;transition:transform .9s cubic-bezier(.2,.7,.3,1)}
+.пэ_остатки.включён .столб i{transform:scaleY(1)}
+.столб.горит i{background:linear-gradient(180deg,#F0AE4A,rgba(240,174,74,.25))}
+.столб em{position:absolute;top:-2px;font-style:normal;font-size:15px;font-weight:700;color:var(--текст);transform:translateY(calc(-100% - 4px));opacity:0;transition:opacity .5s ease .7s}
+.столб:nth-child(1) em{top:calc(100% - 60%)}.столб:nth-child(2) em{top:0}
+.пэ_остатки.включён .столб em{opacity:1}
+.столб u{text-decoration:none;font-size:12px;color:var(--приглуш);margin-top:6px}
+.подпись_ост{margin-top:12px;font-size:13px;color:var(--текст2)}
+.подпись_ост strong{color:#F0AE4A}
+.кубики{display:flex;gap:16px;margin-top:18px}
+.кубики span{flex:1;border-radius:12px;padding:14px 16px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--приглуш);
+  border:1px solid var(--грань);background:rgba(5,8,16,.6);transform:translateY(10px);opacity:0;transition:all .5s ease}
+.пэ_системы.включён .кубики span{transform:none;opacity:1}
+.пэ_системы.включён .кубики span:nth-child(2){transition-delay:.12s}.пэ_системы.включён .кубики span:nth-child(3){transition-delay:.24s}
+.кубики b{display:block;font-family:'Unbounded',sans-serif;font-size:30px;color:var(--текст);margin-bottom:4px}
+.кубики .одинс b{color:#F0AE4A}
+.ряд_бс{display:grid;grid-template-columns:200px 1fr 80px;align-items:center;gap:16px;margin-top:14px}
+.ряд_бс span{font-size:13.5px;color:var(--текст2)}
+.ряд_бс b{font-family:'Unbounded',sans-serif;font-size:18px;color:var(--мята);text-align:right}
+.полосы{display:flex;flex-direction:column;gap:5px}
+.полосы i{position:relative;display:block;height:16px;border-radius:4px}
+.полосы i em{position:absolute;right:8px;top:-1px;font-style:normal;font-size:12px;font-weight:700;color:var(--текст)}
+.полосы .было{width:100%;background:rgba(124,141,166,.28)}
+.полосы .стало{width:100%;background:linear-gradient(90deg,var(--мята),rgba(62,230,184,.35));transition:width 1.2s cubic-bezier(.2,.7,.3,1) .3s}
+.было_стало.включён .полосы .стало{width:var(--д)}
+.пэ_проценты{display:grid;grid-template-columns:1fr 1fr;gap:12px 22px;align-content:start}
+.пэ_проценты .имя{grid-column:1/-1}
+.пц b{display:block;font-family:'Unbounded',sans-serif;font-size:26px;color:var(--кмг);line-height:1.1}
+.пц span{font-size:12.5px;color:var(--приглуш)}
+
 .пэ.одна{grid-template-columns:1fr;margin-top:26px}
 .пэ.одна .я{font-size:18px;padding:16px 0}
 .пэ.одна .я .н{width:34px;font-size:13px}
@@ -564,14 +619,34 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
 <section class="слайд" id="с0п" aria-label="Какие проблемы решаем">
   <div class="бровь">Зачем · текущие проблемы закупок</div>
   <h2 class="заголовок дисплей">Какие проблемы решаем</h2>
-  <div class="пэ одна">
-    <div class="я" data-к="1"><span class="н">01</span><b>Неэффективное планирование потребности и управление запасами.</b> Остатки: <em>88 млрд ₸</em> (2022) → <em>147 млрд ₸</em> (2025), +67 %; <em>85 млрд ₸</em> (58 %) — исторические остатки.</div>
-    <div class="я" data-к="2"><span class="н">02</span><b>Недостаточная актуальность и обоснованность рыночных цен.</b> Ручной поиск и анализ → корректировки бюджета и планов закупок.</div>
-    <div class="я" data-к="3"><span class="н">03</span><b>Высокая доля ручных и рутинных операций.</b> Ручной ввод, Excel, переписка → высокие трудозатраты и ошибки.</div>
-    <div class="я" data-к="4"><span class="н">04</span><b>Длительные и многоуровневые согласования</b> → увеличение сроков закупочного процесса.</div>
-    <div class="я" data-к="5"><span class="н">05</span><b>Высокая доля несостоявшихся закупок</b> → повторные процедуры и задержки поставок.</div>
-    <div class="я" data-к="6"><span class="н">06</span><b>Разрозненность информационных систем и данных между ДЗО.</b> SAP — <em>6</em>, 1С — <em>27</em>, Галактика — <em>1</em> организация.</div>
-    <div class="я" data-к="7"><span class="н">07</span><b>Отсутствие сквозной ответственности</b> за формирование потребности и использование запасов.</div>
+  <p class="идея">Семь шагов закупки — и на каждом сегодня своя проблема. Нажатие — следующий шаг.</p>
+  <div class="пэ_полотно">
+    <div class="пэ_цепь проблемы">
+      <svg class="пэ_нить" viewBox="0 0 1724 8" preserveAspectRatio="none" aria-hidden="true"><line x1="0" y1="4" x2="1724" y2="4" class="нить" pathLength="1"/></svg>
+      <div class="пэ_шаг" data-к="1"><img src="медиа/иконки_закупки/шаг1.png" alt=""><i>01</i><b>Потребность планируется неточно</b><span>Остатки растут: 88 → 147 млрд ₸ за три года, 85 млрд ₸ — исторические</span></div>
+      <div class="пэ_шаг" data-к="2"><img src="медиа/иконки_закупки/шаг2.png" alt=""><i>02</i><b>Цены не актуальны</b><span>Ручной поиск и анализ → корректировки бюджета и планов</span></div>
+      <div class="пэ_шаг" data-к="3"><img src="медиа/иконки_закупки/шаг3.png" alt=""><i>03</i><b>Ручные и рутинные операции</b><span>Ручной ввод, Excel, переписка → трудозатраты и ошибки</span></div>
+      <div class="пэ_шаг" data-к="4"><img src="медиа/иконки_закупки/шаг5.png" alt=""><i>04</i><b>Долгие согласования</b><span>Многоуровневые согласования удлиняют закупочный цикл</span></div>
+      <div class="пэ_шаг" data-к="5"><img src="медиа/иконки_закупки/шаг6.png" alt=""><i>05</i><b>Несостоявшиеся закупки</b><span>Повторные процедуры и задержки поставок</span></div>
+      <div class="пэ_шаг" data-к="6"><img src="медиа/иконки_закупки/шаг4.png" alt=""><i>06</i><b>Разрозненные системы</b><span>SAP — 6, 1С — 27, Галактика — 1 организация</span></div>
+      <div class="пэ_шаг" data-к="7"><img src="медиа/иконки_закупки/шаг7.png" alt=""><i>07</i><b>Нет сквозной ответственности</b><span>За потребность и использование запасов не отвечает никто до конца</span></div>
+    </div>
+    <div class="пэ_низ">
+      <div class="пэ_остатки" data-к="1">
+        <div class="имя">Остатки на складах, млрд ₸</div>
+        <div class="столбики">
+          <!-- только две точки — 2022 и 2025: промежуточных цифр в таблице нет -->
+          <div class="столб"><i style="--в:60%"></i><em>88</em><u>2022</u></div>
+          <div class="столб горит"><i style="--в:100%"></i><em>147</em><u>2025</u></div>
+        </div>
+        <div class="подпись_ост">+67 % за три года · <strong>85 млрд ₸ (58 %)</strong> — исторические остатки</div>
+      </div>
+      <div class="пэ_системы" data-к="6">
+        <div class="имя">Учётные системы ДЗО</div>
+        <div class="кубики"><span class="sap"><b>6</b>SAP</span><span class="одинс"><b>27</b>1С</span><span class="галактика"><b>1</b>Галактика</span></div>
+        <div class="подпись_ост">данные между ДЗО не стыкуются — повторный ручной ввод</div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -1370,23 +1445,32 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
 <section class="слайд" id="с6" aria-label="Эффекты пилота">
   <div class="бровь">Итог · ожидаемые эффекты пилота</div>
   <h2 class="заголовок дисплей">Что даёт сквозной процесс закупок на ИИ</h2>
-  <div class="эф_две">
-    <div class="пэ одна эф_список">
-      <div class="я эф" data-к="1"><span class="н">01</span><b>Сокращение избыточных и дублирующих закупок</b> → вовлечение запасов в оборот → <b>высвобождение оборотных средств</b>.</div>
-      <div class="я эф" data-к="2"><span class="н">02</span><b>Закупки по актуальным рыночным ценам</b> → снижение завышенной плановой стоимости → <b>меньше корректировок бюджета и планов</b>.</div>
-      <div class="я эф" data-к="3"><span class="н">03</span><b>Автоматизация рутинных операций</b> → снижение трудозатрат → <b>снижение рисков и ошибок человеческого фактора</b>.</div>
-      <div class="я эф" data-к="4"><span class="н">04</span><b>Сокращение этапов согласования</b> → <b>ускорение закупочного цикла</b>.</div>
-      <div class="я эф" data-к="5"><span class="н">05</span><b>Снижение несостоявшихся и повторных закупок</b> → <b>своевременное обеспечение производства</b>.</div>
-      <div class="я эф" data-к="6"><span class="н">06</span><b>Сквозной обмен данными</b> → исключение повторного ручного ввода → <b>единый цифровой процесс</b>.</div>
-      <div class="я эф" data-к="7"><span class="н">07</span><b>Персональная ответственность</b> → прослеживаемость решений → <b>контроль от потребности до использования ТМЦ</b>.</div>
+  <p class="идея">Та же цепочка из семи шагов — теперь каждый шаг работает на результат.</p>
+  <div class="пэ_полотно">
+    <div class="пэ_цепь эффекты">
+      <svg class="пэ_нить" viewBox="0 0 1724 8" preserveAspectRatio="none" aria-hidden="true"><line x1="0" y1="4" x2="1724" y2="4" class="нить" pathLength="1" data-к="1"/></svg>
+      <div class="пэ_шаг" data-к="1"><img src="медиа/иконки_закупки/шаг1.png" alt=""><i>01</i><b>Меньше избыточных закупок</b><span>Запасы вовлекаются в оборот → высвобождение оборотных средств</span></div>
+      <div class="пэ_шаг" data-к="2"><img src="медиа/иконки_закупки/шаг2.png" alt=""><i>02</i><b>Актуальные рыночные цены</b><span>Меньше завышенной плановой стоимости и корректировок бюджета</span></div>
+      <div class="пэ_шаг" data-к="3"><img src="медиа/иконки_закупки/шаг3.png" alt=""><i>03</i><b>Рутина — автоматически</b><span>Ниже трудозатраты и риск ошибок человеческого фактора</span></div>
+      <div class="пэ_шаг" data-к="4"><img src="медиа/иконки_закупки/шаг5.png" alt=""><i>04</i><b>Короче согласования</b><span>Ускорение закупочного цикла</span></div>
+      <div class="пэ_шаг" data-к="5"><img src="медиа/иконки_закупки/шаг6.png" alt=""><i>05</i><b>Меньше несостоявшихся закупок</b><span>Своевременное обеспечение производства</span></div>
+      <div class="пэ_шаг" data-к="6"><img src="медиа/иконки_закупки/шаг4.png" alt=""><i>06</i><b>Сквозной обмен данными</b><span>Без повторного ручного ввода — единый цифровой процесс</span></div>
+      <div class="пэ_шаг" data-к="7"><img src="медиа/иконки_закупки/шаг7.png" alt=""><i>07</i><b>Персональная ответственность</b><span>Контроль от потребности до использования ТМЦ</span></div>
     </div>
-    <div class="эф_цифры" data-к="8">
-      <div class="эф_бирка">Цифры по процессам</div>
-      <div class="эф_к"><b>+69 %</b><span>Формирование потребности<i>шагов −38 % · бумаги −75 %</i></span></div>
-      <div class="эф_к"><b>+55 %</b><span>Маркетинг цен<i>шагов −36 % · бумаги −75 %</i></span></div>
-      <div class="эф_к"><b>+50 %</b><span>План закупок<i>шагов −32 % · бумаги −75 %</i></span></div>
-      <div class="эф_к малый"><b>203 → 133</b><span>шагов во всём процессе<i>437 → 148 часов · документов 25 → 2</i></span></div>
-      <div class="эф_к малый"><b>−10–20 %</b><span>времени планирования закупок<i>бумажного оборота −40 % · рутины −20 %</i></span></div>
+    <div class="пэ_низ">
+      <div class="было_стало" data-к="8">
+        <div class="имя">Было → стало</div>
+        <div class="ряд_бс"><span>шагов в процессе</span><div class="полосы"><i class="было"><em>203</em></i><i class="стало" style="--д:66%"><em>133</em></i></div><b>−34 %</b></div>
+        <div class="ряд_бс"><span>часов на процесс</span><div class="полосы"><i class="было"><em>437</em></i><i class="стало" style="--д:34%"><em>148</em></i></div><b>−66 %</b></div>
+        <div class="ряд_бс"><span>исходящих документов</span><div class="полосы"><i class="было"><em>25</em></i><i class="стало" style="--д:8%"><em>2</em></i></div><b>−92 %</b></div>
+      </div>
+      <div class="пэ_проценты" data-к="8">
+        <div class="имя">Эффективность процессов</div>
+        <div class="пц"><b>+69 %</b><span>формирование потребности</span></div>
+        <div class="пц"><b>+55 %</b><span>маркетинг цен</span></div>
+        <div class="пц"><b>+50 %</b><span>план закупок</span></div>
+        <div class="пц"><b>−10–20 %</b><span>времени планирования закупок</span></div>
+      </div>
     </div>
   </div>
 </section>
