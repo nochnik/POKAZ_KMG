@@ -243,8 +243,11 @@ svg .сбор[data-к]{transform:none}
 .справочник.включён li.совп span{color:var(--кмг)}
 .поставщик{position:absolute;width:240px;border:1px solid var(--грань);border-radius:12px;padding:10px 14px;
   background:linear-gradient(180deg, rgba(12,22,38,.9), rgba(5,8,16,.7))}
-.поставщик b{font-size:14px;color:var(--текст)}
+.поставщик b{font-size:13px;color:var(--текст)}
 .поставщик .код{margin-left:8px;font-size:11px;color:var(--кмг)}
+/* 11.09: товаропроизводители (ТПФ) подчёркнуты — закупщики просили выделить */
+.поставщик .тпф{margin-left:8px;font-size:11px;color:var(--мята);border:1px solid rgba(62,230,184,.5);border-radius:5px;padding:1px 6px}
+.поставщик.тп{border-color:rgba(62,230,184,.55)}
 .поставщик .кп{margin-top:8px;height:14px;position:relative;display:flex;align-items:center;gap:8px}
 .поставщик .кп i{display:block;height:6px;border-radius:3px;background:linear-gradient(90deg, rgba(62,213,152,.35), var(--зелёный))}
 .поставщик .кп em{font-style:normal;font-size:12px;color:var(--мята);white-space:nowrap;margin-left:auto}
@@ -581,7 +584,7 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
      Есмамбетова (Teams), цифры остатков — оттуда же; проценты эффектов — из
      «Концептуального видения по закупкам» (14.05.26), там они по лучшим
      практикам. Показывается парами: проблема → эффект, одно нажатие на пару. -->
-<section class="слайд" id="с0э" aria-label="Проблемы и эффекты">
+<section class="слайд скрыт" id="с0э" aria-label="Проблемы и эффекты">
   <div class="бровь">Зачем · текущие проблемы и ожидаемые эффекты пилота</div>
   <h2 class="заголовок дисплей">Семь проблем закупок — семь эффектов пилота</h2>
   <div class="пэ_шапка"><div>Текущие проблемы</div><div>Ожидаемые эффекты пилота</div></div>
@@ -627,7 +630,7 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
 <!-- ================= 1б. товары пилота =================
      Созвон 05.09: отдельным слайдом — список товаров, выбранных для пилота,
      с кодом АСУ НСИ. Перечень и коды — из таблицы заказчика. -->
-<section class="слайд" id="с1б" aria-label="Товары пилота">
+<section class="слайд скрыт" id="с1б" aria-label="Товары пилота">
   <div class="бровь">Пилот · Мангистауэнергомунай</div>
   <h2 class="заголовок дисплей">Для пилота выбрано 25 товаров</h2>
   <div class="подзаг">формирование потребности по ним ИИ ведёт полностью автоматически</div>
@@ -800,7 +803,7 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
         <li><span>Количество</span><strong>500 м</strong></li>
         <li><span>Срок</span><strong>январь 2027</strong></li>
         <li><span>Место поставки</span><strong>Мангистауэнергомунай</strong></li>
-        <li class="поле_цена"><span>Цена</span><em data-до="5">не определена</em><strong class="мятн" data-к="6">1 218 ₸/м</strong></li>
+        <li class="поле_цена"><span>Цена</span><em data-до="5">не определена</em><strong class="мятн" data-к="6">648 ₸/м</strong></li>
         <li class="поле_бюдж"><span>Бюджет</span><em data-до="7">не определён</em><strong class="мятн" data-к="8">имеется ✓</strong></li>
       </ul>
     </div>
@@ -816,40 +819,40 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
     <!-- справочники -->
     <div class="справочник" style="left:380px;top:460px;width:210px" data-к="3">
       <b>Справочник производителей</b>
-      <ul><li class="">ТОО «Север»<span>код 7431</span></li><li class="совп">ТОО «Актау-Металл»<span>код 1234</span></li><li class="">ТОО «Дала»<span>код 5510</span></li><li class="совп">ТОО «Каспий-Снаб»<span>код 1234</span></li></ul>
+      <ul><li class="совп">ТОО «Талдыкорганкабель»<span>ТПФ</span></li><li class="совп">ТОО «AluTech»<span>ТПФ</span></li><li class="">ТОО «Алматы КазКабель»<span>поставщик</span></li><li class="">ТОО «ЦентрСнабСтрой»<span>поставщик</span></li></ul>
     </div>
     <div class="справочник" style="left:610px;top:460px;width:250px" data-к="3">
-      <b>Кто выигрывал раньше</b>
-      <ul><li class="совп">ТОО «Каспий-Снаб»<span>выиграл 2025</span></li><li class="">ТОО «Ак Жол»<span>2024, другой код</span></li><li class="совп">ТОО «Актау-Металл»<span>выиграл 2024</span></li></ul>
+      <b>Цены прошлых лет</b>
+      <ul><li class="совп">диапазон<span>500–900 ₸/м без НДС</span></li><li class="">ТОО «Талдыкорганкабель»<span>выиграл 2025</span></li><li class="">ТОО «AluTech»<span>выиграл 2024</span></li></ul>
     </div>
 
     <!-- поставщики -->
     <div class="поставщик" style="left:900px;top:110px;transition-delay:0ms" data-к="4">
-      <b>Поставщик 1</b><span class="код">✓ код</span>
-      <div class="кп" data-к="5" style="transition-delay:0ms"><i style="width:52%"></i><em>1 240 ₸/м</em></div>
+      <b>ТОО «VK Corp»</b><span class="код">✓ код</span>
+      <div class="кп" data-к="5" style="transition-delay:0ms"><i style="width:69%"></i><em>690 ₸/м</em></div>
     </div>
     <div class="поставщик" style="left:900px;top:210px;transition-delay:120ms" data-к="4">
-      <b>Поставщик 2</b><span class="код">✓ код</span>
-      <div class="кп" data-к="5" style="transition-delay:140ms"><i style="width:50%"></i><em>1 180 ₸/м</em></div>
+      <b>ТОО «ЦентрСнабСтрой»</b><span class="код">✓ код</span>
+      <div class="кп" data-к="5" style="transition-delay:140ms"><i style="width:74%"></i><em>740 ₸/м</em></div>
     </div>
     <div class="поставщик" style="left:900px;top:310px;transition-delay:240ms" data-к="4">
-      <b>Поставщик 3</b><span class="код">✓ код</span>
-      <div class="кп" data-к="5" style="transition-delay:280ms"><i style="width:55%"></i><em>1 310 ₸/м</em></div>
+      <b>ТОО «Алматы КазКабель»</b>
+      <div class="кп" data-к="5" style="transition-delay:280ms"><i style="width:62%"></i><em>620 ₸/м</em></div>
     </div>
-    <div class="поставщик" style="left:900px;top:410px;transition-delay:360ms" data-к="4">
-      <b>Поставщик 4</b><span class="код">✓ код</span>
-      <div class="кп" data-к="5" style="transition-delay:420ms"><i style="width:46%"></i><em>1 095 ₸/м</em></div>
+    <div class="поставщик тп" style="left:900px;top:410px;transition-delay:360ms" data-к="4">
+      <b>ТОО «Талдыкорганкабель»</b><span class="тпф">ТПФ</span>
+      <div class="кп" data-к="5" style="transition-delay:420ms"><i style="width:58%"></i><em>580 ₸/м</em></div>
     </div>
-    <div class="поставщик" style="left:900px;top:510px;transition-delay:480ms" data-к="4">
-      <b>Поставщик 5</b><span class="код">✓ код</span>
-      <div class="кп" data-к="5" style="transition-delay:560ms"><i style="width:54%"></i><em>1 265 ₸/м</em></div>
+    <div class="поставщик тп" style="left:900px;top:510px;transition-delay:480ms" data-к="4">
+      <b>ТОО «AluTech»</b><span class="код">✓ код</span><span class="тпф">ТПФ</span>
+      <div class="кп" data-к="5" style="transition-delay:560ms"><i style="width:61%"></i><em>610 ₸/м</em></div>
     </div>
 
     <!-- результат -->
     <div class="карточка" style="left:1180px;top:200px;width:250px" data-к="6">
       <b>Цена определена</b>
       <div class="товар_имя">Провод СИП-3 1х35</div>
-      <div class="средняя">средняя по 5 КП<strong>1 218 ₸/м</strong></div>
+      <div class="средняя">средняя по 5 КП, без НДС<strong>648 ₸/м</strong></div>
       <!-- 11.09: не только средняя по КП — история цен, сравнение с прошлыми
            годами, аномалии исключены; решение по Правилам закупок Фонда.
            Поставщики и цены условные — настоящие даст Анвар. -->
@@ -953,7 +956,7 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
       <h3>Бюджет проверен, статус вернулся в потребность</h3>
       <ul>
         <li>Запрос в систему бюджетирования ушёл автоматически</li>
-        <li>Ответ по проводу СИП-3: в бюджете — Да, цена 1 218 ₸/м, сумма 79,8 млн ₸</li>
+        <li>Ответ по проводу СИП-3: в бюджете — Да, цена 648 ₸/м без НДС, сумма 324 тыс. ₸</li>
         <li>Статус позиции — «Бюджетирование завершено»</li>
         <li>Дальше — передача к закупу, тоже без человека</li>
       </ul>
@@ -1032,7 +1035,7 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
         <li><span>Код АСУ НСИ</span><strong>240404.022178</strong></li>
         <li><span>Количество</span><strong>500 м</strong></li>
         <li><span>Срок</span><strong>январь 2027</strong></li>
-        <li><span>Цена</span><strong class="мятн">1 218 ₸/м</strong></li>
+        <li><span>Цена</span><strong class="мятн">648 ₸/м без НДС</strong></li>
         <li><span>Бюджет</span><strong class="мятн">имеется ✓</strong></li>
       </ul>
     </div>
