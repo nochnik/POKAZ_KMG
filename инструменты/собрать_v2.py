@@ -107,6 +107,15 @@ body.вглубь #процесс{display:flex}
 #процесс > *{pointer-events:auto}
 #процесс .бровь{font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--приглуш);opacity:0;transition:opacity .4s ease}
 #процесс.виден .бровь{opacity:1}
+/* 11.09 (Адиль): линия цепочки проходила прямо под надписью «Поддерживающая
+   деятельность» и смазывала её. Надпись сидит на плашке в цвет фона и чуть
+   выше, а сама полоса поддержки отрезана от линии тёмной подложкой. */
+.поддержка .бровь{position:relative;z-index:1;align-self:flex-start;display:inline-block;padding:4px 12px 4px 0;
+  background:linear-gradient(90deg,var(--фон0) 80%,transparent);border-radius:6px}
+.поддержка{position:relative}
+.поддержка::before{content:"";position:absolute;left:-16px;right:-16px;top:-8px;bottom:-10px;z-index:0;
+  background:linear-gradient(180deg,rgba(5,8,16,.0),rgba(5,8,16,.88) 18%,rgba(5,8,16,.88));border-radius:18px;pointer-events:none}
+.поддержка > *{position:relative;z-index:1}
 /* ряд шагов не растягивается на высоту панели: карточки высотой по содержимому,
    иначе три чипа в одной карточке вылезали за её низ (скрин Адиля 10.09) */
 .шаги_процесса{display:flex;align-items:stretch;gap:0;flex:0 0 auto}
