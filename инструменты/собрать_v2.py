@@ -131,8 +131,8 @@ body.вглубь #процесс{display:flex}
 #процесс.виден .шаг_процесса{opacity:1;transform:none}
 .шаг_процесса.охват{border-color:rgba(62,230,184,.75);box-shadow:0 0 0 3px rgba(62,230,184,.14),0 0 28px rgba(62,230,184,.28)}
 .шаг_процесса .номер{font-family:'Unbounded',system-ui,sans-serif;font-size:12px;letter-spacing:.2em;color:var(--кмг)}
-.шаг_процесса h3{font-family:'Unbounded',system-ui,sans-serif;font-size:clamp(14px,1.05vw,20px);font-weight:700;line-height:1.2;margin-top:10px;color:var(--текст)}
-.шаг_процесса .суть_шага{margin-top:8px;font-size:clamp(12px,.8vw,15px);line-height:1.45;color:var(--текст2)}
+.шаг_процесса h3{font-family:'Unbounded',system-ui,sans-serif;font-size:clamp(14px,calc(1.05 * 19.2px),20px);font-weight:700;line-height:1.2;margin-top:10px;color:var(--текст)}
+.шаг_процесса .суть_шага{margin-top:8px;font-size:clamp(12px,calc(.8 * 19.2px),15px);line-height:1.45;color:var(--текст2)}
 .шаг_процесса .ведётся{margin-top:auto;padding-top:14px;font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--приглуш)}
 .шаг_процесса .ведётся.проработка{color:var(--янтарь)}
 .стрелка_шага{flex:0 0 26px;display:flex;align-items:center;justify-content:center;color:var(--циан);font-size:22px;opacity:.7}
@@ -143,7 +143,7 @@ body.вглубь #процесс{display:flex}
 .проект_чип:hover,.проект_чип:focus-visible{background:rgba(2,174,240,.14);border-color:rgba(2,174,240,.5);outline:none}
 .проект_чип img{width:38px;height:38px;flex:0 0 38px;object-fit:contain;filter:drop-shadow(0 0 8px rgba(2,174,240,.5))}
 .проект_чип .точка{width:14px;height:14px;flex:0 0 14px;margin:0 12px;border-radius:50%;background:var(--кмг)}
-.проект_чип span{font-size:clamp(12px,.82vw,15px);font-weight:600;line-height:1.25;color:var(--текст)}
+.проект_чип span{font-size:clamp(12px,calc(.82 * 19.2px),15px);font-weight:600;line-height:1.25;color:var(--текст)}
 .проект_чип .печать_ии{position:static;width:24px;height:24px;flex:0 0 24px;font-size:8.5px;line-height:22px;transform:none;margin-left:auto}
 /* полоса поддержки */
 .поддержка{border-top:1px solid var(--грань);padding-top:14px;display:flex;flex-direction:column;gap:10px;flex:0 0 auto;
@@ -239,10 +239,10 @@ JS = r'''
     текущий = п;''', '''  /* v2: площадка не ищет просвет до веера, а встаёт в левую треть кадра под
      подписью — правее начинается схема, и площадка не должна её задевать. */
   function наездПодПросвет(){
-    var сцШ = сцена.offsetWidth, сцЛево = (window.innerWidth - сцШ) / 2;
-    var просвет = 0.22 * window.innerWidth;
+    var сцШ = сцена.offsetWidth, сцЛево = (СТОЛ_Ш - сцШ) / 2;
+    var просвет = 0.22 * СТОЛ_Ш;
     var к = Math.min(НАЕЗД_МАКС, просвет / (ШИРИНА_МОДУЛЯ/100 * сцШ));
-    var серединаПx = 0.15 * window.innerWidth;
+    var серединаПx = 0.15 * СТОЛ_Ш;
     return { к:к, цельX: (серединаПx - сцЛево) / сцШ * 100 };
   }
   function открыть(п){

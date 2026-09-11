@@ -18,7 +18,7 @@
   --текст:#D7E2F2; --текст2:#AFC0D8; --приглуш:#7C8DA6;
   /* Ширина узла веера. Держится здесь, потому что от неё зависит и раскладка
      узлов, и масштаб наезда: JS читает её у настоящего элемента. */
-  --узел-ширина:min(26vw,300px);
+  --узел-ширина:min(calc(26 * 19.2px),300px);
 }
 /* Шрифты самохостятся: в зале может не быть интернета, а показ обязан
    открыться. Фоллбек на системные — если woff2 не дойдёт, экран живёт. */
@@ -37,6 +37,16 @@
 
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{height:100%}
+/* ================= стол 1920×1080 =================
+   Весь показ свёрстан под 1920×1080 и вписывается в любой экран целиком:
+   масштаб = min(ширина/1920, высота/1080), по краям чёрные поля. Так же
+   устроены слайды закупок. До этого сцена жила в vw/vh, а слои поверх неё
+   (подпись, веер, панель процессов, экран системы) — в px с примесью vw, и
+   на 16:10, 5:4 и 2560+ они разъезжались или мельчали (снимки 11.09).
+   position:fixed внутри трансформированного стола считается от стола —
+   это и нужно. Единицы vw/vh в стилях переведены в px стола. */
+#стол_1920{position:fixed;left:50%;top:50%;width:1920px;height:1080px;
+  transform:translate(-50%,-50%) scale(var(--масштаб,1));transform-origin:center;overflow:hidden;background:#000}
 body{
   /* Фон страницы чёрный, а свет стола лежит внутри сцены (.подложка).
      Причина не косметическая: .сцена создаёт свой контекст наложения из-за
@@ -62,7 +72,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   display:flex;justify-content:space-between;align-items:flex-start;gap:20px;
   pointer-events:none}
 .шапка > *{pointer-events:auto}
-h1{font-size:clamp(19px,2vw,27px);font-weight:700;margin-top:5px}
+h1{font-size:clamp(19px,calc(2 * 19.2px),27px);font-weight:700;margin-top:5px}
 /* Трёхточечный градиент на коротком слове читался пятном: светлый край,
    тёмная середина, светлый край — заказчик это и заметил. Он предложил либо
    убрать градиент, либо оживить его. Оживляю: блик медленно проходит по слову,
@@ -103,7 +113,7 @@ body.вглубь .путь{opacity:1;pointer-events:auto}
 
 /* ================= стол и сцена ================= */
 .стол{position:fixed;inset:0;display:grid;place-items:center;overflow:hidden}
-.сцена{position:relative;width:min(100vw, calc(100vh * 2560 / 1098));
+.сцена{position:relative;width:min(calc(100 * 19.2px), calc(calc(100 * 10.8px) * 2560 / 1098));
   aspect-ratio:2560/1098;transform-origin:0 0;
   transition:transform 900ms cubic-bezier(.22,.7,.24,1)}
 
@@ -279,7 +289,7 @@ body.ии_заголовок .ии_в_заголовке{display:inline}
    ширине окна 1912. Ужимается всё, из чего раскладка считает шаг: ширина узла,
    кружок, подпись, печать. Раскладка меряет пробный узел уже с этим классом,
    поэтому шаг сетки пересчитывается сам. */
-.веер.тесно{--узел-ширина:min(19vw,220px)}
+.веер.тесно{--узел-ширина:min(calc(19 * 19.2px),220px)}
 .веер.тесно .узел .кружок{width:82px;height:82px}
 .веер.тесно .узел .подпись{font-size:15px}
 .веер.тесно .печать_ии{width:30px;height:30px;font-size:10px;line-height:27px;right:-6px;top:-5px}
@@ -296,20 +306,20 @@ body.экран_роли .площадка:not(.своя){opacity:.3}
 body.экран_роли .ореол:not(.своя){opacity:0}
 body.экран_роли .бирка:not(.своя){opacity:.6}
 .роль_экрана{position:absolute;left:50%;transform:translateX(-50%);
-  font-size:clamp(11px,.95vw,15px);letter-spacing:.14em;text-transform:uppercase;
+  font-size:clamp(11px,calc(.95 * 19.2px),15px);letter-spacing:.14em;text-transform:uppercase;
   color:var(--текст2);white-space:nowrap;pointer-events:none;
   transition:opacity .4s}
 body.вглубь .роль_экрана{opacity:0}
 
 /* ================= подпись передела ================= */
 #подпись_передела{position:fixed;z-index:14;left:34px;pointer-events:none;
-  display:flex;flex-direction:column;gap:7px;max-width:min(34ch,30vw);
+  display:flex;flex-direction:column;gap:7px;max-width:min(34ch,calc(30 * 19.2px));
   opacity:0;transform:translateY(10px);
   transition:opacity .45s ease .1s,transform .45s ease .1s}
 #подпись_передела.виден{opacity:1;transform:none}
 #подпись_передела .стадия{font-size:11.5px;letter-spacing:.2em;text-transform:uppercase;font-weight:600}
 #подпись_передела h2{font-family:'Unbounded',system-ui,sans-serif;font-weight:700;
-  font-size:clamp(20px,2.4vw,30px);line-height:1.1}
+  font-size:clamp(20px,calc(2.4 * 19.2px),30px);line-height:1.1}
 #подпись_передела p{font-size:13px;color:var(--приглуш);line-height:1.45}
 .ответственный{font-size:11.5px;color:var(--приглуш);letter-spacing:.02em}
 /* речь докладчика лежит свёрнутой: на стенде она мешает, на репетиции нужна */
@@ -354,12 +364,12 @@ body.вглубь .роль_экрана{opacity:0}
    Текст держится в HTML, а не вжигается в ролик, по двум причинам. Правка
    формулировки не должна стоить перегенерации, а кириллицу генератор рисует
    нечитаемой псевдографикой — на роликах это уже проверено. */
-.метка_видео{position:absolute;left:auto;right:clamp(28px,4vw,64px);bottom:14vh;
-  display:flex;align-items:center;gap:9px;max-width:min(46ch,42vw);
+.метка_видео{position:absolute;left:auto;right:clamp(28px,calc(4 * 19.2px),64px);bottom:calc(14 * 10.8px);
+  display:flex;align-items:center;gap:9px;max-width:min(46ch,calc(42 * 19.2px));
   padding:10px 16px;border-radius:9px;
   background:linear-gradient(165deg,rgba(10,20,34,.9),rgba(6,12,22,.84));
   border:1px solid rgba(2,174,240,.38);border-top-color:rgba(215,226,242,.16);
-  font-size:clamp(13px,1.5vw,20px);letter-spacing:.02em;color:var(--текст);
+  font-size:clamp(13px,calc(1.5 * 19.2px),20px);letter-spacing:.02em;color:var(--текст);
   opacity:0;transform:translateY(10px);transition:opacity .6s ease,transform .6s ease;
   pointer-events:none;backdrop-filter:blur(6px)}
 .метка_видео::before{content:'';width:8px;height:8px;border-radius:50%;flex:0 0 auto;
@@ -369,15 +379,15 @@ body.вглубь .роль_экрана{opacity:0}
 .шторка{position:absolute;inset:0;background:linear-gradient(100deg,
   rgba(5,8,16,.97) 0%, rgba(5,8,16,.92) 34%, rgba(5,8,16,.55) 62%, rgba(5,8,16,.35) 100%)}
 .текст_системы{position:absolute;left:0;top:0;height:100%;width:min(52%,720px);
-  padding:clamp(28px,5vh,72px) clamp(28px,4vw,64px);
+  padding:clamp(28px,calc(5 * 10.8px),72px) clamp(28px,calc(4 * 19.2px),64px);
   display:flex;flex-direction:column;justify-content:center;gap:14px}
 .текст_системы .стадия{font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;font-weight:600}
 .текст_системы h2{font-family:'Unbounded',system-ui,sans-serif;font-weight:700;
-  font-size:clamp(26px,3.8vw,52px);line-height:1.06;letter-spacing:-.01em;text-wrap:balance}
-.сис_эффект{font-size:clamp(15px,1.5vw,21px);color:var(--кмг);line-height:1.35;
+  font-size:clamp(26px,calc(3.8 * 19.2px),52px);line-height:1.06;letter-spacing:-.01em;text-wrap:balance}
+.сис_эффект{font-size:clamp(15px,calc(1.5 * 19.2px),21px);color:var(--кмг);line-height:1.35;
   border-left:2px solid var(--кмг);padding-left:14px}
 /* 10.09 ДАЦ (Шарипова): текст слева крупнее */
-.сис_суть{font-size:clamp(16px,1.45vw,21px);color:var(--текст2);line-height:1.5;max-width:60ch;white-space:pre-line}
+.сис_суть{font-size:clamp(16px,calc(1.45 * 19.2px),21px);color:var(--текст2);line-height:1.5;max-width:60ch;white-space:pre-line}
 .сис_отв{font-size:12px;color:var(--приглуш);letter-spacing:.02em}
 .сис_низ{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:8px}
 .кнопка{padding:13px 22px;border-radius:8px;border:1px solid var(--грань);
@@ -387,7 +397,7 @@ body.вглубь .роль_экрана{opacity:0}
 .кнопка:hover:not([disabled]){border-color:var(--кмг);color:var(--кмг);background:rgba(2,174,240,.08)}
 .кнопка[disabled]{opacity:.55;cursor:default}
 .кнопка[hidden]{display:none}
-.назад_система{position:absolute;left:clamp(28px,4vw,64px);bottom:clamp(22px,4vh,44px);
+.назад_система{position:absolute;left:clamp(28px,calc(4 * 19.2px),64px);bottom:clamp(22px,calc(4 * 10.8px),44px);
   font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--текст2);
   border:1px solid var(--грань);border-radius:7px;padding:8px 14px;cursor:pointer;
   transition:border-color .2s,color .2s}
@@ -411,7 +421,7 @@ body.вглубь .роль_экрана{opacity:0}
   top .62s cubic-bezier(.3,.02,.15,1), width .62s cubic-bezier(.3,.02,.15,1),
   height .62s cubic-bezier(.3,.02,.15,1), border-radius .62s ease, opacity .2s ease}
 
-.возврат{position:absolute;right:clamp(20px,3vw,40px);top:clamp(20px,3vh,36px);
+.возврат{position:absolute;right:clamp(20px,calc(3 * 19.2px),40px);top:clamp(20px,calc(3 * 10.8px),36px);
   display:flex;gap:10px;z-index:3}
 
 /* Встроенный показ ЦД занимает экран целиком: у него своя навигация, свои
@@ -448,25 +458,25 @@ body.вглубь .роль_экрана{opacity:0}
    «Ролик» и «Открыть систему». Ролик не должен выходить сразу (особенно
    МПГРР). Черновик на УТО и МПГРР, дальше — на все проекты с материалами. */
 #процесс_системы{position:absolute;inset:0;display:none;flex-direction:column;
-  padding:clamp(28px,5vh,60px) clamp(28px,4vw,64px) clamp(22px,4vh,44px);
+  padding:clamp(28px,calc(5 * 10.8px),60px) clamp(28px,calc(4 * 19.2px),64px) clamp(22px,calc(4 * 10.8px),44px);
   background:linear-gradient(180deg,rgba(5,8,16,.94),rgba(5,8,16,.9));z-index:2}
 #экран_системы.процесс #процесс_системы{display:flex}
 #экран_системы.процесс .текст_системы,#экран_системы.процесс .шторка,
 #экран_системы.процесс #метки_ролика{opacity:0;pointer-events:none}
 .бп_шапка{display:flex;flex-direction:column;gap:10px;max-width:70%}
-.бп_шапка h2{font-family:'Unbounded',system-ui,sans-serif;font-weight:700;font-size:clamp(22px,2.6vw,38px);line-height:1.08;letter-spacing:-.01em}
-.бп_шаги{margin:auto 0;display:grid;grid-template-columns:repeat(7,1fr);gap:clamp(12px,1.2vw,22px)}
+.бп_шапка h2{font-family:'Unbounded',system-ui,sans-serif;font-weight:700;font-size:clamp(22px,calc(2.6 * 19.2px),38px);line-height:1.08;letter-spacing:-.01em}
+.бп_шаги{margin:auto 0;display:grid;grid-template-columns:repeat(7,1fr);gap:clamp(12px,calc(1.2 * 19.2px),22px)}
 .бп_шаг{border-top:2px solid rgba(2,174,240,.42);padding-top:14px;opacity:0;transform:translateY(12px);transition:opacity .5s ease,transform .5s ease}
 #экран_системы.открыт.процесс .бп_шаг{opacity:1;transform:none}
 .бп_шаг.ии{border-top-color:rgba(62,230,184,.6)}
 .бп_шаг .н{font-family:'Unbounded',sans-serif;font-size:13px;color:var(--кмг);font-weight:700}
 .бп_шаг.ии .н{color:var(--мята)}
-.бп_шаг h3{margin:12px 0 0;font-size:clamp(14px,1.15vw,20px);font-weight:700;line-height:1.25;min-height:3.75em;color:var(--текст)}
-.бп_шаг .сис{margin-top:10px;font-size:clamp(11px,.85vw,14px);line-height:1.4;color:var(--приглуш)}
+.бп_шаг h3{margin:12px 0 0;font-size:clamp(14px,calc(1.15 * 19.2px),20px);font-weight:700;line-height:1.25;min-height:3.75em;color:var(--текст)}
+.бп_шаг .сис{margin-top:10px;font-size:clamp(11px,calc(.85 * 19.2px),14px);line-height:1.4;color:var(--приглуш)}
 .бп_шаг .сис b{display:block;font-size:1.07em;color:var(--кмг);font-weight:700}
 .бп_шаг.ии .сис b{color:var(--мята)}
 .бп_шаг .сис span{display:block;margin-top:4px}
-.бп_шаг .ик{width:clamp(44px,3.6vw,64px);height:clamp(44px,3.6vw,64px);margin-top:10px;display:block;color:var(--кмг);opacity:.9}
+.бп_шаг .ик{width:clamp(44px,calc(3.6 * 19.2px),64px);height:clamp(44px,calc(3.6 * 19.2px),64px);margin-top:10px;display:block;color:var(--кмг);opacity:.9}
 .бп_шаг.ии .ик{color:var(--мята)}
 .бп_кнопки{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
 .бп_кнопки .кнопка.главная{border-color:var(--кмг);color:var(--кмг);background:rgba(2,174,240,.08)}
@@ -529,8 +539,8 @@ body.вглубь #процесс{display:flex}
 #процесс.виден .шаг_процесса{opacity:1;transform:none}
 .шаг_процесса.охват{border-color:rgba(62,230,184,.75);box-shadow:0 0 0 3px rgba(62,230,184,.14),0 0 28px rgba(62,230,184,.28)}
 .шаг_процесса .номер{font-family:'Unbounded',system-ui,sans-serif;font-size:12px;letter-spacing:.2em;color:var(--кмг)}
-.шаг_процесса h3{font-family:'Unbounded',system-ui,sans-serif;font-size:clamp(14px,1.05vw,20px);font-weight:700;line-height:1.2;margin-top:10px;color:var(--текст)}
-.шаг_процесса .суть_шага{margin-top:8px;font-size:clamp(12px,.8vw,15px);line-height:1.45;color:var(--текст2)}
+.шаг_процесса h3{font-family:'Unbounded',system-ui,sans-serif;font-size:clamp(14px,calc(1.05 * 19.2px),20px);font-weight:700;line-height:1.2;margin-top:10px;color:var(--текст)}
+.шаг_процесса .суть_шага{margin-top:8px;font-size:clamp(12px,calc(.8 * 19.2px),15px);line-height:1.45;color:var(--текст2)}
 .шаг_процесса .ведётся{margin-top:auto;padding-top:14px;font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--приглуш)}
 .шаг_процесса .ведётся.проработка{color:var(--янтарь)}
 .стрелка_шага{flex:0 0 26px;display:flex;align-items:center;justify-content:center;color:var(--циан);font-size:22px;opacity:.7}
@@ -541,7 +551,7 @@ body.вглубь #процесс{display:flex}
 .проект_чип:hover,.проект_чип:focus-visible{background:rgba(2,174,240,.14);border-color:rgba(2,174,240,.5);outline:none}
 .проект_чип img{width:38px;height:38px;flex:0 0 38px;object-fit:contain;filter:drop-shadow(0 0 8px rgba(2,174,240,.5))}
 .проект_чип .точка{width:14px;height:14px;flex:0 0 14px;margin:0 12px;border-radius:50%;background:var(--кмг)}
-.проект_чип span{font-size:clamp(12px,.82vw,15px);font-weight:600;line-height:1.25;color:var(--текст)}
+.проект_чип span{font-size:clamp(12px,calc(.82 * 19.2px),15px);font-weight:600;line-height:1.25;color:var(--текст)}
 .проект_чип .печать_ии{position:static;width:24px;height:24px;flex:0 0 24px;font-size:8.5px;line-height:22px;transform:none;margin-left:auto}
 /* полоса поддержки */
 .поддержка{border-top:1px solid var(--грань);padding-top:14px;display:flex;flex-direction:column;gap:10px;flex:0 0 auto;
@@ -558,6 +568,7 @@ body.процессы .веер{display:none}
 </style>
 </head>
 <body>
+<div id="стол_1920">
 
 <!-- Заставка идёт перед цепочкой при загрузке. Стоит первой в разметке и выше
      всех по z-index: цепочка под ней уже собрана и петли уже играют, поэтому
@@ -638,6 +649,7 @@ body.процессы .веер{display:none}
   </div>
 </div>
 
+</div>
 <script>
 (function(){
   "use strict";
@@ -1399,8 +1411,8 @@ body.процессы .веер{display:none}
          Разброс вокруг диагонали пробовали и отклонили: заказчик сказал, что
          узлы стали смотреться обособленно друг от друга. */
       var г = габаритУзла();
-      var шагY = (г.в * 1.06) / window.innerHeight * 100;
-      var шагX = (г.ш * 1.08) / window.innerWidth * 100;
+      var шагY = (г.в * 1.06) / СТОЛ_В * 100;
+      var шагX = (г.ш * 1.08) / СТОЛ_Ш * 100;
       var зонаY = НИЗ_ВЕЕРА - ВЕРХ_ВЕЕРА;
       var влезает = Math.max(1, Math.floor(зонаY / шагY) + 1);
       var колонок = Math.ceil(н / влезает);
@@ -1538,7 +1550,7 @@ body.процессы .веер{display:none}
     /* Верх подписи отсчитывается от нижнего края строки возврата, а не задаётся
        числом: в прошлый раз фиксированные 100 px налезали заголовком на строку
        возврата у сквозных слоёв, и это поймал заказчик, а не мой замер. */
-    var подПутём = Math.round(document.querySelector(".путь").getBoundingClientRect().bottom) + 22;
+    var подПутём = Math.round(document.querySelector(".путь").getBoundingClientRect().bottom / масштабСтола()) + 22;
     подпись_передела.style.top = подПутём + "px";
     /* Класс ставится после принудительного reflow, а не в requestAnimationFrame.
        rAF в невидимой вкладке не срабатывает вовсе — и подпись оставалась с
@@ -1568,8 +1580,8 @@ body.процессы .веер{display:none}
   var поколение = 0;
 
   function коробка(э){
-    var р = э.getBoundingClientRect();
-    return { л:р.left, в:р.top, ш:р.width, вы:р.height };
+    var р = э.getBoundingClientRect(), к = масштабСтола();
+    return { л:р.left/к, в:р.top/к, ш:р.width/к, вы:р.height/к };
   }
 
   /* Морф прячется в два шага, и это не перестраховка. Замер поймал состояние,
@@ -1617,7 +1629,7 @@ body.процессы .веер{display:none}
        свернутся в одну, и кадр просто окажется на месте. */
     void морф.offsetWidth;
     морф.classList.add("идёт");
-    поставитьМорф({ л:0, в:0, ш:window.innerWidth, вы:window.innerHeight }, false);
+    поставитьМорф({ л:0, в:0, ш:СТОЛ_Ш, вы:СТОЛ_В }, false);
     setTimeout(function(){ if(моё === поколение) готово(); }, МОРФ_МС);
   }
 
@@ -1626,7 +1638,7 @@ body.процессы .веер{display:none}
     if(!откудаУзел){ спрятатьМорф(); готово(); return; }
     var кружок = откудаУзел.querySelector(".кружок") || откудаУзел;
     морф.classList.remove("идёт");
-    поставитьМорф({ л:0, в:0, ш:window.innerWidth, вы:window.innerHeight }, false);
+    поставитьМорф({ л:0, в:0, ш:СТОЛ_Ш, вы:СТОЛ_В }, false);
     морф.style.opacity = "1";
     void морф.offsetWidth;
     морф.classList.add("идёт");
@@ -2022,8 +2034,8 @@ body.процессы .веер{display:none}
   var ВЕРХ_ВЕЕРА = 24;
   var НИЗ_ВЕЕРА  = 80;
   /* Ширина узла меряется у настоящего узла, а не дублируется числом.
-     Дубль уже разошёлся с CSS: в расчёте мест стояло min(20vw,220px), в стилях
-     к тому моменту было min(26vw,300px), и строка узлов у сквозного слоя
+     Дубль уже разошёлся с CSS: в расчёте мест стояло min(calc(20 * 19.2px),220px), в стилях
+     к тому моменту было min(calc(26 * 19.2px),300px), и строка узлов у сквозного слоя
      вылезла за экран. Одно значение — одно место. */
   var _габаритУзла = null;
   /* Две пробы, по одной на режим веера: тесный узел меньше, и шаг сетки для
@@ -2067,11 +2079,11 @@ body.процессы .веер{display:none}
      и наезжали друг на друга на другом. */
   function наездПодПросвет(){
     var сцШ = сцена.offsetWidth;                 /* без учёта transform */
-    var сцЛево = (window.innerWidth - сцШ) / 2;
-    var подп = подпись_передела.getBoundingClientRect();
-    var слева = (подп.width ? подп.right : сцЛево) + 26;
+    var сцЛево = (СТОЛ_Ш - сцШ) / 2;
+    var подп = подпись_передела.getBoundingClientRect(), кс = масштабСтола();
+    var слева = (подп.width ? подп.right / кс : сцЛево) + 26;
     var полУзла = ширинаУзла() / 2;
-    var справа = ВЕЕР_X/100 * window.innerWidth - полУзла - 26;
+    var справа = ВЕЕР_X/100 * СТОЛ_Ш - полУзла - 26;
     var просвет = Math.max(120, справа - слева);
     var к = Math.min(НАЕЗД_МАКС, просвет / (ШИРИНА_МОДУЛЯ/100 * сцШ));
     var серединаПx = слева + просвет/2;
@@ -2144,10 +2156,10 @@ body.процессы .веер{display:none}
   /* v2: площадка не ищет просвет до веера, а встаёт в левую треть кадра под
      подписью — правее начинается схема, и площадка не должна её задевать. */
   function наездПодПросвет(){
-    var сцШ = сцена.offsetWidth, сцЛево = (window.innerWidth - сцШ) / 2;
-    var просвет = 0.22 * window.innerWidth;
+    var сцШ = сцена.offsetWidth, сцЛево = (СТОЛ_Ш - сцШ) / 2;
+    var просвет = 0.22 * СТОЛ_Ш;
     var к = Math.min(НАЕЗД_МАКС, просвет / (ШИРИНА_МОДУЛЯ/100 * сцШ));
-    var серединаПx = 0.15 * window.innerWidth;
+    var серединаПx = 0.15 * СТОЛ_Ш;
     return { к:к, цельX: (серединаПx - сцЛево) / сцШ * 100 };
   }
   function открыть(п){
@@ -2236,7 +2248,22 @@ body.процессы .веер{display:none}
     р.style.top = (НИЗ_МОДУЛЯ + 14) + "%";
   })();
 
+  /* Стол: масштаб по меньшей стороне окна; прямоугольники, измеренные
+     getBoundingClientRect, приходят в экранных px и делятся на масштаб. */
+  var СТОЛ_Ш = 1920, СТОЛ_В = 1080;
+  function вписатьСтол(){
+    var к = Math.min(window.innerWidth / СТОЛ_Ш, window.innerHeight / СТОЛ_В);
+    document.documentElement.style.setProperty("--масштаб", к);
+    return к;
+  }
+  function масштабСтола(){ return parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--масштаб")) || 1; }
+  вписатьСтол();
+  /* Кроме resize — visualViewport и редкий опрос: эмуляция размера в
+     отладчике и смена масштаба страницы (Ctrl +/−) resize не всегда шлют. */
+  if(window.visualViewport) window.visualViewport.addEventListener("resize", вписатьСтол);
+  setInterval(вписатьСтол, 700);
   window.addEventListener("resize", function(){
+    вписатьСтол();
     /* Узлы пересобираются, а не только переставляются: их места считаются от
        ширины окна и от края подписи, и при другом размере окна старые
        координаты уже неверны. Ошибку нашёл замер: узлы, построенные при
