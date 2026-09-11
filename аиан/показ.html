@@ -446,17 +446,17 @@ body.снимок #финал_знак{transition:none !important;opacity:1 !imp
 #данные.активен #данные_заг{opacity:1;transform:none}
 /* ширина плитки упирается и в ширину, и в высоту: две строки с подписями плюс заголовок должны влезть в кадр */
 /* 10.09 ДАЦ (Шарипова): дашборды крупнее, подпись-источник сверху крупно и ярко, что показывает дашборд — мельче снизу */
-#мозаика{display:grid;grid-template-columns:repeat(2,min(46vw,59vh));gap:1.6vmin}
-#мозаика figure{margin:0;border-radius:14px;overflow:hidden;border:1px solid rgba(79,227,255,.3);display:flex;flex-direction:column;
+#мозаика{display:grid;grid-template-columns:repeat(2,min(47vw,64vh));grid-auto-rows:1fr;gap:1.6vmin}
+#мозаика figure{margin:0;border-radius:14px;overflow:hidden;border:1px solid rgba(79,227,255,.3);display:flex;flex-direction:column;flex:1;min-height:0;
   background:#0a1626;opacity:0;transform:translateY(24px);transition:all .8s ease}
-#мозаика video{display:block;width:100%;aspect-ratio:16/9;object-fit:cover}
-#мозаика figcaption{order:-1;padding:1vmin 2vmin;font-size:clamp(15px,2.3vmin,26px);display:flex;gap:1.4vmin;align-items:baseline;
+#мозаика video{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;flex:1;min-height:0}
+#мозаика figcaption{order:-1;padding:.9vmin 1.6vmin;font-size:clamp(14px,2.15vmin,24px);display:flex;gap:1.4vmin;align-items:baseline;
   background:rgba(7,14,26,.92);border-bottom:1px solid rgba(79,227,255,.25)}
 #мозаика figcaption b{color:#FFC94D;font-weight:700}
 #мозаика figcaption{justify-content:center;text-align:center}
-#мозаика figcaption.что{order:0;font-size:clamp(12px,1.7vmin,19px);padding:.8vmin 2vmin;border-bottom:0;border-top:1px solid rgba(79,227,255,.18)}
+#мозаика figcaption.что{order:0;font-size:clamp(11px,1.45vmin,16px);padding:.7vmin 1.6vmin;border-bottom:0;border-top:1px solid rgba(79,227,255,.18)}
 #мозаика figcaption.что span{color:var(--текст);opacity:.85}
-.экран_источника{display:block;text-decoration:none;color:inherit;cursor:pointer}
+.экран_источника{display:flex;flex-direction:column;min-height:0;text-decoration:none;color:inherit;cursor:pointer}
 .экран_источника:hover figure{border-color:rgba(62,230,184,.8)}
 #мозаика figcaption span{color:var(--приглуш)}
 #данные.активен #мозаика figure{opacity:1;transform:none}
