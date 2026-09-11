@@ -60,8 +60,12 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   background-size:calc(96px * var(--к,1)) calc(96px * var(--к,1));background-position:center;
   -webkit-mask-image:radial-gradient(calc(1400px * var(--к,1)) calc(900px * var(--к,1)) at 50% 45%, #000 30%, transparent 82%);
           mask-image:radial-gradient(calc(1400px * var(--к,1)) calc(900px * var(--к,1)) at 50% 45%, #000 30%, transparent 82%)}
-#кадр{width:1920px;height:1080px;position:absolute;left:50%;top:50%;
-  margin-left:-960px;margin-top:-540px;transform-origin:center center;
+/* 11.09 (Адиль): в окне не 16:9 кадр 1920×1080 стоял посреди пустого экрана.
+   Кадр теперь размером окно/масштаб, а содержимое центрируется полями
+   (--поля_ш/--поля_в) — координаты слайдов остаются в 1920×1080, но футер и
+   отступы идут по краям окна. */
+#кадр{width:var(--кадр_ш,1920px);height:var(--кадр_в,1080px);position:absolute;left:50%;top:50%;
+  transform:translate(-50%,-50%) scale(var(--к,1));transform-origin:center center;
   background:transparent;overflow:hidden}
 #кадр::before{content:"";display:none;position:absolute;inset:0;pointer-events:none;z-index:0;
   background:
@@ -78,7 +82,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   -webkit-mask-image:radial-gradient(1400px 900px at 50% 45%, #000 30%, transparent 82%);
           mask-image:radial-gradient(1400px 900px at 50% 45%, #000 30%, transparent 82%)}
 
-.слайд{position:absolute;inset:0;padding:80px 98px 96px;display:flex;
+.слайд{position:absolute;inset:0;padding:calc(80px + var(--поля_в,0px)) calc(98px + var(--поля_ш,0px)) calc(96px + var(--поля_в,0px));display:flex;
   flex-direction:column;opacity:0;visibility:hidden;
   transform:translateY(16px);transition:opacity .42s ease, transform .42s ease, visibility 0s .42s}
 .слайд.виден{opacity:1;visibility:visible;transform:none;transition:opacity .42s ease, transform .42s ease}
@@ -579,10 +583,10 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
 .карта .подпись_дзо{font-family:'Golos Text',sans-serif;font-size:13px;fill:var(--приглуш)}
 
 /* ===== низ ===== */
-.низ{position:absolute;left:98px;right:98px;bottom:44px;display:flex;
+.низ{position:absolute;left:calc(98px + var(--поля_ш,0px));right:calc(98px + var(--поля_ш,0px));bottom:calc(22px + var(--поля_в,0px));display:flex;
   align-items:center;justify-content:space-between;gap:24px;pointer-events:none}
 .низ > *{pointer-events:auto}
-#лого{height:100px;filter:brightness(0) invert(1);opacity:.85}
+#лого{height:84px;filter:brightness(0) invert(1);opacity:.85}
 .точки{display:flex;gap:11px}
 .точки button{width:9px;height:9px;border-radius:50%;background:var(--грань);
   transition:background .25s ease, transform .25s ease}
@@ -889,10 +893,10 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
       <line class="сбор назад" pathLength="1" x1="1140" y1="296" x2="1180" y2="330" style="transition-delay:140ms" data-к="5"/>
       <line class="сбор назад" pathLength="1" x1="1140" y1="396" x2="1180" y2="330" style="transition-delay:280ms" data-к="5"/>
       <line class="сбор назад" pathLength="1" x1="1140" y1="496" x2="1180" y2="330" style="transition-delay:420ms" data-к="5"/>
-      <path class="поток назад" pathLength="1" marker-end="url(#стрелка_мята2)" d="M1300 400 V650 H200 V432" data-к="6" data-до="6"/>
+      <path class="поток назад" pathLength="1" marker-end="url(#стрелка_мята2)" d="M1300 400 V620 H200 V432" data-к="6" data-до="6"/>
       <path class="поток" pathLength="1" marker-end="url(#стрелка_циан2)" d="M1430 330 H1462" data-к="7"/>
-      <path class="поток назад" pathLength="1" marker-end="url(#стрелка_мята2)" d="M1596 470 V690 H150 V432" data-к="8"/>
-      <text class="поток_подпись назад" x="1180" y="710" text-anchor="middle" data-к="8">статус бюджета</text>
+      <path class="поток назад" pathLength="1" marker-end="url(#стрелка_мята2)" d="M1596 470 V660 H150 V432" data-к="8"/>
+      <text class="поток_подпись назад" x="1180" y="680" text-anchor="middle" data-к="8">статус бюджета</text>
     </svg>
 
     <!-- потребность с кодом -->
@@ -1513,9 +1517,16 @@ svg .луч[data-к],svg .возврат[data-к]{transform:none}
   var текущий = 0;
 
   function вписать(){
-    var к = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
-    кадр.style.transform = "scale(" + к + ")";
-    document.documentElement.style.setProperty("--к", к);
+    /* Расчётная высота 1000, а не 1080: содержимое слайдов кончается около
+       970 px, и в окне с панелью браузера (≈1920×910) кадр по высоте 1080
+       давал по бокам поля в 150 px (Адиль 11.09: «слишком много пустого»).
+       На 1920×1080 масштаб по-прежнему 1. */
+    var к = Math.min(window.innerWidth / 1920, window.innerHeight / 1000);
+    var ш = window.innerWidth / к, в = window.innerHeight / к, кэ = document.documentElement.style;
+    кэ.setProperty("--к", к);
+    кэ.setProperty("--кадр_ш", ш + "px"); кэ.setProperty("--кадр_в", в + "px");
+    кэ.setProperty("--поля_ш", Math.max(0, (ш - 1920) / 2) + "px");
+    кэ.setProperty("--поля_в", Math.max(0, (в - 1080) / 2) + "px");
   }
   window.addEventListener("resize", вписать);
   вписать();
