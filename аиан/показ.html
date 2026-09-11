@@ -814,6 +814,12 @@ const ТАКТЫ = [
       const группы = [[части[0]], [части[1],части[2]], [части[3],части[4]]];
       группы.forEach((гр,и)=>гр.forEach(э=>э && э.classList.toggle('виден', к >= 4+и)));
     } },
+  { id:'данные',
+    вход(){
+      подпись('', '');
+      document.querySelectorAll('#мозаика video').forEach(в=>{ в.currentTime = 0; в.play().catch(()=>{}); });
+    },
+    выход(){ document.querySelectorAll('#мозаика video').forEach(в=>в.pause()); } },
   { id:'цепочка',
     вход(){
       видео.currentTime = 0; видео.play();
@@ -896,12 +902,6 @@ const ТАКТЫ = [
       document.querySelectorAll('#аян_чат .чат_реплика').forEach(р=>р.classList.remove('видна'));
       сброситьСтопку(); // источники улетают вместе с картой
     } },
-  { id:'данные',
-    вход(){
-      подпись('', '');
-      document.querySelectorAll('#мозаика video').forEach(в=>{ в.currentTime = 0; в.play().catch(()=>{}); });
-    },
-    выход(){ document.querySelectorAll('#мозаика video').forEach(в=>в.pause()); } },
   { id:'финал',
     вход(){
       подпись('', '');
