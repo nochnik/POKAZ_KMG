@@ -445,15 +445,17 @@ body.снимок #финал_знак{transition:none !important;opacity:1 !imp
 #данные_заг{font-size:clamp(22px,3.8vmin,48px);font-weight:700;letter-spacing:.01em;opacity:0;transform:translateY(10px);transition:all .8s ease .2s}
 #данные.активен #данные_заг{opacity:1;transform:none}
 /* ширина плитки упирается и в ширину, и в высоту: две строки с подписями плюс заголовок должны влезть в кадр */
-/* 10.09 ДАЦ (Шарипова): дашборды крупнее, подписи сверху, крупнее и ярким цветом */
-#мозаика{display:grid;grid-template-columns:repeat(2,min(46vw,66vh));gap:1.6vmin}
+/* 10.09 ДАЦ (Шарипова): дашборды крупнее, подпись-источник сверху крупно и ярко, что показывает дашборд — мельче снизу */
+#мозаика{display:grid;grid-template-columns:repeat(2,min(46vw,59vh));gap:1.6vmin}
 #мозаика figure{margin:0;border-radius:14px;overflow:hidden;border:1px solid rgba(79,227,255,.3);display:flex;flex-direction:column;
   background:#0a1626;opacity:0;transform:translateY(24px);transition:all .8s ease}
 #мозаика video{display:block;width:100%;aspect-ratio:16/9;object-fit:cover}
-#мозаика figcaption{order:-1;padding:1.1vmin 2vmin;font-size:clamp(15px,2.5vmin,28px);display:flex;gap:1.4vmin;align-items:baseline;
+#мозаика figcaption{order:-1;padding:1vmin 2vmin;font-size:clamp(15px,2.3vmin,26px);display:flex;gap:1.4vmin;align-items:baseline;
   background:rgba(7,14,26,.92);border-bottom:1px solid rgba(79,227,255,.25)}
 #мозаика figcaption b{color:#FFC94D;font-weight:700}
 #мозаика figcaption{justify-content:center;text-align:center}
+#мозаика figcaption.что{order:0;font-size:clamp(12px,1.7vmin,19px);padding:.8vmin 2vmin;border-bottom:0;border-top:1px solid rgba(79,227,255,.18)}
+#мозаика figcaption.что span{color:var(--текст);opacity:.85}
 .экран_источника{display:block;text-decoration:none;color:inherit;cursor:pointer}
 .экран_источника:hover figure{border-color:rgba(62,230,184,.8)}
 #мозаика figcaption span{color:var(--приглуш)}
@@ -699,10 +701,10 @@ body.снимок #финал .эффект, body.снимок #финал #ци
            Клик по экрану не должен листать показ — stopPropagation. -->
       <div id="данные_заг" class="дисплей">Источники данных KMG.AIAN</div>
       <div id="мозаика">
-        <a class="экран_источника" href="https://iis.thkmg.kz/iis/processing/2/report" target="_blank" rel="noopener"><figure><video src="медиа/данные/рапорт.mp4" muted loop playsinline preload="auto"></video><figcaption><b>Поставка, переработка сырья, производство, отгрузка нефтепродуктов</b></figcaption></figure></a>
-        <a class="экран_источника" href="https://iis.thkmg.kz/iis/transport/ktzh/move" target="_blank" rel="noopener"><figure><video src="медиа/данные/ктж.mp4" muted loop playsinline preload="auto"></video><figcaption><b>Дислокация вагонов по РК и импорт</b></figcaption></figure></a>
-        <a class="экран_источника" href="https://iis.thkmg.kz/iis/remain_rk" target="_blank" rel="noopener"><figure><video src="медиа/данные/запасы.mp4" muted loop playsinline preload="auto"></video><figcaption><b>Запасы нефтепродуктов на нефтебазах РК</b></figcaption></figure></a>
-        <a class="экран_источника" href="https://iis.thkmg.kz/kgd/dashboard/kmg-petroleu" target="_blank" rel="noopener"><figure><video src="медиа/данные/кгд.mp4" muted loop playsinline preload="auto"></video><figcaption><b>Реализация нефтепродуктов в регионах РК</b></figcaption></figure></a>
+        <a class="экран_источника" href="https://iis.thkmg.kz/iis/processing/2/report" target="_blank" rel="noopener"><figure><video src="медиа/данные/рапорт.mp4" muted loop playsinline preload="auto"></video><figcaption><b>Данные нефтеперерабатывающих заводов</b></figcaption><figcaption class="что"><span>Поставка, переработка сырья, производство, отгрузка нефтепродуктов</span></figcaption></figure></a>
+        <a class="экран_источника" href="https://iis.thkmg.kz/iis/transport/ktzh/move" target="_blank" rel="noopener"><figure><video src="медиа/данные/ктж.mp4" muted loop playsinline preload="auto"></video><figcaption><b>Данные АО НК «Қазақстан темір жолы»</b></figcaption><figcaption class="что"><span>Дислокация вагонов по РК и импорт</span></figcaption></figure></a>
+        <a class="экран_источника" href="https://iis.thkmg.kz/iis/remain_rk" target="_blank" rel="noopener"><figure><video src="медиа/данные/запасы.mp4" muted loop playsinline preload="auto"></video><figcaption><b>Данные Министерства энергетики РК</b></figcaption><figcaption class="что"><span>Запасы нефтепродуктов на нефтебазах РК</span></figcaption></figure></a>
+        <a class="экран_источника" href="https://iis.thkmg.kz/kgd/dashboard/kmg-petroleu" target="_blank" rel="noopener"><figure><video src="медиа/данные/кгд.mp4" muted loop playsinline preload="auto"></video><figcaption><b>Данные Комитета государственных доходов МФ РК</b></figcaption><figcaption class="что"><span>Реализация нефтепродуктов в регионах РК</span></figcaption></figure></a>
       </div>
     </div>
   </section>
