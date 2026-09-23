@@ -17,15 +17,36 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:var(--ui);color:var
   background:radial-gradient(ellipse at 50% 30%,#0C1626 0%,#050810 70%)}
 #scene{position:fixed;inset:0}
 
-#hdr{position:fixed;top:22px;left:26px;z-index:10;pointer-events:none}
-#hdr h1{font-family:var(--serif);font-size:32.5px;font-weight:600;line-height:1.2}
+/* Шапка кадра: живёт над всеми панелями (z-index 15 — выше #project-content
+   с его 14), чтобы название кадра оставалось на экране, даже когда справа
+   стоит система (24.09, Адиль — «заголовок должен быть виден всегда»).
+   На тёмной подложке — небольшая тень для читаемости поверх видео. */
+#hdr{position:fixed;top:22px;left:26px;z-index:15;pointer-events:none;
+  max-width:calc(100vw - 720px);
+  transition:max-width .4s cubic-bezier(.2,.8,.2,1),font-size .4s ease}
+#hdr h1{font-family:var(--serif);font-size:32.5px;font-weight:600;line-height:1.2;
+  text-shadow:0 2px 12px rgba(5,8,16,.85),0 0 22px rgba(5,8,16,.55)}
 #hdr .sub{font-family:var(--mono);font-size:18px;letter-spacing:.24em;text-transform:uppercase;color:var(--dim);margin-top:6px}
 #hdr .sub b{color:var(--cyan);font-weight:700}
+/* При раскрытом слое коридор слева до системного контента ≈ 30vw. Заголовок
+   сжимается по ширине этого коридора и уменьшает шрифт, чтобы уместиться
+   в две строки вместо выхода на видео/скриншот справа. */
+body.раскрыт-слой #hdr{max-width:calc(30vw - 30px)}
+body.раскрыт-слой #hdr h1{font-size:23px;line-height:1.18}
 
-/* Список ужат: на показе он спорил с самой моделью за внимание, а его дело —
-   держать порядок контуров, а не читаться вместо сцены. */
+/* Навигация по контурам по умолчанию остаётся колонкой слева. */
 #stack{position:fixed;left:26px;top:50%;transform:translateY(-50%);z-index:10;display:flex;flex-direction:column;
-  gap:6px;width:360px;padding-left:24px}   /* 18.09: шрифты крупнее — колонка шире, иначе названия контуров в три строки */
+  gap:6px;width:360px;padding-left:24px;transition:opacity .28s ease,transform .42s cubic-bezier(.2,.8,.2,1)}
+#stack.выбран{top:46%;gap:4px}
+#stack.выбран .lay{padding:7px 11px}
+#stack.выбран .lay .t{font-size:19px;line-height:1.2}
+#stack.выбран .lay .n{font-size:17px}
+#stack.выбран .lay.step{padding:5px 9px}
+#stack.выбран .lay.step .t{font-size:16.5px;line-height:1.25}
+#stack.выбран .lay.step .n{font-size:16px}
+#stack.выбран #navdot{box-shadow:0 0 0 3px rgba(5,8,16,.9);transition:none}
+#stack.выбран #navfill{transition:none}
+#stack.скрыт{opacity:0;pointer-events:none;transform:translateY(calc(-50% - 14px))}
 /* линия процесса: связывает все контуры и шаги в одну цепочку */
 #navline{position:absolute;left:12px;top:20px;bottom:20px;width:2px;background:rgba(140,170,210,.22);border-radius:2px}
 #navline::after{content:'';position:absolute;left:-4px;bottom:-10px;
@@ -76,14 +97,24 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:var(--ui);color:var
 .lay.step.hot{background:rgba(255,255,255,.07)}
 .lay.step.hot::after{background:var(--lc);opacity:1}
 
-#panel{position:fixed;right:26px;top:50%;transform:translateY(-50%) translateX(30px);z-index:10;
+#panel{position:fixed;right:26px;top:50%;
+  transform:translateY(-50%) translateX(30px);z-index:10;
   /* Шире и, как следствие, ниже: узкая колонка гнала текст в столбик и панель
      казалась башней во весь кадр при том же объёме содержимого. */
   width:34vw;min-width:420px;max-width:660px;   /* 18.09: под крупные шрифты */
   max-height:86vh;overflow-y:auto;background:var(--glass);border:1px solid var(--line);
   border-top:2px solid var(--pc,#4FE3FF);backdrop-filter:blur(12px);padding:20px 22px;
-  opacity:0;pointer-events:none;transition:opacity .3s,transform .3s}
+  opacity:0;pointer-events:none;transition:opacity .35s ease,transform .6s cubic-bezier(.2,.8,.2,1)}
 #panel.vis{opacity:1;pointer-events:auto;transform:translateY(-50%) translateX(0)}
+/* Панель выбранного слоя занимает место исчезнувшего #stack. Сидит под шапкой,
+   а не по центру: низ левой колонки отдан миниатюре стопки (--мини-высота
+   задаёт JS, см. MINI_HEIGHT_RATIO), и панель не должна на неё заезжать. Если
+   содержимое выше остатка (низкое окно) — прокручивается внутри, как и раньше.
+   Стартует чуть ниже и выезжает вверх. */
+#panel.вместо-стека,#panel.раскрыт{display:none;top:124px;bottom:auto;left:26px;right:auto;
+  max-height:calc(100vh - 124px - var(--мини-высота,21.5vh) - 26px - 10px);
+  transform:translateY(22px)}
+#panel.вместо-стека.vis,#panel.раскрыт.vis{transform:none}
 #panel::-webkit-scrollbar{width:5px}
 #panel::-webkit-scrollbar-thumb{background:rgba(140,170,210,.3)}
 #p-kick{font-family:var(--mono);font-size:17px;letter-spacing:.24em;text-transform:uppercase;color:var(--pc,#4FE3FF)}
@@ -116,6 +147,42 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:var(--ui);color:var
   font-size:26px;cursor:pointer;line-height:1}
 #p-close:hover{color:var(--txt)}
 
+/* Верхняя лента ключевых эффектов: три карточки под H1, циан-акцентом слева.
+   Подзаголовка нет — сам H1 работает как заголовок кадра (23.09, Адиль).
+   Держим ленту в коридоре между стопкой контуров (слева) и справкой о В.
+   Молдабеке (справа): справка сама шириной до 660px, отступ 26 от края,
+   +14 воздуха — итого 700 справа; слева хватает и голого края экрана. */
+#effects-overview{position:fixed;top:112px;left:26px;right:calc(min(660px,34vw) + 40px);
+  z-index:9;padding:0;pointer-events:none;
+  transition:opacity .28s ease,transform .42s cubic-bezier(.2,.8,.2,1)}
+#effects-overview.скрыт{opacity:0;transform:translateY(-12px)}
+/* «У стека» — то же три эффекта, но вертикальной колонкой над раскрывашками
+   контуров слева. Позиционирует JS (`positionEffectsOverview`), а сеткой
+   переключаемся здесь: у-стека → 1 столбец, идут одной колонкой сверху вниз. */
+#effects-overview.у-стека{padding:0;transform:none;left:auto;right:auto;top:auto}
+#effects-overview .cols{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+#effects-overview .effect-col{padding:12px 16px;background:var(--glass);border:1px solid var(--line);
+  border-left:3px solid var(--ec);backdrop-filter:blur(8px)}
+#effects-overview .items{display:block}
+/* В карточке может стоять один пункт или несколько. Пункты идут строкой
+   вниз (`.items` = block). Внутри пункта значение и подпись — на одной
+   строке (`.item` = flex row): «2 864 тыс. тонн» с подписью «доп. добычи»
+   справа, а «326 млрд ₸» — без подписи, отдельной строкой ниже. */
+#effects-overview .items{display:block}
+#effects-overview .item{display:flex;align-items:baseline;gap:12px;min-width:0}
+#effects-overview .item + .item{margin-top:4px}
+#effects-overview .v{font-family:var(--mono);font-size:24px;font-weight:700;line-height:1.05;color:var(--ec);
+  flex:0 0 auto;white-space:nowrap}
+#effects-overview .l{font-size:16px;line-height:1.3;color:var(--dim)}
+/* Вертикальная колонка у стопки: чуть крупнее самих раскрывашек (у них .t = 21.5px),
+   чтобы главные эффекты вылавливались с зала раньше названий контуров. */
+#effects-overview.у-стека .cols{grid-template-columns:1fr;gap:8px}
+#effects-overview.у-стека .effect-col{padding:11px 13px;border-left-width:3px;
+  background:linear-gradient(180deg,rgba(14,25,43,.95),rgba(8,15,27,.92));box-shadow:0 10px 26px rgba(0,0,0,.18)}
+#effects-overview.у-стека .item{gap:12px}
+#effects-overview.у-стека .v{font-size:23px}
+#effects-overview.у-стека .l{font-size:16px}
+
 /* дорожная карта скрыта по решению от 12.08 — вернуть: display:flex вместо none */
 #road{display:none;position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:10;align-items:center;gap:0;
   background:var(--glass);border:1px solid var(--line);backdrop-filter:blur(8px);padding:10px 22px}
@@ -126,9 +193,6 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:var(--ui);color:var
 .rsep::after{content:'';position:absolute;right:0;top:-2.5px;border-left:5px solid var(--line);
   border-top:3px solid transparent;border-bottom:3px solid transparent}
 
-#hint{position:fixed;bottom:62px;left:26px;z-index:10;font-family:var(--mono);font-size:16px;
-  letter-spacing:.2em;text-transform:uppercase;color:var(--dim)}
-
 /* переходы наружу — неприметные, в том же окне */
 #next,#demo2,#demo2full,#pilot,#далее{position:fixed;z-index:12;display:inline-flex;align-items:center;gap:8px;
   font-family:var(--mono);font-size:17px;letter-spacing:.18em;text-transform:uppercase;
@@ -138,7 +202,8 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:var(--ui);color:var
 #next:hover,#next:focus-visible,#pilot:hover,#pilot:focus-visible,#pilot.on,#demo2.on,#далее:hover,#далее:focus-visible,#demo2full:hover,#demo2full:focus-visible,
 #demo2:hover,#demo2:focus-visible{opacity:1;color:var(--cyan);border-color:var(--cyan);background:rgba(79,227,255,.08)}
 #next .arw,#demo2 .arw,#demo2full .arw,#pilot .arw,#далее .arw{font-size:19px;line-height:1}
-#demo2full{right:150px;top:120px}
+#top-actions{position:fixed;z-index:12;right:150px;top:20px;display:flex;align-items:center;gap:10px}
+#top-actions #demo2full,#top-actions #pilot{position:static}
 #далее{right:26px;bottom:22px;font-size:14px;padding:6px 11px;opacity:.35}
 /* карточка эффектов — та же вёрстка, что панель эффектов подводки (demo_with_map.html) */
 #эффекты{position:fixed;right:26px;top:50%;transform:translateY(-50%) translateX(40px);width:34vw;min-width:420px;max-width:660px;
@@ -156,8 +221,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:var(--ui);color:var
 #эффекты .road{margin-top:14px;padding-top:12px;border-top:1px solid rgba(140,170,210,.16)}
 #эффекты .rd .y{font-family:var(--mono);font-size:22px;font-weight:700;color:var(--amber,#F0AE4A)}
 #эффекты .rd .d{font-size:17px;color:#9DB4CE;margin-top:2px}
-#pilot{right:150px;top:20px}
-#demo2{right:150px;top:70px}
+#demo2{display:none}
 /* карточка пилотного актива — та же, что в подводке (demo_with_map.html), тем же слотом справа */
 #справка{position:fixed;right:26px;top:50%;transform:translateY(-50%) translateX(40px);width:34vw;min-width:420px;max-width:660px;
   max-height:86vh;z-index:11;padding:22px 26px 20px;overflow:hidden auto;
@@ -176,12 +240,21 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:var(--ui);color:var
 #справка .rw:last-child{border-bottom:0}
 #справка .rw .k{font-family:var(--mono);font-size:16.5px;letter-spacing:.08em;text-transform:uppercase;color:#7C8DA6;flex:0 0 40%;line-height:1.35}
 #справка .rw .v{font-size:19.5px;color:#DCE7F5;line-height:1.35}
+/* Строки-эффекты (КИН, МРП) — не «регламент», а конкретный эффект пилота,
+   поэтому и рисуем их иначе (24.09, Адиль — «подсветить, плохо видно»):
+   цифра на левой колонке крупная и бирюзовая, подпись справа — обычная,
+   слева тонкая полоска бирюзой держит их как одну группу «эффектов». */
+#справка .rw.эффект{padding:9px 0 9px 12px;border-left:2px solid var(--teal);
+  border-bottom:1px solid rgba(53,208,194,.12);margin-left:-2px;
+  background:linear-gradient(90deg,rgba(53,208,194,.09),rgba(53,208,194,0) 70%)}
+#справка .rw.эффект .k{font-family:var(--serif);font-size:24px;letter-spacing:0;
+  text-transform:none;color:var(--teal);font-weight:700;line-height:1.15}
+#справка .rw.эффект .v{font-size:17px;color:#B7C9DF;align-self:center}
 #справка .гр{padding:0 0 6px;font-family:var(--mono);font-size:15.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--cyan)}
 #справка .src{margin-top:10px;font-family:var(--mono);font-size:15.5px;letter-spacing:.08em;color:#5E7089}
 /* ко второй части показа — скрыта по решению от 14.08; вернуть: убрать display:none */
 #next{display:none;left:26px;bottom:22px}
 /* к сборке с гео-подводкой — сверху справа, над панелью контура */
-#demo2{right:150px;top:70px}   /* 18.09: под кнопкой «пилотный актив», левее знака КМГ */
 
 /* подписи точек бурения в слое технико-экономической оценки */
 #teo{position:fixed;inset:0;z-index:11;pointer-events:none;opacity:0;transition:opacity .3s}
@@ -264,41 +337,84 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:var(--ui);color:var
 #знак{position:fixed;right:26px;top:64px;z-index:60;pointer-events:none;
   height:50px;opacity:.32;filter:drop-shadow(0 1px 3px rgba(0,0,0,.6))}
 #знак svg{display:block;height:100%;width:auto}
+
+/* Контент слоя: правая панель на 70% экрана, приходит на смену уходу на
+   отдельную страницу — навигацию убрали, второй клик по уже открытому слою
+   больше никуда не переводит. То же стекло, что у #panel, — один язык, а не
+   новый слой поверх показа. Выходит последним тактом раскрытия, когда плита
+   уже развёрнута лицом и подросла (см. openProject), поэтому и стартует не
+   с нуля, а с небольшим сдвигом — довершает движение, которое уже идёт. */
+#project-content{position:fixed;top:0;right:0;bottom:0;width:70vw;z-index:14;
+  background:var(--glass);backdrop-filter:blur(18px);border-left:1px solid var(--line);
+  border-top:3px solid var(--pc,#4FE3FF);
+  display:flex;flex-direction:column;justify-content:center;gap:16px;
+  padding:64px 72px;overflow-y:auto;
+  opacity:0;transform:translateX(48px);pointer-events:none;
+  transition:opacity .6s ease,transform .6s cubic-bezier(.2,.8,.2,1)}
+#project-content.vis{opacity:1;transform:translateX(0);pointer-events:auto}
+#pc-back{align-self:flex-start;cursor:pointer;background:none;border:1px solid var(--line);color:var(--dim);
+  font-family:var(--mono);font-size:16px;letter-spacing:.16em;text-transform:uppercase;
+  padding:8px 14px;margin-bottom:10px;transition:color .2s,border-color .2s}
+#pc-back:hover{color:var(--txt);border-color:var(--txt)}
+#pc-kick{font-family:var(--mono);font-size:18px;letter-spacing:.3em;text-transform:uppercase;color:var(--pc,#4FE3FF)}
+#pc-name{font-family:var(--serif);font-size:52px;font-weight:600;line-height:1.2;max-width:26ch}
+#pc-claim{font-size:23px;color:var(--dim);line-height:1.6;max-width:52ch}
+#pc-video{display:none;width:100%;max-height:62vh;object-fit:contain;background:#02040A;
+  border:1px solid var(--line);border-top:2px solid var(--pc,#4FE3FF);box-shadow:0 18px 46px rgba(0,0,0,.32)}
+#project-content.с-видео{padding-top:42px;padding-bottom:42px;gap:12px}
+#project-content.с-видео #pc-name{font-size:38px}
+/* 24.09 (Адиль): убраны кнопка «← к цифровому двойнику» и жёлтый кикер
+   «ЦД … · проект NN» на карточке системы. Возврат идёт единственной
+   кнопкой в нижнем левом углу у миниатюры 3D (см. #mini-reset). Разметка
+   и обработчик закрытия по #pc-back оставлены — при возврате вида можно
+   просто снять эти два display:none и всё поедет обратно. */
+#project-content.с-видео #pc-claim,#project-content.с-видео #pc-badge,
+#project-content.с-видео #pc-back,#project-content.с-видео #pc-kick{display:none}
+#project-content.с-видео #pc-video{display:block}
+/* Кнопка возврата к первому кадру. Стоит у 3D-модели в нижнем левом углу:
+   миниатюра занимает `--mini-width × --мини-высота` от MINI_MARGIN, кнопка
+   ложится сразу справа от миниатюры (23.09, Адиль — «возврат у 3D-модели»).
+   Прежние 25vw уводили её то внутрь миниатюры на узком мониторе, то далеко
+   от неё на широком: считаем от габарита самой миниатюры, а не от окна. */
+#mini-reset{position:fixed;z-index:16;
+  left:calc(var(--mini-margin,34px) + var(--mini-width,35.1vh) + 12px);
+  bottom:var(--mini-margin,34px);
+  width:44px;height:44px;display:grid;place-items:center;transform:translateX(32px);
+  border:1px solid var(--line);border-left:2px solid var(--cyan);background:rgba(10,18,32,.88);
+  color:var(--txt);font-family:var(--mono);font-size:22px;cursor:pointer;backdrop-filter:blur(8px);
+  opacity:0;pointer-events:none;transition:opacity .3s ease,transform .4s cubic-bezier(.2,.8,.2,1),border-color .2s,color .2s}
+#mini-reset.visible{opacity:1;pointer-events:auto;transform:translateX(0)}
+#mini-reset:hover,#mini-reset:focus-visible{color:var(--cyan);border-color:var(--cyan);outline:none}
+#pc-badge{align-self:flex-start;font-family:var(--mono);font-size:15px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--amber);border:1px solid rgba(240,174,74,.5);padding:7px 14px;margin-top:8px}
 </style>
 </head>
 <body>
 
 <div id="loader"><div class="t">Цифровой двойник месторождения на базе ИС «ABAI»</div><div class="m" id="loadmsg"></div></div>
 
-<div id="знак" aria-hidden="true">
-<svg viewBox="0 0 2497 1215" fill="#F5F6EF" xmlns="http://www.w3.org/2000/svg">
-  <path d="M1200 729.18V295.622H1295.39V485.148L1471.29 295.622H1586.51L1409.98 479.583L1594.56 729.199H1479.99L1345.58 544.619L1295.41 596.652V729.199H1200V729.18Z"/>
-  <path d="M1621.19 729.18V295.622H1724L1837.96 478.965L1951.94 295.622H2054.75V729.199H1959.97V446.118L1837.96 631.316H1835.48L1714.7 447.973V729.18H1621.17H1621.19Z"/>
-  <path d="M2311.8 736.619C2244.5 736.619 2189.67 715.559 2147.35 673.437C2105.02 631.316 2083.87 577.653 2083.87 512.392C2083.87 447.13 2105.54 397.083 2148.9 353.52C2192.26 309.974 2246.35 288.183 2311.18 288.183C2348.75 288.183 2380.55 293.036 2406.58 302.742C2432.58 312.448 2457.56 327.419 2481.52 347.655L2421.45 420.13C2403.28 404.859 2385.74 393.711 2368.8 386.684C2351.86 379.677 2331.65 376.154 2308.09 376.154C2273.41 376.154 2243.99 389.476 2219.82 416.102C2195.67 442.727 2183.58 474.842 2183.58 512.41C2183.58 552.058 2195.86 584.886 2220.44 610.893C2245 636.9 2276.5 649.922 2314.89 649.922C2350.4 649.922 2380.34 641.247 2404.7 623.915V561.97H2308.69V479.583H2496.98V667.872C2442.89 713.704 2381.15 736.619 2311.78 736.619H2311.8Z"/>
-  <path d="M2423.45 927.046V811.023H2436.55V914.946H2501.85V927.046H2423.45Z"/>
-  <path d="M2175.71 927.044L2228.58 810.193H2240.85L2293.72 927.044H2279.63L2266.04 896.381H2202.89L2189.14 927.044H2175.71ZM2208.03 884.613H2260.9L2234.55 825.442L2208.03 884.613Z"/>
-  <path d="M1994.18 927.046V823.123H1955.06V811.023H2046.39V823.123H2007.27V927.046H1994.18Z"/>
-  <path d="M1811.84 927.046V811.023H1824.93V927.046H1811.84Z"/>
-  <path d="M1634.72 929.034C1598.25 929.034 1575.71 902.514 1575.71 869.365V869.034C1575.71 837.211 1599.08 809.034 1633.89 809.034C1653.45 809.034 1665.55 814.669 1677.15 824.448L1668.69 834.393C1659.91 826.603 1649.63 821.133 1633.39 821.133C1607.7 821.133 1589.3 842.846 1589.3 868.702V869.034C1589.3 896.713 1607.04 917.266 1635.21 917.266C1648.47 917.266 1660.74 912.128 1668.69 905.664V876.824H1633.39V865.056H1681.29V911.299C1670.52 921.078 1654.44 929.034 1634.72 929.034Z"/>
-  <path d="M1432.48 927.046V811.023H1445.58V927.046H1432.48Z"/>
-  <path d="M1200.22 927.046V811.023H1240.5C1276.96 811.023 1302.16 836.051 1302.16 868.703V869.035C1302.16 901.687 1276.96 927.046 1240.5 927.046H1200.22ZM1240.5 823.123H1213.32V914.946H1240.5C1269.84 914.946 1288.57 895.222 1288.57 869.366V869.035C1288.57 843.344 1269.84 823.123 1240.5 823.123Z"/>
-  <path d="M640.933 900.522H842.781C814.723 1010.95 721.871 1135.97 576.727 1187.98C574.383 1181.91 572.027 1175.81 569.369 1168.94C675.301 1122.22 749.3 1044.31 795.268 937.462H750.151C701.551 1038 625.038 1107.87 519.12 1145.66C522 1154.87 524.802 1163.81 527.565 1172.76C530.275 1181.5 532.959 1190.26 535.957 1200C532.173 1201.16 528.376 1202.58 524.462 1203.45C477.839 1213.93 430.784 1217.12 383.206 1212.08C325.9 1206.02 272.05 1188.87 222.05 1160.42C145.642 1116.93 86.4112 1056.57 46.3612 977.825C10.7756 907.878 -4.56883 833.696 1.17879 755.475C6.00994 689.763 24.7716 627.882 57.3589 570.655C71.7476 545.385 88.5191 521.466 104.453 497.089C145.734 433.922 187.145 370.859 228.505 307.745C288.115 216.79 347.738 125.849 407.309 34.8816C414.602 23.7483 421.607 12.4315 429.501 0C463.725 52.6371 497.478 104.54 531.584 157.006C530.078 159.485 528.612 162.081 526.975 164.547C500.699 204.372 474.383 244.184 448.119 284.023C414.838 334.509 381.661 385.074 348.314 435.521C308.998 494.991 269.471 554.315 230.22 613.837C214.64 637.467 199.924 661.557 189.973 688.347C162.466 762.398 166.027 834.129 205.187 903.315C227.811 943.271 258.735 975.373 298.209 998.78C328.859 1016.94 361.97 1028.23 397.582 1031.85C434.477 1035.6 470.599 1032.76 505.779 1020.39C539.034 1008.69 567.916 990.152 592.896 965.341C611.54 946.812 626.976 925.935 639.309 902.738C639.689 902.03 640.265 901.426 640.92 900.548L640.933 900.522ZM465.427 1126.61C518.243 1115.28 565.297 1092.44 608.031 1059.85C643.303 1032.95 702.52 960.935 707.011 937.292H661.711C612.116 1016.29 543.367 1067.74 452.557 1088.08C429.58 1071.26 404.481 1081.92 395.133 1099.73C384.489 1120 392.58 1143.97 413.057 1152.94C433.547 1161.91 459.025 1152.89 465.414 1126.61H465.427Z"/>
-  <path d="M603.592 481.523C589.78 502.806 576.32 523.473 562.953 544.192C556.944 553.515 550.436 562.616 545.383 572.451C534.202 594.219 532.12 617.128 541.246 640.064C544.676 648.692 550.476 656.455 555.739 664.245C570.56 686.17 583.456 709.066 591.966 734.231C595.959 746.072 598.656 758.189 598.421 771.997C575.417 772.771 552.806 771.893 529.528 772.574C520.049 760.563 507.414 753.98 491.533 755.212C480.247 756.091 470.886 761.245 463.476 769.781C448.419 787.143 450.632 814.065 468.32 829.565C486.244 845.275 510.557 842.574 528.768 822.681H858.137C856.422 834.929 854.799 846.547 853.123 858.506H578.847C576.386 862.703 574.226 866.571 571.895 870.335C555.215 897.204 534.071 919.956 506.197 935.023C443.3 969.013 382.001 964.476 323.661 923.785C293.639 902.843 271.709 874.924 258.407 840.502C244.673 804.964 244.28 769.126 255.003 732.775C261.209 711.728 271.762 692.976 283.65 674.827C313.763 628.891 343.836 582.929 374.041 537.045C430.627 451.074 487.291 365.168 543.89 279.21C553.199 265.074 562.298 250.806 571.515 236.618C573.322 233.838 575.26 231.162 577.918 227.307C592.49 249.639 606.63 271.289 620.979 293.281C618.806 296.887 616.92 300.231 614.812 303.443C571.345 369.495 527.865 435.521 484.385 501.56C475.233 515.46 466.225 529.452 456.864 543.221C455.123 545.779 452.386 548.126 449.585 549.398C433.14 556.846 424.643 573.382 428.178 591.807C431.255 607.818 446.835 620.892 463.764 621.692C481.609 622.531 496.823 611.385 501.667 594.114C504.089 585.473 503.552 577.133 499.349 568.596C549.664 492.184 599.952 415.773 650.738 338.653C658.384 350.402 665.873 361.916 674.056 374.479C658.083 399.171 641.888 424.191 625.548 449.435C656.133 479.058 684.085 510.53 707.73 545.634C731.205 580.503 750.792 617.378 763.478 657.701H807.705C781.415 576.162 737.699 506.058 677.984 445.396C685.002 434.367 691.692 423.89 698.749 412.809C700.464 414.96 701.917 416.52 703.082 418.264C732.58 462.954 762.601 507.304 791.339 552.453C818.375 594.914 836.875 641.178 847.938 690.367C848.174 691.403 848.187 692.478 848.383 694.209H736.01C712.823 610.952 668.767 540.074 603.553 481.51L603.592 481.523Z"/>
-  <path d="M589.635 581.945C596.927 570.078 603.853 558.774 611.473 546.382C658.868 601.615 689.308 664.179 702.741 735.778H856.369C857.181 747.934 857.953 759.422 858.778 771.643H662.298C665.663 697.959 637.999 636.248 589.648 581.932L589.635 581.945Z"/>
-</svg>
-</div>
+
 <script>if (window.self !== window.top) document.getElementById('знак').remove();</script>
 
 <div id="scene"></div>
 
 <div id="hdr">
   <h1>Цифровой двойник месторождения на базе ИС «<b style="color:var(--cyan)">ABAI</b>»</h1>
-  <div class="sub">Цель 2025–2028 — стать полностью цифровой компанией и принимать решения заранее</div>
 </div>
 
-<div id="stack">
+<div id="stack" class="слева">
   <div id="navline"><div id="navfill"></div><div id="navdot"></div></div>
 </div>
+
+<!-- 23.09 (Адиль): под H1 стоят три «главных» эффекта программы, а не эффекты
+     по контурам. Прежние −5%/−3% ушли в панель контура справа (см. #panel),
+     наверху остаётся тот же язык, что и на финале подводки: ТОП-12 · более 90 %
+     добычи · 2 864 тыс. тонн (см. тиражирование.html, плашка ТОП-12). Подзаголовка
+     «Ожидаемые эффекты по контурам» больше нет — сам заголовок H1 работает как
+     заголовок кадра. -->
+<section id="effects-overview" aria-label="Ключевые эффекты программы">
+  <div class="cols"></div>
+</section>
 
 <aside id="panel">
   <button id="p-close" aria-label="Закрыть">×</button>
@@ -322,46 +438,31 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:var(--ui);color:var
   <div class="rd"><div class="y">далее</div><div class="d">100% добывающих активов</div></div>
 </div>
 
-<div id="hint">Вращение — мышь · наведите на слой модели или список слева</div>
-<!-- target="_top": слайд открывается ещё и внутри demo_with_map.html, и без
-     этого вторая часть грузилась бы в рамку, будто она часть нашего показа -->
-<a id="next" target="_top" rel="noopener"
-   href="https://znewk.github.io/kmg-digital-twin-presentation/">2 часть<span class="arw">→</span></a>
-<!-- 18.09 (Адиль): карточка пилотного актива выходит кнопкой, 3D остаётся на месте;
-     заключение ГД ЭМГ — тот же куб с карточкой эффектов и этап тиражирования, это вход
-     `demo_with_map.html?вход=эффекты` (лента подводки пропускается) -->
-<a id="demo2full" href="demo_with_map.html">demo ч.2<span class="arw">→</span></a>
-<a id="pilot" href="#">первый актив<span class="arw">▸</span></a>
-<!-- 18.09 (Адиль, ночь): «эффекты» — карточкой поверх модели, как пилотный актив, без перезагрузки
-     страницы (перезагрузка модели лагала); «далее» — маленькая, внизу справа, сразу на карту
-     тиражирования: своя страница, модель не трогается -->
-<a id="demo2" href="#">эффекты<span class="arw">▸</span></a>
-<a id="далее" href="тиражирование.html">далее<span class="arw">→</span></a>
+<!-- 24.09 (Адиль): верхние навигационные кнопки убраны с кадра целиком —
+     карточка В. Молдабека справа стоит по умолчанию (она и была смыслом
+     «первого актива»), а вторая часть и тираж откроются из других мест
+     показа. Из DOM удалены #next, #pilot, #demo2, #demo2full, #далее и
+     сопровождавший их скрипт с режимами `?коротко` / `?в_рамке`. Крючки
+     window.__открытьСправку/__закрытьСправку остались — их зовёт карточка
+     справки (`карточкаПилота`) сразу при загрузке, без кнопки. -->
 <div id="справка"><div class="hd"></div><div class="nm"></div><div class="sub"></div>
   <div class="паспорт ярус"></div><div class="сделано ярус"></div></div>
 <div id="эффекты"><div class="hd"></div><div class="body"></div><div class="road"></div></div>
-<!-- слайд открыт внутри demo_with_map.html — кнопка вела бы саму в себя -->
-<script>/* копия в показе КМГ: только короткий вход — ключ ставится сам (старые ссылки без ?коротко=1 работают так же) */
-if (!/[?&]коротко=1/.test(decodeURIComponent(location.search))) location.replace(location.pathname + (location.search ? location.search + '&' : '?') + 'коротко=1');
-/* Два входа (Адиль 18.09: «полный и короткий стали одним коротким» — разведены обратно):
-   полный (главный экран → макет → подводка с лентой) — макет собран, кнопка «demo ч.2» ведёт в
-   demo_with_map.html; короткий (`?коротко=1`, с цепочки КМГ) — стопка раскрыта, карточки «пилотный
-   актив» и «эффекты», маленькая «далее» на карту тиражирования. В рамке подводки (`?в_рамке=1`)
-   кнопок нет — карточки ведёт сама подводка. */
-(function(){
-  const п = new URLSearchParams(location.search), у = id => document.getElementById(id).remove();
-  /* 18.09 (Адиль): карточки «пилотный актив» и «эффекты» — в обоих входах; в полном к ним
-     добавляется «demo ч.2» в подводку с лентой, «далее» на тираж — только в коротком */
-  if (п.get('в_рамке') === '1'){ у('demo2'); у('demo2full'); у('pilot'); у('далее'); }
-  else if (п.get('коротко') === '1'){ у('demo2full'); }
-  else { у('далее'); document.getElementById('demo2full').href += location.search; }
-})();</script>
 <div id="chip"></div>
 <!-- подписи точек бурения: HTML поверх сцены, чтобы цифры оставались чёткими -->
 <div id="teo"></div>
 <div id="drill"><span class="pt"></span>идёт бурение<b class="m">—</b></div>
 <div id="horiz"><span class="pt"></span>горизонтальное бурение</div>
 <div id="naz-lbl"></div>
+<aside id="project-content">
+  <button id="pc-back">← к цифровому двойнику</button>
+  <div id="pc-kick"></div>
+  <div id="pc-name"></div>
+  <div id="pc-claim"></div>
+  <video id="pc-video" controls autoplay muted loop playsinline preload="metadata"></video>
+  <div id="pc-badge">заготовка · наполнение позже</div>
+</aside>
+<button id="mini-reset" type="button" aria-label="Вернуть исходный вид" title="Вернуть исходный вид">↩</button>
 
 <script type="importmap">
 { "imports": {
@@ -896,6 +997,33 @@ function holoBox(w, h, d, cy, hex, cells=8, fillHex=0x0A2E3E){
    ================================================================ */
 const zones = {};
 let pickMeshes = [];
+/* Наведение при заблокированном (нажатом) слое таргетится по живым, анимированным
+   хитбоксам — раскладка тогда зависит только от state.locked, а не от самого
+   наведения, и раскачаться не может. Пока ничего не нажато, раскладка от
+   наведения как раз и зависит (лёгкая раздвижка), и наведение по этим же живым
+   хитбоксам входит в петлю: хитбокс уезжает от курсора, наведение гаснет,
+   хитбокс едет обратно, наведение включается снова — и так по кругу, заметнее
+   всего на верхнем крае верхнего слоя и нижнем крае нижнего, где раздвижка
+   больше всего. `restPickMeshes` стоят неподвижно, в позициях состояния покоя
+   (см. `вычислитьОтдых`), и наведение проверяется по ним, пока ничего не нажато —
+   раскладка на них не давит, значит и раскачиваться нечему. */
+let restPickMeshes = [];
+const РАСКРЫТА = new URLSearchParams(location.search).get('коротко') === '1' && new URLSearchParams(location.search).get('стопка') !== '1';   // раскрытая стопка — короткий показ
+let REST_OFFSET = { grr:0, plast:0, skv:0, naz:0 };
+function вычислитьОтдых(bands){
+  const out = { grr:0, plast:0, skv:0, naz:0 };
+  if(!РАСКРЫТА) return out;   // `?стопка=1` — слои и в покое стоят стопкой, без раздвижки
+  const GAP = 24;
+  let total = GAP * (RANK_UP.length - 1);
+  for(const id of RANK_UP) total += (bands[id][1]-bands[id][0]) * 1.06;
+  let bot = -total/2;
+  for(const id of RANK_UP){
+    const h = (bands[id][1]-bands[id][0]) * 1.06, c = bot + h/2;
+    out[id] = c - (bands[id][0]+bands[id][1])/2;
+    bot = c + h/2 + GAP;
+  }
+  return out;
+}
 const FOOT = 250;                                   // ширина куба в сцене
 // целевые высоты подземных плит (наземка — натуральная, чтобы не плющить объекты)
 const TARGET_H = { grr:44, plast:56, skv:56 };
@@ -950,7 +1078,9 @@ const ТОЧКИ = [
 ];
 const меткиТЭО = [];   // {точка, узел, div} — подписи ведём в HTML, не в текстуре
 
-// слои грузятся напрямую из .glb (без base64-глобала — меньше RAM, работает на GitHub Pages)
+// Слои грузятся напрямую из .glb (без base64-глобала — меньше RAM, работает на GitHub Pages).
+// Новые модели сохраняют иерархию узлов: в наземке станки уже разделены на
+// подвижные детали, а PumpCycle приходит готовой анимацией из GLB.
 const GLB_FILES = {
   plast1: 'пласт_1_ггдм.glb',
   plast2: 'пласт_2_стратегия.glb',
@@ -960,8 +1090,37 @@ const GLB_FILES = {
 const gltfLoader = new GLTFLoader();
 function loadLayer(id){
   return new Promise((res, rej) => {
-    gltfLoader.load(encodeURIComponent(GLB_FILES[id]), g => res(g.scene), undefined, rej);
+    gltfLoader.load(encodeURIComponent(GLB_FILES[id]), res, undefined, rej);
   });
+}
+
+/* Физическая модель и её цифровой каркас живут в одной иерархии. Каркас
+   добавляется ребёнком к исходному mesh: так трансформации отдельных деталей
+   и анимация PumpCycle автоматически применяются к обеим версиям. Старый
+   способ создавал новые Mesh только из geometry и терял node transforms — у
+   составных GLB все детали оказывались бы в начале координат. */
+function подготовитьМодель(root, цвет, физМаты, каркасМаты){
+  const meshes = [];
+  root.traverse(n => { if(n.isMesh) meshes.push(n); });
+  for(const mesh of meshes){
+    const исходные = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+    const физ = исходные.map(m => {
+      const копия = m.clone();
+      копия.transparent = true;
+      физМаты.push(копия);
+      return копия;
+    });
+    mesh.material = Array.isArray(mesh.material) ? физ : физ[0];
+
+    const карМат = new THREE.MeshBasicMaterial({ color:цвет, wireframe:true,
+      transparent:true, opacity:0, blending:THREE.AdditiveBlending,
+      depthWrite:false });
+    const каркас = new THREE.Mesh(mesh.geometry, карМат);
+    каркас.renderOrder = 1;
+    mesh.add(каркас);
+    каркасМаты.push(карМат);
+  }
+  return root;
 }
 
 /* ── станки-качалки ───────────────────────────────────────────────────
@@ -1233,27 +1392,18 @@ function собратьКачалки(z, M, yb, части){
 
 async function build(){
   const roots = {};
+  const animations = {};
   // верхняя составляющая пласта (ТЭО) собирается кодом — модель для неё не грузим
   const LOAD_IDS = ['plast1','plast2','skv','naz'];
   // грузим параллельно — общее время ≈ самый долгий файл, а не сумма всех
   let loaded = 0;
-  const частиСтанка = {};
-  await Promise.all([
-    ...LOAD_IDS.map(id => loadLayer(id).then(s => {
-      roots[id] = s;
+  await Promise.all(
+    LOAD_IDS.map(id => loadLayer(id).then(g => {
+      roots[id] = g.scene;
+      animations[id] = g.animations || [];
       ++loaded;   // 18.09 (Адиль): служебные надписи загрузки убраны
-    })),
-    // станок-качалка: не слой, а деталь наземки, поэтому вне списка слоёв
-    new Promise(res => gltfLoader.load(encodeURIComponent('качалка_части.glb'), g => {
-      g.scene.traverse(n => {
-        // нормали в файл не писались — считаем на месте, вес файла вдвое меньше.
-        // Части с рёбрами приходят линиями (mode LINES), нормали им не нужны.
-        if(n.isMesh){ n.geometry.computeVertexNormals(); частиСтанка[n.name] = n.geometry; }
-        else if(n.isLineSegments) частиСтанка[n.name] = n.geometry;
-      });
-      res();
-    }, undefined, () => res()))   // не нашёлся — слой соберётся без станков
-  ]);
+    }))
+  );
 
   // размеры и стек: ширина и глубина всех плит приводятся к одному футпринту
   const DEPTH = 190;
@@ -1279,12 +1429,13 @@ async function build(){
     acc += up;
     bands[id][0] += acc; bands[id][1] += acc;
   }
+  REST_OFFSET = вычислитьОтдых(bands);
 
   for(const id of RANK_UP){
     const M = meta[id];
     const [yb, yt] = bands[id];
     const z = zones[id] = { id, yb, yt, physMats:[], wireMats:[], holo:[], mix:0, target:0,
-      offset:0, targetOffset:0, scaleG:new THREE.Group() };
+      offset:0, targetOffset:0, offsetX:0, targetOffsetX:0, scaleG:new THREE.Group() };
     world.add(z.scaleG);
 
     const place = mesh => {
@@ -1295,35 +1446,7 @@ async function build(){
 
     // физическая версия (пласт собирается из 3 подслоёв ниже)
     if(id !== 'plast'){
-      const physG = new THREE.Group();
-      M.r.traverse(n => {
-        if(!n.isMesh) return;
-        // у наземки из сетки вырезаны станки: их место занимают собранные кодом
-        const геом = (id === 'naz')
-          ? частьСетки(безКачалок(n.geometry), (x,y,zz) => !вФакеле(x,y,zz))
-          : n.geometry;
-
-        /* Резервуарный парк отделяется в свою пару мешей. Он уходит в двойник
-           уже на наведении — вместе со станками и трубопроводом, — а остальной
-           слой остаётся физическим до нажатия. Одним мешем так не получится:
-           у железа и каркаса баков должна быть своя непрозрачность. */
-        const баки = (id === 'naz') ? частьСетки(геом, вХранилище) : null;
-        const остальное = баки ? частьСетки(геом, (x,y,zz) => !вХранилище(x,y,zz)) : геом;
-
-        const пара = (g, свои) => {
-          const pm = n.material.clone(); pm.transparent = true;
-          physG.add(new THREE.Mesh(g, pm));
-          const wm = new THREE.MeshBasicMaterial({ color:holoColors[id][0], wireframe:true,
-            transparent:true, opacity:0, blending:THREE.AdditiveBlending, depthWrite:false });
-          physG.add(new THREE.Mesh(g, wm));
-          свои.физ.push(pm); свои.кар.push(wm);
-        };
-        пара(остальное, { физ:z.physMats, кар:z.wireMats });
-        if(баки){
-          z.бакиФиз = z.бакиФиз || []; z.бакиКар = z.бакиКар || [];
-          пара(баки, { физ:z.бакиФиз, кар:z.бакиКар });
-        }
-      });
+      const physG = подготовитьМодель(M.r, holoColors[id][0], z.physMats, z.wireMats);
       if(id === 'skv'){
         // слой скважин повёрнут на −90°: штатные чёрные трубы встают рядом под качалками
         const center = M.box.getCenter(new THREE.Vector3());
@@ -1344,15 +1467,9 @@ async function build(){
       } else {
         place(physG);
         z.scaleG.add(physG);
-        if(id === 'naz' && СТАНКИ_ВКЛ && частиСтанка['коромысло']) собратьКачалки(z, M, yb, частиСтанка);
-        /* В отладочном режиме выводим число треугольников слоя: по нему сразу
-           видно, какая версия страницы открыта. Без реза их 27 936, с резом —
-           25 487. Иначе спор «убраны станки или нет» не разрешить. */
-        if(id === 'naz' && !СТАНКИ_ВКЛ){
-          let тр = 0;
-          physG.traverse(n => { if(n.isMesh && n.geometry.index) тр = Math.max(тр, n.geometry.index.count/3); });
-          document.getElementById('hint').textContent =
-            'отладка · станки сняты · треугольников в слое наземки: ' + тр.toLocaleString('ru');
+        if(id === 'naz' && animations.naz.length){
+          z.mixer = new THREE.AnimationMixer(M.r);
+          animations.naz.forEach(clip => z.mixer.clipAction(clip).play());
         }
       }
     } else {
@@ -1399,6 +1516,11 @@ async function build(){
         hit.userData.zone = 'plast'; hit.userData.sub = si;
         world.add(hit);
         pickMeshes.push(hit);
+        // неподвижный близнец — наведение при незажатом слое проверяется по нему, см. restPickMeshes выше
+        const restHit = hit.clone();
+        restHit.position.y = (st+sb)/2 + REST_OFFSET.plast;
+        world.add(restHit);
+        restPickMeshes.push(restHit);
         z.subs3d.push({ wrap, physMats, wireMats, holo:hb.userData.parts, st, sb, hit, off:0, mix:0 });
       }
       z.столбы = []; z.узлыСтолбов = [];
@@ -1425,47 +1547,90 @@ async function build(){
       z.scaleG.add(hb); z.holo.push(hb.userData.parts);
     }
 
-    // ЦД скважины: собственные стволы строго под качалками наземки + подсветка
+    // ЦД скважины: бурение привязано к узлам обсадных труб новой GLB.
     if(id === 'skv'){
-      // Подсветка идёт «муфтой» поверх стволов самой модели: координаты и радиус
-      // сняты замером сверху по чёрным трубам GLB, чуть шире — чтобы обнимать трубу.
-      z.wellMats = [];
-      const WELLS = [[-80.5, 81.4], [0.1, 81.5], [80.5, 81.4]];
+      /* В wells.glb каждая обсадная труба — отдельный узел. Берём их реальные
+         границы после центровки, поворота и масштаба слоя. Прежние жёсткие
+         координаты относились к старой модели, поэтому светлые трубы стояли
+         рядом с чёрными. Теперь полная светлая оболочка ниже строится ровно
+         по фактическому box каждой обсадной трубы. */
+      z.scaleG.updateMatrixWorld(true);
+      let WELLS = ['Well_01_hollow_casing','Well_02_hollow_casing','Well_03_hollow_casing']
+        .map(name => {
+          const узел = M.r.getObjectByName(name);
+          if(!узел) return null;
+          const box = new THREE.Box3().setFromObject(узел);
+          const p = box.getCenter(new THREE.Vector3());
+          const size = box.getSize(new THREE.Vector3());
+          return { x:p.x, z:p.z, y0:box.min.y, y1:box.max.y,
+                   rx:size.x/2, rz:size.z/2 };
+        })
+        .filter(Boolean);
+      /* Некоторые экспортёры переименовывают повторно используемые GLTF-узлы.
+         Запасные координаты вычислены из bounds новой wells.glb после того же
+         поворота и масштаба, поэтому бурение не исчезнет при таком экспорте. */
+      if(WELLS.length !== 3) WELLS = [
+        {x:-77.5, z:92.3, y0:yb, y1:yt, rx:4.87, rz:2.68},
+        {x:  0.2, z:92.3, y0:yb, y1:yt, rx:4.87, rz:2.68},
+        {x: 78.0, z:92.3, y0:yb, y1:yt, rx:4.87, rz:2.68},
+      ];
+      WELLS.sort((a, b) => a.x - b.x);
       const R_PIPE = 4.2;
       const БУРИТСЯ = 1;                       // средняя скважина — в бурении
       const ГОРИЗОНТ = 2;                      // правая — горизонтальный ствол
-      WELLS.forEach(([wx, wz], wi) => {
-        /* Бурящуюся скважину фиолетовым не красим: там сейчас идёт работа, а не
-           телеметрия действующего фонда — её показывает само долото. Бурятся
-           обе: одна вертикально, вторая с заворотом в горизонт. */
+      z.wellMats = [];
+      WELLS.forEach((скв, wi) => {
+        const {x:wx, z:wz, y0, y1, rx, rz} = скв;
         const вБурении = (wi === БУРИТСЯ || wi === ГОРИЗОНТ);
         const wm = вБурении
           ? new THREE.MeshStandardMaterial({ color:'#9AA5B4', roughness:0.5, metalness:0.25,
               transparent:true, opacity:0, emissive:new THREE.Color('#38414F'), emissiveIntensity:0.4,
-              depthWrite:false })
+              depthTest:false, depthWrite:false })
           : new THREE.MeshStandardMaterial({ color:'#9B7BE8', roughness:0.35, metalness:0.2,
               transparent:true, opacity:0, emissive:new THREE.Color('#9B7BE8'), emissiveIntensity:0,
-              depthWrite:false });
+              depthTest:false, depthWrite:false });
         (вБурении ? (z.бурМаты = z.бурМаты || []) : z.wellMats).push(wm);
-        /* У горизонтальной скважины прямой обсадки нет: её ствол целиком идёт
-           одной кривой ниже, и цилиндр поверх него дал бы двойную стенку.
-           Муфты по той же причине только на прямых стволах — на кривой они
-           повисли бы рядом со стволом, а не на нём. */
-        if(wi !== ГОРИЗОНТ){
-          const tube = new THREE.Mesh(new THREE.CylinderGeometry(R_PIPE*1.18, R_PIPE*1.18, (yt-yb)+10, 14), wm);
-          tube.position.set(wx, (yb+yt)/2, wz);
-          z.scaleG.add(tube);
-          // муфты — акцент по стволу
-          for(const q of [0.25, 0.6]){
-            const ring = new THREE.Mesh(new THREE.TorusGeometry(R_PIPE*1.5, 0.7, 8, 18), wm);
-            ring.rotation.x = Math.PI/2;
-            ring.position.set(wx, yb + (yt-yb)*q, wz);
-            z.scaleG.add(ring);
-          }
+
+        /* Полная светлая обсадка поверх чёрной. Размер и положение берутся из
+           фактического world-box узла GLB, поэтому совпадают после любого
+           поворота и неравномерного масштаба слоя. */
+        const tube = new THREE.Mesh(new THREE.CylinderGeometry(1, 1, y1-y0, 20), wm);
+        /* Небольшой одинаковый допуск по X/Z выводит светлую оболочку поверх
+           чёрной без z-fighting, не меняя её центр и пропорции эллипса. */
+        tube.scale.set(rx*1.18, 1, rz*1.18);
+        tube.position.set(wx, (y0+y1)/2, wz);
+        tube.renderOrder = 6;
+        z.scaleG.add(tube);
+        for(const q of [0.25, 0.6]){
+          const ring = new THREE.Mesh(new THREE.TorusGeometry(rx*1.28, Math.max(.55, rx*.13), 8, 22), wm);
+          ring.scale.z = rz/rx;
+          ring.rotation.x = Math.PI/2;
+          ring.position.set(wx, y0 + (y1-y0)*q, wz);
+          z.scaleG.add(ring);
         }
+
         // долото на забой — чуть ниже подошвы слоя, в просвет: там его видно;
         // шлам поднимается по стволу до кровли слоя
-        if(wi === БУРИТСЯ) z.бурение = собратьДолото(z.scaleG, wx, yb - 10, wz, R_PIPE*2.3, (yt - yb) + 12);
+        if(wi === БУРИТСЯ){
+          /* Продолжение идёт от нижнего торца обсадки до корпуса долота.
+             Раньше корпус начинался сразу под основной трубой и давал форму
+             «гриба»; ещё более старая длинная штанга, наоборот, торчала выше
+             слоя. Здесь отдельный прямой участок соединяет их без обоих
+             дефектов и остаётся строго на оси фактического GLB-узла. */
+          const ПРОДОЛЖЕНИЕ = 22;
+          const продолжение = new THREE.Mesh(
+            new THREE.CylinderGeometry(1, 1, ПРОДОЛЖЕНИЕ, 20), wm);
+          продолжение.scale.set(rx*1.18, 1, rz*1.18);
+          продолжение.position.set(wx, y0 - ПРОДОЛЖЕНИЕ/2, wz);
+          продолжение.renderOrder = 6;
+          z.scaleG.add(продолжение);
+
+          const R_ДОЛОТА = R_PIPE*2.3;
+          // верх корпуса долота = 2,25R от начала его локальной группы
+          const yДолота = y0 - ПРОДОЛЖЕНИЕ - R_ДОЛОТА*2.25 + 1;
+          z.бурение = собратьДолото(z.scaleG, wx, yДолота, wz,
+                                   R_ДОЛОТА, (yt - yb) + 12, null, true);
+        }
 
         /* Горизонтальный ствол — вторая бурящаяся скважина. Одной кривой от
            кровли слоя: вертикаль, длинный набор угла и лежачая часть со своим
@@ -1485,7 +1650,10 @@ async function build(){
             transparent:true, opacity:0, emissive:new THREE.Color('#38414F'), emissiveIntensity:0.45,
             depthWrite:false });
           (z.бурМаты = z.бурМаты || []).push(гм);
-          const путь = стволТочки({ гориз:Math.PI }, wx, wz, yb + 4, yt + 5, 28, 30);
+          /* Вертикальная часть уже восстановлена полной трубой выше. Изгиб
+             начинается точно от её нижнего торца и продолжается в пласт. */
+          const путь = стволТочки({ гориз:Math.PI }, wx, wz,
+                                  y0 - 28, y0, 28, 30);
           const ствол = new THREE.Mesh(new THREE.TubeGeometry(путь, 96, R_PIPE*1.18, 12, false), гм);
           z.scaleG.add(ствол);
 
@@ -1532,6 +1700,11 @@ async function build(){
       world.add(hit);
       pickMeshes.push(hit);
       z.hit = hit;
+      // неподвижный близнец — наведение при незажатом слое проверяется по нему, см. restPickMeshes выше
+      const restHit = hit.clone();
+      restHit.position.y = (yb+yt)/2 + REST_OFFSET[id];
+      world.add(restHit);
+      restPickMeshes.push(restHit);
     }
   }
 
@@ -1547,30 +1720,415 @@ build().catch(e => { document.getElementById('loadmsg').textContent = 'Ошиб�
 /* ================================================================
    ИНТЕРАКЦИЯ
    ================================================================ */
-const state = { hover:null, hoverSub:null, locked:null };
-const РАСКРЫТА = new URLSearchParams(location.search).get('коротко') === '1' && new URLSearchParams(location.search).get('стопка') !== '1';   // раскрытая стопка — короткий показ
+const state = { hover:null, hoverSub:null, locked:null, launching:null, closing:null, openId:null, camAz:0, camRadius:0, launchRadius:0, launchPolar:0, launchAt:0, closeAt:0, viewShiftX:0, viewShiftTargetX:0, viewShiftОт:0, переходАт:0 };
+// РАСКРЫТА объявлена выше, у pickMeshes: она нужна ещё в build() для вычисляемых там restPickMeshes
 const panelState = { zone:null, sub:null };
 const active = () => state.locked || state.hover;
+
+/* ── раскрытие слоя ───────────────────────────────────────────────────
+   Второй клик по уже выбранному слою — по решению отказались от перехода на
+   отдельную страницу; теперь это раскрытие в том же кадре: соседние контуры
+   уезжают в левый нижний угол и пропадают там, список слева отпускает своё
+   место панели контура (#panel переезжает туда же), а справа въезжает
+   контент слоя на 70% экрана.
+
+   «Налево» — это мировой −X, а не «влево от текущей камеры»: автовращение
+   к моменту второго клика могло увести камеру куда угодно, и если крутить
+   при этом только сам слой (как было раньше), соседи уезжают в мировом −X,
+   который в этот момент может смотреть куда угодно на экране — визуально
+   «непонятно куда». Поэтому вместо поворота слоя разворачиваем камеру: она
+   плавно возвращается к азимуту старта показа (тому, под которым модель
+   стоит «лицом» и «налево» на экране совпадает с мировым −X), а соседи тем
+   же ходом уезжают за левый край и вниз. Радиус и высота обзора (наклон) при
+   этом не трогаются — только азимут, чтобы не менять приближение и ракурс,
+   который выставил себе докладчик. */
+const СТАРТ_АЗИМУТ = Math.atan2(camera.position.x, camera.position.z);
+// Радиус и наклон той же стартовой точки — нужны при закрытии (closeProject),
+// куда возвращаемся не от клика, а от уже устоявшегося раскрытого состояния.
+const ДЕФОЛТ_РАДИУС = camera.position.length();
+const ДЕФОЛТ_ПОЛЯР = Math.acos(THREE.MathUtils.clamp(camera.position.y / ДЕФОЛТ_РАДИУС, -1, 1));
+const УХОД_ВЛЕВО = 580;         // за габарит стопки и панели слева — с запасом
+const УХОД_ВНИЗ = 260;          // и вниз, в тот же угол — «левый нижний», а не просто «налево»
+/* Стопка при открытом контенте — миниатюра в левом нижнем углу ЭКРАНА. Место
+   задано в долях высоты окна, а не мировыми числами: прежние −260/−150 в
+   единицах сцены зависели от того, где стоит камера, и на другом размере окна
+   миниатюра оказывалась то под панелью, то за краем кадра. Всё измеряется от
+   высоты окна, потому что и сама модель на экране растёт вместе с ней.
+   MINI_HEIGHT_RATIO ещё и отдана панели через CSS-переменную: панель не
+   должна заезжать в угол, поэтому её max-height считается от неё же. */
+const MINI_SCALE = 0.50;
+const MINI_HEIGHT_RATIO = 0.39;
+const MINI_ASPECT_RATIO = 0.90;
+const MINI_MARGIN = 34;
+const MINI_TRANSITION_MS = 900;
+document.documentElement.style.setProperty('--мини-высота', (MINI_HEIGHT_RATIO*100) + 'vh');
+document.documentElement.style.setProperty('--mini-width', (MINI_HEIGHT_RATIO*MINI_ASPECT_RATIO*100) + 'vh');
+document.documentElement.style.setProperty('--mini-half-height', (MINI_HEIGHT_RATIO*50) + 'vh');
+document.documentElement.style.setProperty('--mini-margin', MINI_MARGIN + 'px');
+const _forward = new THREE.Vector3(), _right = new THREE.Vector3(), _up = new THREE.Vector3(), _cameraToStack = new THREE.Vector3();
+/* Куда сдвинуть стопку в мире, чтобы её центр встал в центр углового места.
+   Сдвиг идёт строго в плоскости, перпендикулярной взгляду камеры (вправо и
+   вверх от неё, а не по мировым X/Y): глубина центра при этом не меняется и
+   пиксели переводятся в мировые единицы одним множителем. Через мировой X
+   «влево» на экране было бы зависимо от азимута, на котором камеру остановило
+   автовращение, — то же, из-за чего раньше разворачивали камеру (см. выше). */
+function getMiniStackOffset(out){
+  const W = innerWidth, H = innerHeight;
+  const boxHeight = H*MINI_HEIGHT_RATIO, boxWidth = boxHeight*MINI_ASPECT_RATIO;
+  const centerX = MINI_MARGIN + boxWidth/2, centerY = H - MINI_MARGIN - boxHeight/2;
+  camera.getWorldDirection(_forward);
+  _right.crossVectors(_forward, camera.up).normalize();
+  _up.crossVectors(_right, _forward);
+  _cameraToStack.set(0, world.position.y, 0).sub(camera.position);
+  const depth = _cameraToStack.dot(_forward);
+  const worldUnitsPerPixel = depth*Math.tan(THREE.MathUtils.degToRad(camera.fov/2)) / (H/2);
+  const moveRight = (centerX - W/2)*worldUnitsPerPixel - _cameraToStack.dot(_right);
+  const moveUp = -(centerY - H/2)*worldUnitsPerPixel - _cameraToStack.dot(_up);
+  return out.set(0, 0, 0).addScaledVector(_right, moveRight).addScaledVector(_up, moveUp);
+}
+const _miniOffset = new THREE.Vector3();
+/* Перелёт (в угол и обратно) идёт не «догоняющим» лерпом, как остальное в
+   сцене, а по времени, с плавным стартом и торможением: путь через пол-экрана
+   с максимальной скоростью в первом же кадре читался рывком. Отсюда откуда
+   лететь — снимаем текущее положение каждого слоя в момент нажатия. Куда —
+   считается каждый кадр заново (см. цикл зон в animate), поэтому ресайз
+   посреди перелёта ничего не ломает. */
+function запомнитьОткуда(){
+  state.переходАт = performance.now();
+  state.viewShiftОт = state.viewShiftX;
+  for(const id in zones){
+    const z = zones[id];
+    z.от = {
+      offset:z.offset, x:z.offsetX, y:z.offsetYExit ?? 0, z:z.offsetZ ?? 0,
+      s:z.exitScale ?? 1, yaw:z.miniYaw ?? 0
+    };
+  }
+}
+const плавно = p => p < 0.5 ? 4*p*p*p : 1 - Math.pow(-2*p + 2, 3)/2;
+/* Соседей может уходить сразу двое (раскрыт крайний слой) — общая точка угла
+   у обоих одна и та же, и на подходе к ней они заметно проходят друг через
+   друга (замеченный баг, и на возврате то же самое: closeProject ставит их
+   ОБОИХ на один и тот же угловой пиксель, откуда они расходятся по домам).
+   Каждый уходящий получает свой угол, сдвинутый на далеко (место в стопке
+   от раскрытого/закрываемого слоя) шагов — дальний по стопке сосед уезжает
+   не только позже (см. СТУПЕНЬ_МС), но и на шаг дальше, веером, а не в
+   одну точку. */
+const ШАГ_УХОДА_X = 96;
+const ШАГ_УХОДА_Y = 64;
+function дальностьОтСтопки(id, отКого){
+  return отКого ? Math.abs(RANK_UP.indexOf(id) - RANK_UP.indexOf(отКого)) : 0;
+}
+/* Показ смотрят с расстояния, а не тычут пальцем в монитор — раскрытию нужен
+   запас времени, чтобы прочитаться залом, а не одна лишь функциональная
+   смена контура. Пять ударов вместо одного, каждый со своей паузой:
+
+     вспышка — слой сразу коротким всплеском масштаба подтверждает выбор;
+     возврат — камера сразу же, с самого клика, доворачивает АЗИМУТ (только
+     его — радиус и наклон не трогает) к тому, что был на старте показа: это
+     первым делом убирает произвол автовращения, ничего больше пока не
+     происходит;
+     соседи уходят — только после ВОЗВРАТ_МС, когда камера уже смотрит из
+     исходной точки, — трогаются с места не разом (ближний раньше дальнего,
+     иначе синхронный отъезд читается как один щелчок, а не как жест), уезжая
+     в левый нижний угол и пропадая там (крен и сжатие в точку);
+     поворот — только когда сцена уже расчищена (см. ПОВОРОТ_МС), САМА ПЛИТА
+     раскрывается: доворачивается лицом к экрану (вокруг горизонтальной оси,
+     перпендикулярной азимуту старта показа — см. `ОСЬ_ЛИЦОМ`) и заметно
+     подрастает (`ОТКРЫТИЕ_МАСШТАБ`), и тем же ходом камера довора­чивает
+     радиус — подходит ближе;
+     макет — список слева остаётся на месте (по нему можно переключаться на
+     другой слой), панель контура садится под ним компактной карточкой, а
+     справа въезжает контент слоя (см. openProject).
+
+   Порядок принципиальный: сначала камера сама вернулась на место (без этого
+   «налево» у соседей смотрело бы непонятно куда — старый баг), потом
+   расчистили сцену, потом раскрыли плиту, и только тогда меняется макет —
+   каждый жест читается сам по себе, а не мешаниной сразу нескольких
+   движений. Клик по другому слою в списке, пока один уже раскрыт, закрывает
+   его и открывает выбранный (см. switchProject) — тем же ходом, без отдельной
+   анимации «слой в слой», это на потом. */
+const ОСЬ_ЛИЦОМ = new THREE.Vector3(Math.cos(СТАРТ_АЗИМУТ), 0, -Math.sin(СТАРТ_АЗИМУТ));
+const ОСЬ_КРЕНА = new THREE.Vector3(0, 0, 1);   // ось крена уходящих соседей — мировой Z
+const ЛИЦОМ_НАКЛОН = 0.42;      // насколько плита доворачивается лицом к экрану на повороте, в радианах
+const ОТКРЫТИЕ_МАСШТАБ = 0.3;   // насколько плита подрастает сверх обычного укрупнения — эффект раскрытия
+const ВОЗВРАТ_МС = 350;         // сколько отведено камере, чтобы довернуть азимут — соло, до всего остального
+const ПОВОРОТ_МС = 1000;        // когда начинается раскрытие плиты — после того как соседи разъехались
+const МАКЕТ_МС = 1750;          // когда панель контура садится под список и въезжает контент — после раскрытия
+const СТУПЕНЬ_МС = 90;          // задержка между уходом соседей по дальности от выбранного, поверх ВОЗВРАТ_МС
+const ВСПЫШКА_МС = 260;         // длительность всплеска масштаба у выбранного слоя, с самого клика
+const ПРИБЛИЖЕНИЕ = 0.78;       // во сколько раз камера подходит ближе на раскрытии
+const ОТЪЕЗД_НАКЛОН = 0.14;     // лёгкий крен уходящих соседей, в радианах
+const camAzimuth = () => Math.atan2(camera.position.x - controls.target.x, camera.position.z - controls.target.z);
+// Кратчайшая разница углов b−a в (−π, π]: без нормализации доворот иногда шёл
+// бы в обход через дальнюю сторону круга вместо ближайшего короткого пути.
+function углаРазница(a, b){
+  let d = (b - a) % (Math.PI*2);
+  if(d > Math.PI) d -= Math.PI*2;
+  if(d < -Math.PI) d += Math.PI*2;
+  return d;
+}
+// Кикер контента слоя — по образцу прежних отдельных страниц проекта, но их
+// саму страницу больше не открываем, только формулировку кикера переняли.
+// 24.09 (Адиль): сам кикер (жёлтая строка «ЦД … · проект NN») в кадр не
+// выводится (CSS: #project-content.с-видео #pc-kick{display:none}), но
+// оставлен в объекте — вернуть, если понадобится, надо только снять hide.
+const PROJECT_KICKERS = { plast:'ЦД пласта', skv:'ЦД скважины', naz:'ЦД наземки' };
+/* 24.09 (Адиль): названия систем даны словами заказчика — общим языком
+   первого кадра, а не именами файлов. Стратегия открывается как «Цифровой
+   двойник пласта», наземка — как «Интеллектуальное месторождение»; ТЭО и
+   скважина оставлены под прежними названиями. */
+const RESERVOIR_VIDEOS = {
+  1:{ file:'NUMEX_cut.mp4', title:'Цифровой двойник пласта' },
+  2:{ file:'NUMEX_optimize_cut.mp4', title:'Технико-экономическая оценка' }
+};
+const ZONE_VIDEOS = {
+  skv:{ file:'drillspot_cut.mp4', title:'Цифровой двойник скважины' },
+  naz:{ file:'im.emg.kz.mp4', title:'Интеллектуальное месторождение' }
+};
+let launchT1 = null;
+function launchProject(id, isSwitch = false){
+  if(state.launching || state.closing) return;
+  if(state.openId && !isSwitch) return;
+  // Один клик — сразу выбор слоя и открытие его контента, без промежуточного
+  // состояния и без таймера второго нажатия.
+  if(isSwitch && state.openId === 'plast' && state.plastSubПреждеПерехода !== undefined){
+    panelState.sub = state.plastSubПреждеПерехода;   // уходим с пласта — его прежний выбор возвращаем
+  }
+  state.locked = id;
+  state.hover = null; state.hoverSub = null;
+  controls.autoRotate = false;
+  controls.enabled = false;
+  // камера при переключении уже стоит на месте и ведётся вручную — заново её не снимаем
+  if(!isSwitch){
+    const off = new THREE.Vector3().copy(camera.position).sub(controls.target);
+    state.launchRadius = off.length();
+    state.launchPolar = Math.acos(THREE.MathUtils.clamp(off.y / state.launchRadius, -1, 1));
+    state.camAz = camAzimuth();
+    state.camRadius = state.launchRadius;
+  }
+  /* ЦД пласта по клику на общий контур раскрывается сразу на «Стратегию»
+     (сцена «01.2»): у ГГДМ нет своего внешнего инструмента (23.09 — «нижний
+     слой без ссылки»), а раскрытие с недоступной ссылки читалось бы как
+     заглушка. Прежний выбор запоминаем — при отмене раскрытия (Esc)
+     возвращаем как было, а не оставляем «Стратегию» навязанной. */
+  if(id === 'plast'){
+    state.plastSubПреждеПерехода = panelState.sub;
+    const hasSelectedStep = panelState.zone === 'plast' && panelState.sub !== null && panelState.sub !== 0;
+    panelState.zone = 'plast';
+    if(!hasSelectedStep) panelState.sub = 1;
+  }
+  openProject(id);
+}
+// Esc посреди раскрытия: анимация отменяется, слои возвращаются как были —
+// возможность передумать важнее строгой одноразовости перехода.
+function cancelLaunch(){
+  if(!state.launching) return;
+  if(state.launching === 'plast' && state.plastSubПреждеПерехода !== undefined){
+    panelState.sub = state.plastSubПреждеПерехода;
+  }
+  state.launching = null;
+  clearTimeout(launchT1);
+  controls.autoRotate = true;
+  controls.enabled = true;
+  refresh();
+}
+
+/* Макет раскрытого слоя: список гаснет (см. #stack.скрыт), на его месте — панель
+   контура (класс #panel.раскрыт, своя позиция и высота, см. CSS), справа въезжает
+   контент слоя на 70% экрана, а вся стопка из трёх слоёв перелетает в левый нижний
+   угол миниатюрой (см. MINI_* и цикл зон в animate). Миниатюра остаётся нажимаемой:
+   клик по другому слою переключает содержимое (см. switchProject). Держится всё
+   само, пока state.openId не снимут в closeProject(). */
+function openProject(id){
+  const isSwitch = state.openId !== null;   // слой уже раскрыт: стопка стоит в углу, меняется только содержимое
+  state.launching = null;
+  state.openId = id;
+  // Справка о В. Молдабеке уходит на время раскрытия слоя: место справа занято
+  // содержимым слоя, а сама справка вернётся при закрытии (см. closeProject).
+  if(window.__закрытьСправку) window.__закрытьСправку();
+  // Тег для CSS: шапка кадра сжимается в коридор слева, чтобы уместиться
+  // над стопкой и не заезжать под системный контент (см. body.раскрыт-слой).
+  document.body.classList.add('раскрыт-слой');
+  if(!isSwitch) запомнитьОткуда();
+  const pc = $('project-content');
+  const populateContent = () => {
+    const zd = ZONES[state.openId];
+    const videoData = state.openId === 'plast'
+      ? RESERVOIR_VIDEOS[panelState.sub]
+      : ZONE_VIDEOS[state.openId];
+    const video = $('pc-video');
+    $('pc-kick').textContent = PROJECT_KICKERS[state.openId] + ' · проект ' + zd.no;
+    $('pc-name').textContent = videoData ? videoData.title : zd.name;
+    $('pc-claim').textContent = videoData ? '' : zd.claim;
+    pc.style.setProperty('--pc', zd.color);
+    pc.classList.toggle('с-видео', Boolean(videoData));
+    if(videoData){
+      if(video.getAttribute('src') !== videoData.file){
+        video.setAttribute('src', videoData.file);
+        video.load();
+      }
+      video.currentTime = 0;
+      video.play().catch(() => {});
+    } else {
+      video.pause();
+      video.removeAttribute('src');
+      video.load();
+    }
+    pc.classList.add('vis');
+  };
+  clearTimeout(contentSwapTimer);
+  if(isSwitch){
+    // старый контент гаснет, новый выходит следом — иначе текст на экране
+    // просто подменился бы посреди показа, без единого жеста
+    pc.classList.remove('vis');
+    contentSwapTimer = setTimeout(() => { if(state.openId) populateContent(); }, 260);
+  } else populateContent();
+  $('panel').classList.add('раскрыт');
+  refresh();   // внутри — fitBetweenPanels: при открытом слое сдвиг кадра гасится сразу, а не через таймер
+}
+let contentSwapTimer = null;
+
+/* Ставит компактную панель контура ровно под текущим списком — высота списка
+   зависит от того, сколько шагов у раскрытого контура (у пласта три, у
+   остальных по два), и подгонять её числом в CSS означало бы либо наезжать
+   на список при длинном варианте, либо зря пустовать при коротком. max-height
+   тоже пересчитывается — чтобы панель не заехала за нижний край экрана. */
+function позиционироватьПанель(){
+  const panel = $('panel');
+  if(!panel.classList.contains('раскрыт')) return;
+  const отступ = 24, поле = 26;
+  const верх = $('stack').getBoundingClientRect().bottom + отступ;
+  panel.style.top = верх + 'px';
+  /* Нижняя граница безусловная: показ важнее — пусть панель станет тесной и
+     потребует внутренней прокрутки (overflow-y:auto), но не выйдет ниже края
+     экрана. Пол в 80px раньше стоял и на узком экране с длинным (у пласта —
+     трёхшаговым) списком верх съедал почти всю высоту — пол пересиливал
+     остаток места и панель на ~40px вылезала за низ окна (замеченный баг).
+     Доступного места может не хватить и на 80px — тогда просто отдаём то,
+     что осталось, вплоть до нуля, а не гарантированный минимум. */
+  const доступно = Math.max(0, innerHeight - верх - поле);
+  panel.style.maxHeight = Math.min(innerHeight*0.34, доступно) + 'px';
+}
+
+/* Переключение на другой слой, пока один уже раскрыт (клик по миниатюре в
+   углу). Стопка остаётся в углу, меняется только содержимое (см. openProject).
+   Отклонено: закрыть текущий слой обычным ходом и по окончании открыть новый.
+   Стопка тогда летела бы из угла в центр экрана и сразу обратно в угол — целый
+   раскрой и сворачивание ради того, чтобы подменить текст справа. */
+function switchProject(id){
+  if(!state.openId || state.openId === id || state.closing) return;
+  launchProject(id, true);
+}
+
+/* Закрытие — тот же перелёт в обратную сторону: стопка возвращается из угла в
+   центр и разъезжается как в покое, контент уходит вправо, панель гаснет.
+   Отсчёт идёт с того места, где слои стоят сейчас (см. запомнитьОткуда), поэтому
+   закрытие посреди открытия не дёргается. Камеру не трогаем: при открытии она
+   не двигалась, и возвращать её некуда — раньше здесь стояли скачок радиуса и
+   доворот азимута, рассчитанные на прежнее раскрытие с наездом. */
+const ЗАКРЫТИЕ_МС = MINI_TRANSITION_MS + 100;   // до возврата к обычному простою (автовращению)
+let closeT1 = null;
+function closeProject(){
+  if(state.launching){ cancelLaunch(); return; }
+  if(!state.openId) return;
+  const id = state.openId;
+  if(id === 'plast' && state.plastSubПреждеПерехода !== undefined){
+    panelState.sub = state.plastSubПреждеПерехода;
+  }
+  clearTimeout(contentSwapTimer);
+  $('pc-video').pause();
+  $('project-content').classList.remove('vis');
+  $('panel').classList.remove('раскрыт');
+  // снимаем измеренные top/max-height — без них класс просто возвращает CSS-умолчания
+  $('panel').style.top = '';
+  $('panel').style.maxHeight = '';
+  запомнитьОткуда();
+  state.openId = null;
+  state.closing = id;
+  state.closeAt = performance.now();
+  state.locked = null; state.hover = null;
+  controls.autoRotate = false;
+  controls.enabled = false;
+  refresh();
+
+  closeT1 = setTimeout(finishClosing, ЗАКРЫТИЕ_МС);
+}
+function finishClosing(){
+  if(!state.closing) return;
+  state.closing = null;
+  clearTimeout(closeT1);
+  controls.autoRotate = true;
+  controls.enabled = true;
+  refresh();
+  // Возвращаемся в исходный кадр — справка о В. Молдабеке снова стоит справа
+  // (см. openProject: там она уходит на время раскрытия слоя).
+  if(window.__открытьСправку) window.__открытьСправку();
+  // Шапка кадра расширяется обратно на всю ширину — пара к add в openProject.
+  document.body.classList.remove('раскрыт-слой');
+}
+document.getElementById('pc-back').addEventListener('click', closeProject);
+document.getElementById('mini-reset').addEventListener('click', e => {
+  e.stopPropagation();
+  closeProject();
+});
 
 const raycaster = new THREE.Raycaster();
 const ptr = new THREE.Vector2(-2,-2);
 let mouseXY = [0,0];
+const ПОРОГ_ПЕРЕТАСКИВАНИЯ = 6;
+let pointerStart = null;
+let pointerDragged = false;
+renderer.domElement.addEventListener('pointerdown', e => {
+  if(e.pointerType === 'mouse' && e.button !== 0) return;
+  pointerStart = { id:e.pointerId, x:e.clientX, y:e.clientY };
+  pointerDragged = false;
+});
 addEventListener('pointermove', e => {
   ptr.x = (e.clientX/innerWidth)*2 - 1;
   ptr.y = -(e.clientY/innerHeight)*2 + 1;
   mouseXY = [e.clientX, e.clientY];
+  if(pointerStart && e.pointerId === pointerStart.id &&
+     Math.hypot(e.clientX - pointerStart.x, e.clientY - pointerStart.y) > ПОРОГ_ПЕРЕТАСКИВАНИЯ){
+    pointerDragged = true;
+  }
 });
-renderer.domElement.addEventListener('click', () => {
+addEventListener('pointercancel', e => {
+  if(pointerStart && e.pointerId === pointerStart.id){ pointerStart = null; pointerDragged = false; }
+});
+renderer.domElement.addEventListener('click', e => {
+  const былоПеретаскивание = pointerDragged;
+  pointerStart = null;
+  pointerDragged = false;
+  if(былоПеретаскивание) return;
+  if(state.launching || state.closing) return;
+  if(state.openId){
+    // миниатюра в углу: нажатие по другому слою открывает его контент
+    ptr.set((e.clientX/innerWidth)*2 - 1, -(e.clientY/innerHeight)*2 + 1);
+    raycaster.setFromCamera(ptr, camera);
+    const hit = raycaster.intersectObjects(pickMeshes, false)[0];
+    const zoneId = hit ? hit.object.userData.zone : null;
+    const subIndex = hit ? hit.object.userData.sub ?? null : null;
+    if(zoneId === 'plast' && subIndex === 0) return;   // ГГДМ не открывает контент
+    if(zoneId){
+      if(zoneId === 'plast'){ panelState.zone = 'plast'; panelState.sub = subIndex; }
+      if(zoneId !== state.openId) switchProject(zoneId);
+      else if(zoneId === 'plast' && subIndex !== null) openProject('plast');
+    }
+    return;
+  }
   if(state.hover){
-    const same = state.locked === state.hover && state.hover !== 'plast';
-    state.locked = same ? null : state.hover;
-    // клик по подслою пласта открывает его модалку
-    if(state.locked === 'plast') panelState.sub = state.hoverSub;
-    refresh();
+    if(state.hover === 'plast' && state.hoverSub === 0) return;   // ГГДМ остаётся только визуальным слоем
+    if(state.hover === 'plast') panelState.sub = state.hoverSub;
+    launchProject(state.hover);
   }
   else if(state.locked){ state.locked = null; refresh(); }
 });
-addEventListener('keydown', e => { if(e.key === 'Escape'){ state.locked = null; state.hover = null; refresh(); } });
+addEventListener('keydown', e => { if(e.key === 'Escape'){
+  if(state.launching){ cancelLaunch(); return; }
+  if(state.openId){ closeProject(); return; }
+  if(state.closing) return;   // закрытие короткое и необратимое — дожидаемся, а не прерываем на середине
+  state.locked = null; state.hover = null; refresh();
+} });
 /* Слайд стоит в рамке подводки (demo_with_map.html, вход на финал): после клика по модели
    фокус остаётся в рамке, и нажатия «дальше/назад» ушли бы в пустоту — пробрасываем их
    родителю сообщением, как это делает этап тиражирования. */
@@ -1581,6 +2139,33 @@ if (new URLSearchParams(location.search).get('в_рамке') === '1') addEventL
 });
 
 const elStack = document.getElementById('stack');
+const elEffectsOverview = document.querySelector('#effects-overview .cols');
+/* Три «главных» эффекта программы (23.09, Адиль): цифры и подписи взяты с
+   плашки ТОП-12 в финале подводки (см. тиражирование.html) — на первом кадре
+   они стоят единожды и не пересобираются от выбора контура. Цвет — циан,
+   один язык с заголовком «ABAI» и линией процесса. */
+/* 24.09 (Адиль): «326 млрд ₸» перестало быть подписью и стало вторым крупным
+   значением — там программе так же важно назвать деньги, как и тонны, а мелким
+   шрифтом их из зала не видно. В карточке можно ставить один или несколько
+   пунктов; у каждого может быть своя подпись или не быть — «доп. добычи»
+   относится только к тоннам, у денег подписи нет. */
+const ГЛАВНЫЕ_ЭФФЕКТЫ = [
+  [ { v:'Топ 12',           l:'месторождений' } ],
+  [ { v:'Более 90 %',       l:'добычи' } ],
+  [ { v:'2 864 тыс. тонн',  l:'доп. добычи' },
+    { v:'326 млрд ₸' } ],
+];
+for(const пункты of ГЛАВНЫЕ_ЭФФЕКТЫ){
+  const col = document.createElement('div');
+  col.className = 'effect-col';
+  col.style.setProperty('--ec', 'var(--cyan)');
+  col.innerHTML = `<div class="items">`
+    + пункты.map(п => `<div class="item"><span class="v">${п.v}</span>`
+        + (п.l ? `<span class="l">${п.l}</span>` : '')
+        + `</div>`).join('')
+    + `</div>`;
+  elEffectsOverview.appendChild(col);
+}
 /* Список слева. При выборе ЦД пласта он раскрывается в шаги, остальные контуры
    уходят — чтобы на экране был один смысловой уровень, а не два сразу. */
 let stackBuilt = false;
@@ -1602,9 +2187,10 @@ function buildStack(){
     b.addEventListener('mouseenter', () => { state.hover = id; state.hoverSub = null; refresh(); });
     b.addEventListener('mouseleave', () => { state.hover = null; refresh(); });
     b.addEventListener('click', () => {
-      state.locked = (state.locked === id) ? null : id;
+      if(state.launching || state.closing) return;
+      if(state.openId){ switchProject(id); return; }
       panelState.sub = null;
-      refresh();
+      launchProject(id);
     });
     elStack.appendChild(b);
 
@@ -1617,11 +2203,14 @@ function buildStack(){
       sb.addEventListener('mouseenter', () => { state.hover = id; state.hoverSub = si; refresh(); });
       sb.addEventListener('mouseleave', () => { state.hoverSub = null; refresh(); });
       sb.addEventListener('click', () => {
-        state.locked = id;
-        const same = panelState.zone === id && panelState.sub === si;
-        panelState.zone = id;                 // иначе showPanel сочтёт контур новым и сбросит выбор
-        panelState.sub = same ? null : si;
-        refresh();
+        if(state.launching || state.closing) return;
+        // ГГДМ — нижний слой без ссылки: то же ограничение, что и на клике по
+        // самой плите (см. renderer.click ниже: plast + sub 0 → return).
+        if(id === 'plast' && si === 0) return;
+        if(state.openId){ switchProject(id); return; }
+        panelState.zone = id;
+        panelState.sub = si;
+        launchProject(id);
       });
       elStack.appendChild(sb);
     });
@@ -1676,24 +2265,44 @@ function showPanel(id){
   $('p-h-blocks').style.display = $('p-blocks').innerHTML ? '' : 'none';
   $('panel').classList.add('vis');
 }
-$('p-close').addEventListener('click', () => { state.locked = null; state.hover = null; refresh(); });
+$('p-close').addEventListener('click', () => {
+  if(state.openId){ closeProject(); return; }
+  if(state.launching || state.closing) return;
+  state.locked = null; state.hover = null; refresh();
+});
 
 const chip = $('chip');
 function refresh(){
   const a = active();
+  const panel = $('panel');
+  $('mini-reset').classList.toggle('visible', Boolean(state.openId));
+  const replacesStack = Boolean(state.locked || state.openId);
+  const isFirstMove = replacesStack && !panel.classList.contains('вместо-стека');
+  $('stack').classList.remove('скрыт');
+  $('stack').classList.toggle('выбран', replacesStack);
+  $('effects-overview').classList.toggle('у-стека', replacesStack);
+  if(isFirstMove) panel.classList.remove('vis');
+  panel.classList.toggle('вместо-стека', replacesStack);
+  // Фиксируем начальную точку слева до .vis, чтобы панель именно встала вверх,
+  // а не перепрыгивала мгновенно из правой позиции после hover.
+  if(isFirstMove) void panel.offsetWidth;
   for(const id in zones) zones[id].target = (id === a) ? 1 : 0;
   buildStack();
   for(const id of ORDER){
     /* Шаги раскрываются только у выбранного контура. Наведения мало: иначе
-       список дёргается высотой под курсором и сам себя выводит из-под него. */
+       список дёргается высотой под курсором и сам себя выводит из-под него.
+       И только пока слой не раскрыт полностью: когда справа стоит содержимое
+       системы, слева должны оставаться три пункта (23.09, Адиль), без шагов —
+       иначе получается два уровня одновременно, и глаз ищет, куда смотреть. */
     const раскрыт = (state.locked === id);
+    const показатьШаги = раскрыт && !state.openId;
     const b = $('lay-'+id);
-    if(b){ b.classList.toggle('hot', id === a); b.classList.toggle('open', раскрыт); }
+    if(b){ b.classList.toggle('hot', id === a); b.classList.toggle('open', показатьШаги); }
     const cur = state.locked === id ? panelState.sub : (state.hover === id ? state.hoverSub : null);
     (ZONES[id].subs || []).forEach((_, si) => {
       const sb = $(`lay-step-${id}-${si}`);
       if(!sb) return;
-      sb.classList.toggle('show', раскрыт);
+      sb.classList.toggle('show', показатьШаги);
       sb.classList.toggle('hot', a === id && cur === si);
     });
   }
@@ -1701,12 +2310,30 @@ function refresh(){
      она открывалась поверх модели до первого касания и закрывала собой то,
      ради чего слайд и открыт. Её содержание переехало на главный экран
      показа, где под него есть отдельный кадр. */
-  if(a && !(typeof ярусСпр === 'number' && ярусСпр > 0) && !(typeof эффектыОткрыты !== 'undefined' && эффектыОткрыты)) showPanel(a); else $('panel').classList.remove('vis');
+  const canShowPanel = a && !state.locked && !state.openId && !state.launching && !state.closing
+    && !(typeof ярусСпр === 'number' && ярусСпр > 0)
+    && !(typeof эффектыОткрыты !== 'undefined' && эффектыОткрыты);
+  if(canShowPanel) showPanel(a); else panel.classList.remove('vis');
   controls.autoRotateSpeed = ROT_SPEED;
   updateNavLine();
   // список меняет высоту и заново центрируется — уточняем позицию, когда раскладка устоялась
   requestAnimationFrame(updateNavLine);
+  requestAnimationFrame(positionEffectsOverview);
   fitBetweenPanels();
+}
+
+function positionEffectsOverview(){
+  const effects = $('effects-overview');
+  if(!effects.classList.contains('у-стека')){
+    effects.style.left = '';
+    effects.style.top = '';
+    effects.style.width = '';
+    return;
+  }
+  const stackRect = elStack.getBoundingClientRect();
+  effects.style.left = stackRect.left + 'px';
+  effects.style.width = Math.max(stackRect.width, Math.min(560, innerWidth * .3 - 52)) + 'px';
+  effects.style.top = Math.max(16, stackRect.top - effects.offsetHeight - 12) + 'px';
 }
 
 /* Заливка линии и бегущая точка доходят до текущего узла: видно, что процесс
@@ -1863,8 +2490,8 @@ function обновитьАкцентыНаземки(k, t){
     z.глушь = 1 - ((выбран === 0) ? в : 0) * 0.72;
   }
 
-  elNaz.classList.toggle('on', !!активный);
-  if(!активный) return;
+  elNaz.classList.toggle('on', !!активный && !state.openId);
+  if(!активный || state.openId) return;
   elNaz.textContent = активный.подпись;
   активный.якорь.getWorldPosition(_вект);
   _вект.project(camera);
@@ -1889,7 +2516,8 @@ function обновитьБурение(){
   const б = zones.skv && zones.skv.бурение;
   // по mixH, а не по mix: подпись обязана выходить вместе с самим долотом,
   // то есть уже на наведении, а не только после нажатия
-  const видно = б && ((zones.skv.mixH || 0) > 0.35);
+  // при открытом контенте стопка — миниатюра в углу, подпись к ней великовата и вылезала за край
+  const видно = б && !state.openId && ((zones.skv.mixH || 0) > 0.35);
   elDrill.classList.toggle('on', !!видно);
   if(!видно){ тикБурения = 0; return; }
 
@@ -1909,7 +2537,7 @@ function обновитьБурение(){
 // подпись горизонтального ствола — у носка лежачей части
 function обновитьГоризонт(){
   const г = zones.skv && zones.skv.горизонт;
-  const видно = г && ((zones.skv.mixH || 0) > 0.35);
+  const видно = г && !state.openId && ((zones.skv.mixH || 0) > 0.35);
   elГориз.classList.toggle('on', !!видно);
   if(!видно) return;
   г.якорь.getWorldPosition(_вект);
@@ -1919,7 +2547,7 @@ function обновитьГоризонт(){
   elГориз.style.top  = ((-_вект.y * 0.5 + 0.5) * innerHeight) + 'px';
 }
 function обновитьМеткиТЭО(){
-  const показывать = меткиТЭО.length && (
+  const показывать = меткиТЭО.length && !state.openId && (
     (state.locked === 'plast' && panelState.sub === 2) ||
     (state.hover === 'plast' && state.hoverSub === 2));
   elTeo.classList.toggle('on', !!показывать);
@@ -1991,10 +2619,19 @@ function animate(){
   const t = clock.elapsedTime;
   const k = 1 - Math.exp(-dt*8);
 
+  // В новой наземной GLB три станка и их PumpCycle уже собраны автором модели.
+  // Миксер двигает исходные узлы; вложенный wireframe повторяет движение.
+  if(zones.naz && zones.naz.mixer) zones.naz.mixer.update(dt);
+
   let hitZone = null, hitSub = null;
-  if(Math.abs(ptr.x) <= 1 && Math.abs(ptr.y) <= 1 && pickMeshes.length){
+  /* Пока ничего не нажато, раскладка сама реагирует на наведение (лёгкая
+     раздвижка) — трассировка по живым хитбоксам в этом режиме гонялась бы
+     сама за собой (см. комментарий у restPickMeshes). Нажатый слой раскладку
+     наведением не двигает, поэтому там живые хитбоксы безопасны и точнее. */
+  const пикМеши = state.locked ? pickMeshes : restPickMeshes;
+  if(Math.abs(ptr.x) <= 1 && Math.abs(ptr.y) <= 1 && пикМеши.length){
     raycaster.setFromCamera(ptr, camera);
-    const hits = raycaster.intersectObjects(pickMeshes, false);
+    const hits = raycaster.intersectObjects(пикМеши, false);
     if(hits.length){
       hitZone = hits[0].object.userData.zone;
       hitSub = hits[0].object.userData.sub ?? null;
@@ -2003,13 +2640,28 @@ function animate(){
   /* `заморожен` ставит только служебный вход `?наведение=1`: мыши там нет,
      трассировка каждый кадр не находит ничего и сбрасывала бы выставленное
      наведение обратно в ноль. На показе флаг не поднимается никогда. */
-  if(!state.заморожен && (hitZone !== state.hover || hitSub !== state.hoverSub)){
-    const overUI = document.querySelector('#stack:hover, #panel:hover');
-    if(!overUI){ state.hover = hitZone; state.hoverSub = hitSub; refresh(); }
+  if(!state.заморожен && !state.launching && !state.closing && (hitZone !== state.hover || hitSub !== state.hoverSub)){
+    const overUI = document.querySelector('#stack:hover, #panel:hover, #project-content:hover');
+    if(overUI){
+      if(state.openId && state.hover !== null){ state.hover = null; state.hoverSub = null; refresh(); }
+    } else {
+      state.hover = hitZone; state.hoverSub = hitSub; refresh();
+    }
   }
-  renderer.domElement.style.cursor = hitZone ? 'pointer' : '';
+  const isDisabledGgdm = hitZone === 'plast' && hitSub === 0;
+  const canClick = hitZone && !isDisabledGgdm && (
+    !state.openId || hitZone !== state.openId || (hitZone === 'plast' && hitSub !== null)
+  );
+  renderer.domElement.style.cursor = canClick ? 'pointer' : '';
 
-  if(hitZone && !state.locked){
+  if(canClick && state.openId){
+    // при открытом контенте подсказка — только название слоя под курсором
+    chip.style.display = 'block';
+    chip.style.left = (mouseXY[0]+16)+'px';
+    chip.style.top = (mouseXY[1]+14)+'px';
+    chip.style.setProperty('--cc', ZONES[hitZone].color);
+    chip.textContent = ZONES[hitZone].short;
+  } else if(hitZone && !state.locked){
     chip.style.display = 'block';
     chip.style.left = (mouseXY[0]+16)+'px';
     chip.style.top = (mouseXY[1]+14)+'px';
@@ -2027,11 +2679,9 @@ function animate(){
   const act = active();
   const VIEW_Y = 0;   // локальный центр (world уже смещён к цели камеры)
   const offsets = { grr:0, plast:0, skv:0, naz:0 };
-  /* 18.09 (Адиль): «когда нажимаю цифровой двойник — сразу 3D, и она уже должна быть
-     раскрыта полностью». Пока ничего не выбрано, три контура стоят разнесённые с тем же
-     зазором, что и при выборе; наведение и нажатие работают как раньше. `?стопка=1` —
-     прежний собранный вид. */
-  if(!act && РАСКРЫТА && pickMeshes.length){
+  /* В исходном состоянии три основных 3D-слоя всегда разнесены по вертикали.
+     После выбора они собираются в компактную миниатюру слева. */
+  if(!act && pickMeshes.length){
     const GAP = 24;
     let total = GAP * (RANK_UP.length - 1);
     for(const id of RANK_UP) total += (zones[id].yt - zones[id].yb) * 1.06;
@@ -2042,7 +2692,28 @@ function animate(){
       bot = c + h/2 + GAP;
     }
   }
-  if(act && pickMeshes.length){
+  if(state.openId && pickMeshes.length){
+    const BASE_GAP = 22;
+    const HOVER_GAP = 48;
+    const miniHoverId = state.hover;
+    const gapAfter = index => {
+      const current = RANK_UP[index], next = RANK_UP[index + 1];
+      return miniHoverId && (current === miniHoverId || next === miniHoverId) ? HOVER_GAP : BASE_GAP;
+    };
+    let total = 0;
+    for(const id of RANK_UP) total += (zones[id].yt - zones[id].yb) * MINI_SCALE;
+    for(let i = 0; i < RANK_UP.length - 1; i++) total += gapAfter(i);
+    let bot = VIEW_Y - total/2;
+    for(let i = 0; i < RANK_UP.length; i++){
+      const id = RANK_UP[i];
+      const z = zones[id];
+      const h = (z.yt - z.yb) * MINI_SCALE;
+      const c = bot + h/2;
+      offsets[id] = c - (z.yb + z.yt)/2 * MINI_SCALE;
+      bot = c + h/2 + (i < RANK_UP.length - 1 ? gapAfter(i) : 0);
+    }
+  }
+  if(act && pickMeshes.length && !state.openId){
     const locked = !!state.locked;
     const GAP = locked ? 34 : 14;
     const za = zones[act];
@@ -2070,20 +2741,119 @@ function animate(){
   }
 
   const pulse = 0.72 + 0.28*Math.sin(t*3.1);
+  // мс с момента второго клика — общий таймер на раздвижку соседей и вспышку выбранного
+  const launchElapsed = state.launching ? performance.now() - state.launchAt : 0;
+  // прогресс перелёта стопки в угол и обратно (0..1) и сдвиг миниатюры — один на все слои
+  const transitionProgress = (state.openId || state.closing) ? Math.min(1, (performance.now() - state.переходАт)/MINI_TRANSITION_MS) : 1;
+  const easedTransition = плавно(transitionProgress);
+  if(state.openId) getMiniStackOffset(_miniOffset);
   for(const id in zones){
     const z = zones[id];
-    z.targetOffset = offsets[id];
-    z.offset += (z.targetOffset - z.offset)*k;
-    z.scaleG.position.y = z.offset;
-    if(z.hit) z.hit.position.y = (z.yb+z.yt)/2 + z.offset;
+
+    /* Пока контент раскрыт, вся стопка — миниатюра в левом нижнем углу: три слоя
+       остаются вместе, одним куском, и никуда не исчезают — по ним можно нажать,
+       чтобы открыть контент другого слоя. Сам перелёт (туда и обратно) идёт по
+       времени с плавным стартом, см. запомнитьОткуда; после него значения просто
+       держатся тем же лерпом, что и остальное. КУДА лететь — считаем каждый кадр
+       (getMiniStackOffset, offsets выше), а откуда — z.от: слой мог быть и в покое, и на
+       наведении, и посреди прошлого перелёта.
+
+       Прежняя раскладка раскрытия (соседи уезжают в угол и сжимаются в точку,
+       выбранная плита разворачивается лицом и растёт) осталась только под
+       state.launching, который сейчас никто не включает: открытие идёт с одного
+       клика сразу в openProject. Отдельной анимации «плита на весь кадр» нет —
+       контент раскрывается справа. */
+    const далеко = дальностьОтСтопки(id, state.launching);
+    const рангСвой = RANK_UP.indexOf(id);
+    let ушёл = false;
+    if(state.launching && id !== state.launching){
+      ушёл = launchElapsed > ВОЗВРАТ_МС + далеко*СТУПЕНЬ_МС;
+    }
+    if(z.offsetYExit === undefined){ z.offsetYExit = 0; z.offsetZ = 0; z.tilt = 0; z.exitScale = 1; }
+    const isMini = state.openId !== null;
+    const tL = ушёл ? 0 : offsets[id];
+    const tX = isMini ? _miniOffset.x : ушёл ? -УХОД_ВЛЕВО - рангСвой*ШАГ_УХОДА_X : 0;
+    const tY = isMini ? _miniOffset.y : ушёл ? -УХОД_ВНИЗ - рангСвой*ШАГ_УХОДА_Y : 0;
+    const tZ = isMini ? _miniOffset.z : 0;
+    const tS = isMini ? MINI_SCALE : ушёл ? 0 : 1;
+    const targetMiniYaw = isMini ? camAzimuth() : 0;
+    if(z.miniYaw === undefined) z.miniYaw = 0;
+    if(transitionProgress < 1 && z.от){
+      z.offset = z.от.offset + (tL - z.от.offset)*easedTransition;
+      z.offsetX = z.от.x + (tX - z.от.x)*easedTransition;
+      z.offsetYExit = z.от.y + (tY - z.от.y)*easedTransition;
+      z.offsetZ = z.от.z + (tZ - z.от.z)*easedTransition;
+      z.exitScale = z.от.s + (tS - z.от.s)*easedTransition;
+      z.miniYaw = z.от.yaw + углаРазница(z.от.yaw, targetMiniYaw)*easedTransition;
+    } else {
+      z.offset += (tL - z.offset)*k;
+      z.offsetX += (tX - z.offsetX)*k;
+      z.offsetYExit += (tY - z.offsetYExit)*k;
+      z.offsetZ += (tZ - z.offsetZ)*k;
+      z.exitScale += (tS - z.exitScale)*k;
+      z.miniYaw += углаРазница(z.miniYaw, targetMiniYaw)*k;
+    }
+    z.targetTilt = ушёл ? ОТЪЕЗД_НАКЛОН : 0;
+    z.tilt += (z.targetTilt - z.tilt)*k;
+    z.scaleG.position.set(z.offsetX, z.offset + z.offsetYExit, z.offsetZ);
+    /* Хитбокс живёт в мире, а не в группе слоя (см. build), и сам масштаба и
+       сдвига группы не наследует — повторяем их руками, иначе по миниатюре
+       нельзя было бы попасть: луч искал бы слой там, где он стоял раньше. */
+    const sГ = Math.max(z.exitScale, 0.001);
+    if(z.hit){
+      z.hit.position.set(z.offsetX, (z.yb+z.yt)/2*sГ + z.offset + z.offsetYExit, z.offsetZ);
+      z.hit.scale.setScalar(sГ);
+      z.hit.rotation.y = z.miniYaw;
+    }
+    /* Доворот лицом к экрану — только у самого выбранного слоя, вокруг ОСЬ_ЛИЦОМ,
+       и только после ПОВОРОТ_МС: пока соседи ещё в кадре, доворот плиты вместе
+       с их уходом читался бы кашей, а не жестом «встречает лицом». Пока слой
+       раскрыт (state.openId) — доворот безусловный, держится сам. Крен уходящих
+       соседей — вокруг ОСЬ_КРЕНА (мировой Z). Оба считаются от своих независимых
+       значений и собираются в один кватернион, а не через object.rotation.z += ...:
+       два поворота вокруг разных осей через Euler XYZ друг на друга наслаивались
+       бы неверно (порядок осей и то, что у объекта в любой момент реально
+       накапливается только один из двух). */
+    const раскрыт = state.launching === id && launchElapsed > ПОВОРОТ_МС;
+    z.targetFaceTilt = раскрыт ? ЛИЦОМ_НАКЛОН : 0;
+    z.faceTilt = state.openId ? 0
+      : (z.faceTilt === undefined ? 0 : z.faceTilt) + (z.targetFaceTilt - (z.faceTilt === undefined ? 0 : z.faceTilt))*k;
+    const qЛицо = z.faceTilt > 0.0004
+      ? new THREE.Quaternion().setFromAxisAngle(ОСЬ_ЛИЦОМ, z.faceTilt) : null;
+    const qКрен = z.tilt > 0.0004
+      ? new THREE.Quaternion().setFromAxisAngle(ОСЬ_КРЕНА, z.tilt) : null;
+    const miniFacing = Math.abs(z.miniYaw) > 0.0004
+      ? new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), z.miniYaw)
+      : null;
+    z.scaleG.quaternion.identity();
+    if(miniFacing) z.scaleG.quaternion.premultiply(miniFacing);
+    if(qЛицо) z.scaleG.quaternion.premultiply(qЛицо);
+    if(qКрен) z.scaleG.quaternion.premultiply(qКрен);
+    // Вспышка — сразу с клика, не дожидаясь ухода соседей: мгновенное подтверждение выбора.
+    const вспышка = (state.launching === id)
+      ? Math.sin(Math.min(1, launchElapsed/ВСПЫШКА_МС) * Math.PI)
+      : 0;
+    z.launchFlash = вспышка * 0.09;
+    /* Раскрытие масштаба — тем же тактом, что и поворот лицом: слой не просто
+       разворачивается, а ещё и заметно растёт, как будто раскрывается на весь
+       кадр. Вспышка — короткий щелчок-подтверждение в момент клика, это —
+       плавный, растянутый рост следом за поворотом; разные по характеру,
+       поэтому и не одно и то же значение. */
+    z.targetLaunchGrow = раскрыт ? ОТКРЫТИЕ_МАСШТАБ : 0;
+    z.launchGrow = state.openId ? 0
+      : (z.launchGrow === undefined ? 0 : z.launchGrow) + (z.targetLaunchGrow - (z.launchGrow === undefined ? 0 : z.launchGrow))*k;
 
     /* Оцифровка идёт только по нажатию. Наведение раньше тоже запускало
        голограмму, и от беглого движения мышью слайд мерцал; теперь на наведение
        остаётся только выделение и лёгкая раздвижка. */
-    z.target  = (id === state.locked) ? 1 : 0;
-    z.targetH = (id === act) ? 1 : 0;
-    z.mix  += (z.target  - z.mix)*k;
-    z.mixH  = (z.mixH === undefined ? 0 : z.mixH) + (z.targetH - (z.mixH === undefined ? 0 : z.mixH))*k;
+    // В миниатюре выбранный слой остаётся holo box,
+    // остальные слои показываются в обычном физическом виде.
+    z.target  = state.openId ? (id === state.openId ? 1 : 0) : (id === state.locked ? 1 : 0);
+    z.targetH = state.openId ? (id === state.hover ? 1 : 0) : (id === act ? 1 : 0);
+    z.mix += (z.target - z.mix)*k;
+    z.mixH = state.openId && !state.hover
+      ? 0
+      : (z.mixH === undefined ? 0 : z.mixH) + (z.targetH - (z.mixH === undefined ? 0 : z.mixH))*k;
     const m = z.mix;
     /* Стволы и долота живут не по оцифровке, а по наведению: `mixH` поднимается
        и на курсоре, и на нажатии, тогда как `m` — только на нажатии. Раньше
@@ -2125,12 +2895,13 @@ function animate(){
     }
     // подслои пласта: свой цвет, лёгкое разделение, клипы следуют за слоем и масштабом
     if(z.subs3d){
-      const plastActive = (act === 'plast');
-      const aSub = state.locked === 'plast' ? panelState.sub
-                 : (state.hover === 'plast' ? state.hoverSub : null);
+      const plastActive = state.openId ? state.hover === 'plast' : act === 'plast';
+      const aSub = state.openId
+        ? (state.hover === 'plast' ? state.hoverSub : null)
+        : (state.locked === 'plast' ? panelState.sub : (state.hover === 'plast' ? state.hoverSub : null));
       // столбы ранжирования выходят вместе со слоем оценки
       if(z.столбы){
-        const вид = (aSub === 2) ? 1 : 0;
+        const вид = (aSub === 2 && !state.openId) ? 1 : 0;   // столбы ранжирования без подписей (см. обновитьМеткиТЭО) в миниатюре — просто палки
         z.видСтолбов = (z.видСтолбов === undefined ? 0 : z.видСтолбов) + (вид - (z.видСтолбов === undefined ? 0 : z.видСтолбов))*k;
         // погашенные столбы убираем из рендера целиком — иначе они всё равно
         // участвуют в проходе прозрачности и мажут соседние слои
@@ -2149,19 +2920,13 @@ function animate(){
         let tOff = 0;
         if(plastActive){
           const base = (si === 0 ? -8 : si === 2 ? 8 : 0);   // si: 0 — нижняя, 2 — верхняя
-          // на оценке стопку не разносим: столбы прошивают её насквозь, и в
-          // разъехавшихся слоях связь «запасы → точка → эффект» рвётся
-          if(aSub === null || aSub === 2) tOff = base;
+          if(aSub === null) tOff = base;
           else if(si === aSub) tOff = base;                  // выбранная остаётся на месте
           else tOff = base + (si < aSub ? -1 : 1) * 34 * Math.abs(si - aSub);   // соседние уезжают
         }
         s.off += (tOff - s.off)*k;
-        /* Выбранная составляющая крупнее соседних; масштабируем вокруг её центра,
-           иначе группа уедет — её содержимое стоит в координатах всего стека.
-           На технико-экономической оценке подрастают все три: столбы ранжирования
-           идут сквозь стопку, и разнокалиберные слои под ними читаются как ошибка. */
-        const tScale = !plastActive || aSub === null ? 1
-                     : (aSub === 2 ? 1.12 : (aSub === si ? 1.22 : 0.93));
+        /* Любая наведённая составляющая, включая ТЭО, становится крупнее соседних. */
+        const tScale = !plastActive || aSub === null ? 1 : (aSub === si ? 1.22 : 0.93);
         s.scl = (s.scl === undefined) ? 1 : s.scl + (tScale - s.scl)*k;
         const cy = (s.st + s.sb)/2;
         s.wrap.scale.set(s.scl, s.scl, s.scl);
@@ -2186,7 +2951,10 @@ function animate(){
           s.clip[0].constant =  s.st*sc2 + z.offset + s.off*sc2;
           s.clip[1].constant = -(s.sb*sc2 + z.offset + s.off*sc2);
         }
-        s.hit.position.y = (s.st+s.sb)/2 + z.offset + s.off;
+        // подслои пласта — отдельные хитбоксы; та же привязка к сдвигу и масштабу стопки, что у z.hit выше
+        s.hit.position.set(z.offsetX, ((s.st+s.sb)/2 + s.off)*sГ + z.offset + z.offsetYExit, z.offsetZ);
+        s.hit.scale.setScalar(sГ);
+        s.hit.rotation.y = z.miniYaw;
       });
     }
     if(z.particles && m > 0.02){
@@ -2221,10 +2989,63 @@ function animate(){
       к.шатун.position.set(п.cx, п.cy, 0);
       к.шатун.rotation.z = п.г - МЕХ.г0;
     }
-    z.scaleG.scale.setScalar(1 + 0.05*z.mixH);   // укрупнение — и на наведении тоже
+    // укрупнение (наведение, вспышка, раскрытие) и сжатие в точку у уходящих соседей (exitScale)
+    z.scaleG.scale.setScalar((1 + 0.05*z.mixH + (z.launchFlash||0) + (z.launchGrow||0)) * (z.exitScale === undefined ? 1 : z.exitScale));
   }
 
-  controls.update();
+  /* Камера на раскрытии слоя — два отдельных, разнесённых по времени хода:
+
+     азимут доворачивается к старту показа сразу, с самого клика, кратчайшим
+     путём (см. `углаРазница`) — это первым делом убирает произвол
+     автовращения, до этого «налево» у уходящих соседей смотрело бы туда,
+     куда камеру занесло автовращением, а не туда, где реально левый край
+     кадра (старый баг);
+     радиус (наезд к ПРИБЛИЖЕНИЕ от того, что было на клике) трогается только
+     после ПОВОРОТ_МС — тем же тактом, что и раскрытие самой плиты (см.
+     `z.targetFaceTilt` выше), когда сцена уже расчищена от соседей. Пока слой
+     раскрыт (state.openId) — камера держит тот же приближенный радиус.
+
+     При закрытии (state.closing) — симметрично: азимут и так уже на месте
+     (closeProject ставит его туда без анимации), а радиус сразу же отъезжает
+     к ДЕФОЛТ_РАДИУС — тем же тактом, что и закрытие плиты, безо всякой
+     задержки на ПОВОРОТ_МС: закрытие начинается сразу, а не после паузы.
+
+     Наклон (полярный угол) не трогаем нигде — наезд не должен превращаться в
+     облёт сверху. Ведём камеру вручную и не отдаём кадр `controls.update()`:
+     OrbitControls при enabled:false не даёт новых смещений от пользователя, но
+     с демпфированием мог бы доигрывать старый остаток инерции поверх нашего
+     же движения. */
+  if(state.launching){
+    state.camAz += углаРазница(state.camAz, СТАРТ_АЗИМУТ)*k;
+    if(launchElapsed > ПОВОРОТ_МС){
+      state.camRadius += (state.launchRadius*ПРИБЛИЖЕНИЕ - state.camRadius)*k;
+    }
+  }
+  // при открытом контенте и закрытии камера стоит там, где её застал клик (см. closeProject)
+  if(state.launching || state.closing || state.openId){
+    const горизР = state.camRadius * Math.sin(state.launchPolar);
+    camera.position.set(
+      controls.target.x + горизР*Math.sin(state.camAz),
+      controls.target.y + state.camRadius*Math.cos(state.launchPolar),
+      controls.target.z + горизР*Math.cos(state.camAz)
+    );
+    camera.lookAt(controls.target);
+  } else controls.update();
+  // сдвиг окна проекции под коридор между панелями — тем же плавным ходом,
+  // что и остальное (см. комментарий у fitBetweenPanels): раньше прыгал
+  // разом в кадре, где openProject уже поставил классу .vis, и модель
+  // заметно дёргалась ровно в момент появления контента.
+  /* Пока идёт перелёт стопки, сдвиг кадра гасится тем же прогрессом, а не
+     своим быстрым лерпом: иначе он успевал уйти в первые же 200 мс, и модель
+     сперва дёргалась вправо (сдвиг снимался), а уже потом ехала в угол. */
+  if(transitionProgress < 1) state.viewShiftX = state.viewShiftОт + (state.viewShiftTargetX - state.viewShiftОт)*easedTransition;
+  else state.viewShiftX += (state.viewShiftTargetX - state.viewShiftX)*k;
+  if(Math.abs(state.viewShiftX) > 0.4){
+    camera.setViewOffset(innerWidth, innerHeight, state.viewShiftX, 0, innerWidth, innerHeight);
+  } else {
+    camera.clearViewOffset();
+  }
+  camera.updateProjectionMatrix();
   renderer.render(scene, camera);
   обновитьМеткиТЭО();
   обновитьБурение();
@@ -2245,26 +3066,41 @@ const СПРАВКА = {
   имя:'м/р «Восточный Молдабек»',
   под:'Атырауская область · АО «Эмбамунайгаз» · в разработке с 1999 года',
   паспорт:{ шапка:'Справочная информация', строки:[
-      ['Остаточные извл. запасы','14,8 млн тонн'], ['Выработанность','36,7 %'], ['Обводнённость','88,8 %'],
+      ['Остаточные извл. запасы','14,8 млн тонн'], ['Добыто','36,7 %'], ['Обводнённость','88,8 %'],
       ['Фонд добывающих','360 скважин действующих'], ['Фонд нагнетательных','61 скважина действующая'],
       ['Добыча с начала года','310,3 тыс. тонн'] ],
     сноска:'запасы и фонд — на 01.01.2026, НГДУ «Кайнармунайгаз»' },
+  /* 23.09 (Адиль): «Выработанность» ↔ «Добыто» — на показе за терминологией
+     заказчика; «600 вариантов» вместо «тысяч за минуты» — говорим то число,
+     под которым ЦРНС реально считалось на первом активе; строки про КИН и
+     МРП добавлены к списку сделанного, а «Внедрение · октябрь 2026» ушло
+     на дорожную карту финала подводки — во «что уже сделано» ему не место. */
   сделано:{ шапка:'Что уже сделано', строки:[
       ['ЦИО','ГГДМ переведена из статичной в постоянно действующую'],
-      ['Расчёт сценариев','тысячи вариантов за минуты вместо месяцев'],
+      ['Расчёт сценариев','600 вариантов'],
       ['Выявленный потенциал','дополнительно 161 тыс. тонн добычи'],
       ['Оптимизация бурения','6 наклонно-направленных → 2 горизонтальные'],
-      ['Внедрение','октябрь 2026'] ] },
+      /* 24.09 (Адиль): эти две строки — не «регламент», а конкретный эффект пилота.
+         Помечаем классом «эффект», рисуем крупнее и цветом (см. CSS ниже). */
+      ['КИН до 30 %','коэффициент извлечения нефти','эффект'],
+      ['550 → 700','суток межремонтный период','эффект'] ] },
 };
 let ярусСпр = 0;
 (function карточкаПилота(){
+  /* 24.09 (Адиль): кнопки «первый актив» больше нет — карточка живёт по
+     умолчанию. Раньше при отсутствии кнопки IIFE возвращалась и справка
+     вовсе не инициализировалась; теперь достаточно самой панели #справка,
+     а обработчик кнопки крепим, только если она вдруг найдётся (в других
+     сборках/подводке она осталась). */
   const кн = document.getElementById('pilot'), сп = document.getElementById('справка');
-  if(!кн) return;
+  if(!сп) return;
   function ярус(узел, я){
     узел.textContent = '';
     const ш = document.createElement('div'); ш.className = 'гр'; ш.textContent = я.шапка; узел.appendChild(ш);
-    я.строки.forEach(([к, в], i) => {
-      const r = document.createElement('div'); r.className = 'rw'; r.style.transitionDelay = (0.08 + i*0.045) + 's';
+    я.строки.forEach(([к, в, класс], i) => {
+      const r = document.createElement('div');
+      r.className = 'rw' + (класс ? ' ' + класс : '');
+      r.style.transitionDelay = (0.08 + i*0.045) + 's';
       const кк = document.createElement('div'); кк.className = 'k'; кк.textContent = к;
       const вв = document.createElement('div'); вв.className = 'v'; вв.textContent = в;
       r.append(кк, вв); узел.appendChild(r);
@@ -2283,15 +3119,20 @@ let ярусСпр = 0;
     сп.classList.toggle('on', ярусСпр > 0);
     сп.querySelector('.паспорт').classList.toggle('on', ярусСпр >= 1);
     сп.querySelector('.сделано').classList.toggle('on', ярусСпр >= 2);
-    кн.classList.toggle('on', ярусСпр > 0);
+    if(кн) кн.classList.toggle('on', ярусСпр > 0);
     if(ярусСпр > 0){ state.locked = null; state.hover = null; refresh(); }
   }
-  кн.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); закрытьЭффекты(); показать(ярусСпр >= 2 ? 0 : ярусСпр + 1); });
+  if(кн) кн.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); закрытьЭффекты(); показать(ярусСпр >= 2 ? 0 : ярусСпр + 1); });
   addEventListener('keydown', e => { if(e.key === 'Escape'){ показать(0); закрытьЭффекты(); } });
   window.__закрытьСправку = () => показать(0);
+  /* 23.09 (Адиль): справка о В. Молдабеке — точка входа кадра, а не карточка
+     на кнопку. Показываем оба яруса сразу при загрузке; кнопка «первый актив»
+     остаётся в верхних кнопках, чтобы можно было переключать/убирать вручную.
+     Открытие слоя (`openProject`) сложит справку в 0, возврат — снова в 2. */
+  window.__открытьСправку = () => показать(2);
   // `?справка=N` — карточка с N ярусами при открытии (снимки)
   const н = +(new URLSearchParams(location.search).get('справка') || 0);
-  if(н > 0) setTimeout(() => показать(н), 1200);
+  setTimeout(() => показать(н > 0 ? н : 2), 400);
 })();
 
 /* ── карточка эффектов ────────────────────────────────────────────────
@@ -2391,11 +3232,43 @@ function закрытьЭффекты(){
 })();
 
 /* Модель центрируется в свободном коридоре между панелями: сдвигаем не сцену,
-   а окно проекции — орбита и клики остаются на своих местах. */
+   а окно проекции — орбита и клики остаются на своих местах.
+
+   Сам сдвиг сюда не применяется мгновенно — только пересчитывает цель
+   (state.viewShiftTargetX), а к камере её каждый кадр подводит плавным
+   ходом animate() (тем же k, что и остальные лерпы). Раньше здесь стоял
+   прямой camera.setViewOffset()/clearViewOffset(): при раскрытии слоя
+   fitBetweenPanels зовётся из openProject синхронно с тем же кликом, что
+   добавляет контенту класс .vis — сдвиг обнулялся мгновенно, в тот же кадр,
+   что и начало CSS-перехода контента, и картинка заметно дёргалась именно
+   «когда контент выходит» (замеченный баг). Плавный лерп это убирает. */
 function fitBetweenPanels(){
   const W = innerWidth, H = innerHeight;
-  const left  = document.getElementById('stack').getBoundingClientRect().right + 24;
+  // аспект — сразу, а не лерпом: это настоящий ресайз, а не стилистический
+  // сдвиг кадра, и он должен быть в силе, даже пока рендер спит во встроенном
+  // iframe (см. animate(): ветка сна не подводит матрицу проекции сама).
+  camera.aspect = W/H;
+  camera.updateProjectionMatrix();
+  if(state.openId){
+    /* Слой раскрыт: панель контура (34vw) слева и контент слоя (70vw) справа
+       в сумме шире экрана — настоящего коридора между ними физически нет, в
+       отличие от обычного режима ниже. Пытаться сдвинуть камеру в
+       несуществующий зазор только уводило бы её в произвольную сторону.
+       Плита к этому моменту уже сама заметно подросла и развёрнута лицом —
+       сцену просто центрируем как обычно, без сдвига, и панели ложатся
+       сверху своим стеклом. */
+    state.viewShiftTargetX = 0;
+    return;
+  }
   const panel = document.getElementById('panel');
+  if(state.locked){
+    // Выбранная панель теперь слева: центрируем модель в свободном коридоре справа.
+    const left = panel.getBoundingClientRect().right + 24;
+    const right = W - 26;
+    state.viewShiftTargetX = -((left + right)/2 - W/2);
+    return;
+  }
+  const left = document.getElementById('stack').getBoundingClientRect().right + 24;
   /* Место под панель держим всегда, показана она или нет. Считать коридор по
      видимой панели нельзя: пока ничего не выбрано, её нет, модель встаёт по
      центру всего кадра, а на первом же наведении панель выходит, коридор
@@ -2412,9 +3285,7 @@ function fitBetweenPanels(){
      модель садилась в кадре правее, чем нужно, подходя вплотную к панели.
      Положительный x у setViewOffset сдвигает картинку влево. */
   const ВЛЕВО = 34;
-  camera.setViewOffset(W, H, -shift + ВЛЕВО, 0, W, H);
-  camera.aspect = W/H;
-  camera.updateProjectionMatrix();
+  state.viewShiftTargetX = -shift + ВЛЕВО;
 }
 
 /* Плотность пикселей нельзя выставлять один раз при загрузке: слайд стартует и
@@ -2430,6 +3301,7 @@ function подогнатьПлотность(){
 addEventListener('resize', () => {
   подогнатьПлотность();
   renderer.setSize(innerWidth, innerHeight);
+  positionEffectsOverview();
   fitBetweenPanels();
   updateNavLine();
 });

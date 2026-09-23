@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Цифровой двойник добычи и наземной инфраструктуры · проект</title>
+<style>
+:root{
+  --cyan:#4FE3FF; --amber:#F0AE4A; --blue:#8FBAF0; --teal:#35D0C2; --viol:#9B7BE8;
+  --bg0:#050810; --bg1:#0C1626; --line:rgba(140,170,210,.22);
+  --glass:rgba(10,18,32,.82); --txt:#D7E2F2; --dim:#7C8DA6; --pc:#35D0C2;
+  --mono:Consolas,"Courier New",monospace; --serif:Cambria,Georgia,serif;
+  --ui:"Segoe UI",Calibri,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;font-family:var(--ui);color:var(--txt);
+  background:radial-gradient(ellipse at 50% 30%,#0C1626 0%,#050810 70%)}
+/* Плавное появление зеркалит затемнение, которым первый слайд уходит в переход —
+   без него смена страницы читалась бы как перезагрузка, а не продолжение анимации. */
+body{display:flex;align-items:center;justify-content:center;opacity:0;animation:вход .6s ease forwards}
+@keyframes вход{to{opacity:1}}
+#карта{width:min(760px,88vw);border:1px solid var(--line);border-top:2px solid var(--pc);
+  background:var(--glass);backdrop-filter:blur(12px);padding:44px 48px}
+#kick{font-family:var(--mono);font-size:16px;letter-spacing:.24em;text-transform:uppercase;color:var(--pc)}
+h1{font-family:var(--serif);font-size:36px;font-weight:600;margin-top:10px;line-height:1.25}
+#claim{font-size:19.5px;color:var(--dim);margin-top:16px;line-height:1.55}
+#метка{display:inline-block;margin-top:24px;font-family:var(--mono);font-size:14px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--amber);border:1px solid rgba(240,174,74,.5);padding:6px 12px}
+#назад{position:fixed;top:26px;left:26px;display:inline-flex;align-items:center;gap:8px;cursor:pointer;
+  font-family:var(--mono);font-size:15px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);
+  border:1px solid var(--line);background:none;padding:8px 14px;transition:color .2s,border-color .2s}
+#назад:hover{color:var(--txt);border-color:var(--txt)}
+</style>
+</head>
+<body>
+<button id="назад" onclick="location.href='первый_слайд_v3.html'+location.search">← к цифровому двойнику</button>
+<div id="карта">
+  <div id="kick">ЦД наземки · проект 03</div>
+  <h1>Цифровой двойник добычи и наземной инфраструктуры</h1>
+  <p id="claim">.</p>
+  <div id="метка"></div>
+</div>
+<script>
+// Esc — тем же путём назад, каким сюда и попали (README: «Esc — ровно на шаг вверх»)
+addEventListener('keydown', e => { if(e.key === 'Escape') location.href = 'первый_слайд_v3.html' + location.search; });
+</script>
+</body>
+</html>

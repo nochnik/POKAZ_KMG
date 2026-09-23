@@ -1,0 +1,1060 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Мониторинг добычи — месторождение «Уаз»</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --page: #050507;
+      --panel: #29292f;
+      --panel-2: #323239;
+      --card: #494950;
+      --line: #5a5a62;
+      --muted: #ababaf;
+      --text: #f4f4f5;
+      --green: #54b948;
+      --green-dark: #247d38;
+      --red: #ef5c65;
+      --yellow: #d5a62a;
+      --blue: #2d84b7;
+      --cyan: #42bfcb;
+      --oil: #aa8c25;
+      --gap: clamp(5px, .42vw, 9px);
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body { width: 100%; height: 100%; margin: 0; }
+
+    body {
+      min-width: 1180px;
+      min-height: 680px;
+      overflow: hidden;
+      background: var(--page);
+      color: var(--text);
+      font-family: Inter, "Segoe UI", Arial, sans-serif;
+      font-variant-numeric: tabular-nums;
+    }
+
+    button, input { font: inherit; }
+
+    button { color: inherit; }
+
+    .dashboard {
+      width: 100vw;
+      height: 100vh;
+      min-width: 1180px;
+      min-height: 680px;
+      padding: var(--gap);
+      display: grid;
+      grid-template-rows: clamp(70px, 9.2vh, 104px) 1fr;
+      gap: var(--gap);
+      background: #08080a;
+    }
+
+    .topbar {
+      display: grid;
+      grid-template-columns: minmax(330px, 1.4fr) repeat(5, minmax(125px, .72fr)) 54px;
+      gap: var(--gap);
+      min-height: 0;
+    }
+
+    .brand, .top-kpi, .settings {
+      background: var(--panel);
+      border: 1px solid #36363c;
+      min-width: 0;
+    }
+
+    .brand {
+      display: grid;
+      grid-template-columns: 62px 1fr auto;
+      align-items: stretch;
+    }
+
+    .menu {
+      position: relative;
+      display: grid;
+      place-items: center;
+      border: 0;
+      border-right: 1px solid var(--line);
+      background: #34343a;
+      cursor: pointer;
+    }
+
+    .menu-lines, .menu-lines::before, .menu-lines::after {
+      width: 23px;
+      height: 2px;
+      background: #dedee1;
+      content: "";
+      display: block;
+      position: absolute;
+    }
+
+    .menu-lines::before { transform: translateY(-7px); }
+    .menu-lines::after { transform: translateY(7px); }
+
+    .badge {
+      position: absolute;
+      right: 7px;
+      top: 7px;
+      min-width: 21px;
+      height: 21px;
+      padding: 0 4px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: #df4d57;
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .title-block {
+      padding: 10px 14px;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(18px, 1.55vw, 31px);
+      line-height: 1.05;
+      letter-spacing: -.02em;
+      font-weight: 550;
+    }
+
+    .field {
+      margin-top: 7px;
+      color: #b9b9bd;
+      font-size: clamp(10px, .68vw, 14px);
+    }
+
+    .date-block {
+      padding: 10px 15px 8px;
+      border-left: 1px solid var(--line);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .date { color: #c5c5c8; font-size: 11px; }
+    .time { margin-top: 4px; font-size: clamp(19px, 1.35vw, 28px); font-weight: 600; }
+
+    .top-kpi {
+      padding: 8px 10px;
+      display: grid;
+      grid-template-columns: 1fr 42px;
+      align-items: center;
+    }
+
+    .kpi-label {
+      color: #c1c1c5;
+      font-size: clamp(9px, .59vw, 12px);
+      line-height: 1.25;
+    }
+
+    .kpi-value {
+      margin-top: 4px;
+      font-size: clamp(18px, 1.55vw, 31px);
+      line-height: 1;
+      font-weight: 500;
+    }
+
+    .pump-icon {
+      width: 39px;
+      height: 35px;
+      position: relative;
+      opacity: .9;
+    }
+
+    .pump-icon::before {
+      content: "";
+      position: absolute;
+      left: 3px;
+      top: 12px;
+      width: 30px;
+      height: 7px;
+      background: #a1a1a6;
+      transform: rotate(-13deg);
+      border-radius: 4px 12px 4px 4px;
+    }
+
+    .pump-icon::after {
+      content: "";
+      position: absolute;
+      left: 17px;
+      top: 14px;
+      width: 3px;
+      height: 19px;
+      background: #a1a1a6;
+      box-shadow: -9px 18px 0 0 #a1a1a6, 9px 18px 0 0 #a1a1a6;
+    }
+
+    .settings {
+      border: 0;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      font-size: 25px;
+      color: #b9b9be;
+    }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: minmax(390px, 32.3fr) minmax(460px, 39.7fr) minmax(320px, 28fr);
+      gap: var(--gap);
+      min-height: 0;
+    }
+
+    .panel {
+      position: relative;
+      min-height: 0;
+      min-width: 0;
+      overflow: hidden;
+      background: var(--panel);
+      border: 1px solid #36363c;
+    }
+
+    .panel-title {
+      height: clamp(30px, 3.5vh, 42px);
+      padding: 0 13px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #414148;
+      color: #e5e5e7;
+      font-size: clamp(11px, .69vw, 14px);
+      font-weight: 600;
+    }
+
+    .muted { color: var(--muted); }
+
+    .left-panel {
+      display: grid;
+      grid-template-rows: minmax(260px, 45%) 1fr;
+    }
+
+    .chart-section { min-height: 0; display: grid; grid-template-rows: auto 1fr; }
+
+    .chart-head {
+      padding: 9px 12px 2px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      font-size: clamp(9px, .58vw, 12px);
+    }
+
+    .date-control {
+      padding: 5px 9px;
+      border: 1px solid #57575e;
+      border-radius: 2px;
+      background: #36363c;
+      color: #e0e0e2;
+    }
+
+    .check, .radio {
+      display: inline-flex;
+      gap: 6px;
+      align-items: center;
+      cursor: pointer;
+      color: #ceced1;
+      white-space: nowrap;
+    }
+
+    input { accent-color: var(--green); }
+
+    .radio-switch {
+      margin-left: auto;
+      display: inline-flex;
+      padding: 2px;
+      border: 1px solid #505057;
+      border-radius: 3px;
+      background: #212126;
+    }
+
+    .radio-switch button {
+      border: 0;
+      padding: 5px 9px;
+      background: transparent;
+      color: #aaaab0;
+      font-size: inherit;
+      cursor: pointer;
+    }
+
+    .radio-switch button.active { background: #55555c; color: #fff; }
+
+    .chart-wrap { min-height: 0; padding: 0 8px 7px; }
+    .chart-wrap svg { width: 100%; height: 100%; display: block; }
+    .grid-line { stroke: #53535a; stroke-width: .6; opacity: .62; }
+    .axis-text { fill: #9b9ba1; font-size: 9px; }
+    .series-line { fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+    .area { opacity: .08; }
+
+    .legend {
+      display: flex;
+      gap: 15px;
+      padding: 0 13px 8px;
+      color: #babac0;
+      font-size: clamp(8px, .54vw, 11px);
+    }
+
+    .legend i { width: 19px; height: 3px; display: inline-block; margin: 0 5px 2px 0; }
+
+    .wells-section {
+      min-height: 0;
+      display: grid;
+      grid-template-rows: auto auto 1fr;
+      border-top: var(--gap) solid #08080a;
+    }
+
+    .status-strip {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 1px;
+      background: #57575e;
+      border-bottom: 1px solid #57575e;
+    }
+
+    .status-item {
+      min-width: 0;
+      padding: 7px 5px;
+      background: #34343a;
+      text-align: center;
+    }
+
+    .status-item strong { display: block; font-size: clamp(13px, .9vw, 18px); }
+    .status-item small { display: block; margin-top: 2px; color: #c0c0c4; font-size: clamp(7px, .45vw, 9px); line-height: 1.15; }
+
+    .wells-grid {
+      min-height: 0;
+      padding: 7px;
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      grid-auto-rows: minmax(31px, 1fr);
+      gap: 5px;
+      overflow: hidden;
+    }
+
+    .well-card {
+      position: relative;
+      padding: 5px 7px;
+      border-left: 4px solid var(--accent, #7a7a80);
+      background: #3b3b42;
+      overflow: hidden;
+    }
+
+    .well-card::after {
+      content: "";
+      position: absolute;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      width: 35%;
+      background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--accent) 15%, transparent));
+      pointer-events: none;
+    }
+
+    .well-name { position: relative; z-index: 1; font-weight: 650; font-size: clamp(8px, .54vw, 11px); }
+    .well-data { position: relative; z-index: 1; margin-top: 3px; color: #c5c5c9; font-size: clamp(7px, .45vw, 9px); }
+
+    .center-panel {
+      display: grid;
+      grid-template-rows: minmax(126px, 19%) 1fr;
+      gap: var(--gap);
+      background: #08080a;
+      border: 0;
+    }
+
+    .production-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+      gap: var(--gap);
+    }
+
+    .production-card {
+      min-width: 0;
+      padding: 9px 11px;
+      background: var(--panel);
+      border: 1px solid #38383e;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .production-card .label { color: #bebec2; font-size: clamp(8px, .51vw, 10px); line-height: 1.25; }
+    .production-card .value { margin-top: 7px; font-size: clamp(17px, 1.28vw, 26px); font-weight: 520; }
+    .production-card .unit { font-size: .53em; color: #babac0; margin-left: 3px; }
+
+    .scheme-panel { background: var(--panel); position: relative; min-height: 0; overflow: hidden; }
+    .scheme { position: absolute; inset: 39px 0 0; overflow: hidden; }
+    .flow-svg { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; }
+
+    .device {
+      position: absolute;
+      z-index: 2;
+      min-width: 82px;
+      padding: 7px 8px;
+      border: 1px solid #5b5b61;
+      background: #36363c;
+      text-align: center;
+      font-size: clamp(7px, .48vw, 10px);
+      box-shadow: 0 5px 12px rgba(0,0,0,.18);
+    }
+
+    .device strong { display: block; margin-top: 4px; font-size: clamp(10px, .69vw, 14px); }
+    .device.green { border-color: #477f4b; }
+    .device.blue { border-color: #347da6; }
+    .device.oil { border-color: #8c7728; }
+
+    .meter-water { left: 3%; top: 4%; width: 15%; }
+    .meter-gas { left: 3%; top: 18%; width: 15%; }
+    .pump-water { left: 24%; top: 7%; width: 15%; }
+    .pump-oil { left: 24%; top: 22%; width: 15%; }
+    .storage { right: 3%; top: 4%; width: 22%; height: 18%; display: grid; place-items: center; }
+
+    .tank-row { display: flex; justify-content: center; gap: 7px; margin-top: 5px; }
+    .mini-tank {
+      width: 31px;
+      height: 39px;
+      border: 2px solid #8b8b91;
+      border-radius: 50% / 10%;
+      background: linear-gradient(to top, var(--oil) 0 62%, #53535a 63%);
+      position: relative;
+    }
+    .mini-tank::before { content: ""; position: absolute; inset: -2px -2px auto; height: 8px; border: 2px solid #aaaab0; border-radius: 50%; background: #4d4d54; }
+
+    .agzu {
+      position: absolute;
+      left: 3%;
+      right: 3%;
+      top: 35%;
+      height: 28%;
+      z-index: 3;
+    }
+
+    .agzu-tabs { height: 29px; display: flex; align-items: end; gap: 4px; }
+    .agzu-tabs button {
+      padding: 6px 12px;
+      border: 1px solid #55555b;
+      background: #3c3c42;
+      color: #b7b7bb;
+      cursor: pointer;
+      font-size: clamp(8px, .49vw, 10px);
+    }
+    .agzu-tabs button.active { background: var(--green-dark); border-color: #59b35f; color: #fff; }
+
+    .agzu-box {
+      height: calc(100% - 29px);
+      padding: 13px 12px 8px;
+      border: 1px solid #4e4e55;
+      background: rgba(42,42,47,.96);
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 7px;
+      align-items: center;
+    }
+
+    .well-node { min-width: 0; text-align: center; color: #c9c9cc; font-size: clamp(7px, .43vw, 9px); }
+    .well-symbol { width: 22px; height: 20px; margin: 0 auto 3px; position: relative; }
+    .well-symbol::before { content: ""; position: absolute; left: 8px; bottom: 0; width: 4px; height: 15px; background: #a7a7ab; }
+    .well-symbol::after { content: ""; position: absolute; left: 2px; top: 2px; width: 17px; height: 4px; background: var(--green); transform: rotate(-13deg); }
+    .well-node strong { display: block; color: #fff; font-size: clamp(8px, .5vw, 10px); }
+
+    .central-unit {
+      left: 39%; top: 68%; width: 22%; height: 19%;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: radial-gradient(circle at 45% 38%, #515159, #2c2c31 67%);
+      border: 3px solid #7a7a80;
+      box-shadow: 0 0 0 6px #36363c, 0 7px 18px rgba(0,0,0,.35);
+    }
+    .central-unit strong { color: #fff; font-size: clamp(13px, 1vw, 20px); }
+    .central-unit span { display: block; margin-top: 2px; color: #c2c2c6; }
+
+    .collector {
+      left: 5%; right: 5%; bottom: 2%; height: 8%;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 7px 13px;
+      border-color: #8c7728;
+      background: #3e3929;
+    }
+
+    .right-panel { display: grid; grid-template-rows: auto 1fr; }
+    .right-scheme { position: relative; min-height: 0; overflow: hidden; }
+    .right-flow { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+    .big-tanks { position: absolute; left: 5%; top: 4%; width: 38%; height: 28%; display: flex; align-items: flex-end; gap: 4%; }
+    .big-tank {
+      position: relative;
+      flex: 1;
+      height: 88%;
+      border: 2px solid #a1a1a7;
+      border-radius: 50% / 7%;
+      background: linear-gradient(to top, #a0892a 0 var(--level), #55555b var(--level) 100%);
+      box-shadow: inset 0 10px 0 rgba(255,255,255,.06);
+    }
+    .big-tank::before { content: ""; position: absolute; inset: -3px -2px auto; height: 17px; border: 2px solid #bbb; border-radius: 50%; background: #4c4c52; }
+    .tank-label { position: absolute; left: 50%; bottom: 14%; transform: translateX(-50%); width: 120%; text-align: center; font-size: clamp(7px, .47vw, 10px); text-shadow: 0 1px 2px #000; }
+    .tank-label strong { display: block; font-size: clamp(11px, .76vw, 15px); }
+
+    .rgs-row { position: absolute; right: 4%; top: 4%; width: 47%; height: 24%; display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
+    .rgs { padding: 7px; border: 1px solid #67676d; background: #39393f; text-align: center; font-size: clamp(7px, .45vw, 9px); }
+    .rgs .vessel { height: 50%; margin: 6px auto 4px; border: 2px solid #99999f; border-radius: 7px; background: linear-gradient(to top, var(--oil) 0 var(--level), #4e4e55 var(--level)); }
+    .rgs strong { display: block; margin-top: 3px; font-size: clamp(9px, .56vw, 11px); }
+
+    .meter-stack { position: absolute; left: 4%; top: 37%; width: 40%; display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+    .meter-stack .device { position: static; min-height: 66px; display: flex; flex-direction: column; justify-content: center; }
+
+    .furnaces { position: absolute; left: 4%; right: 4%; bottom: 4%; height: 39%; display: grid; grid-template-columns: 1fr 1fr; gap: 11px; }
+    .furnace { position: relative; border: 1px solid #64646a; background: #35353b; overflow: hidden; }
+    .furnace-head { height: 28px; padding: 6px 9px; background: #45454c; font-size: clamp(9px, .58vw, 12px); font-weight: 650; }
+    .furnace-drum { position: absolute; left: 25%; top: 27%; width: 50%; height: 42%; border: 3px solid #99999e; border-radius: 50%; background: radial-gradient(circle, #6a5521 0 24%, #333339 26%); }
+    .furnace-drum::after { content: ""; position: absolute; left: 50%; top: 50%; width: 3px; height: 36%; transform-origin: 50% 0; transform: rotate(36deg); background: #e6c64b; }
+    .temp { position: absolute; bottom: 8px; width: 44%; padding: 4px; background: #2c2c31; border-top: 2px solid var(--red); text-align: center; font-size: clamp(7px, .45vw, 9px); }
+    .temp.left { left: 3%; }
+    .temp.right { right: 3%; border-color: var(--green); }
+    .temp strong { display: block; color: #fff; font-size: clamp(10px, .66vw, 13px); }
+
+    .tag {
+      padding: 3px 7px;
+      border-radius: 2px;
+      color: #fff;
+      background: rgba(0,0,0,.33);
+      font-size: clamp(7px, .44vw, 9px);
+      white-space: nowrap;
+    }
+
+    .flow-label { fill: #c7c7cb; font-size: 10px; }
+
+    @media (max-aspect-ratio: 16/9) {
+      .dashboard { font-size: 90%; }
+      .topbar { grid-template-columns: minmax(310px, 1.32fr) repeat(5, minmax(118px, .72fr)) 48px; }
+      .main-grid { grid-template-columns: 33fr 39fr 28fr; }
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      .panel, .brand, .top-kpi { animation: enter .55s cubic-bezier(.2,.75,.25,1) both; }
+      .top-kpi:nth-child(2) { animation-delay: .04s; }
+      .top-kpi:nth-child(3) { animation-delay: .08s; }
+      .top-kpi:nth-child(4) { animation-delay: .12s; }
+      .top-kpi:nth-child(5) { animation-delay: .16s; }
+      .top-kpi:nth-child(6) { animation-delay: .20s; }
+      @keyframes enter { from { opacity: 0; transform: translateY(6px); } }
+    }
+
+    /* Исходный productionMonitoring рассчитан на видеостену 7680 × 2155. */
+    html, body {
+      width: 7680px;
+      height: 2155px;
+      min-width: 7680px;
+      min-height: 2155px;
+      overflow: auto;
+      background: #050506;
+      font-size: 24px;
+    }
+
+    .dashboard {
+      width: 7680px;
+      height: 2155px;
+      min-width: 7680px;
+      min-height: 2155px;
+      padding: 7px;
+      grid-template-rows: 200px 1934px;
+      gap: 7px;
+      background: #050506;
+    }
+
+    .topbar {
+      position: relative;
+      display: block;
+      height: 200px;
+      min-height: 200px;
+    }
+
+    .brand {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 1930px;
+      height: 200px;
+      grid-template-columns: 200px 1335px 395px;
+      background: #2c2b30;
+      border: 0;
+    }
+
+    .menu { margin: 30px; width: 140px; height: 140px; border: 0; border-radius: 3px; background: #56565e; }
+    .menu-lines, .menu-lines::before, .menu-lines::after { width: 70px; height: 6px; border-radius: 4px; }
+    .menu-lines::before { transform: translateY(-24px); }
+    .menu-lines::after { transform: translateY(24px); }
+    .badge { right: -10px; top: 100px; min-width: 52px; height: 52px; font-size: 28px; }
+    .title-block { padding: 24px 70px 24px 147px; }
+    h1 { font-size: 52px; line-height: 1.05; font-weight: 500; }
+    .field { margin-top: 24px; padding-top: 18px; border-top: 3px solid #47464d; font-size: 42px; color: #fff; }
+    .date-block { padding: 20px 45px; border-left: 0; }
+    .date { font-size: 30px; color: #fff; }
+    .time { font-size: 46px; color: #fff; }
+
+    .top-kpi {
+      position: absolute;
+      top: 30px;
+      width: 905px;
+      height: 140px;
+      padding: 14px 30px;
+      grid-template-columns: 140px 1fr;
+      background: #2c2b30;
+      border: 3px solid #46454c;
+    }
+    .top-kpi:nth-child(2) { left: 1937px; }
+    .top-kpi:nth-child(3) { left: 2902px; }
+    .top-kpi:nth-child(4) { left: 3867px; }
+    .top-kpi:nth-child(5) { left: 4832px; }
+    .top-kpi:nth-child(6) { left: 5797px; width: 1200px; }
+    .top-kpi > div { grid-column: 2; grid-row: 1; }
+    .top-kpi .pump-icon { grid-column: 1; grid-row: 1; }
+    .kpi-label { font-size: 31px; color: #fff; }
+    .kpi-value { margin-top: 12px; font-size: 39px; color: #fff; }
+    .pump-icon { width: 100px; height: 95px; }
+    .pump-icon::before { left: 3px; top: 31px; width: 78px; height: 14px; }
+    .pump-icon::after { left: 44px; top: 36px; width: 7px; height: 51px; box-shadow: -23px 48px 0 0 #a1a1a6, 23px 48px 0 0 #a1a1a6; }
+    .settings { position: absolute; right: 0; top: 0; width: 200px; height: 200px; font-size: 72px; background: #2c2b30; }
+
+    .main-grid { position: relative; display: block; height: 1934px; min-height: 1934px; }
+    .panel { border: 0; background: #2c2b30; }
+
+    .left-panel {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 1917px;
+      height: 1934px;
+      display: grid;
+      grid-template-rows: 859px 1068px;
+      gap: 7px;
+      background: #050506;
+    }
+
+    .chart-section, .wells-section { background: #2c2b30; }
+    .chart-section .panel-title { display: none; }
+    .panel-title { height: 54px; padding: 0 30px; font-size: 26px; border-color: #48474e; }
+    .chart-head { height: 90px; padding: 24px 40px 4px 58px; gap: 30px; font-size: 25px; }
+    .chart-head::before { content: "▦"; color: #aaa8c7; font-size: 34px; }
+    .date-control { padding: 7px 0; border: 0; background: transparent; font-size: 23px; }
+    .check { font-size: 27px; font-weight: 700; }
+    .check input { width: 27px; height: 27px; accent-color: #3b8df2; }
+    .radio-switch { margin-left: 0; border: 0; background: transparent; }
+    .radio-switch button { padding: 6px 12px; font-size: 27px; font-weight: 700; }
+    .radio-switch button.active { background: transparent; color: #fff; }
+    .radio-switch button.active::before { content: "◉ "; color: #57a0ff; }
+    .radio-switch button:not(.active)::before { content: "● "; color: #fff; }
+    .chart-wrap { padding: 0 40px 20px; }
+    .legend { gap: 42px; padding: 0 95px 24px; font-size: 21px; }
+    .legend i { width: 34px; height: 14px; }
+    .axis-text { font-size: 14px; }
+    .series-line { stroke-width: 3; }
+
+    .wells-section { grid-template-rows: 58px 143px 1fr; border-top: 0; }
+    .status-strip { padding: 0 30px; background: #2c2b30; gap: 2px; }
+    .status-item { padding: 16px 9px; background: #2c2b30; border-right: 2px solid #55545b; }
+    .status-item strong { font-size: 27px; }
+    .status-item small { font-size: 18px; }
+    .wells-grid {
+      padding: 10px 30px 20px;
+      grid-template-columns: repeat(6, 1fr);
+      grid-auto-rows: 132px;
+      gap: 8px;
+      overflow: hidden;
+    }
+    .well-card { padding: 12px 14px; border-left-width: 0; border-top: 7px solid var(--accent); background: #505057; }
+    .well-name { font-size: 20px; color: #d8d8da; }
+    .well-data { margin-top: 10px; font-size: 18px; color: #fff; line-height: 1.35; }
+
+    .center-panel {
+      position: absolute;
+      left: 1924px;
+      top: 0;
+      width: 5749px;
+      height: 1934px;
+      display: grid;
+      grid-template-rows: 200px 1727px;
+      gap: 7px;
+      background: #050506;
+      z-index: 1;
+    }
+    .production-grid { grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(2, 1fr); gap: 4px; }
+    .production-card { padding: 18px 34px; background: #56565e; border: 2px solid #66656c; }
+    .production-card .label { font-size: 29px; color: #fff; }
+    .production-card .value { margin-top: 8px; font-size: 39px; }
+    .production-card .unit { font-size: 24px; }
+    .scheme-panel > .panel-title { display: none; }
+    .scheme { inset: 0; }
+    .device { min-width: 210px; padding: 16px 18px; font-size: 20px; border-width: 2px; }
+    .device strong { margin-top: 10px; font-size: 31px; }
+    .meter-water, .meter-gas { width: 19%; }
+    .pump-water, .pump-oil { width: 17%; }
+    .storage { width: 19%; height: 21%; }
+    .mini-tank { width: 78px; height: 105px; border-width: 4px; }
+    .mini-tank::before { height: 18px; border-width: 4px; }
+    .agzu { left: 2%; right: 2%; top: 36%; height: 31%; }
+    .agzu-tabs { height: 70px; gap: 12px; }
+    .agzu-tabs button { padding: 14px 28px; font-size: 28px; }
+    .agzu-box { height: calc(100% - 70px); padding: 30px 22px; gap: 12px; }
+    .well-node { font-size: 20px; }
+    .well-node strong { font-size: 22px; }
+    .well-symbol { width: 62px; height: 55px; }
+    .well-symbol::before { left: 28px; width: 8px; height: 42px; }
+    .well-symbol::after { left: 8px; top: 8px; width: 50px; height: 9px; }
+    .central-unit { font-size: 22px; }
+    .central-unit strong { font-size: 34px; }
+    .collector { font-size: 26px; padding: 14px 35px; }
+
+    .right-panel {
+      position: absolute;
+      left: 5005px;
+      top: 207px;
+      width: 2668px;
+      height: 1727px;
+      display: grid;
+      grid-template-rows: 1fr;
+      z-index: 3;
+      background: #2c2b30;
+    }
+    .right-panel > .panel-title { display: none; }
+    .right-scheme { height: auto; min-height: 0; }
+    .big-tanks { left: 4%; top: 4%; width: 42%; height: 30%; }
+    .big-tank { border-width: 5px; }
+    .big-tank::before { height: 26px; border-width: 5px; }
+    .tank-label { font-size: 22px; }
+    .tank-label strong { font-size: 31px; }
+    .rgs-row { right: 3%; top: 4%; width: 47%; height: 26%; gap: 16px; }
+    .rgs { padding: 18px; font-size: 20px; border-width: 3px; }
+    .rgs strong { font-size: 25px; }
+    .rgs .vessel { border-width: 4px; }
+    .meter-stack { left: 4%; top: 38%; width: 46%; gap: 14px; }
+    .meter-stack .device { min-height: 150px; }
+    .furnaces { left: 4%; right: 3%; bottom: 4%; height: 43%; gap: 22px; }
+    .furnace { border-width: 3px; }
+    .furnace-head { height: 62px; padding: 15px 20px; font-size: 29px; }
+    .furnace-drum { border-width: 7px; }
+    .furnace-drum::after { width: 7px; }
+    .temp { bottom: 18px; padding: 12px; font-size: 20px; border-top-width: 5px; }
+    .temp strong { font-size: 29px; }
+    .tag { font-size: 20px; }
+
+    @media (prefers-reduced-motion: no-preference) {
+      .panel, .brand, .top-kpi { animation: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="dashboard">
+    <header class="topbar">
+      <section class="brand">
+        <button class="menu" aria-label="Открыть меню"><span class="menu-lines"></span><span class="badge">35</span></button>
+        <div class="title-block">
+          <h1>Мониторинг добычи</h1>
+          <div class="field">Месторождение "Уаз"</div>
+        </div>
+        <div class="date-block"><span class="date" id="date">23.09.2026</span><span class="time" id="time">17:35</span></div>
+      </section>
+
+      <article class="top-kpi"><div><div class="kpi-label">Фонд скважин</div><div class="kpi-value">82</div></div><span class="pump-icon"></span></article>
+      <article class="top-kpi"><div><div class="kpi-label">КЭС, %</div><div class="kpi-value">97.11</div></div><span class="pump-icon"></span></article>
+      <article class="top-kpi"><div><div class="kpi-label">10 последних<br>ГТМ / КРС</div><div class="kpi-value">10</div></div><span class="pump-icon"></span></article>
+      <article class="top-kpi"><div><div class="kpi-label">10 последних<br>ПРС</div><div class="kpi-value">10</div></div><span class="pump-icon"></span></article>
+      <article class="top-kpi"><div><div class="kpi-label">Годовой план добычи, т</div><div class="kpi-value">135 412</div></div><span class="pump-icon"></span></article>
+      <button class="settings" aria-label="Настройки">⚙</button>
+    </header>
+
+    <section class="main-grid">
+      <section class="panel left-panel">
+        <div class="chart-section">
+          <div>
+            <div class="panel-title"><span>Динамика суточной добычи</span><span class="muted">онлайн</span></div>
+            <div class="chart-head">
+              <span class="date-control">23.09.2026</span>
+              <label class="check"><input id="cumulative" type="checkbox" checked> Показать с накоплением</label>
+              <div class="radio-switch" aria-label="Тип продукции"><button class="active" data-mode="fluid">Жидкость</button><button data-mode="oil">Нефть</button></div>
+            </div>
+          </div>
+          <div class="chart-wrap">
+            <svg id="productionChart" viewBox="0 0 720 300" preserveAspectRatio="none" aria-label="График добычи">
+              <defs>
+                <linearGradient id="greenArea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#54b948" stop-opacity=".45"/><stop offset="1" stop-color="#54b948" stop-opacity="0"/></linearGradient>
+              </defs>
+              <g id="grid"></g>
+              <path id="area" class="area" fill="url(#greenArea)"></path>
+              <polyline id="planLine" class="series-line" stroke="#54b948"></polyline>
+              <polyline id="regimeLine" class="series-line" stroke="#ef5c65"></polyline>
+              <polyline id="actualLine" class="series-line" stroke="#e6e6e8"></polyline>
+              <g id="axisLabels"></g>
+            </svg>
+            <div class="legend">
+              <span><i style="background:#54b948"></i>Прогноз: <b id="forecastValue">1 737,6</b></span>
+              <span><i style="background:#ef5c65"></i>Тех. режим: <b id="regimeValue">1 591,2</b></span>
+              <span><i style="background:#e6e6e8"></i>Пред. сутки: <b id="previousValue">1 607,6</b></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="wells-section">
+          <div class="panel-title"><span>Скважины по отклонению от тех. режима</span><span class="muted">82 скважины</span></div>
+          <div class="status-strip">
+            <div class="status-item"><strong style="color:#f0b342">2</strong><small>снижение 10–15%<br>2.4%</small></div>
+            <div class="status-item"><strong style="color:#ef5c65">11</strong><small>снижение &gt;15%<br>13.4%</small></div>
+            <div class="status-item"><strong style="color:#8d8d93">4</strong><small>нулевой замер АГЗУ<br>4.9%</small></div>
+            <div class="status-item"><strong style="color:#48aadb">25</strong><small>увеличение &gt;15%<br>30.5%</small></div>
+            <div class="status-item"><strong style="color:#54b948">40</strong><small>в пределах нормы<br>48.8%</small></div>
+            <div class="status-item"><strong>0</strong><small>в простое<br>0%</small></div>
+          </div>
+          <div class="wells-grid" id="wellsGrid"></div>
+        </div>
+      </section>
+
+      <section class="panel center-panel">
+        <div class="production-grid">
+          <article class="production-card"><div class="label">Добыча жидкости с начала месяца</div><div class="value">33 749 <span class="unit">м³</span></div></article>
+          <article class="production-card"><div class="label">Суточная добыча жидкости</div><div class="value">1 608 <span class="unit">м³</span></div></article>
+          <article class="production-card"><div class="label">Добыча нефти с начала месяца</div><div class="value">9 349 <span class="unit">т</span></div></article>
+          <article class="production-card"><div class="label">Суточная добыча нефти</div><div class="value">417 <span class="unit">т</span></div></article>
+          <article class="production-card"><div class="label">Добыча воды с начала месяца</div><div class="value">23 198 <span class="unit">м³</span></div></article>
+          <article class="production-card"><div class="label">Суточная добыча воды</div><div class="value">1 136 <span class="unit">м³</span></div></article>
+          <article class="production-card"><div class="label">Обводнённость продукции (ТР)</div><div class="value">62.46 <span class="unit">%</span></div></article>
+          <article class="production-card"><div class="label">Парковый коэффициент, нефти</div><div class="value">0.93</div></article>
+        </div>
+
+        <div class="scheme-panel panel">
+          <div class="panel-title"><span>Технологическая схема промысла</span><span class="tag">данные обновлены</span></div>
+          <div class="scheme">
+            <svg class="flow-svg" viewBox="0 0 1000 700" preserveAspectRatio="none" aria-hidden="true">
+              <path d="M175 80 H245 V130 H390" fill="none" stroke="#2d84b7" stroke-width="8"/>
+              <path d="M175 175 H245 V190 H390" fill="none" stroke="#d5a62a" stroke-width="8"/>
+              <path d="M390 130 H520 V70 H760" fill="none" stroke="#2d84b7" stroke-width="8"/>
+              <path d="M390 190 H550 V105 H760" fill="none" stroke="#d5a62a" stroke-width="8"/>
+              <path d="M80 365 H920" fill="none" stroke="#aa8c25" stroke-width="12"/>
+              <path d="M500 365 V485" fill="none" stroke="#aa8c25" stroke-width="12"/>
+              <path d="M500 575 V655" fill="none" stroke="#aa8c25" stroke-width="13"/>
+              <path d="M110 270 V355 M220 270 V355 M330 270 V355 M440 270 V355 M550 270 V355 M660 270 V355 M770 270 V355 M880 270 V355" stroke="#54b948" stroke-width="6" fill="none"/>
+              <circle cx="245" cy="130" r="6" fill="#fff"/><circle cx="245" cy="190" r="6" fill="#fff"/><circle cx="500" cy="365" r="7" fill="#fff"/>
+            </svg>
+
+            <div class="device blue meter-water">Узел учёта воды<strong>1 642 046,8 м³</strong><span>52,7 м³/ч</span></div>
+            <div class="device oil meter-gas">Узел учёта газа<strong>3 200 785,3 м³</strong><span>171,4 м³/ч</span></div>
+            <div class="device blue pump-water">Насосная ППД<strong>2.64 МПа</strong></div>
+            <div class="device oil pump-oil">Насосная перекачки нефти<strong>1.71 МПа</strong></div>
+            <div class="device storage"><span>РВС товарной нефти</span><div class="tank-row"><i class="mini-tank"></i><i class="mini-tank"></i><i class="mini-tank"></i></div></div>
+
+            <div class="agzu">
+              <div class="agzu-tabs" id="agzuTabs"><button class="active">АГЗУ 1</button><button>1С</button><button>2</button><button>3</button><button>4</button><button>5</button><button>6</button></div>
+              <div class="agzu-box" id="agzuBox"></div>
+            </div>
+
+            <div class="device central-unit"><div><strong>0.36 МПа</strong><span id="pulseTime">00:01</span><span>27.89 °C</span></div></div>
+            <div class="device collector"><strong>Коллектор нефти ∅159×6</strong><span>С. Жолдыбай · 25 км</span><span>БДР</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel right-panel">
+        <div class="panel-title"><span>Подготовка и учёт продукции</span><span class="muted">УПН «Уаз»</span></div>
+        <div class="right-scheme">
+          <svg class="right-flow" viewBox="0 0 600 900" preserveAspectRatio="none" aria-hidden="true">
+            <path d="M90 250 V335 H300 V405" fill="none" stroke="#aa8c25" stroke-width="10"/>
+            <path d="M210 250 V310 H300" fill="none" stroke="#aa8c25" stroke-width="10"/>
+            <path d="M390 220 V330 H300" fill="none" stroke="#aa8c25" stroke-width="10"/>
+            <path d="M500 220 V330 H300" fill="none" stroke="#aa8c25" stroke-width="10"/>
+            <path d="M300 535 V610 H145 V675 M300 610 H455 V675" fill="none" stroke="#d5a62a" stroke-width="10"/>
+            <circle cx="300" cy="330" r="8" fill="#fff"/><circle cx="300" cy="610" r="8" fill="#fff"/>
+          </svg>
+
+          <div class="big-tanks">
+            <div class="big-tank" style="--level:68%"><div class="tank-label">V 2000 м³ · РВС 2<strong>918 см · 7 см</strong></div></div>
+            <div class="big-tank" style="--level:16%"><div class="tank-label">V 1000 м³ · РВС 1<strong>426 см</strong></div></div>
+          </div>
+
+          <div class="rgs-row">
+            <div class="rgs">V 90 м³<div class="vessel" style="--level:72%"></div>РГС 2<strong>205 см</strong></div>
+            <div class="rgs">V 90 м³<div class="vessel" style="--level:32%"></div>РГС 3<strong>100 / 284 см</strong></div>
+            <div class="rgs">V 90 м³<div class="vessel" style="--level:3%"></div>РГС 4<strong>0 / 295 см</strong></div>
+          </div>
+
+          <div class="meter-stack">
+            <div class="device oil">Расходомер нефти<br>на наливной эстакаде<strong>0.00 т/ч</strong><span>701.49 т · 809.81 м³ · 861.75 кг/м³</span></div>
+            <div class="device blue">Расходомер воды<strong>18 869.10 м³</strong><span>0.00 м³/ч</span></div>
+            <div class="device green">Узел учёта №1<strong>422 652.59 т</strong><span>24.76 т/ч · 38.66 °C</span></div>
+            <div class="device">Давление в системе<strong>9.16 кгс/см²</strong><span>плотность 850.57 кг/м³</span></div>
+          </div>
+
+          <div class="furnaces">
+            <div class="furnace"><div class="furnace-head">Печь №1</div><div class="furnace-drum"></div><div class="temp left">t вход<strong>14 °C</strong>2.70 кгс/см²</div><div class="temp right">t выход<strong>35 °C</strong>1.70 кгс/см²</div></div>
+            <div class="furnace"><div class="furnace-head">Печь №2</div><div class="furnace-drum"></div><div class="temp left">t вход<strong>31 °C</strong>1.62 кгс/см²</div><div class="temp right">t выход<strong>29 °C</strong>1.59 кгс/см²</div></div>
+          </div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    const wells = [
+      ['UZV_0121','50','27','38%','61.00'], ['UAZ_0052','36.5','21','36%','47.65'],
+      ['UZV_0111','35','20','34%','28.00'], ['UAZ_0066','30','19','30%','32.72'],
+      ['UZS_026U','30','19','26%','32.52'], ['UZS_014US','28','18','22%','24.56'],
+      ['UZS_11US','29','18','22%','28.09'], ['UAZ_0103','20','17','6%','0.00'],
+      ['UAZ_0043','30','16','42%','30.06'], ['UAZ_0059','24.2','16','28%','48.59'],
+      ['UZS_018US','20','14','15%','9.87'], ['UZS_0US7','18','13','15%','20.20'],
+      ['UZV_008U','28','12','50%','33.34'], ['UAZ_0101','16','11','25%','16.84'],
+      ['UZV_0103','43','11','70%','51.00'], ['UZV_0123','18','11','35%','0.00'],
+      ['UZV_0105','15','10','24%','16.44'], ['UZV_0109','16','10','30%','22.64'],
+      ['UZV_0120','42.2','10','72%','51.77'], ['UAZ_0072','50','9','80%','53.96'],
+      ['UZS_20US','13','9','23%','8.67'], ['UZS_0013','13','9','10%','13.94'],
+      ['UZS_10US','20','9','45%','21.77'], ['UZV_0118','32','8','72%','34.48'],
+      ['UZV_021U','30','8','71%','27.70'], ['UZS_08US','10','7','17%','2.49'],
+      ['UAZ_0104','19','7','55%','20.76'], ['UAZ_0044','26','6','75%','27.10'],
+      ['UAZ_0053','25','6','71%','24.43'], ['UAZ_0071','40','6','82%','32.78'],
+      ['UZV_0106','14','6','50%','9.11'], ['UAZ_0018','13','5','60%','12.01'],
+      ['UAZ_0055','47','5','88%','48.99'], ['UZV_005U','10','5','40%','10.31'],
+      ['UZV_0117','38','5','85%','46.00'], ['UAZ_0004','17','4','77%','16.71'],
+      ['UAZ_0040','23','4','79%','25.64'], ['UAZ_0041','21','4','79%','21.05'],
+      ['UAZ_0045','25','4','80%','25.25'], ['UZV_003U','26','4','81%','34.00'],
+      ['UZV_007U','7','4','40%','7.00'], ['UZV_0101','22','4','80%','23.98'],
+      ['UZV_0104','25','4','80%','23.72'], ['UZV_0113','10','4','55%','16.47'],
+      ['UZV_0122','18','4','75%','39.06'], ['UAZ_0016','12','3','70%','13.07'],
+      ['UAZ_0031','12','3','75%','12.77'], ['UAZ_0034','21','3','84%','25.42'],
+      ['UAZ_0047','30','3','87%','27.46'], ['UAZ_0048','6','3','50%','2.11'],
+      ['UAZ_0049','17','3','80%','16.20'], ['UAZ_0054','20','3','84%','33.56'],
+      ['UAZ_0061','24','3','84%','21.09'], ['UAZ_0064','22','3','85%','22.37'],
+      ['UAZ_0073','20','3','85%','25.57'], ['UAZ_0074','10','3','61%','10.46'],
+      ['UZS_03US','4','3','20%','9.87'], ['UZV_0107','13','3','75%','31.00'],
+      ['UAZ_0011','4','2','54%','0.00'], ['UAZ_0019','12','2','84%','12.80'],
+      ['UAZ_0037','16','2','87%','15.45'], ['UAZ_0057','17','2','85%','16.45'],
+      ['UAZ_0060','17','2','85%','22.86'], ['UAZ_0062','16','2','89%','17.04'],
+      ['UAZ_0068','10','2','80%','14.31'], ['UAZ_0070','18','2','85%','21.26'],
+      ['UZS_023U','12.8','2','85%','6.89'], ['UZV_0110','6','2','55%','30.00'],
+      ['UZV_0112','14','2','87%','0.00'], ['UAZ_0012','11','1','85%','11.52'],
+      ['UAZ_0014','8','1','88%','8.67'], ['UAZ_0015','11','1','87%','16.31'],
+      ['UAZ_0032','15','1','91%','15.54'], ['UAZ_0035','3','1','60%','-0.31'],
+      ['UAZ_0038','11','1','85%','10.02'], ['UAZ_0039','11','1','90%','16.01'],
+      ['UAZ_0065','10','1','88%','10.48'], ['UAZ_0067','10','1','85%','13.31'],
+      ['UAZ_0069','5','1','70%','2.82'], ['UAZ_0102','14','1','92%','33.00'],
+      ['UZV_001U','1.5','1','30%','0.14'], ['UZV_0100','4','1','85%','31.00']
+    ];
+    const colors = {red:'#c93734', orange:'#d5a62a', gray:'#5a5960', green:'#3c9a45'};
+    const wellsGrid = document.getElementById('wellsGrid');
+    wells.forEach(([name,oil,liquid,water,fact]) => {
+      const ratio = Number(fact) / Number(oil);
+      const status = Number(fact) === 0 ? 'gray' : ratio >= 1.15 ? 'green' : ratio <= .85 ? 'red' : ratio < .9 ? 'orange' : 'gray';
+      const item = document.createElement('div');
+      item.className = 'well-card';
+      item.style.setProperty('--accent', colors[status]);
+      item.innerHTML = `<div class="well-name">${name}</div><div class="well-data">Qн ${oil} · Qж ${liquid}<br>${water} · ${fact}</div>`;
+      wellsGrid.appendChild(item);
+    });
+
+    const agzuData = [
+      ['UAZ_0064','22.37'], ['UAZ_0062','17.04'], ['UAZ_0019','12.80'], ['UAZ_0012','11.52'],
+      ['UAZ_0014','8.67'], ['UAZ_0004','16.71'], ['UAZ_0011','0.00'], ['UAZ_0015','16.31'],
+      ['UAZ_0031','12.77'], ['UAZ_0034','25.42'], ['UAZ_0060','22.86'], ['UAZ_0065','10.48'],
+      ['UAZ_0066','32.72'], ['UZS_026U','32.52']
+    ];
+    const agzuBox = document.getElementById('agzuBox');
+    function renderAgzu(offset = 0) {
+      agzuBox.innerHTML = '';
+      agzuData.forEach(([name, value], index) => {
+        const node = document.createElement('div');
+        node.className = 'well-node';
+        const adjusted = Math.max(0, Number(value) + offset * ((index % 3) - 1) * .7).toFixed(2);
+        node.innerHTML = `<div class="well-symbol"></div>${name}<strong>${adjusted}</strong>`;
+        agzuBox.appendChild(node);
+      });
+    }
+    renderAgzu();
+    document.querySelectorAll('#agzuTabs button').forEach((button, index) => {
+      button.addEventListener('click', () => {
+        document.querySelector('#agzuTabs .active').classList.remove('active');
+        button.classList.add('active');
+        renderAgzu(index);
+      });
+    });
+
+    const datasets = {
+      fluid: {
+        forecast: [80,95,115,128,145,160,171,183,194,208,220,231,242,252,262,271,279,286,292,297,302,307,312,316],
+        regime:   [72,87,101,116,129,142,153,164,174,184,194,204,214,224,234,244,253,262,271,280,289,298,307,315],
+        actual:   [68,82,96,110,122,135,147,159,169,179,190,201,213,224,234,245,256,266,277,287,296,304,310,314],
+        values: ['1 737,6','1 591,2','1 607,6']
+      },
+      oil: {
+        forecast: [42,50,57,65,73,81,89,97,104,112,119,126,134,141,148,155,162,169,176,183,190,197,204,211],
+        regime:   [37,45,53,61,68,75,82,89,96,103,110,117,124,131,138,145,152,159,166,173,180,187,194,201],
+        actual:   [39,47,55,62,69,76,83,91,98,105,112,120,127,134,142,149,156,164,171,178,185,192,198,204],
+        values: ['432,8','406,3','417,0']
+      }
+    };
+
+    const chart = document.getElementById('productionChart');
+    const grid = document.getElementById('grid');
+    const labels = document.getElementById('axisLabels');
+    for (let i = 0; i <= 6; i++) {
+      const y = 18 + i * 40;
+      grid.insertAdjacentHTML('beforeend', `<line class="grid-line" x1="42" y1="${y}" x2="710" y2="${y}"/>`);
+      if (i % 2 === 0) {
+        const yValues = ['1.5k', '1k', '0.5k', '0k'];
+        labels.insertAdjacentHTML('beforeend', `<text class="axis-text" x="34" y="${y + 4}" text-anchor="end">${yValues[i / 2]}</text>`);
+      }
+    }
+    for (let i = 0; i < 12; i++) {
+      const x = 42 + i * 60.7;
+      grid.insertAdjacentHTML('beforeend', `<line class="grid-line" x1="${x}" y1="18" x2="${x}" y2="258"/>`);
+      labels.insertAdjacentHTML('beforeend', `<text class="axis-text" x="${x}" y="280" text-anchor="middle">${String((i * 2 + 2) % 24).padStart(2,'0')}:00</text>`);
+    }
+
+    function points(data) {
+      const max = Math.max(...data) * 1.08;
+      return data.map((value, i) => `${42 + i * (668 / (data.length - 1))},${258 - value / max * 230}`).join(' ');
+    }
+    function cumulative(data) {
+      let sum = 0;
+      return data.map(v => sum += v);
+    }
+    function drawChart(mode = 'fluid') {
+      const set = datasets[mode];
+      const cumulativeOn = document.getElementById('cumulative').checked;
+      const plan = cumulativeOn ? cumulative(set.forecast) : set.forecast;
+      const regime = cumulativeOn ? cumulative(set.regime) : set.regime;
+      const actual = cumulativeOn ? cumulative(set.actual) : set.actual;
+      document.getElementById('planLine').setAttribute('points', points(plan));
+      document.getElementById('regimeLine').setAttribute('points', points(regime));
+      document.getElementById('actualLine').setAttribute('points', points(actual));
+      const areaPoints = points(plan);
+      document.getElementById('area').setAttribute('d', `M ${areaPoints.replaceAll(' ', ' L ')} L 710 258 L 42 258 Z`);
+      document.getElementById('forecastValue').textContent = set.values[0];
+      document.getElementById('regimeValue').textContent = set.values[1];
+      document.getElementById('previousValue').textContent = set.values[2];
+    }
+    let chartMode = 'fluid';
+    document.querySelectorAll('[data-mode]').forEach(button => button.addEventListener('click', () => {
+      document.querySelector('[data-mode].active').classList.remove('active');
+      button.classList.add('active');
+      chartMode = button.dataset.mode;
+      drawChart(chartMode);
+    }));
+    document.getElementById('cumulative').addEventListener('change', () => drawChart(chartMode));
+    drawChart();
+
+    function updateClock() {
+      const now = new Date();
+      document.getElementById('time').textContent = now.toLocaleTimeString('ru-RU', {hour:'2-digit', minute:'2-digit'});
+      document.getElementById('date').textContent = now.toLocaleDateString('ru-RU');
+    }
+    updateClock();
+    setInterval(updateClock, 1000);
+  </script>
+</body>
+</html>

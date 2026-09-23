@@ -1,0 +1,345 @@
+:root {
+  --color-cyan: #4FE3FF;
+  --color-amber: #F0AE4A;
+  --color-blue: #8FBAF0;
+  --color-teal: #35D0C2;
+  --color-bg-primary: #050810;
+  --color-bg-secondary: #0C1626;
+  --color-border: rgba(140, 170, 210, 0.22);
+  --color-border-hover: rgba(140, 170, 210, 0.45);
+  --color-card-bg: rgba(10, 18, 32, 0.82);
+  --color-badge-bg: rgba(8, 14, 26, 0.45);
+  --color-text-primary: #FFFFFF;
+  --color-text-secondary: #D7E2F2;
+  --color-text-muted: #7C8DA6;
+  --font-mono: Consolas, "Courier New", monospace;
+  --font-serif: Cambria, Georgia, serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: radial-gradient(ellipse at 50% 30%, var(--color-bg-secondary) 0%, var(--color-bg-primary) 70%);
+  font-family: var(--font-sans);
+  color: var(--color-text-secondary);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* ── 3D Scene Viewport ────────────────────────────────────────────── */
+#scene-container {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  outline: none;
+  cursor: grab;
+}
+
+#scene-container:active {
+  cursor: grabbing;
+}
+
+/* ── Header and KPI Overlay ──────────────────────────────────────── */
+#app-header {
+  position: fixed;
+  top: 24px;
+  left: 28px;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.app-title {
+  font-family: var(--font-serif);
+  font-size: 32px;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--color-text-primary);
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.7);
+}
+
+.app-title__highlight {
+  color: var(--color-cyan);
+  font-weight: 700;
+}
+
+/* ── Effects / KPI Cards Panel ───────────────────────────────────── */
+#effects-panel {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  gap: 12px;
+  margin-top: 12px;
+  pointer-events: auto;
+}
+
+.effect-card {
+  background: var(--color-card-bg);
+  border: 1px solid var(--color-border);
+  border-left: 3px solid var(--card-accent-color, var(--color-cyan));
+  padding: 7px 12px 8px 12px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  cursor: default;
+}
+
+.effect-card--amber {
+  --card-accent-color: var(--color-amber);
+}
+
+.effect-card--blue {
+  --card-accent-color: var(--color-blue);
+}
+
+.effect-card--teal {
+  --card-accent-color: var(--color-teal);
+}
+
+.effect-card__title {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--card-accent-color, var(--color-text-secondary));
+  margin-bottom: 5px;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.effect-card__metrics {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.metric-badge {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  border: 1px solid rgba(79, 227, 255, 0.32);
+  padding: 4px 9px;
+  background: var(--color-badge-bg);
+}
+
+.metric-badge__value {
+  font-family: var(--font-mono);
+  font-size: 21px;
+  font-weight: 700;
+  color: var(--color-teal);
+  line-height: 1;
+}
+
+.metric-badge__label {
+  font-size: 13.5px;
+  color: var(--color-text-muted);
+  line-height: 1.25;
+  white-space: nowrap;
+}
+
+/* ── Digital Twin Contours Stack ─────────────────────────────────── */
+#stack {
+  position: fixed;
+  left: 28px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 360px;
+  padding-left: 24px;
+}
+
+#navline {
+  position: absolute;
+  left: 12px;
+  top: 20px;
+  bottom: 20px;
+  width: 2px;
+  background: var(--color-border);
+  border-radius: 2px;
+}
+
+#navline::after {
+  content: '';
+  position: absolute;
+  left: -4px;
+  bottom: -10px;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 10px solid rgba(140, 170, 210, 0.4);
+}
+
+.lay {
+  position: relative;
+  text-align: left;
+  background: var(--color-card-bg);
+  border: 1px solid var(--color-border);
+  border-left: 3px solid var(--lc);
+  padding: 9px 13px;
+  color: var(--color-text-secondary);
+  font-family: var(--font-sans);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: baseline;
+  column-gap: 9px;
+  cursor: pointer;
+  transition: transform 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+}
+
+.lay:hover,
+.lay.active {
+  background: rgba(14, 26, 46, 0.95);
+  border-color: var(--lc);
+  transform: translateX(4px);
+}
+
+.lay::before {
+  content: '';
+  position: absolute;
+  left: -18px;
+  top: 50%;
+  margin-top: -5px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--color-bg-primary);
+  border: 2px solid var(--color-border);
+  z-index: 1;
+  transition: background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.lay:hover::before,
+.lay.active::before {
+  background: var(--lc);
+  border-color: #FFFFFF;
+  box-shadow: 0 0 8px var(--lc);
+}
+
+.lay .n {
+  font-family: var(--font-mono);
+  font-size: 19px;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+  font-weight: 700;
+  min-width: 1.6em;
+  transition: color 0.25s ease;
+}
+
+.lay:hover .n,
+.lay.active .n {
+  color: var(--lc);
+}
+
+.lay .t {
+  font-size: 21.5px;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--color-text-secondary);
+  padding-right: 14px;
+  transition: color 0.25s ease;
+}
+
+.lay:hover .t,
+.lay.active .t {
+  color: #FFFFFF;
+}
+
+@media (max-width: 1280px) {
+  #stack {
+    width: 290px;
+  }
+}
+
+/* ── Navigation: Next Slide Button ──────────────────────────────── */
+#nav-next {
+  position: fixed;
+  right: 26px;
+  bottom: 22px;
+  z-index: 12;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  text-decoration: none;
+  border: 1px solid var(--color-border);
+  padding: 6px 11px;
+  background: rgba(10, 18, 32, 0.45);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  opacity: 0.35;
+  cursor: pointer;
+  transition: opacity 0.25s ease, color 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+}
+
+#nav-next:hover,
+#nav-next:focus-visible {
+  opacity: 1;
+  color: var(--color-cyan);
+  border-color: var(--color-cyan);
+  background: rgba(79, 227, 255, 0.08);
+}
+
+.nav-next__arrow {
+  font-size: 19px;
+  line-height: 1;
+}
+
+/* ── Loading Screen ──────────────────────────────────────────────── */
+#loader {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  background: radial-gradient(ellipse at 50% 30%, var(--color-bg-secondary) 0%, var(--color-bg-primary) 70%);
+  transition: opacity 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+  pointer-events: none;
+}
+
+#loader.is-hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.loader__spinner {
+  width: 44px;
+  height: 44px;
+  border: 2.5px solid rgba(79, 227, 255, 0.16);
+  border-top-color: var(--color-cyan);
+  border-radius: 50%;
+  animation: spinner-rotate 0.85s linear infinite;
+}
+
+.loader__text {
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+@keyframes spinner-rotate {
+  to { transform: rotate(360deg); }
+}

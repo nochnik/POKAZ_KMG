@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Цифровой двойник месторождения на базе ИС «ABAI»</title>
+  <link rel="stylesheet" href="v4.css">
+</head>
+<body>
+
+  <!-- 3D WebGL Canvas Container -->
+  <main id="scene-container" aria-label="3D Digital Twin Viewport"></main>
+
+  <!-- Header and KPI Metrics Panel -->
+  <header id="app-header">
+    <h1 class="app-title">Цифровой двойник месторождения на базе ИС «<b class="app-title__highlight">ABAI</b>»</h1>
+    <section id="effects-panel" aria-label="Key Performance Indicators">
+      <article class="effect-card effect-card--amber">
+        <h2 class="effect-card__title">ЦД пласта</h2>
+        <div class="effect-card__metrics">
+          <div class="metric-badge">
+            <span class="metric-badge__value">−5%</span>
+            <span class="metric-badge__label">снижение CAPEX</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="effect-card effect-card--blue">
+        <h2 class="effect-card__title">ЦД скважины</h2>
+        <div class="effect-card__metrics">
+          <div class="metric-badge">
+            <span class="metric-badge__value">−3%</span>
+            <span class="metric-badge__label">сроки вывода на режим</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="effect-card effect-card--teal">
+        <h2 class="effect-card__title">ЦД добычи и наземной инфраструктуры</h2>
+        <div class="effect-card__metrics">
+          <div class="metric-badge">
+            <span class="metric-badge__value">−5%</span>
+            <span class="metric-badge__label">управляемые потери добычи</span>
+          </div>
+          <div class="metric-badge">
+            <span class="metric-badge__value">−3%</span>
+            <span class="metric-badge__label">CAPEX/OPEX инфраструктуры</span>
+          </div>
+        </div>
+      </article>
+    </section>
+  </header>
+
+  <!-- Digital Twin Contours Stack -->
+  <aside id="stack" aria-label="Контуры цифрового двойника">
+    <div id="navline"></div>
+    <div class="lay" style="--lc: var(--color-amber);" data-layers="1,2,3">
+      <div class="n">1</div>
+      <div class="t">Цифровой двойник пласта</div>
+    </div>
+    <div class="lay" style="--lc: var(--color-blue);" data-layers="4">
+      <div class="n">2</div>
+      <div class="t">Цифровой двойник скважины</div>
+    </div>
+    <div class="lay" style="--lc: var(--color-teal);" data-layers="5">
+      <div class="n">3</div>
+      <div class="t">Цифровой двойник добычи и наземной инфраструктуры</div>
+    </div>
+  </aside>
+
+  <!-- Navigation Link to Next Slide -->
+  <a id="nav-next" class="nav-next" href="тиражирование.html">далее<span class="nav-next__arrow">→</span></a>
+
+  <!-- Fullscreen Loading Overlay -->
+  <div id="loader" role="status" aria-live="polite">
+    <div class="loader__spinner"></div>
+    <div id="loader-text" class="loader__text">Загрузка 3D модели...</div>
+  </div>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "./vendor/three.module.js",
+      "three/addons/": "./vendor/addons/"
+    }
+  }
+  </script>
+
+  <script type="module" src="v4.js"></script>
+</body>
+</html>
