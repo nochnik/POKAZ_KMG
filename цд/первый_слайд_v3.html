@@ -156,8 +156,8 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:var(--ui);color:var
    контуров слева. Позиционирует JS (`positionEffectsOverview`), а сеткой
    переключаемся здесь: у-стека → 1 столбец, идут одной колонкой сверху вниз. */
 #effects-overview.у-стека{padding:0;transform:none;left:auto;right:auto;top:auto}
-#effects-overview .cols{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
-#effects-overview .effect-col{padding:12px 16px;background:var(--glass);border:1px solid var(--line);
+#effects-overview .cols{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+#effects-overview .effect-col{padding:16px 20px;background:var(--glass);border:1px solid var(--line);
   border-left:3px solid var(--ec);backdrop-filter:blur(8px)}
 #effects-overview .items{display:block}
 /* В карточке может стоять один пункт или несколько. Пункты идут строкой
@@ -165,11 +165,16 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:var(--ui);color:var
    строке (`.item` = flex row): «2 864 тыс. тонн» с подписью «доп. добычи»
    справа, а «326 млрд ₸» — без подписи, отдельной строкой ниже. */
 #effects-overview .items{display:block}
-#effects-overview .item{display:flex;align-items:baseline;gap:12px;min-width:0}
-#effects-overview .item + .item{margin-top:4px}
-#effects-overview .v{font-family:var(--mono);font-size:24px;font-weight:700;line-height:1.05;color:var(--ec);
+#effects-overview .item{display:flex;align-items:baseline;gap:14px;min-width:0;flex-wrap:wrap}
+#effects-overview .item + .item{margin-top:6px}
+/* 24.09 (Адиль, замечание после выкладки): три ключевых эффекта сверху были
+   слишком мелкими рядом с «Первый актив» справа — фокус на цифрах терялся,
+   а на «Молдабеке» держался. Увеличиваем сами цифры (24 → 40px) и подписи
+   (16 → 18px), панель справки в ответ ужимается (см. #справка ниже) — так
+   акцент возвращается на программу целиком, а не на первый актив. */
+#effects-overview .v{font-family:var(--mono);font-size:40px;font-weight:700;line-height:1.02;color:var(--ec);
   flex:0 0 auto;white-space:nowrap}
-#effects-overview .l{font-size:16px;line-height:1.3;color:var(--dim)}
+#effects-overview .l{font-size:18px;line-height:1.3;color:var(--dim)}
 /* Вертикальная колонка у стопки: чуть крупнее самих раскрывашек (у них .t = 21.5px),
    чтобы главные эффекты вылавливались с зала раньше названий контуров. */
 #effects-overview.у-стека .cols{grid-template-columns:1fr;gap:8px}
@@ -219,35 +224,37 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:var(--ui);color:var
 #эффекты .rd .d{font-size:17px;color:#9DB4CE;margin-top:2px}
 #demo2{display:none}
 /* карточка пилотного актива — та же, что в подводке (demo_with_map.html), тем же слотом справа */
-#справка{position:fixed;right:26px;top:50%;transform:translateY(-50%) translateX(40px);width:34vw;min-width:420px;max-width:660px;
-  max-height:86vh;z-index:11;padding:22px 26px 20px;overflow:hidden auto;
+/* 24.09 (Адиль, замечание после выкладки): справочная карточка была шире и
+   крупнее, чем главные эффекты сверху, — акцент смещался на актив.
+   max-width 660 → 560, шрифты немного ужаты. */
+#справка{position:fixed;right:26px;top:50%;transform:translateY(-50%) translateX(40px);width:30vw;min-width:400px;max-width:560px;
+  max-height:86vh;z-index:11;padding:18px 22px 18px;overflow:hidden auto;
   background:linear-gradient(180deg,rgba(6,11,20,.96),rgba(4,8,15,.985));border:1px solid rgba(140,170,210,.16);
   opacity:0;transition:opacity .5s,transform .6s cubic-bezier(.22,.61,.36,1);pointer-events:none}
 #справка.on{opacity:1;transform:translateY(-50%);pointer-events:auto}
-#справка .hd{font-family:var(--mono);font-size:19px;letter-spacing:.24em;text-transform:uppercase;color:var(--cyan);margin-bottom:14px}
-#справка .nm{font-family:var(--serif);font-size:30px;color:#F2F7FF;line-height:1.15;border-top:2px solid var(--cyan);padding-top:14px}
-#справка .sub{font-size:20px;color:#9DB4CE;margin-top:8px;line-height:1.35}
-#справка .ярус{margin-top:14px;padding-top:12px;border-top:1px solid rgba(140,170,210,.16);opacity:0;transform:translateY(10px);
+#справка .hd{font-family:var(--mono);font-size:16.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--cyan);margin-bottom:12px}
+#справка .nm{font-family:var(--serif);font-size:25px;color:#F2F7FF;line-height:1.15;border-top:2px solid var(--cyan);padding-top:12px}
+#справка .sub{font-size:17px;color:#9DB4CE;margin-top:6px;line-height:1.35}
+#справка .ярус{margin-top:12px;padding-top:10px;border-top:1px solid rgba(140,170,210,.16);opacity:0;transform:translateY(10px);
   transition:opacity .5s cubic-bezier(.22,.61,.36,1),transform .5s cubic-bezier(.22,.61,.36,1)}
 #справка .ярус.on{opacity:1;transform:none}
 #справка .ярус:empty{display:none}
 #справка .rw{display:flex;gap:12px;padding:5px 0;border-bottom:1px solid rgba(140,170,210,.09);opacity:0;transform:translateY(10px);transition:opacity .4s ease-out,transform .4s ease-out}
 #справка .ярус.on .rw{opacity:1;transform:none}
 #справка .rw:last-child{border-bottom:0}
-#справка .rw .k{font-family:var(--mono);font-size:16.5px;letter-spacing:.08em;text-transform:uppercase;color:#7C8DA6;flex:0 0 40%;line-height:1.35}
-#справка .rw .v{font-size:19.5px;color:#DCE7F5;line-height:1.35}
-/* Строки-эффекты (КИН, МРП) — не «регламент», а конкретный эффект пилота,
-   поэтому и рисуем их иначе (24.09, Адиль — «подсветить, плохо видно»):
-   цифра на левой колонке крупная и бирюзовая, подпись справа — обычная,
-   слева тонкая полоска бирюзой держит их как одну группу «эффектов». */
-#справка .rw.эффект{padding:9px 0 9px 12px;border-left:2px solid var(--teal);
-  border-bottom:1px solid rgba(53,208,194,.12);margin-left:-2px;
-  background:linear-gradient(90deg,rgba(53,208,194,.09),rgba(53,208,194,0) 70%)}
-#справка .rw.эффект .k{font-family:var(--serif);font-size:24px;letter-spacing:0;
-  text-transform:none;color:var(--teal);font-weight:700;line-height:1.15}
-#справка .rw.эффект .v{font-size:17px;color:#B7C9DF;align-self:center}
-#справка .гр{padding:0 0 6px;font-family:var(--mono);font-size:15.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--cyan)}
-#справка .src{margin-top:10px;font-family:var(--mono);font-size:15.5px;letter-spacing:.08em;color:#5E7089}
+#справка .rw .k{font-family:var(--mono);font-size:14.5px;letter-spacing:.08em;text-transform:uppercase;color:#7C8DA6;flex:0 0 40%;line-height:1.35}
+#справка .rw .v{font-size:17px;color:#DCE7F5;line-height:1.35}
+/* 25.09 (Адиль, замечание): КИН и МРП стояли особняком с бирюзовой рамкой и
+   serif-цифрой — рядом с остальными строками смотрелись как «отдельная секция»,
+   хотя это те же данные пилота. Возвращаем их в общий регистр: тот же mono ключ,
+   та же подпись справа. Класс «эффект» с данных снят, стили ниже больше не
+   применяются, но оставляем как ноль-специфик — если снова понадобится подсветить. */
+#справка .rw.эффект{padding:5px 0;border-left:0;background:none;margin-left:0}
+#справка .rw.эффект .k{font-family:var(--mono);font-size:14.5px;letter-spacing:.08em;
+  text-transform:uppercase;color:#7C8DA6;font-weight:400;line-height:1.35}
+#справка .rw.эффект .v{font-size:17px;color:#DCE7F5;align-self:auto;line-height:1.35}
+#справка .гр{padding:0 0 6px;font-family:var(--mono);font-size:14px;letter-spacing:.24em;text-transform:uppercase;color:var(--cyan)}
+#справка .src{margin-top:10px;font-family:var(--mono);font-size:14px;letter-spacing:.08em;color:#5E7089}
 /* ко второй части показа — скрыта по решению от 14.08; вернуть: убрать display:none */
 #next{display:none;left:26px;bottom:22px}
 /* к сборке с гео-подводкой — сверху справа, над панелью контура */
@@ -2146,7 +2153,7 @@ const elEffectsOverview = document.querySelector('#effects-overview .cols');
    относится только к тоннам, у денег подписи нет. */
 const ГЛАВНЫЕ_ЭФФЕКТЫ = [
   [ { v:'Топ 12',           l:'месторождений' } ],
-  [ { v:'Более 90 %',       l:'добычи' } ],
+  [ { v:'Более 90 %',       l:'добычи всех активов' } ],
   [ { v:'2 864 тыс. тонн',  l:'доп. добычи' },
     { v:'326 млрд ₸' } ],
 ];
@@ -3075,10 +3082,13 @@ const СПРАВКА = {
       ['Расчёт сценариев','600 вариантов'],
       ['Выявленный потенциал','дополнительно 161 тыс. тонн добычи'],
       ['Оптимизация бурения','6 наклонно-направленных → 2 горизонтальные'],
-      /* 24.09 (Адиль): эти две строки — не «регламент», а конкретный эффект пилота.
-         Помечаем классом «эффект», рисуем крупнее и цветом (см. CSS ниже). */
-      ['КИН до 30 %','коэффициент извлечения нефти','эффект'],
-      ['550 → 700','суток межремонтный период','эффект'] ] },
+      /* 25.09 (Адиль, замечание): «КИН до 30 %» и «550 → 700 суток» должны идти
+         одним регистром с остальными строками (те же шрифты, та же структура
+         «ключ · значение») — раньше они стояли отдельно как подсвеченные
+         эффекты, но рядом с общей таблицей визуально выпадали. Класс «эффект»
+         снят, стили в CSS обнулены. */
+      ['КИН до 30 %','коэффициент извлечения нефти'],
+      ['550 → 700','суток межремонтный период'] ] },
 };
 let ярусСпр = 0;
 (function карточкаПилота(){
