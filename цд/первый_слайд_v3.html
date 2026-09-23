@@ -19,20 +19,16 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:var(--ui);color:var
 
 /* Шапка кадра: живёт над всеми панелями (z-index 15 — выше #project-content
    с его 14), чтобы название кадра оставалось на экране, даже когда справа
-   стоит система (24.09, Адиль — «заголовок должен быть виден всегда»).
-   На тёмной подложке — небольшая тень для читаемости поверх видео. */
-#hdr{position:fixed;top:22px;left:26px;z-index:15;pointer-events:none;
-  max-width:calc(100vw - 720px);
-  transition:max-width .4s cubic-bezier(.2,.8,.2,1),font-size .4s ease}
+   стоит система (24.09, Адиль — «заголовок остаётся тем же, не меняется»).
+   Ни ширина, ни шрифт при раскрытии слоя больше не подстраиваются: H1 держит
+   свою полную длину, ложится поверх системного контента, а на видео его
+   читаемым делает тень + сдвинутый вниз заголовок системы (см. .с-видео
+   padding-top ниже — pc-name уезжает под H1 и не сталкивается с ним). */
+#hdr{position:fixed;top:22px;left:26px;z-index:15;pointer-events:none}
 #hdr h1{font-family:var(--serif);font-size:32.5px;font-weight:600;line-height:1.2;
-  text-shadow:0 2px 12px rgba(5,8,16,.85),0 0 22px rgba(5,8,16,.55)}
+  text-shadow:0 2px 12px rgba(5,8,16,.9),0 0 22px rgba(5,8,16,.7),0 0 36px rgba(5,8,16,.5)}
 #hdr .sub{font-family:var(--mono);font-size:18px;letter-spacing:.24em;text-transform:uppercase;color:var(--dim);margin-top:6px}
 #hdr .sub b{color:var(--cyan);font-weight:700}
-/* При раскрытом слое коридор слева до системного контента ≈ 30vw. Заголовок
-   сжимается по ширине этого коридора и уменьшает шрифт, чтобы уместиться
-   в две строки вместо выхода на видео/скриншот справа. */
-body.раскрыт-слой #hdr{max-width:calc(30vw - 30px)}
-body.раскрыт-слой #hdr h1{font-size:23px;line-height:1.18}
 
 /* Навигация по контурам по умолчанию остаётся колонкой слева. */
 #stack{position:fixed;left:26px;top:50%;transform:translateY(-50%);z-index:10;display:flex;flex-direction:column;
@@ -361,7 +357,11 @@ body.раскрыт-слой #hdr h1{font-size:23px;line-height:1.18}
 #pc-claim{font-size:23px;color:var(--dim);line-height:1.6;max-width:52ch}
 #pc-video{display:none;width:100%;max-height:62vh;object-fit:contain;background:#02040A;
   border:1px solid var(--line);border-top:2px solid var(--pc,#4FE3FF);box-shadow:0 18px 46px rgba(0,0,0,.32)}
-#project-content.с-видео{padding-top:42px;padding-bottom:42px;gap:12px}
+/* padding-top отведён под шапку кадра (см. #hdr: top:22, ~54 высоты + запас):
+   H1 постоянно висит в левом верхнем углу и, если бы pc-name стартовал по
+   умолчанию с 64px, они сталкивались бы в углу — теперь заголовок системы
+   уезжает под H1 и не наезжает на него. */
+#project-content.с-видео{padding-top:96px;padding-bottom:42px;gap:12px}
 #project-content.с-видео #pc-name{font-size:38px}
 /* 24.09 (Адиль): убраны кнопка «← к цифровому двойнику» и жёлтый кикер
    «ЦД … · проект NN» на карточке системы. Возврат идёт единственной
@@ -1946,9 +1946,6 @@ function openProject(id){
   // Справка о В. Молдабеке уходит на время раскрытия слоя: место справа занято
   // содержимым слоя, а сама справка вернётся при закрытии (см. closeProject).
   if(window.__закрытьСправку) window.__закрытьСправку();
-  // Тег для CSS: шапка кадра сжимается в коридор слева, чтобы уместиться
-  // над стопкой и не заезжать под системный контент (см. body.раскрыт-слой).
-  document.body.classList.add('раскрыт-слой');
   if(!isSwitch) запомнитьОткуда();
   const pc = $('project-content');
   const populateContent = () => {
@@ -2063,8 +2060,6 @@ function finishClosing(){
   // Возвращаемся в исходный кадр — справка о В. Молдабеке снова стоит справа
   // (см. openProject: там она уходит на время раскрытия слоя).
   if(window.__открытьСправку) window.__открытьСправку();
-  // Шапка кадра расширяется обратно на всю ширину — пара к add в openProject.
-  document.body.classList.remove('раскрыт-слой');
 }
 document.getElementById('pc-back').addEventListener('click', closeProject);
 document.getElementById('mini-reset').addEventListener('click', e => {
