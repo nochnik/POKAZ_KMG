@@ -33,7 +33,12 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:var(--ui);color:var
 /* Навигация по контурам по умолчанию остаётся колонкой слева. */
 #stack{position:fixed;left:26px;top:50%;transform:translateY(-50%);z-index:10;display:flex;flex-direction:column;
   gap:6px;width:360px;padding-left:24px;transition:opacity .28s ease,transform .42s cubic-bezier(.2,.8,.2,1)}
-#stack.выбран{top:46%;gap:4px}
+/* 25.09 (Адиль): «сдвинь левый блок выше, чтоб мини-пирог мог вмешаться».
+   В раскрытом виде подшаги удлиняют список, и его центр опускался в
+   низ экрана — под угол, куда садится мини-стопка. Прижимаем стек
+   к верху сразу под блоком эффектов (top:200px, translateY снимаем)
+   и уменьшаем gap — низ левой колонки освобождается под мини-пирог. */
+#stack.выбран{top:200px;transform:none;gap:4px}
 #stack.выбран .lay{padding:7px 11px}
 #stack.выбран .lay .t{font-size:19px;line-height:1.2}
 #stack.выбран .lay .n{font-size:17px}
