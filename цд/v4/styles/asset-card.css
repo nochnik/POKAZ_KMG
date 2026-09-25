@@ -1,0 +1,182 @@
+/* First-asset card on the right — shown by default in the initial frame.
+   Same layout as the card in the lead-in finale.
+
+   24.09 (Adil, after release): the card was wider and larger than the key
+   effects on top — the accent drifted to the asset. max-width 660 → 560,
+   fonts slightly reduced. */
+#asset-card {
+  position: fixed;
+  right: 26px;
+  top: 50%;
+  transform: translateY(-50%) translateX(40px);
+  width: 30vw;
+  min-width: 400px;
+  max-width: 560px;
+  max-height: 86vh;
+  z-index: 11;
+  padding: 18px 22px 18px;
+  overflow: hidden auto;
+  background: linear-gradient(180deg, rgba(6, 11, 20, 0.96), rgba(4, 8, 15, 0.985));
+  border: 1px solid rgba(140, 170, 210, 0.16);
+  opacity: 0;
+  transition:
+    opacity 0.5s,
+    transform 0.6s cubic-bezier(0.22, 0.61, 0.36, 1);
+  pointer-events: none;
+}
+
+#asset-card.is-visible {
+  opacity: 1;
+  transform: translateY(-50%);
+  pointer-events: auto;
+}
+
+#asset-card .kicker {
+  font-family: var(--mono);
+  font-size: 16.5px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--cyan);
+  margin-bottom: 12px;
+}
+
+#asset-card .name {
+  font-family: var(--serif);
+  font-size: 25px;
+  color: #f2f7ff;
+  line-height: 1.15;
+  border-top: 2px solid var(--cyan);
+  padding-top: 12px;
+}
+
+/* Location line — framed, amber stripe on the left, reacts to the cursor.
+   In v3 this frame leaked in from the generic `.sub` rule (written for panel
+   step cards) and was approved on the stand in that form. It is spelled out
+   here so it no longer depends on someone else's rule. */
+#asset-card .location {
+  cursor: pointer;
+  border: 1px solid var(--line);
+  border-left: 3px solid #f0ae4a;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  transition:
+    background 0.2s,
+    transform 0.2s;
+  font-size: 17px;
+  color: #9db4ce;
+  margin-top: 6px;
+  line-height: 1.35;
+}
+
+#asset-card .location:hover {
+  background: rgba(240, 174, 74, 0.08);
+  transform: translateX(3px);
+}
+
+/* Tiers — "reference data" and "already done"; rows come in as a staircase. */
+#asset-card .tier {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(140, 170, 210, 0.16);
+  opacity: 0;
+  transform: translateY(10px);
+  transition:
+    opacity 0.5s cubic-bezier(0.22, 0.61, 0.36, 1),
+    transform 0.5s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+#asset-card .tier.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+#asset-card .tier:empty {
+  display: none;
+}
+
+#asset-card .tier-heading {
+  padding: 0 0 6px;
+  font-family: var(--mono);
+  font-size: 14px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--cyan);
+}
+
+#asset-card .row {
+  display: flex;
+  gap: 12px;
+  padding: 5px 0;
+  border-bottom: 1px solid rgba(140, 170, 210, 0.09);
+  opacity: 0;
+  transform: translateY(10px);
+  transition:
+    opacity 0.4s ease-out,
+    transform 0.4s ease-out;
+}
+
+#asset-card .tier.is-visible .row {
+  opacity: 1;
+  transform: none;
+}
+
+#asset-card .row:last-child {
+  border-bottom: 0;
+}
+
+/* staircase: 0.08s for the first row, +0.045s per row (the heading is child 1) */
+#asset-card .row:nth-child(2) {
+  transition-delay: 0.08s;
+}
+
+#asset-card .row:nth-child(3) {
+  transition-delay: 0.125s;
+}
+
+#asset-card .row:nth-child(4) {
+  transition-delay: 0.17s;
+}
+
+#asset-card .row:nth-child(5) {
+  transition-delay: 0.215s;
+}
+
+#asset-card .row:nth-child(6) {
+  transition-delay: 0.26s;
+}
+
+#asset-card .row:nth-child(7) {
+  transition-delay: 0.305s;
+}
+
+#asset-card .row:nth-child(8) {
+  transition-delay: 0.35s;
+}
+
+#asset-card .row:nth-child(9) {
+  transition-delay: 0.395s;
+}
+
+#asset-card .row .key {
+  font-family: var(--mono);
+  font-size: 14.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #7c8da6;
+  flex: 0 0 40%;
+  line-height: 1.35;
+}
+
+#asset-card .row .value {
+  font-size: 17px;
+  color: #dce7f5;
+  line-height: 1.35;
+}
+
+#asset-card .footnote {
+  margin-top: 10px;
+  font-family: var(--mono);
+  font-size: 14px;
+  letter-spacing: 0.08em;
+  color: #5e7089;
+}

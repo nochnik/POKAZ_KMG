@@ -1,0 +1,297 @@
+/* Zone stack on the left — a "process chain": items share one process line,
+   zone steps hang off it as nested nodes. */
+#stack {
+  position: fixed;
+  left: 26px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 360px;
+  padding-left: 24px;
+  transition:
+    opacity 0.28s ease,
+    transform 0.42s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* A layer is selected or open: the stack shrinks and moves up, key effects
+   dock above it (see #key-effects.is-docked). */
+#stack.is-selected {
+  top: 46%;
+  gap: 4px;
+}
+
+#stack.is-selected .stack-item {
+  padding: 7px 11px;
+}
+
+#stack.is-selected .stack-item .title {
+  font-size: 19px;
+  line-height: 1.2;
+}
+
+#stack.is-selected .stack-item .num {
+  font-size: 17px;
+}
+
+#stack.is-selected .stack-item.step {
+  padding: 5px 9px;
+}
+
+#stack.is-selected .stack-item.step .title {
+  font-size: 16.5px;
+  line-height: 1.25;
+}
+
+#stack.is-selected .stack-item.step .num {
+  font-size: 16px;
+}
+
+#stack.is-selected #nav-dot {
+  box-shadow: 0 0 0 3px rgba(5, 8, 16, 0.9);
+  transition: none;
+}
+
+#stack.is-selected #nav-fill {
+  transition: none;
+}
+
+/* Process line linking all zones and steps. Fill and dot run down to the hot
+   item (see ui/stack.js). */
+#nav-line {
+  position: absolute;
+  left: 12px;
+  top: 20px;
+  bottom: 20px;
+  width: 2px;
+  background: rgba(140, 170, 210, 0.22);
+  border-radius: 2px;
+}
+
+#nav-line::after {
+  content: "";
+  position: absolute;
+  left: -4px;
+  bottom: -10px;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 10px solid rgba(140, 170, 210, 0.4);
+}
+
+#nav-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 0;
+  border-radius: 2px;
+  background: linear-gradient(180deg, rgba(79, 227, 255, 0.5), var(--line-color, #f0ae4a));
+  transition: height 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Positioned with transform, not top: `top` on a child of a stretched
+   (top+bottom) container does not apply, and translateY animates smoother. */
+#nav-dot {
+  position: absolute;
+  left: -5px;
+  top: 0;
+  width: 12px;
+  height: 12px;
+  margin-top: -6px;
+  border-radius: 50%;
+  background: var(--line-color, #f0ae4a);
+  box-shadow:
+    0 0 0 3px rgba(5, 8, 16, 0.9),
+    0 0 16px var(--line-color, #f0ae4a);
+  opacity: 0;
+  transition:
+    transform 0.45s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.3s;
+}
+
+#nav-dot.is-visible {
+  opacity: 1;
+}
+
+/* Stack item; --color is the zone colour from data-zone (base.css). The number sits
+   left of the title, not above it: the grid keeps titles in one column, so
+   "1.2" next to "1" reads as nesting rather than a new item. */
+.stack-item {
+  position: relative;
+  cursor: pointer;
+  text-align: left;
+  background: var(--glass);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--color);
+  padding: 9px 13px;
+  color: var(--txt);
+  font-family: var(--ui);
+  transition:
+    background 0.2s,
+    border-color 0.2s,
+    transform 0.2s;
+  backdrop-filter: blur(8px);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: baseline;
+  column-gap: 9px;
+}
+
+/* node on the process line */
+.stack-item::before {
+  content: "";
+  position: absolute;
+  left: -18px;
+  top: 50%;
+  margin-top: -5px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--bg0);
+  border: 2px solid var(--line);
+  transition:
+    border-color 0.25s,
+    background 0.25s;
+  z-index: 1;
+}
+
+.stack-item.is-done::before {
+  border-color: var(--color);
+}
+
+.stack-item.is-hot::before {
+  border-color: var(--color);
+  background: var(--color);
+}
+
+.stack-item .num {
+  font-family: var(--mono);
+  font-size: 19px;
+  letter-spacing: 0.04em;
+  color: var(--dim);
+  font-weight: 700;
+  min-width: 1.6em;
+}
+
+.stack-item.is-hot .num {
+  color: var(--color);
+}
+
+.stack-item .title {
+  font-size: 21.5px;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+/* chevron: the zone has steps behind it */
+.stack-item .chevron {
+  position: absolute;
+  right: 11px;
+  top: 50%;
+  margin-top: -4px;
+  width: 7px;
+  height: 7px;
+  border-right: 1.5px solid var(--dim);
+  border-bottom: 1.5px solid var(--dim);
+  transform: rotate(45deg);
+  transition:
+    transform 0.25s,
+    border-color 0.25s;
+}
+
+.stack-item.is-expanded .chevron {
+  transform: rotate(-135deg);
+  margin-top: -1px;
+  border-color: var(--color);
+}
+
+.stack-item:hover,
+.stack-item.is-hot {
+  background: rgba(79, 227, 255, 0.08);
+  border-color: var(--color);
+}
+
+/* Steps — nested nodes of the same chain, shifted right and tied to the line
+   by a stub. Shown only for the selected zone: all nine at once made a wall of
+   text taller than the model, and the screen should carry one level of meaning.
+   A visible step is a block, not a grid: the number sits above the title. */
+.stack-item.step {
+  margin-left: 16px;
+  width: calc(100% - 16px);
+  padding: 6px 10px;
+  background: rgba(10, 18, 32, 0.5);
+  border-left-width: 2px;
+  display: none;
+}
+
+.stack-item.step.is-visible {
+  display: block;
+}
+
+.stack-item.step::before {
+  width: 7px;
+  height: 7px;
+  margin-top: -3.5px;
+  left: -32px;
+} /* −32 + 3 + 16 = −13 → centred on the line */
+.stack-item.step::after {
+  content: "";
+  position: absolute;
+  left: -25px;
+  top: 50%;
+  width: 25px;
+  height: 1px;
+  background: var(--line);
+  opacity: 0.7;
+}
+
+.stack-item.step .title {
+  font-size: 18.5px;
+  font-weight: 600;
+  color: var(--txt);
+  line-height: 1.35;
+}
+
+.stack-item.step .num {
+  font-size: 18px;
+  min-width: 2.2em;
+}
+
+.stack-item.step.is-hot {
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.stack-item.step.is-hot::after {
+  background: var(--color);
+  opacity: 1;
+}
+
+@media (max-width: 1280px) {
+  #stack {
+    width: 290px;
+  }
+  .stack-item .title {
+    font-size: 22.5px;
+  }
+}
+
+/* short screen: the whole chain must fit */
+@media (max-height: 760px) {
+  #stack {
+    gap: 5px;
+  }
+  .stack-item {
+    padding: 10px 14px;
+  }
+  .stack-item .title {
+    font-size: 22.5px;
+  }
+  .stack-item.step {
+    padding: 5px 11px;
+  }
+  .stack-item.step .title {
+    font-size: 18.5px;
+  }
+}

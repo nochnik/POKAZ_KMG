@@ -1,0 +1,210 @@
+/* Labels over the 3D scene. All HTML rather than scene textures, so numbers
+   stay crisp at any scale. ui/labels.js positions them every frame. */
+
+/* ── drill points of the TEO layer ─────────────────────────────────────
+   --trunk is the wellbore colour: the stripe and the number line use it, so
+   the tag reads as belonging to its column. */
+#teo-labels {
+  position: fixed;
+  inset: 0;
+  z-index: 11;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+#teo-labels.is-visible {
+  opacity: 1;
+}
+
+.teo-tag {
+  position: absolute;
+  transform: translate(10px, -50%);
+  white-space: nowrap;
+  --trunk: var(--amber);
+  background: rgba(8, 14, 26, 0.82);
+  border: 1px solid var(--line);
+  border-left: 2px solid var(--trunk);
+  padding: 3px 7px;
+  backdrop-filter: blur(4px);
+}
+
+.teo-tag.horizontal {
+  --trunk: var(--wellbore-horizontal);
+}
+
+.teo-tag.directional {
+  --trunk: var(--wellbore-directional);
+}
+
+.teo-tag .num {
+  font-family: var(--mono);
+  font-size: 17px;
+  letter-spacing: 0.1em;
+  color: var(--trunk);
+}
+
+.teo-tag .line {
+  font-family: var(--mono);
+  font-size: 15.5px;
+  letter-spacing: 0.06em;
+  color: var(--dim);
+  margin-top: 1px;
+}
+
+/* Numbers in green, units and captions muted: the audience asks about the
+   numbers, and they must be caught at a glance. */
+.teo-tag .line b {
+  color: #4fe08a;
+  font-weight: 600;
+}
+
+/* The lower tag grows to the left of its column: the two tags part both in
+   height and in side and never overlap from any angle. The stripe moves to
+   the right edge — it must face the column. */
+.teo-tag.to-left {
+  transform: translate(calc(-100% - 10px), -50%);
+  border-left: 1px solid var(--line);
+  border-right: 2px solid var(--trunk);
+}
+
+/* ── digitised surface object (one label per surface step) ───────────── */
+.surface-label {
+  position: fixed;
+  z-index: 11;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s;
+  transform: translate(-50%, -100%);
+  white-space: nowrap;
+  font-family: var(--mono);
+  font-size: 17px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #ffe6bf;
+  background: rgba(8, 14, 26, 0.88);
+  border: 1px solid #ffb020;
+  border-bottom: 2px solid #ffb020;
+  padding: 4px 10px;
+  backdrop-filter: blur(4px);
+}
+
+.surface-label.is-visible {
+  opacity: 1;
+}
+
+/* ── well being drilled ──────────────────────────────────────────────── */
+#drill-label {
+  position: fixed;
+  z-index: 11;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s;
+  transform: translate(12px, -50%);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--mono);
+  font-size: 17px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #eaf2ff;
+  background: rgba(8, 14, 26, 0.85);
+  border: 1px solid var(--viol);
+  border-left: 3px solid var(--viol);
+  padding: 4px 9px;
+  backdrop-filter: blur(4px);
+  white-space: nowrap;
+}
+
+#drill-label.is-visible {
+  opacity: 1;
+}
+
+#drill-label .pulse {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--viol);
+  animation: drill-pulse 1.1s ease-in-out infinite;
+}
+
+/* depth counter in tabular digits, otherwise every tick shakes the label */
+#drill-label .depth {
+  font-weight: 600;
+  color: #fff;
+  font-variant-numeric: tabular-nums;
+  border-left: 1px solid rgba(155, 123, 232, 0.5);
+  padding-left: 7px;
+  margin-left: 1px;
+}
+
+/* ── horizontal drilling ─────────────────────────────────────────────────
+   Same language, but the label sits under the toe of the lateral. Steel frame,
+   not violet: violet in this layer means the producing stock, while this is
+   the same construction as in the centre. */
+#horizontal-label {
+  position: fixed;
+  z-index: 11;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s;
+  transform: translate(-50%, 16px);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--mono);
+  font-size: 17px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #eaf2ff;
+  background: rgba(8, 14, 26, 0.85);
+  border: 1px solid #9aa5b4;
+  border-bottom: 2px solid #9aa5b4;
+  padding: 4px 9px;
+  backdrop-filter: blur(4px);
+  white-space: nowrap;
+}
+
+#horizontal-label.is-visible {
+  opacity: 1;
+}
+
+#horizontal-label .pulse {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #9aa5b4;
+  animation: drill-pulse 1.1s ease-in-out infinite;
+}
+
+@keyframes drill-pulse {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.25);
+  }
+}
+
+/* ── cursor chip: name of the layer under the cursor ───────────────────
+   Colour comes from data-zone (see base.css). */
+#cursor-chip {
+  position: fixed;
+  z-index: 20;
+  pointer-events: none;
+  font-family: var(--mono);
+  font-size: 18px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #eaf2ff;
+  background: rgba(8, 14, 26, 0.9);
+  border: 1px solid var(--color, #4fe3ff);
+  border-left: 3px solid var(--color, #4fe3ff);
+  padding: 4px 9px;
+  display: none;
+  white-space: nowrap;
+}

@@ -1,0 +1,186 @@
+/* Zone panel on the right — appears on hover once the first-asset card is
+   dismissed (Esc). ui/panel.js sets data-zone on the panel (hence --color,
+   see base.css) and marks the current .panel-view.
+
+   Wider and therefore shorter: a narrow column pushed text into a tall strip,
+   and the panel looked like a tower for the same content. */
+#panel {
+  position: fixed;
+  right: 26px;
+  top: 50%;
+  transform: translateY(-50%) translateX(30px);
+  z-index: 10;
+  width: 34vw;
+  min-width: 420px;
+  max-width: 660px; /* 18.09: sized for the large fonts */
+  max-height: 86vh;
+  overflow-y: auto;
+  background: var(--glass);
+  border: 1px solid var(--line);
+  border-top: 2px solid var(--color, #4fe3ff);
+  backdrop-filter: blur(12px);
+  padding: 20px 22px;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 0.35s ease,
+    transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+#panel.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(-50%) translateX(0);
+}
+
+/* A selected or open layer never shows the panel: the stack is on the left,
+   the system content on the right. */
+#panel.is-replacing-stack,
+#panel.is-layer-open {
+  display: none;
+}
+
+#panel::-webkit-scrollbar {
+  width: 5px;
+}
+
+#panel::-webkit-scrollbar-thumb {
+  background: rgba(140, 170, 210, 0.3);
+}
+
+#panel-close {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  background: none;
+  border: none;
+  color: var(--dim);
+  font-size: 26px;
+  cursor: pointer;
+  line-height: 1;
+}
+
+#panel-close:hover {
+  color: var(--txt);
+}
+
+/* one view per zone and per step, written in v4.html */
+.panel-view {
+  display: none;
+}
+
+.panel-view.is-current {
+  display: block;
+}
+
+.panel-kicker {
+  font-family: var(--mono);
+  font-size: 17px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--color, #4fe3ff);
+}
+
+.panel-name {
+  font-family: var(--serif);
+  font-size: 29px;
+  font-weight: 600;
+  margin-top: 5px;
+  line-height: 1.2;
+}
+
+.panel-claim {
+  font-size: 21.5px;
+  color: var(--dim);
+  margin-top: 8px;
+  line-height: 1.5;
+}
+
+.panel-claim .zone-name {
+  color: var(--color);
+}
+
+#panel .section-heading {
+  font-family: var(--mono);
+  font-size: 16px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--dim);
+  margin: 14px 0 8px;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 5px;
+}
+
+.panel-blocks .block {
+  margin-bottom: 9px;
+}
+
+.panel-blocks .block-title {
+  font-size: 21px;
+  font-weight: 600;
+}
+
+.panel-blocks .block-text {
+  font-size: 19px;
+  color: var(--dim);
+  line-height: 1.5;
+}
+
+.panel-modules {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.panel-modules .module {
+  font-family: var(--mono);
+  font-size: 18.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: 1px solid var(--line);
+  color: var(--txt);
+  padding: 4px 10px;
+}
+
+/* Empty (speaker notes are comments in v4.html), but it keeps its top margin. */
+.panel-note {
+  font-size: 20px;
+  color: var(--dim);
+  margin-top: 16px;
+  line-height: 1.55;
+  border-left: 2px solid var(--color, #4fe3ff);
+  padding-left: 11px;
+}
+
+.panel-effects {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.panel-effects .effect {
+  border: 1px solid var(--color, #4fe3ff);
+  padding: 7px 11px;
+  min-width: 88px;
+}
+
+.panel-effects .value {
+  font-family: var(--mono);
+  font-size: 29px;
+  font-weight: 700;
+  color: var(--color, #4fe3ff);
+}
+
+.panel-effects .label {
+  font-size: 18px;
+  color: var(--dim);
+  margin-top: 2px;
+  line-height: 1.3;
+}
+
+@media (max-width: 1280px) {
+  #panel {
+    width: 32vw;
+    min-width: 300px;
+  }
+}

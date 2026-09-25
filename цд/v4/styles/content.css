@@ -1,0 +1,164 @@
+/* Content of an open layer — right panel, 70 % of the screen: the system
+   title and its video.
+
+   Replaced the jump to a separate project page: a second click on an open
+   layer no longer navigates away. Same glass as the zone panel — one visual
+   language, not a new layer over the show. It starts slightly offset rather
+   than from zero: it finishes the stack movement already under way.
+   ui/content.js sets data-zone (hence --color) and marks the current view.
+
+   padding-top leaves room for the frame header (top:22, ~54 tall + margin):
+   the header hangs in the top-left corner, and with a smaller padding the
+   system title would collide with it. */
+#content {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 70vw;
+  z-index: 14;
+  background: var(--glass);
+  backdrop-filter: blur(18px);
+  border-left: 1px solid var(--line);
+  border-top: 3px solid var(--color, #4fe3ff);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 12px;
+  padding: 96px 72px 42px;
+  overflow-y: auto;
+  opacity: 0;
+  transform: translateX(48px);
+  pointer-events: none;
+  transition:
+    opacity 0.6s ease,
+    transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+#content.is-visible {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+}
+
+/* one view per layer, written in v4.html */
+.content-view {
+  display: none;
+}
+
+.content-view.is-current {
+  display: block;
+}
+
+.content-name {
+  font-family: var(--serif);
+  font-size: 38px;
+  font-weight: 600;
+  line-height: 1.2;
+  max-width: 26ch;
+}
+
+#content-video {
+  display: block;
+  width: 100%;
+  max-height: 62vh;
+  object-fit: contain;
+  background: #02040a;
+  border: 1px solid var(--line);
+  border-top: 2px solid var(--color, #4fe3ff);
+  box-shadow: 0 18px 46px rgba(0, 0, 0, 0.32);
+}
+
+/* 24.09 (Adil): the "← к цифровому двойнику" button, the amber kicker
+   "ЦД … · проект NN" and the badge were removed; going back is the single ↩
+   button next to the 3D mini stack. Markup and handlers stay: to bring them
+   back, replace display:none below with the commented styles. */
+#content-back,
+.content-kicker,
+#content-badge {
+  display: none;
+}
+
+/*
+#content-back {
+  display: block;
+  align-self: flex-start;
+  cursor: pointer;
+  background: none;
+  border: 1px solid var(--line);
+  color: var(--dim);
+  font-family: var(--mono);
+  font-size: 16px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding: 8px 14px;
+  margin-bottom: 10px;
+}
+
+.content-kicker {
+  display: block;
+  font-family: var(--mono);
+  font-size: 18px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--color, #4fe3ff);
+}
+
+#content-badge {
+  display: block;
+  align-self: flex-start;
+  font-family: var(--mono);
+  font-size: 15px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--amber);
+  border: 1px solid rgba(240, 174, 74, 0.5);
+  padding: 7px 14px;
+  margin-top: 8px;
+}
+
+*/
+
+/* Back-to-initial-frame button — next to the 3D model, right of the mini
+   stack (23.09, Adil — "return next to the 3D model"). The former 25vw put it
+   inside the mini stack on narrow monitors and far from it on wide ones, so
+   it is placed from the mini stack's own box: --mini-* come from scene/layout.js. */
+#mini-reset {
+  position: fixed;
+  z-index: 16;
+  left: calc(var(--mini-margin, 34px) + var(--mini-width, 35.1vh) + 12px);
+  bottom: var(--mini-margin, 34px);
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  transform: translateX(32px);
+  border: 1px solid var(--line);
+  border-left: 2px solid var(--cyan);
+  background: rgba(10, 18, 32, 0.88);
+  color: var(--txt);
+  font-family: var(--mono);
+  font-size: 22px;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 0.3s ease,
+    transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1),
+    border-color 0.2s,
+    color 0.2s;
+}
+
+#mini-reset.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(0);
+}
+
+#mini-reset:hover,
+#mini-reset:focus-visible {
+  color: var(--cyan);
+  border-color: var(--cyan);
+  outline: none;
+}

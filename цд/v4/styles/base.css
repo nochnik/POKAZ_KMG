@@ -1,0 +1,126 @@
+/* Palette, fonts and the page frame.
+
+   The palette comes from the digital-twin project and is shared by every KMG
+   show on the stand — no new colours (see CLAUDE.md). */
+:root {
+  --cyan: #4fe3ff;
+  --amber: #f0ae4a;
+  --blue: #8fbaf0;
+  --teal: #35d0c2;
+  --viol: #9b7be8;
+  --bg0: #050810;
+  --bg1: #0c1626;
+  --line: rgba(140, 170, 210, 0.22);
+  --glass: rgba(10, 18, 32, 0.82);
+  --txt: #d7e2f2;
+  --dim: #7c8da6;
+  --mono: Consolas, "Courier New", monospace;
+  --serif: Cambria, Georgia, serif;
+  --ui: "Segoe UI", Calibri, sans-serif;
+
+  /* Zone colours. The 3D scene reads these same variables (v4/theme.js), so a
+     colour is changed here once for the stack, panels and the model. */
+  --zone-reservoir: #f0ae4a;
+  --zone-well: #8fbaf0;
+  --zone-surface: #35d0c2;
+  /* Wellbore colours of the TEO columns and their labels: green horizontal,
+     red vertical/directional. */
+  --wellbore-horizontal: #2fbf5b;
+  --wellbore-directional: #f03a2e;
+}
+
+/* Anything tagged with a zone gets that zone's colour as --color: stack
+   buttons, panel, content, cursor chip. */
+[data-zone="reservoir"] {
+  --color: var(--zone-reservoir);
+}
+
+[data-zone="well"] {
+  --color: var(--zone-well);
+}
+
+[data-zone="surface"] {
+  --color: var(--zone-surface);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: var(--ui);
+  color: var(--txt);
+  background: radial-gradient(ellipse at 50% 30%, #0c1626 0%, #050810 70%);
+}
+
+#scene {
+  position: fixed;
+  inset: 0;
+}
+
+/* The header sits above every panel (z-index 15, above #content at 14): the
+   frame title stays on screen even when a system is open on the right
+   (24.09, Adil — "the title stays the same"). It does not adapt when a layer
+   opens: a shadow keeps it readable over the video, and the system title is
+   pushed down under it (see #content padding in content.css). */
+#header {
+  position: fixed;
+  top: 22px;
+  left: 26px;
+  z-index: 15;
+  pointer-events: none;
+}
+
+#header h1 {
+  font-family: var(--serif);
+  font-size: 32.5px;
+  font-weight: 600;
+  line-height: 1.2;
+  text-shadow:
+    0 2px 12px rgba(5, 8, 16, 0.9),
+    0 0 22px rgba(5, 8, 16, 0.7),
+    0 0 36px rgba(5, 8, 16, 0.5);
+}
+
+#header h1 b {
+  color: var(--cyan);
+}
+
+/* Loading screen. No progress messages (18.09, Adil) — the message line is
+   filled only on error. */
+#loader {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: radial-gradient(ellipse at 50% 30%, #0c1626 0%, #050810 70%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  transition: opacity 0.6s;
+}
+
+#loader.is-done {
+  opacity: 0;
+  pointer-events: none;
+}
+
+#loader .title {
+  font-family: var(--serif);
+  font-size: 29px;
+}
+
+#loader .message {
+  font-family: var(--mono);
+  font-size: 17px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
