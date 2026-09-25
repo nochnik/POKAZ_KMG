@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>КМГ · Кибербезопасность АСУТП — программа и результат</title>
+<style>
+/* Кибербезопасность АСУТП (KMG Automation через Адиля, «KMGA CyberSecurity.pptx»,
+   24–25.09): два слайда — программа по четырём этапам (их слайд 2 — «просили
+   воткнуть куда-нибудь») и что входит / что получает завод (их слайд 5).
+   Вендоры и бренды со слайдов сняты (Жанат Зарубековна 16.09), их
+   ролик — маркетинг на английском — не берём. Каркас, CSS и скрипт — копия
+   энд.html: та же страница-презентация, что открывается из карточки. */
+:root{
+  --кмг:#02AEF0; --кмг_свет:#90D6F7; --циан:#4FE3FF; --мята:#3EE6B8; --зелёный:#3ED598;
+  --фон0:#050810; --фон1:#0C1626; --янтарь:#F2B84B;
+  --грань:#1B2E48; --текст:#D7E2F2; --текст2:#AFC0D8; --приглуш:#7C8DA6;
+}
+@font-face{font-family:'Unbounded';font-weight:500 700;font-display:swap;
+  src:url('медиа/шрифты/унб_700_cyrillic.woff2') format('woff2');
+  unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
+@font-face{font-family:'Unbounded';font-weight:500 700;font-display:swap;
+  src:url('медиа/шрифты/унб_700_latin.woff2') format('woff2');
+  unicode-range:U+0000-00FF,U+2000-206F}
+@font-face{font-family:'Golos Text';font-weight:400 600;font-display:swap;
+  src:url('медиа/шрифты/голос_400_cyrillic.woff2') format('woff2');
+  unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
+@font-face{font-family:'Golos Text';font-weight:400 600;font-display:swap;
+  src:url('медиа/шрифты/голос_400_latin.woff2') format('woff2');
+  unicode-range:U+0000-00FF,U+2000-206F}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{background:#000;color:var(--текст);overflow:hidden;
+  font-family:'Golos Text',system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+.дисплей{font-family:'Unbounded',system-ui,sans-serif;letter-spacing:.01em}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+:focus-visible{outline:2px solid var(--кмг);outline-offset:4px;border-radius:4px}
+#обёртка{position:fixed;inset:0;overflow:hidden;background:var(--фон0)}
+.кадр_фон{position:absolute;inset:0;pointer-events:none;background:url("медиа/кадры/кибербезопасность_фон.jpg") center/cover no-repeat;opacity:.34;
+  -webkit-mask-image:linear-gradient(100deg,rgba(0,0,0,.35) 0%,rgba(0,0,0,.55) 45%,#000 100%);mask-image:linear-gradient(100deg,rgba(0,0,0,.35) 0%,rgba(0,0,0,.55) 45%,#000 100%)}
+#обёртка::before{content:"";position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(calc(1200px * var(--к,1)) calc(620px * var(--к,1)) at 50% -12%, rgba(2,174,240,.14), transparent 68%),
+    radial-gradient(calc(900px * var(--к,1)) calc(520px * var(--к,1)) at 92% 108%, rgba(62,213,152,.07), transparent 70%),
+    linear-gradient(180deg,#060B16 0%,var(--фон0) 55%,#04070E 100%)}
+#обёртка::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:.5;
+  background-image:linear-gradient(rgba(27,46,72,.30) 1px,transparent 1px),linear-gradient(90deg,rgba(27,46,72,.30) 1px,transparent 1px);
+  background-size:calc(96px * var(--к,1)) calc(96px * var(--к,1));background-position:center;
+  -webkit-mask-image:radial-gradient(calc(1400px * var(--к,1)) calc(900px * var(--к,1)) at 50% 45%,#000 30%,transparent 82%);
+          mask-image:radial-gradient(calc(1400px * var(--к,1)) calc(900px * var(--к,1)) at 50% 45%,#000 30%,transparent 82%)}
+#кадр{width:var(--кадр_ш,1920px);height:var(--кадр_в,1080px);position:absolute;left:50%;top:50%;
+  transform:translate(-50%,-50%) scale(var(--к,1));transform-origin:center center;overflow:hidden}
+.слайд{position:absolute;inset:0;padding:calc(76px + var(--поля_в,0px)) calc(98px + var(--поля_ш,0px)) calc(122px + var(--поля_в,0px));
+  display:flex;flex-direction:column;opacity:0;visibility:hidden;transform:translateY(16px);
+  transition:opacity .42s ease,transform .42s ease,visibility 0s .42s}
+.слайд.виден{opacity:1;visibility:visible;transform:none;transition:opacity .42s ease,transform .42s ease}
+.бровь{font-size:19px;letter-spacing:.22em;text-transform:uppercase;color:var(--приглуш)}
+h2.заголовок{font-size:39px;font-weight:700;line-height:1.15;margin-top:10px}
+.идея{margin-top:10px;font-size:20px;line-height:1.45;color:var(--приглуш);max-width:1500px}
+.полотно{position:relative;margin-top:26px;flex:1;min-height:0}
+
+/* ===== колонки процесса: шаг сверху, работы снизу ===== */
+.колонки{display:grid;gap:26px;height:100%;min-height:0;align-items:stretch}
+.колонки.четыре{grid-template-columns:repeat(4,1fr)}
+.колонки.три{grid-template-columns:repeat(3,1fr)}
+.колонка{display:flex;flex-direction:column;min-height:0;opacity:0;transform:translateY(10px);transition:opacity .45s ease,transform .45s ease}
+.колонка.включён{opacity:1;transform:none}
+.шаг{position:relative;border:1px solid rgba(2,174,240,.45);border-radius:18px;padding:18px 20px 18px 22px;
+  background:linear-gradient(180deg,rgba(2,174,240,.14),rgba(2,174,240,.05))}
+.шаг .н{font-family:'Unbounded',sans-serif;font-size:16px;letter-spacing:.2em;color:var(--кмг)}
+.шаг h3{margin-top:8px;font-family:'Unbounded',sans-serif;font-size:24.5px;line-height:1.22;font-weight:700;color:var(--текст)}
+.колонка + .колонка .шаг::before{content:"→";position:absolute;left:-24px;top:50%;transform:translateY(-50%);color:var(--циан);font-size:26px;opacity:.7}
+.работы{flex:1;margin-top:14px;border:1px solid var(--грань);border-radius:18px;padding:18px 20px;
+  background:linear-gradient(180deg,rgba(12,22,38,.88),rgba(5,8,16,.6));display:flex;flex-direction:column;min-height:0}
+.работы ul{list-style:none;display:flex;flex-direction:column;gap:12px}
+.работы li{position:relative;padding-left:16px;font-size:18.5px;line-height:1.42;color:var(--текст2)}
+.работы li::before{content:"";position:absolute;left:0;top:.6em;width:6px;height:6px;border-radius:50%;background:var(--мята);opacity:.85}
+.работы li em{font-style:normal;color:var(--текст);font-weight:600}
+.системы{margin-top:auto;padding-top:14px;display:flex;flex-wrap:wrap;gap:8px}
+/* 16.09 (Адиль): системы под шагом — карточками, как чипы в показе
+   (значок + имя), а не пилюлями; значки те же, что в сцене */
+.чип{display:inline-flex;align-items:center;gap:10px;padding:8px 12px 8px 10px;border-radius:12px;border:1px solid rgba(2,174,240,.25);
+  background:rgba(2,174,240,.07);font-size:19px;font-weight:600;line-height:1.25;color:var(--текст, #e8f1ff);white-space:nowrap}
+.чип img{width:34px;height:34px;object-fit:contain;filter:drop-shadow(0 0 8px rgba(2,174,240,.5))}
+.чип .точка{width:12px;height:12px;margin:0 10px;border-radius:50%;background:var(--кмг)}
+.чип.ии::after{content:"AI";font-size:12px;padding:2px 5px;border-radius:5px;border:1px solid rgba(2,174,240,.6)}
+.чип.внешн{border-color:rgba(242,184,75,.5);color:var(--янтарь);background:rgba(242,184,75,.08)}
+
+/* ===== низ ===== */
+.низ{position:absolute;left:calc(98px + var(--поля_ш,0px));right:calc(98px + var(--поля_ш,0px));bottom:calc(22px + var(--поля_в,0px));
+  display:flex;align-items:center;justify-content:space-between;gap:24px;pointer-events:none}
+.низ > *{pointer-events:auto}
+#лого{height:84px;filter:brightness(0) invert(1);opacity:.85}
+.точки{display:flex;gap:11px}
+.точки button{width:9px;height:9px;border-radius:50%;background:var(--грань);transition:background .25s ease,transform .25s ease}
+.точки button[aria-current="true"]{background:var(--кмг);transform:scale(1.34);box-shadow:0 0 12px rgba(2,174,240,.6)}
+.счётчик{font-family:'Unbounded',sans-serif;font-size:17.5px;letter-spacing:.14em;color:var(--приглуш)}
+.слайд,.низ{z-index:1}
+
+/* ===== семь этапов: сетка карточек ===== */
+/* 17.09: текста в этапе одна строка — карточки не тянутся на всю высоту полотна, иначе пустые */
+.этапы{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;min-height:0;align-items:start;align-content:center;height:100%}
+.этап{position:relative;display:flex;flex-direction:column;min-height:0;border:1px solid var(--грань);border-radius:18px;padding:16px 16px 14px;
+  background:linear-gradient(180deg,rgba(12,22,38,.88),rgba(5,8,16,.6));opacity:0;transform:translateY(10px);transition:opacity .45s ease,transform .45s ease}
+.этап.включён{opacity:1;transform:none}
+.этап .н{font-family:'Unbounded',sans-serif;font-size:16px;letter-spacing:.2em;color:var(--кмг)}
+.этап h3{margin-top:8px;font-family:'Unbounded',sans-serif;font-size:22px;line-height:1.22;font-weight:700;color:var(--текст);min-height:38px}
+.этап p{margin-top:10px;font-size:18px;line-height:1.4;color:var(--текст2)}
+.этап .ии{margin-top:10px;display:inline-flex;align-items:center;gap:8px;align-self:flex-start;padding:5px 10px;border-radius:999px;
+  border:1px solid rgba(62,230,184,.6);color:var(--мята);font-size:16px;font-weight:600}
+.этап .ии::before{content:"AI";font-family:'Unbounded',sans-serif;font-size:13.5px;padding:1px 5px;border-radius:4px;border:1px solid rgba(62,230,184,.6)}
+/* 18.09 (Адиль): у шага 4 подпись «ЭЦП · FaceID» — это не ИИ, значок AI снят; цвет платформы, чтобы не читалось как мятная плашка ИИ */
+.этап .ии.без_ии::before{content:none}
+.этап .ии.без_ии{border-color:rgba(2,174,240,.6);color:var(--кмг)}
+.этап .итог{margin-top:16px;padding-top:12px;border-top:1px solid var(--грань);font-size:17px;color:var(--приглуш)}
+.этап .итог b{display:block;margin-top:3px;font-size:19px;color:var(--мята);font-weight:600}
+.этап + .этап::before{content:"→";position:absolute;left:-17px;top:64px;color:var(--циан);font-size:23px;opacity:.7}
+.примечание{margin-top:16px;font-size:17.5px;color:var(--приглуш)}
+/* ===== анализ → эффекты ===== */
+.анализ{display:grid;grid-template-columns:1fr 1fr;gap:34px;height:100%;min-height:0}
+.колонка_а{display:flex;flex-direction:column;gap:16px;min-height:0;opacity:0;transform:translateY(10px);transition:opacity .45s ease,transform .45s ease}
+.колонка_а.включён{opacity:1;transform:none}
+.колонка_а h3{font-family:'Unbounded',sans-serif;font-size:25.5px;font-weight:700;color:var(--текст)}
+.колонка_а.было h3{color:var(--янтарь)}.колонка_а.стало h3{color:var(--мята)}
+.цифры_а{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.цифра_а{border:1px solid var(--грань);border-radius:16px;padding:16px 18px;background:linear-gradient(180deg,rgba(12,22,38,.88),rgba(5,8,16,.6))}
+.цифра_а .шапка{font-size:16px;letter-spacing:.14em;text-transform:uppercase;color:var(--приглуш)}
+.цифра_а .крупно{margin-top:8px;font-family:'Unbounded',sans-serif;font-size:36.5px;font-weight:700;line-height:1.05}
+.было .цифра_а .крупно{color:var(--янтарь)}.стало .цифра_а .крупно{color:var(--мята)}
+.цифра_а .пояс{margin-top:6px;font-size:17.5px;color:var(--текст2)}
+.пункты_а{list-style:none;display:flex;flex-direction:column;gap:10px}
+.пункты_а li{position:relative;padding-left:18px;font-size:19px;line-height:1.42;color:var(--текст2)}
+.пункты_а li::before{content:"";position:absolute;left:0;top:.6em;width:6px;height:6px;border-radius:50%;background:var(--кмг)}
+.стало .пункты_а li::before{background:var(--мята)}
+.пункты_а b{color:var(--текст);font-weight:600}
+.эффекты_а{margin-top:auto;display:grid;grid-template-columns:repeat(3,1fr);gap:14px;opacity:0;transition:opacity .45s ease}
+.эффекты_а.включён{opacity:1}
+.эффект_а{border:1px solid rgba(62,230,184,.45);border-radius:16px;padding:16px 18px;background:rgba(62,230,184,.06)}
+.эффект_а .крупно{font-family:'Unbounded',sans-serif;font-size:35.5px;font-weight:700;color:var(--мята)}
+.эффект_а .пояс{margin-top:6px;font-size:17.5px;color:var(--текст2)}
+.в_систему{margin-top:18px;align-self:flex-start;display:inline-flex;align-items:center;gap:12px;padding:12px 22px;border-radius:14px;border:1px solid rgba(2,174,240,.6);
+  background:rgba(2,174,240,.12);color:#fff;font-family:'Unbounded',sans-serif;font-size:17.5px;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;opacity:0;transition:opacity .45s ease}
+.в_систему.включён{opacity:1}
+.в_систему:hover{background:rgba(2,174,240,.24)}
+.в_систему small{font-family:'Golos Text',sans-serif;font-size:16px;letter-spacing:.02em;text-transform:none;color:var(--текст2)}
+/* срок этапа — плашкой под текстом, как чипы в показе */
+.этап .срок{margin-top:12px;align-self:flex-start;padding:5px 11px;border-radius:999px;border:1px solid rgba(2,174,240,.55);color:var(--кмг);font-size:16.5px;font-weight:600}
+.этап .итог b{white-space:normal}
+/* партнёр — логотип справа сверху, белый вариант на тёмном */
+.партнёр{position:absolute;right:calc(98px + var(--поля_ш,0px));top:calc(70px + var(--поля_в,0px));display:flex;flex-direction:column;align-items:flex-end;gap:6px;z-index:2}
+.партнёр small{font-size:14px;letter-spacing:.18em;text-transform:uppercase;color:var(--приглуш)}
+.партнёр img{height:46px}
+.колонка_а.входит h3{color:var(--кмг)}
+.входит .пункты_а li::before{background:var(--кмг)}
+</style>
+</head>
+<body>
+<div id="обёртка">
+  <!-- 17.09 (Арман): «какой-то фон в презентацию» — кадр карточки ЭНД из показа, приглушён -->
+  <div class="кадр_фон" aria-hidden="true"></div>
+<div id="кадр">
+
+<div class="партнёр"><small>партнёр</small><img src="медиа/лого/kmg_automation_белый.png" alt="KMG Automation"></div>
+<!-- ================= 1. программа по этапам ================= -->
+<section class="слайд виден" id="с1" aria-label="Кибербезопасность АСУТП: программа по этапам">
+  <div class="бровь">Кибербезопасность АСУТП · программа</div>
+  <h2 class="заголовок дисплей">Программа кибербезопасности промышленных систем управления</h2>
+  <p class="идея">От оценки и дорожной карты до проектирования, внедрения и сопровождения — единый воспроизводимый стандарт защиты для всех площадок.</p>
+  <div class="полотно">
+    <div class="этапы">
+      <div class="этап" data-к="1"><div class="н">01</div><h3>Оценка</h3><p>Базовая оценка и оценка рисков, инвентаризация активов, выявление и оценка уязвимостей</p><span class="срок">4–8 недель</span><div class="итог">Результат<b>Отчёт об оценке · реестр уязвимостей</b></div></div>
+      <div class="этап" data-к="2"><div class="н">02</div><h3>Дорожная карта</h3><p>Семинар по разработке дорожной карты: ранжирование с учётом рисков, инвестиционный план</p><span class="срок">4–6 недель</span><div class="итог">Результат<b>Приоритеты мероприятий · обоснование целесообразности</b></div></div>
+      <div class="этап" data-к="3"><div class="н">03</div><h3>Проектирование и внедрение</h3><p>Архитектура и система управления защитой, проверка целевого уровня безопасности; развёртывание средств контроля на площадках</p><span class="срок">6–8 недель · 5–10 объектов в год</span><div class="итог">Результат<b>Эталонная архитектура · внедрённые средства контроля, приёмочные испытания и ввод в эксплуатацию</b></div></div>
+      <div class="этап" data-к="4"><div class="н">04</div><h3>Сопровождение</h3><p>Оценка уязвимостей, непрерывный контроль соответствия, обнаружение угроз и реагирование</p><span class="срок">непрерывно</span><div class="итог">Результат<b>Отчёты сервиса безопасности · квартальные обзоры</b></div></div>
+    </div>
+  </div>
+  <p class="примечание">Сроки и объём работ зависят от масштаба проекта, количества объектов и модели реализации.</p>
+</section>
+
+<!-- ================= 2. что входит → что получает завод ================= -->
+<section class="слайд" id="с2" aria-label="Кибербезопасность АСУТП: что входит и результат">
+  <div class="бровь">Кибербезопасность АСУТП · что входит и что получает завод</div>
+  <h2 class="заголовок дисплей">Защита систем управления: что делается и что получает завод</h2>
+  <div class="полотно">
+    <div class="анализ">
+      <div class="колонка_а входит" data-к="1">
+        <h3>Что входит</h3>
+        <ul class="пункты_а">
+          <li><b>Консалтинг</b> — определение требований заказчика к защите промышленных систем</li>
+          <li><b>Оценка угроз</b> — обнаружение аномалий в сетях управления</li>
+          <li><b>Уязвимые зоны</b> — выявление устаревшего оборудования, план действий</li>
+          <li><b>Обучение</b> операторов и технического персонала</li>
+          <li><b>Контроль обновлений</b> — статус патчей по всему парку систем</li>
+          <li><b>Сегментированная архитектура</b> — демилитаризованная зона между сетями предприятия и управления</li>
+        </ul>
+      </div>
+      <div class="колонка_а стало" data-к="2">
+        <h3>Что получает завод</h3>
+        <ul class="пункты_а">
+          <li><b>Воспроизводимый стандарт</b> защиты для всех площадок — с минимальным временем простоя систем</li>
+          <li><b>Непрерывный мониторинг</b>, поддерживающий уровни безопасности 2–4 по IEC 62443</li>
+          <li><b>Статус безопасности на экране</b> — раннее обнаружение уязвимостей и отклонений</li>
+        </ul>
+        <div class="эффекты_а" data-к="3">
+          <div class="эффект_а"><div class="крупно">IEC 62443</div><div class="пояс">международный стандарт защиты АСУТП</div></div>
+          <div class="эффект_а"><div class="крупно">SL 2–4</div><div class="пояс">целевые уровни безопасности</div></div>
+          <div class="эффект_а"><div class="крупно">24/7</div><div class="пояс">мониторинг и реагирование</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="низ">
+  <img id="лого" src="медиа/лого_кмг.png" alt="КазМунайГаз">
+  <div class="точки" id="точки" role="tablist" aria-label="Слайды"></div>
+  <div class="счётчик" id="счётчик"></div>
+</div>
+</div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  function вписать(){
+    var к = Math.min(window.innerWidth / 1920, window.innerHeight / 1000);
+    var ш = window.innerWidth / к, в = window.innerHeight / к, кэ = document.documentElement.style;
+    кэ.setProperty("--к", к); кэ.setProperty("--кадр_ш", ш + "px"); кэ.setProperty("--кадр_в", в + "px");
+    кэ.setProperty("--поля_ш", Math.max(0, (ш - 1920) / 2) + "px"); кэ.setProperty("--поля_в", Math.max(0, (в - 1080) / 2) + "px");
+  }
+  window.addEventListener("resize", вписать); вписать();
+  var слайды = [].slice.call(document.querySelectorAll(".слайд")), текущий = 0, состояние = {};
+  var точки = document.getElementById("точки"), счёт = document.getElementById("счётчик");
+  function кадрыСлайда(с){ var м = 0; [].forEach.call(с.querySelectorAll("[data-к]"), function(э){ м = Math.max(м, +э.getAttribute("data-к")); }); return м; }
+  function показатьКадры(с, до){ [].forEach.call(с.querySelectorAll("[data-к]"), function(э){ э.classList.toggle("включён", +э.getAttribute("data-к") <= до); }); состояние[с.id] = до; }
+  слайды.forEach(function(с, i){
+    var т = document.createElement("button"); т.type = "button"; т.setAttribute("aria-label", "Слайд " + (i + 1));
+    т.addEventListener("click", function(){ показать(i, true); }); точки.appendChild(т);
+    показатьКадры(с, i === 0 ? кадрыСлайда(с) : 0);
+  });
+  var кнопки = [].slice.call(точки.children);
+  function показать(i, целиком){
+    if(i < 0 || i >= слайды.length || i === текущий) return;
+    слайды[текущий].classList.remove("виден"); текущий = i;
+    var с = слайды[i]; с.classList.add("виден"); показатьКадры(с, целиком ? кадрыСлайда(с) : 0);
+    кнопки.forEach(function(к, j){ к.setAttribute("aria-current", j === i ? "true" : "false"); });
+    счёт.textContent = ("0" + (i + 1)).slice(-2) + " / " + ("0" + слайды.length).slice(-2);
+  }
+  кнопки[0].setAttribute("aria-current", "true"); счёт.textContent = "01 / " + ("0" + слайды.length).slice(-2);
+  function вперёд(){ var с = слайды[текущий], всего = кадрыСлайда(с), было = состояние[с.id] || 0; if(было < всего){ показатьКадры(с, было + 1); return; } показать(текущий + 1, false); }
+  function назад(){ var с = слайды[текущий], было = состояние[с.id] || 0; if(было > 0){ показатьКадры(с, было - 1); return; } показать(текущий - 1, true); }
+  document.addEventListener("keydown", function(с){
+    var к = с.key;
+    if(к === "ArrowRight" || к === "PageDown" || к === " " || к === "Enter"){ с.preventDefault(); вперёд(); }
+    else if(к === "ArrowLeft" || к === "PageUp" || к === "Backspace"){ с.preventDefault(); назад(); }
+    else if(к === "Home"){ с.preventDefault(); показать(0, true); }
+    else if(к === "End"){ с.preventDefault(); показать(слайды.length - 1, true); }
+    else if(к === "f" || к === "F" || к === "а" || к === "А"){ if(document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen(); }
+  });
+  document.addEventListener("click", function(с){ if(с.target.closest(".точки")) return; if(с.shiftKey) назад(); else вперёд(); });
+  /* ?с=N — сразу нужный слайд; кириллический параметр приходит percent-encoded */
+  var м = /[?&]с=(\d+)/.exec(decodeURIComponent(location.search));
+  if(м) показать(+м[1] - 1, true);
+  window.__кибер = { показать:показать, текущий:function(){ return текущий; } };
+})();
+</script>
+</body>
+</html>
