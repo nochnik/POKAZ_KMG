@@ -156,7 +156,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:var(--ui);color:var
    контуров слева. Позиционирует JS (`positionEffectsOverview`), а сеткой
    переключаемся здесь: у-стека → 1 столбец, идут одной колонкой сверху вниз. */
 #effects-overview.у-стека{padding:0;transform:none;left:auto;right:auto;top:auto}
-#effects-overview .cols{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+#effects-overview .cols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
 #effects-overview .effect-col{padding:13px 17px;background:var(--glass);border:1px solid var(--line);
   border-left:3px solid var(--ec);backdrop-filter:blur(8px)}
 #effects-overview .items{display:block}
@@ -2156,9 +2156,15 @@ const elEffectsOverview = document.querySelector('#effects-overview .cols');
    шрифтом их из зала не видно. В карточке можно ставить один или несколько
    пунктов; у каждого может быть своя подпись или не быть — «доп. добычи»
    относится только к тоннам, у денег подписи нет. */
+/* 25.09 (Адиль): «Топ 12 месторождений» и «Более 90 % добычи всех активов»
+   объединены в одну карточку — это части одной мысли, охват программы.
+   Осталось два ключевых эффекта: слева — охват («Топ 12 · Более 90 %»),
+   справа — эффект в цифрах («2 864 тыс. тонн · 326 млрд ₸»). Сетка cols
+   в CSS остаётся repeat(3), но третья ячейка теперь пустая — блоки шире
+   и не спорят по площади: две мысли, две карточки. */
 const ГЛАВНЫЕ_ЭФФЕКТЫ = [
-  [ { v:'Топ 12',           l:'месторождений' } ],
-  [ { v:'Более 90 %',       l:'добычи всех активов' } ],
+  [ { v:'Топ 12',           l:'месторождений' },
+    { v:'Более 90 %',       l:'добычи всех активов' } ],
   [ { v:'2 864 тыс. тонн',  l:'доп. добычи' },
     { v:'326 млрд ₸' } ],
 ];
