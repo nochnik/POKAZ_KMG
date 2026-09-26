@@ -267,40 +267,38 @@ body {
 
 /* --- 4. Interactive Popups (Last 10 & Widgets) --- */
 .popup {
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    width: 100vw !important;
-    height: 100vh !important;
-    background: rgba(0, 0, 0, 0.8) !important;
-    z-index: 999999999 !important;
+    position: absolute !important;
+    left: 0px !important;
+    top: 0px !important;
+    width: 7680px !important;
+    height: 2160px !important;
+    background: transparent !important;
     display: none;
-    align-items: center !important;
-    justify-content: center !important;
-}
-.popup.show {
-    display: flex !important;
+    z-index: 99999998 !important;
 }
 .popup-inner {
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
     width: auto !important;
     min-width: 900px !important;
     max-width: 85vw !important;
     max-height: 85vh !important;
-    background: #232227 !important;
-    border: 3px solid #55545b !important;
+    background: #1e1f26 !important;
+    border: 2px solid #4a5468 !important;
     border-radius: 12px !important;
-    padding: 40px !important;
+    padding: 35px 40px !important;
     overflow-y: auto !important;
     color: #fff !important;
-    box-shadow: 0 30px 80px rgba(0,0,0,0.9) !important;
-    position: relative !important;
-    margin: auto !important;
+    box-shadow: 0 25px 70px rgba(0,0,0,0.9) !important;
+    z-index: 999999999 !important;
 }
 .popup-close {
     position: absolute;
-    top: 25px;
-    right: 35px;
-    font-size: 54px;
+    top: 20px;
+    right: 30px;
+    font-size: 46px;
     color: #aaa8c7;
     cursor: pointer;
     line-height: 1;
@@ -309,22 +307,12 @@ body {
     color: #fff;
 }
 .popup-title {
-    font-size: 46px;
+    font-size: 34px;
     font-weight: bold;
-    margin-bottom: 30px;
-    border-bottom: 2px solid #46454c;
-    padding-bottom: 20px;
-}
-.popup table, 
-.popup table tr, 
-.popup table td, 
-.popup table th {
-    background: #28272e !important;
-    color: #ffffff !important;
-    border-color: #44434b !important;
-}
-.popup table tr:nth-child(even) td {
-    background: #32313a !important;
+    margin-bottom: 22px;
+    border-bottom: 2px solid #3e4659;
+    padding-bottom: 14px;
+    color: #fff;
 }
 .popup .reverseTable .title {
     margin-bottom: 25px !important;
@@ -334,6 +322,64 @@ body {
 .popup .reverseTable .legend {
     position: static !important;
     margin-bottom: 20px !important;
+}
+
+/* --- Popup Table Styling (Dark high-contrast compact) --- */
+.popup-inner .table {
+    margin-bottom: 0 !important;
+    background-color: #181b24 !important;
+    border: 1px solid #3e4659 !important;
+    border-radius: 8px !important;
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+}
+.popup-inner .table > thead > tr > th {
+    background-color: #272d3b !important;
+    color: #ffd24d !important;
+    font-size: 19px !important;
+    padding: 9px 14px !important;
+    font-weight: 700 !important;
+    border: 1px solid #3e4659 !important;
+    border-top: none !important;
+    vertical-align: middle !important;
+    white-space: nowrap !important;
+}
+.popup-inner .table > tbody > tr > td {
+    color: #ffffff !important;
+    font-size: 18px !important;
+    padding: 8px 14px !important;
+    border: 1px solid #313848 !important;
+    vertical-align: middle !important;
+    line-height: 1.4 !important;
+}
+.popup-inner .table-striped > tbody > tr:nth-of-type(odd),
+.popup-inner .table-striped > tbody > tr:nth-of-type(odd) > td,
+.popup-inner .table > tbody > tr:nth-of-type(odd) > td {
+    background-color: #212533 !important;
+    color: #ffffff !important;
+}
+.popup-inner .table-striped > tbody > tr:nth-of-type(even),
+.popup-inner .table-striped > tbody > tr:nth-of-type(even) > td,
+.popup-inner .table > tbody > tr:nth-of-type(even) > td {
+    background-color: #181b24 !important;
+    color: #ffffff !important;
+}
+.popup-inner .table > tbody > tr:hover > td {
+    background-color: #2c3345 !important;
+}
+
+/* --- Interactive Elements Cursor & Hover --- */
+.otvod, .otvod-b, .rgs, .rgs2, .rgs3, .rgs4, .pech, .pech1, .pech2, 
+.block-text-1, .block-text-2, .bdr, .agzu-circle, .normative-cell, 
+.rvs, .rvs2, .nasos, .nasos2, .massometr, .massometr-2, .massometr-3, 
+.water-counter-table, .gas-counter-table, .page-button, .m-button {
+    cursor: pointer !important;
+}
+.otvod:hover, .otvod-b:hover, .rgs:hover, .pech1:hover, .pech2:hover,
+.block-text-1:hover, .block-text-2:hover, .bdr:hover, .agzu-circle:hover,
+.rvs:hover, .rvs2:hover, .nasos:hover, .nasos2:hover {
+    filter: brightness(1.22);
+    transition: filter 0.15s ease;
 }
 
 /* --- 5. Report Modal --- */
@@ -378,53 +424,230 @@ svg {
     shape-rendering: geometricPrecision;
 }
 
-/* --- 7. Technological Scheme Interactive Elements & Feedback --- */
-.rvs, .rvs2, .nasos, .nasos2, .massometr, .massometr-2, .massometr-3,
-.water-counter-table, .gas-counter-table, .rgs, .rgs2, .rgs3, .rgs4,
-.pech, .pech1, .pech2, .block-text-1, .block-text-2, .bdr, .agzu-circle,
-.agzu-toggle-buttons .head, .otvod, .otvod-b, .m-button {
-    cursor: pointer !important;
-    transition: filter 0.18s ease, transform 0.18s ease, outline 0.18s ease;
+/* --- 7. Authentic Scheme Legends --- */
+.underTable {
+    z-index: 999999999 !important;
+    position: absolute !important;
+    width: 1500px !important;
+    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.85) !important;
+}
+.rvs2-legend {
+    top: 105%;
 }
 
-.rvs:hover, .rvs2:hover, .nasos:hover, .nasos2:hover, .massometr:hover,
-.massometr-2:hover, .massometr-3:hover, .water-counter-table:hover,
-.gas-counter-table:hover, .rgs:hover, .rgs2:hover, .rgs3:hover, .rgs4:hover,
-.pech:hover, .pech1:hover, .pech2:hover, .bdr:hover, .block-text-1:hover, 
-.block-text-2:hover, .agzu-circle:hover {
-    filter: drop-shadow(0 0 16px rgba(84, 185, 72, 0.85)) brightness(1.2) !important;
+/* --- 8. Sidebar Navigation Menu --- */
+.menu-navigation {
+    position: absolute !important;
+    top: 100% !important;
+    left: 30px !important;
+    background: #232733 !important;
+    border: 2px solid #4a5468 !important;
+    border-radius: 12px !important;
+    width: 650px !important;
+    z-index: 99999999 !important;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.9) !important;
+    overflow: visible !important;
+    display: none;
 }
-
-.popup .own-table {
+.menu-navigation.active {
+    display: block !important;
+}
+.menu-navigation ul {
     width: 100% !important;
-    display: table !important;
-    border-collapse: collapse !important;
-    margin-top: 25px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    list-style: none !important;
+}
+.menu-navigation ul li {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 85px !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: 16px 30px !important;
+    transition: background 0.15s ease !important;
+    cursor: pointer !important;
+    position: relative !important;
+}
+.menu-navigation ul li:last-child {
+    border-bottom: none !important;
+}
+.menu-navigation ul li:hover {
+    background: #313747 !important;
+}
+.menu-navigation ul li a {
+    display: block !important;
+    font-size: 34px !important;
+    color: #ffffff !important;
+    text-decoration: none !important;
+    width: 100% !important;
+    cursor: pointer !important;
+}
+.menu-navigation ul li:hover a {
+    color: #ffd24d !important;
+}
+
+/* --- 9. Report Sub-menu Drawer --- */
+.report {
+    display: none;
+    position: absolute !important;
+    width: 820px !important;
+    min-height: 480px !important;
+    height: auto !important;
+    left: 665px !important;
+    top: -50px !important;
+    z-index: 100000000 !important;
     font-size: 26px !important;
-    color: #fff !important;
-    background: #25242b !important;
+    color: #FFFFFF !important;
+    background: #232733 !important;
+    border: 2px solid #4a5468 !important;
+    border-radius: 12px !important;
+    box-shadow: 0 25px 70px rgba(0,0,0,0.95) !important;
+    padding: 24px 28px !important;
 }
-.popup .own-table thead tr {
-    background: #393845 !important;
+.report .nav-report {
+    width: 100% !important;
+    position: relative !important;
+    display: flex !important;
+    border-bottom: 2px solid #3e4659 !important;
+    margin-bottom: 24px !important;
+    padding: 0 !important;
+    list-style: none !important;
+    border-radius: 6px !important;
+    overflow: hidden !important;
+    box-shadow: none !important;
 }
-.popup .own-table th {
-    padding: 16px 20px !important;
-    border: 1px solid #555 !important;
-    font-size: 28px !important;
-    color: #e5b948 !important;
+.report .nav-report li {
+    flex: 1 !important;
     text-align: center !important;
+    background: #181b24 !important;
+    border: 1px solid #3e4659 !important;
+    padding: 12px 10px !important;
+    min-height: 60px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
 }
-.popup .own-table td {
-    padding: 14px 25px !important;
-    border: 1px solid #484752 !important;
-    font-size: 24px !important;
+.report .nav-report li a {
+    color: #a0a8b9 !important;
+    font-size: 26px !important;
+    font-weight: bold !important;
+    text-decoration: none !important;
+    background: transparent !important;
 }
-.popup .own-table tbody tr:nth-child(even) {
-    background: #2b2a33 !important;
+.report .nav-report li.active {
+    background: #313747 !important;
+    border-bottom: 3px solid #ffd24d !important;
 }
-.popup .own-table tbody tr:nth-child(odd) {
-    background: #222129 !important;
+.report .nav-report li.active a {
+    color: #ffd24d !important;
 }
-.popup .own-table tbody tr:hover {
-    background: #34333f !important;
+.report .tab-content {
+    background: transparent !important;
+    position: relative !important;
+    width: 100% !important;
+    height: auto !important;
+    box-shadow: none !important;
 }
+.report select.form-control {
+    font-size: 26px !important;
+    background: #181b24 !important;
+    color: #FFFFFF !important;
+    height: 64px !important;
+    border: 2px solid #3e4659 !important;
+    border-radius: 8px !important;
+    padding: 0 16px !important;
+    width: 100% !important;
+}
+.report .period {
+    font-size: 28px !important;
+    color: #ffd24d !important;
+    font-weight: bold !important;
+    margin: 15px 0 10px 0 !important;
+    display: block !important;
+}
+.report .button {
+    font-size: 26px !important;
+    height: 60px !important;
+    line-height: 48px !important;
+    border-radius: 8px !important;
+    padding: 6px 28px !important;
+    cursor: pointer !important;
+    display: inline-block !important;
+    text-decoration: none !important;
+    margin-top: 30px !important;
+}
+.report .btn-out {
+    background: #54b948 !important;
+    border: 1px solid #6cd95e !important;
+    color: #fff !important;
+    font-weight: bold !important;
+}
+.report .btn-out:hover {
+    background: #469e3c !important;
+}
+.report .btn-cancel {
+    background: #363d4f !important;
+    border: 1px solid #4a5468 !important;
+    color: #fff !important;
+    margin-right: 15px !important;
+}
+.report .btn-cancel:hover {
+    background: #2b3140 !important;
+}
+
+/* --- 10. Sidebar Modals Component Styling --- */
+.rc-tab-btn {
+    font-size: 22px !important;
+    padding: 10px 24px !important;
+    border-radius: 6px !important;
+    font-weight: bold !important;
+    background: #232733 !important;
+    color: #a0a8b9 !important;
+    border: 1px solid #3e4659 !important;
+    cursor: pointer !important;
+    transition: all 0.15s ease !important;
+}
+.rc-tab-btn:hover {
+    background: #313747 !important;
+    color: #fff !important;
+}
+.rc-tab-btn.active {
+    background: #ffd24d !important;
+    color: #181b24 !important;
+    border-color: #ffd24d !important;
+}
+.ai-prompt-pill {
+    background: #212533;
+    border: 1px solid #4a5468;
+    color: #ffd24d;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 17px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: inline-block;
+    margin-right: 8px;
+    margin-bottom: 8px;
+}
+.ai-prompt-pill:hover {
+    background: #313747;
+    border-color: #ffd24d;
+    color: #fff;
+}
+.login-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(15, 17, 23, 0.96);
+    z-index: 999999999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+

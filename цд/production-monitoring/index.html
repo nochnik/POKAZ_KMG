@@ -3510,19 +3510,9 @@ viewBox="0 0 5760 1960"
 
     setInterval(function() {
         dateUpdate();
-        startTimer();
         loadChart();
         $('#waterBtn').eq(1).prop('checked', 'checked');
     }, 120000);
-
-
-    $('.widget').on('click', '.m-button', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        if (window.openReverseWidgetModal) {
-            window.openReverseWidgetModal(this);
-        }
-    });
 
 
     $('.open-menu-button').click(function() {
@@ -3566,6 +3556,11 @@ viewBox="0 0 5760 1960"
                 v: 1
             },
             {
+                name: 'rvs2',
+                class: 'rvs2-legend',
+                v: 1
+            },
+            {
                 name: 'pech',
                 class: 'pech-legend',
                 v: 5
@@ -3591,6 +3586,9 @@ viewBox="0 0 5760 1960"
             return ts.name == t.attr('data-type');
         });
 
+        if (!type || !type.length) return;
+
+        $('.underTable').remove();
         var div = '<div class="underTable '+type[0].class+'"></div>';
         $(div).appendTo(this);
         $('.underTable').load('/legends/'+type[0].v+'/field/'+fieldId);
