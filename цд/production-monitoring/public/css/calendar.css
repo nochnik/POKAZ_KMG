@@ -1,0 +1,415 @@
+.open-calendar {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    background: url('/public/images/calendar_icon.svg') no-repeat;
+    background-size: cover;
+    position: absolute;
+    left: 10px;
+    top: 10px;
+    cursor: pointer;
+}
+
+.reset-settings {
+    display: block;
+    width: 35px;
+    height: 30px;
+    background: url('/public/images/default.svg') no-repeat center;
+    background-size: contain;
+    position: absolute;
+    left: 60px;
+    top: 10px;
+}
+
+.calendar-overflow {
+    position: fixed;
+    z-index: 999;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+}
+
+.p-calendar {
+    position: absolute;
+    z-index: 1000;
+    top: 0;
+    right: 0;
+    width: 1920px;
+    height: 1080px;
+    background: #050E26;
+    padding: 40px 80px;
+    border: 5px solid #000;
+}
+.full-hd .p-calendar {
+    width: 480px;
+    height: 270px;
+    padding: 5px 20px;
+    border: 2px solid #000;
+}
+
+    .p-calendar,
+    .p-calendar * {
+        -webkit-box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        -ms-box-sizing: border-box;
+        box-sizing: border-box;
+    }
+
+    .p-calendar .top {
+        height: 90px;
+    }
+
+        .p-calendar .top span {
+            display: block;
+            width: 52%;
+            height: 70px;
+            float: left;
+            background: #172241;
+            border: 5px solid #050E26;
+            color: #FFF;
+            text-align: center;
+            line-height: 60px;
+            font-size: 43px;
+        }
+
+    .p-calendar .next-month,
+    .p-calendar .next-year,
+    .p-calendar .prev-year,
+    .p-calendar .prev-month {
+        display: block;
+        width: 12%;
+        height: 70px;
+        border: 5px solid #050E26;
+        cursor: pointer;
+        text-align: center;
+
+        background: #2D4661;
+        background: -webkit-linear-gradient(top, #385471 0%, #213750 80%);
+        background: -msie-linear-gradient(top, #385471 0%, #213750 80%);
+        background: -moz-linear-gradient(top, #385471 0%, #213750 80%);
+        background: -o-linear-gradient(top, #385471 0%, #213750 80%);
+        float: left;
+    }
+
+    .p-calendar .next-month i,
+    .p-calendar .next-year i,
+    .p-calendar .prev-year i,
+    .p-calendar .prev-month i {
+        display: inline-block;
+        width: 0;
+        height: 0;
+        margin-top: 15px;
+    }
+
+    .p-calendar .prev-month i {
+        border-right: 20px solid #FFF;
+        border-top: 15px solid transparent;
+        border-bottom: 15px solid transparent;
+    }
+
+    .p-calendar .next-month i {
+        border-left: 20px solid #FFF;
+        border-top: 15px solid transparent;
+        border-bottom: 15px solid transparent;
+    }
+
+    .p-calendar .prev-year i {
+        border-right: 20px solid #FFF;
+        border-top: 15px solid transparent;
+        border-bottom: 15px solid transparent;
+        margin-left: -5px;
+    }
+
+    .p-calendar .prev-year i:first-child {
+        margin-left: 0px;
+    }
+
+    .p-calendar .next-year i {
+        border-left: 20px solid #FFF;
+        border-top: 15px solid transparent;
+        border-bottom: 15px solid transparent;
+        margin-right: -5px;
+    }
+
+    .p-calendar .prev-year i:first-child {
+        margin-right: 0px;
+    }
+
+    .p-calendar .next-month:hover,
+    .p-calendar .next-year:hover,
+    .p-calendar .prev-year:hover,
+    .p-calendar .prev-month:hover {
+        background: #385471;
+    }
+
+    .p-calendar .end,
+    .p-calendar .start {
+        width: 50%;
+        padding: 30px;
+        float: left;
+    }
+
+        .p-calendar .day-names b {
+            display: block;
+            float: left;
+            height: 55px;
+            width: 14.28%;
+            text-align: center;
+            color: #8081a2;
+            padding-top: 20px;
+        }
+        .full-hd .p-calendar .day-names b {
+            padding-top: 5px;
+            height: 15px;
+            font-size: 8px;
+        }
+
+        .p-calendar .days a {
+            display: block;
+            float: left;
+            width: 14.28%;
+            height: 80px;
+            line-height: 70px;
+            color: #b3b7bb;
+            font-size: 42px;
+            text-align: center;
+            border: 5px solid #050E26;
+            text-decoration: none;
+
+            background: #2D4661;
+            background: -webkit-linear-gradient(top, #385471 0%, #213750 80%);
+            background: -msie-linear-gradient(top, #385471 0%, #213750 80%);
+            background: -moz-linear-gradient(top, #385471 0%, #213750 80%);
+            background: -o-linear-gradient(top, #385471 0%, #213750 80%);
+        }
+
+        .p-calendar .days a:hover {
+            background: #385471;
+        }
+
+        .p-calendar .days a.notactive {
+            background: #172241 !important;
+            cursor: default;
+        }
+
+        .p-calendar .days a.active {
+            box-shadow: 0px 0px 15px #333 inset;
+            background: #FFF !important;
+            color: #172241 !important;
+        }
+
+        .full-hd .p-calendar .days a {
+            height: 22px;
+            line-height: 20px;
+            font-size: 11px;
+            border: 1px solid #050E26;
+        }
+
+        .full-hd .p-calendar .days a.active {
+            box-shadow: 0px 0px 5px #333 inset;
+        }
+
+        .full-hd .p-calendar .days a.no-data {
+            position: relative;
+        }
+            .full-hd .p-calendar .days a.no-data i {
+                position: absolute;
+                display: block;
+                width: 2px;
+                height: 2px;
+                background: #F00;
+                border-radius: 2px;
+                right: 2px;
+                bottom: 2px;
+            }
+
+    .p-calendar .bottom {
+        width: 100%;
+        clear: both;
+        padding: 10px 30px;
+    }
+
+        .p-calendar .bottom .line {
+            border-top: 1px solid #F0F1F2;
+            margin-bottom: 40px;
+        }
+        .full-hd .p-calendar .bottom .line {
+            border-top: 1px solid #A0A1A2;
+            margin-bottom: 10px;
+        }
+
+        .p-calendar .bottom .info {
+            color: #8081a2;
+            font-size: 38px;
+            text-align: center;
+            padding: 15px;
+        }
+        .full-hd .p-calendar .bottom .info {
+            font-size: 10px;
+            padding: 6px 5px 5px;
+        }
+
+        .p-calendar .bottom .buttons {
+            text-align: center;
+            float: left;
+            width: 33.3%;
+            height: 240px;
+        }
+        .full-hd .p-calendar .bottom .buttons {
+            height: 80px;
+        }
+
+            .p-calendar .bottom .buttons a {
+                display: inline-block;
+                width: 252px;
+                height: 80px;
+                margin: 10px;
+                color: #FFF;
+                text-decoration: none;
+                font-size: 40px;
+                line-height: 1.6;
+                padding-top: 12px;
+
+                background: #2D4661;
+                background: -webkit-linear-gradient(top, #385471 0%, #213750 80%);
+                background: -msie-linear-gradient(top, #385471 0%, #213750 80%);
+                background: -moz-linear-gradient(top, #385471 0%, #213750 80%);
+                background: -o-linear-gradient(top, #385471 0%, #213750 80%);
+            }
+            .full-hd .p-calendar .bottom .buttons a {
+                width: 67px;
+                height: 22px;
+                margin: 0 1px 2px;
+                font-size: 10px;
+                padding-top: 3px;
+                line-height: 1.6;
+            }
+            .p-calendar .bottom .buttons a.active {
+                background: #FFF !important;
+                color: #172241;
+                box-shadow: 0px 0px 20px #333 inset;
+            }
+            .full-hd .p-calendar .bottom .buttons a.active {
+                box-shadow: 0px 0px 5px #333 inset;
+            }
+
+            .p-calendar .bottom .buttons a.p-year,
+            .p-calendar .bottom .buttons a.p-default {
+                width: auto;
+                display: block;
+                margin: 0 8px 8px;
+            }
+
+            .full-hd .p-calendar .bottom .buttons a.p-year,
+            .full-hd .p-calendar .bottom .buttons a.p-default {
+                margin: 0 2px 2px;
+            }
+
+            .p-calendar .bottom .buttons a.ok,
+            .p-calendar .bottom .buttons a.cancel {
+                width: 200px;
+                margin-top: 100px;
+            }
+            .full-hd .p-calendar .bottom .buttons a.ok,
+            .full-hd .p-calendar .bottom .buttons a.cancel {
+                width: 50px;
+            }
+
+            .p-calendar .bottom .buttons a:hover {
+                background: #385471;
+            }
+
+    .full-hd .p-calendar .top {
+        height: 22px;
+    }
+
+        .full-hd .p-calendar .top span {
+            height: 20px;
+            border: 1px solid #050E26;
+            line-height: 18px;
+            font-size: 10px;
+        }
+
+    .full-hd .p-calendar .next-month,
+    .full-hd .p-calendar .next-year,
+    .full-hd .p-calendar .prev-year,
+    .full-hd .p-calendar .prev-month {
+        height: 20px;
+        border: 1px solid #050E26;
+    }
+
+    .full-hd .p-calendar .next-month i,
+    .full-hd .p-calendar .next-year i,
+    .full-hd .p-calendar .prev-year i,
+    .full-hd .p-calendar .prev-month i {
+        margin-top: 5px;
+    }
+
+    .full-hd .p-calendar .prev-month i {
+        border-right: 5px solid #FFF;
+        border-top: 4px solid transparent;
+        border-bottom: 4px solid transparent;
+    }
+
+    .full-hd .p-calendar .next-month i {
+        border-left: 5px solid #FFF;
+        border-top: 4px solid transparent;
+        border-bottom: 4px solid transparent;
+    }
+
+    .full-hd .p-calendar .prev-year i {
+        border-right: 5px solid #FFF;
+        border-top: 4px solid transparent;
+        border-bottom: 4px solid transparent;
+        margin-left: -1px;
+    }
+
+    .full-hd .p-calendar .next-year i {
+        border-left: 5px solid #FFF;
+        border-top: 4px solid transparent;
+        border-bottom: 4px solid transparent;
+        margin-right: -1px;
+    }
+
+    .full-hd .p-calendar .next-month:hover,
+    .full-hd .p-calendar .next-year:hover,
+    .full-hd .p-calendar .prev-year:hover,
+    .full-hd .p-calendar .prev-month:hover {
+        background: #385471;
+    }
+
+    .full-hd .p-calendar .end,
+    .full-hd .p-calendar .start {
+        padding: 8px;
+    }
+
+    .full-hd .p-calendar .bottom {
+        padding: 0px 8px;
+    }
+
+.icon-ok {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    background: url(../images/icons/check-white.png) no-repeat;
+    background-size: 100%;
+}
+
+.icon-cancel {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    background: url(../images/icons/cancel.png) no-repeat;
+    background-size: 100%;
+}
+
+.toolbar-period {
+    display: inline-block;
+    color: #FFF;
+    font-size: 20px;
+    padding-left: 10px;
+    position: relative;
+    top: 5px;
+}

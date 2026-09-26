@@ -77,3 +77,4 @@ docs/*
 # перебивают верхнее «.DS_Store», и Finder-файлы уезжали в репозиторий.
 .DS_Store
 Thumbs.db
+.idea/*

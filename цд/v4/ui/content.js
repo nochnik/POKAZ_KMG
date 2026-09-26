@@ -5,7 +5,6 @@ import { state, selection } from '../state.js';
 
 const contentEl = document.getElementById('content');
 const videoEl = document.getElementById('content-video');
-const drillspotEl = document.getElementById('content-drillspot');
 const views = [...contentEl.querySelectorAll('.content-view')];
 const SWAP_MS = 260;
 let swapTimer = null;
@@ -27,10 +26,14 @@ function fill(){
   contentEl.classList.toggle('is-app', isApp);
   contentEl.inert = false;
   videoEl.hidden = isApp;
-  if(isApp){
-    if(!drillspotEl.hasAttribute('src')) drillspotEl.src = drillspotEl.dataset.src;
-  } else {
-    drillspotEl.removeAttribute('src');
+  for(const view of views){
+    const iframe = view.querySelector('iframe');
+    if(!iframe) continue;
+    if(view === current && isApp){
+      if(!iframe.hasAttribute('src')) iframe.src = iframe.dataset.src;
+    } else {
+      iframe.removeAttribute('src');
+    }
   }
   const file = current?.dataset.video;
   if(file){
@@ -63,7 +66,10 @@ export function showContent(isSwitch){
 export function hideContent(){
   clearTimeout(swapTimer);
   videoEl.pause();
-  drillspotEl.removeAttribute('src');
+  for(const view of views){
+    const iframe = view.querySelector('iframe');
+    if(iframe) iframe.removeAttribute('src');
+  }
   contentEl.inert = true;
   contentEl.classList.remove('is-visible');
 }

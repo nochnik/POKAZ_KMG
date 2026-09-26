@@ -1,0 +1,430 @@
+/* App styles extracted from productionMonitoring page */
+
+html {
+    height: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    background: #19191e !important;
+}
+
+body {
+    height: 2155px !important;
+    min-height: 2155px !important;
+    max-height: 2155px !important;
+    width: 7680px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow-x: visible !important;
+    overflow-y: hidden !important;
+    background: #19191e !important;
+}
+
+/* --- 1. Push and Event Card Overlay --- */
+.push {
+    position: absolute;
+    top: 59.5px;
+    left: 250px;
+    border-radius: 10px;
+    height: 140px;
+    padding: 0 100px;
+    background: #df4d57;
+    line-height: 140px;
+    color: #fff;
+    font-size: 32px;
+    display: none;
+    z-index: 999999999999;
+}
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: none;
+    z-index: 99999999999;
+}
+.send-box {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 1400px;
+    background: #2c2b30;
+    border: 3px solid #55545b;
+    border-radius: 12px;
+    padding: 40px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+    color: #fff;
+}
+.sb-title {
+    font-size: 48px;
+    font-weight: bold;
+    margin-bottom: 30px;
+    border-bottom: 2px solid #55545b;
+    padding-bottom: 20px;
+}
+.card {
+    background: #39383f;
+    border-radius: 8px;
+    padding: 24px;
+    margin-bottom: 25px;
+    font-size: 32px;
+    line-height: 1.6;
+}
+.card > div {
+    margin-bottom: 12px;
+}
+.toChooseSpec, .card-comment {
+    font-size: 32px;
+    margin-bottom: 25px;
+}
+.toChooseSpec span, .card-comment span {
+    display: block;
+    margin-bottom: 12px;
+    color: #aaa8c7;
+}
+.select-spec, #card-comment {
+    width: 100%;
+    background: #19191e;
+    border: 2px solid #55545b;
+    color: #fff;
+    border-radius: 8px;
+    padding: 16px 20px;
+    font-size: 30px;
+}
+#card-comment {
+    min-height: 160px;
+    resize: vertical;
+}
+.send-box-submit {
+    display: inline-block;
+    background: #347da6;
+    color: #fff;
+    font-size: 34px;
+    padding: 18px 40px;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-right: 20px;
+}
+.send-box-submit:hover {
+    background: #4295c5;
+}
+.close-box-submit {
+    display: inline-block;
+    background: #55545b;
+    color: #fff;
+    font-size: 34px;
+    padding: 18px 40px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+/* --- 2. Notification List & Alert Button --- */
+.nots {
+    height: 100%;
+}
+.left_head_btns {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 201px;
+    width: 1892px;
+}
+.notification {
+    position: absolute;
+    right: 0;
+    left: 0;
+    z-index: 99999;
+}
+.alert-btn {
+    position: absolute;
+    top: 100px;
+    left: 100px;
+    cursor: pointer;
+    font-size: 26px;
+    font-weight: bold;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    background: #df4d57;
+    box-shadow: 0 4px 12px rgba(223, 77, 87, 0.4);
+    z-index: 100;
+}
+.alert-btn.red {
+    background: #df4d57;
+}
+.alert-btn.yellow {
+    background: #d5a62a;
+}
+.alert-btn.green {
+    background: #54b948;
+}
+.notification-list {
+    position: absolute;
+    top: 200px;
+    left: 0;
+    width: 1920px;
+    max-height: 1200px;
+    background: #232227;
+    border: 3px solid #46454c;
+    border-top: none;
+    display: none;
+    z-index: 999999;
+    padding: 30px;
+    overflow-y: auto;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+}
+#alert-btn-close {
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+    font-size: 28px;
+    color: #aaa8c7;
+}
+.nl-triangle-text {
+    font-size: 28px;
+}
+.notification-list ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.notification-list ul li {
+    padding: 20px 24px;
+    background: #2d2c33;
+    border-left: 8px solid #55545b;
+    margin-bottom: 15px;
+    cursor: pointer;
+    font-size: 26px;
+    border-radius: 0 6px 6px 0;
+    transition: background 0.15s ease;
+}
+.notification-list ul li:hover {
+    background: #393841;
+}
+.notification-list ul li[color="high"] {
+    border-left-color: #df4d57;
+}
+.notification-list ul li[color="low"] {
+    border-left-color: #d5a62a;
+}
+.notification-list ul li[color="easy"] {
+    border-left-color: #54b948;
+}
+
+/* --- 3. Sorting Dropdown --- */
+.sort {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+    margin-left: 0 !important;
+}
+.sortBy {
+    display: inline-flex !important;
+    align-items: center;
+    cursor: pointer;
+    background: #34343a;
+    border: 1px solid #55545b;
+    color: #fff;
+    padding: 6px 14px;
+    border-radius: 4px;
+    font-size: 20px;
+}
+.sortByItem {
+    position: absolute !important;
+    top: 100%;
+    left: 0;
+    background: #2a2a30;
+    border: 2px solid #55545b;
+    border-radius: 6px;
+    padding: 12px 0;
+    z-index: 1000;
+    display: none;
+    min-width: 300px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+}
+.sortByItem div {
+    padding: 10px 20px;
+    font-size: 22px;
+    cursor: pointer;
+    color: #ddd;
+}
+.sortByItem div:hover {
+    background: #393842;
+    color: #fff;
+}
+
+/* --- 4. Interactive Popups (Last 10 & Widgets) --- */
+.popup {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    background: rgba(0, 0, 0, 0.8) !important;
+    z-index: 999999999 !important;
+    display: none;
+    align-items: center !important;
+    justify-content: center !important;
+}
+.popup.show {
+    display: flex !important;
+}
+.popup-inner {
+    width: auto !important;
+    min-width: 900px !important;
+    max-width: 85vw !important;
+    max-height: 85vh !important;
+    background: #232227 !important;
+    border: 3px solid #55545b !important;
+    border-radius: 12px !important;
+    padding: 40px !important;
+    overflow-y: auto !important;
+    color: #fff !important;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.9) !important;
+    position: relative !important;
+    margin: auto !important;
+}
+.popup-close {
+    position: absolute;
+    top: 25px;
+    right: 35px;
+    font-size: 54px;
+    color: #aaa8c7;
+    cursor: pointer;
+    line-height: 1;
+}
+.popup-close:hover {
+    color: #fff;
+}
+.popup-title {
+    font-size: 46px;
+    font-weight: bold;
+    margin-bottom: 30px;
+    border-bottom: 2px solid #46454c;
+    padding-bottom: 20px;
+}
+.popup table, 
+.popup table tr, 
+.popup table td, 
+.popup table th {
+    background: #28272e !important;
+    color: #ffffff !important;
+    border-color: #44434b !important;
+}
+.popup table tr:nth-child(even) td {
+    background: #32313a !important;
+}
+.popup .reverseTable .title {
+    margin-bottom: 25px !important;
+    display: block !important;
+    position: static !important;
+}
+.popup .reverseTable .legend {
+    position: static !important;
+    margin-bottom: 20px !important;
+}
+
+/* --- 5. Report Modal --- */
+.report {
+    position: absolute;
+    top: 200px;
+    left: 300px;
+    width: 1200px;
+    background: #2c2b30;
+    border: 3px solid #55545b;
+    border-radius: 12px;
+    padding: 30px;
+    z-index: 999999;
+    display: none;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+}
+.report .nav-report li a {
+    font-size: 26px;
+    color: #bbb;
+}
+.report .nav-report li.active a {
+    color: #fff;
+    background: #393841;
+}
+.report .tab-content {
+    margin-top: 25px;
+}
+.report label {
+    font-size: 24px;
+    color: #ddd;
+}
+.report select {
+    font-size: 24px;
+    height: 50px;
+    background: #19191e;
+    color: #fff;
+    border-color: #555;
+}
+
+/* --- 6. SVG and Canvas crisp rendering --- */
+svg {
+    shape-rendering: geometricPrecision;
+}
+
+/* --- 7. Technological Scheme Interactive Elements & Feedback --- */
+.rvs, .rvs2, .nasos, .nasos2, .massometr, .massometr-2, .massometr-3,
+.water-counter-table, .gas-counter-table, .rgs, .rgs2, .rgs3, .rgs4,
+.pech, .pech1, .pech2, .block-text-1, .block-text-2, .bdr, .agzu-circle,
+.agzu-toggle-buttons .head, .otvod, .otvod-b, .m-button {
+    cursor: pointer !important;
+    transition: filter 0.18s ease, transform 0.18s ease, outline 0.18s ease;
+}
+
+.rvs:hover, .rvs2:hover, .nasos:hover, .nasos2:hover, .massometr:hover,
+.massometr-2:hover, .massometr-3:hover, .water-counter-table:hover,
+.gas-counter-table:hover, .rgs:hover, .rgs2:hover, .rgs3:hover, .rgs4:hover,
+.pech:hover, .pech1:hover, .pech2:hover, .bdr:hover, .block-text-1:hover, 
+.block-text-2:hover, .agzu-circle:hover {
+    filter: drop-shadow(0 0 16px rgba(84, 185, 72, 0.85)) brightness(1.2) !important;
+}
+
+.popup .own-table {
+    width: 100% !important;
+    display: table !important;
+    border-collapse: collapse !important;
+    margin-top: 25px !important;
+    font-size: 26px !important;
+    color: #fff !important;
+    background: #25242b !important;
+}
+.popup .own-table thead tr {
+    background: #393845 !important;
+}
+.popup .own-table th {
+    padding: 16px 20px !important;
+    border: 1px solid #555 !important;
+    font-size: 28px !important;
+    color: #e5b948 !important;
+    text-align: center !important;
+}
+.popup .own-table td {
+    padding: 14px 25px !important;
+    border: 1px solid #484752 !important;
+    font-size: 24px !important;
+}
+.popup .own-table tbody tr:nth-child(even) {
+    background: #2b2a33 !important;
+}
+.popup .own-table tbody tr:nth-child(odd) {
+    background: #222129 !important;
+}
+.popup .own-table tbody tr:hover {
+    background: #34333f !important;
+}

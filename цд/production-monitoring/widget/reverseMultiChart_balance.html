@@ -1,0 +1,218 @@
+<div class="chart-title">Скважино-часов</div>
+<div class="chart-title-2">%</div>
+<div class="toolbar">
+    <a class="open-calendar" title="Выбрать период"></a>
+    <div class="toolbar-period"><span class="startDate">01.09.2026</span><br><span class="endDate">25.09.2026</span></div>
+</div>
+<style>
+    .tick text {
+        font-size: 20px;
+        fill: #ffffff;
+    }
+</style>
+<div id="multiCharta4"></div>
+<script>
+    $(function() {
+        var id = 'a4';
+       var chartData = {"x":"x","columns":[["x","2026-09-01","2026-09-02","2026-09-03","2026-09-04","2026-09-05","2026-09-06","2026-09-07","2026-09-08","2026-09-09","2026-09-10","2026-09-11","2026-09-12","2026-09-13","2026-09-14","2026-09-15","2026-09-16","2026-09-17","2026-09-18","2026-09-19","2026-09-20","2026-09-21","2026-09-22","2026-09-23","2026-09-24","2026-09-25"],["\u041f\u0440\u043e\u0441\u0442\u043e\u0438 \u0438\u0437-\u0437\u0430 \u043e\u0441\u0442\u0430\u043d\u043e\u0432\u043e\u043a \u0441\u043a\u0432\u0430\u0436\u0438\u043d (\u0447\u0430\u0441\u044b)",44.751666666666665,58.73805555555556,77.03777777777778,79.76861111111111,61.63444444444444,68.98194444444445,67.15,59.413888888888884,44.11972222222222,49.41416666666667,42.49805555555555,45.94972222222222,48.74111111111111,66.65666666666667,62.340833333333336,60.74638888888889,57.15805555555555,58.95,58.95,58.95,45.591111111111104,30.9925,49.49305555555556,53.380833333333335,76.74666666666666],["\u041a\u043e\u044d\u0444\u0444\u0438\u0446\u0438\u0435\u043d\u0442 \u044d\u043a\u0441\u043f\u043b\u0443\u0430\u0442\u0430\u0446\u0438\u0438 \u0441\u043a\u0432\u0430\u0436\u0438\u043d (%)",97.66918402777779,96.94072627314814,95.98761574074074,95.94671691508582,96.8681684733514,96.49481989611563,96.58790650406503,96.98100158084915,97.7581441960253,97.48911754742548,97.84054595754291,97.66515639114725,97.52331752484191,96.61297425474254,96.83227472899728,96.91329324751581,97.0956272583559,97,97,97,97.68337850045167,98.42517784552845,97.48510896567298,97.28755928184282,96.10027100271003]],"columns2":[],"axes":{"\u041a\u043e\u044d\u0444\u0444\u0438\u0446\u0438\u0435\u043d\u0442 \u044d\u043a\u0441\u043f\u043b\u0443\u0430\u0442\u0430\u0446\u0438\u0438 \u0441\u043a\u0432\u0430\u0436\u0438\u043d (%)":"y2"},"type":"bar","types":{"\u041a\u043e\u044d\u0444\u0444\u0438\u0446\u0438\u0435\u043d\u0442 \u044d\u043a\u0441\u043f\u043b\u0443\u0430\u0442\u0430\u0446\u0438\u0438 \u0441\u043a\u0432\u0430\u0436\u0438\u043d (%)":"line"}};
+//        console.log(chartData);
+        var chart= c3.generate({
+            bindto: '#multiCharta4',
+            padding: {
+                bottom: 50,
+                right: 100,
+                top: 50,
+                left: 100
+            },
+            size: {
+                width: 1902,
+                height: 740
+            },
+            axis: {
+                x: {
+                    type: 'timeseries',
+                    tick: {
+                        fit: true,
+                        format: '%d.%m',
+                        culling: {
+                            max: 20
+                        }
+                    }
+                },
+                y: {
+                    padding: {
+                        bottom: 0,
+                        top: 20
+                    }
+                },
+                y2: {
+                    show: true,
+                    padding: {
+                        // bottom: 500,
+                        bottom: 10,
+                        top: 10                        // top: 500
+                    },
+                    default: [0, 100],
+                    min:95,
+                    max: 100,
+                    tick: {
+
+
+                                                    //min: //,
+                            // min:90,
+                            //values: 
+                            format: function (d) {
+                                // return Math.floor(d) ;
+                                return d.toFixed(1)
+                            }
+
+                                            }
+                }
+            },
+            //        legend: {
+            //            show: true
+            //        },
+            zoom: {
+                enabled: true
+            },
+            data: {
+                x: 'x',
+                columns: [["x","2026-09-01","2026-09-02","2026-09-03","2026-09-04","2026-09-05","2026-09-06","2026-09-07","2026-09-08","2026-09-09","2026-09-10","2026-09-11","2026-09-12","2026-09-13","2026-09-14","2026-09-15","2026-09-16","2026-09-17","2026-09-18","2026-09-19","2026-09-20","2026-09-21","2026-09-22","2026-09-23","2026-09-24","2026-09-25"],["\u041f\u0440\u043e\u0441\u0442\u043e\u0438 \u0438\u0437-\u0437\u0430 \u043e\u0441\u0442\u0430\u043d\u043e\u0432\u043e\u043a \u0441\u043a\u0432\u0430\u0436\u0438\u043d (\u0447\u0430\u0441\u044b)",44.751666666666665,58.73805555555556,77.03777777777778,79.76861111111111,61.63444444444444,68.98194444444445,67.15,59.413888888888884,44.11972222222222,49.41416666666667,42.49805555555555,45.94972222222222,48.74111111111111,66.65666666666667,62.340833333333336,60.74638888888889,57.15805555555555,58.95,58.95,58.95,45.591111111111104,30.9925,49.49305555555556,53.380833333333335,76.74666666666666],["\u041a\u043e\u044d\u0444\u0444\u0438\u0446\u0438\u0435\u043d\u0442 \u044d\u043a\u0441\u043f\u043b\u0443\u0430\u0442\u0430\u0446\u0438\u0438 \u0441\u043a\u0432\u0430\u0436\u0438\u043d (%)",97.66918402777779,96.94072627314814,95.98761574074074,95.94671691508582,96.8681684733514,96.49481989611563,96.58790650406503,96.98100158084915,97.7581441960253,97.48911754742548,97.84054595754291,97.66515639114725,97.52331752484191,96.61297425474254,96.83227472899728,96.91329324751581,97.0956272583559,97,97,97,97.68337850045167,98.42517784552845,97.48510896567298,97.28755928184282,96.10027100271003]],
+                axes: {"\u041a\u043e\u044d\u0444\u0444\u0438\u0446\u0438\u0435\u043d\u0442 \u044d\u043a\u0441\u043f\u043b\u0443\u0430\u0442\u0430\u0446\u0438\u0438 \u0441\u043a\u0432\u0430\u0436\u0438\u043d (%)":"y2"},
+                type: "bar",
+                types: {"\u041a\u043e\u044d\u0444\u0444\u0438\u0446\u0438\u0435\u043d\u0442 \u044d\u043a\u0441\u043f\u043b\u0443\u0430\u0442\u0430\u0446\u0438\u0438 \u0441\u043a\u0432\u0430\u0436\u0438\u043d (%)":"line"},
+                colors: []                //            columns: chartData,
+                //            type: 'bar'
+                ////            types: {
+                ////                data3: 'area-spline',
+                ////                data4: 'spline'
+                ////            }
+            },
+
+            grid: {
+                x: {
+                    show: true
+                },
+                y: {
+                    show: false
+                }
+            },
+            tooltip: {
+                format: {
+                    name : function (d) { return ''; },
+                    value: function(value, ration, id) {
+
+                        return value.toFixed(2);
+                    }
+                }
+            },
+            transition: {
+                duration: 1000
+            }
+        });
+
+                    //chart.axis.min({y2://});
+            //chart.axis.tick.values(y2://);
+            // chart.axis.values({y2:[100,99.8,99.6,99.4,99.2,99,98.8,98.6,98.4,98.2,98,97.8,97.6,97.4,97.2,97,96.8,96.6,96.4,96.2,96,95.8,95.6,95.4,95.2,95,94.8]});
+        
+
+        setTimeout(function() {
+
+            var y1 = Math.floor((Math.random() * 250) + 1);
+            var y2 = Math.floor((Math.random() * 250) + 1);
+            var slope = (y2-y1)/(11-0);
+            var y = 0;
+            var array = ["Тренд добычи флюидов"];
+
+            for(i=0;i<=11;i++) {
+                y = (slope*i)+y1;
+                array.push(y);
+            }
+
+            chart.load({
+                columns: []            });
+            //chart.axis.min({y: 0, y1: 0});
+
+        }, 1000);
+
+
+        var dates = getDates();
+//        console.log(dates);
+        var $openCalendarBtn = $('.open-calendar');
+        $openCalendarBtn.click(function () {
+            var p = $(this).parents('.widget');
+            var options = getDates();
+            options.onselect = function (startDate, endDate) {
+                sessionStorage.setItem('startDate', dateToString(startDate));
+                sessionStorage.setItem('endDate', dateToString(endDate));
+                updateWidget(p);
+            };
+            openCalendar($(this), options);
+            return false;
+        });
+
+//        $('.reset-settings').click(function () {
+//            if ( ! confirm('Сбросить настройки?')) return false;
+//            sessionStorage.setItem('startDate', dateToString(new Date()));
+//            sessionStorage.setItem('endDate', dateToString(new Date()));
+//            updateTracks();
+//            return false;
+//        });
+
+        function getDates () {
+            var startDate = sessionStorage.getItem('startDate');
+            var endDate = sessionStorage.getItem('endDate');
+            if ( ! startDate) {
+                startDate = dateToString(new Date());
+            }
+            if ( ! endDate) {
+                endDate = dateToString(new Date());
+            }
+            return {
+                startDate: startDate,
+                endDate: endDate
+            };
+        }
+
+        function updateWidget(p) {
+            var d = getDates();
+//            p.find('.startDate').html(d.startDate);
+//            p.find('.endDate').html(d.endDate);
+
+            var widget = [{
+                id: p.attr('widget-id'),
+                widget: 'reverseMultiChart',
+                type: p.attr('data-type'),
+                fieldId: fieldId,
+                startDate: d.startDate,
+                endDate: d.endDate
+            },
+                {
+                    id: $('.widget.t-1[data-type="'+p.attr('data-type')+'"').attr('widget-id'),
+                    widget: 'reverseTable',
+                    type: p.attr('data-type'),
+                    fieldId: fieldId,
+                    startDate: d.startDate,
+                    endDate: d.endDate
+                }
+            ];
+            widget.forEach(function (e) {
+                $.ajax({
+                    url: '/widget/' + e.widget,
+                    data: {
+                        widget: e
+                    },
+                    success: function (result) {
+                        $('.dashboard')
+                            .find('.widget[widget-id=' + e.id + ']')
+                            .attr('id', e.widget)
+                            .find('.widget-inner')
+                            .html(result);
+                        $('.calendar-overflow').remove();
+                    }
+                })
+            });
+
+        }
+    });
+</script>
