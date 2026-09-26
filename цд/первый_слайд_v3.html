@@ -396,6 +396,12 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:var(--ui);color:var
 #pc-claim{font-size:23px;color:var(--dim);line-height:1.6;max-width:52ch}
 #pc-video{display:none;width:100%;max-height:62vh;object-fit:contain;background:#02040A;
   border:1px solid var(--line);border-top:2px solid var(--pc,#4FE3FF);box-shadow:0 18px 46px rgba(0,0,0,.32)}
+#pc-tumar{display:none;position:absolute;top:48px;right:72px;width:min(20vw,400px);
+  aspect-ratio:20/9;object-fit:cover;background:#02040A;border:1px solid var(--line);
+  border-top:2px solid var(--pc,#4FE3FF);box-shadow:0 14px 38px rgba(0,0,0,.38)}
+#project-content.с-tumar #pc-tumar{display:block}
+#project-content.с-tumar #pc-name{max-width:calc(100% - min(20vw,400px) - 36px)}
+#video-preloaders{position:fixed;width:1px;height:1px;overflow:hidden;visibility:hidden;pointer-events:none}
 /* padding-top отведён под шапку кадра (см. #hdr: top:22, ~54 высоты + запас):
    H1 постоянно висит в левом верхнем углу и, если бы pc-name стартовал по
    умолчанию с 64px, они сталкивались бы в углу — теперь заголовок системы
@@ -496,9 +502,20 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:var(--ui);color:var
   <div id="pc-kick"></div>
   <div id="pc-name"></div>
   <div id="pc-claim"></div>
-  <video id="pc-video" controls autoplay muted loop playsinline preload="metadata"></video>
+  <video id="pc-video" controls autoplay muted loop playsinline preload="auto"></video>
+  <video id="pc-tumar" src="tumar.MP4" controls muted loop playsinline preload="auto"
+    aria-label="TUMAR"></video>
   <div id="pc-badge">заготовка · наполнение позже</div>
 </aside>
+<!-- В показе переключение должно быть мгновенным даже без интернета,
+     поэтому все динамически подставляемые ролики начинают грузиться вместе
+     со страницей. TUMAR уже грузится своим видимым #pc-tumar. -->
+<div id="video-preloaders" aria-hidden="true">
+  <video src="NUMEX_optimize_cut.mp4" preload="auto" muted playsinline></video>
+  <video src="NUMEX_new.mp4" preload="auto" muted playsinline></video>
+  <video src="drillspot_cut.mp4" preload="auto" muted playsinline></video>
+  <video src="im_new.mp4" preload="auto" muted playsinline></video>
+</div>
 <button id="mini-reset" type="button" aria-label="Вернуть исходный вид" title="Вернуть исходный вид">↩</button>
 
 <script type="importmap">
@@ -2001,11 +2018,18 @@ function openProject(id){
       ? RESERVOIR_VIDEOS[panelState.sub]
       : ZONE_VIDEOS[state.openId];
     const video = $('pc-video');
+    const tumarVideo = $('pc-tumar');
+    const показыватьTumar = state.openId === 'skv';
     $('pc-kick').textContent = PROJECT_KICKERS[state.openId] + ' · проект ' + zd.no;
     $('pc-name').textContent = videoData ? videoData.title : zd.name;
     $('pc-claim').textContent = videoData ? '' : zd.claim;
     pc.style.setProperty('--pc', zd.color);
     pc.classList.toggle('с-видео', Boolean(videoData));
+    pc.classList.toggle('с-tumar', показыватьTumar);
+    if(показыватьTumar){
+      tumarVideo.currentTime = 0;
+      tumarVideo.play().catch(() => {});
+    } else tumarVideo.pause();
     if(videoData){
       if(video.getAttribute('src') !== videoData.file){
         video.setAttribute('src', videoData.file);
@@ -2081,6 +2105,7 @@ function closeProject(){
   }
   clearTimeout(contentSwapTimer);
   $('pc-video').pause();
+  $('pc-tumar').pause();
   $('project-content').classList.remove('vis');
   $('panel').classList.remove('раскрыт');
   // снимаем измеренные top/max-height — без них класс просто возвращает CSS-умолчания
