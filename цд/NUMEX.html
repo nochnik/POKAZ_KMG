@@ -126,7 +126,7 @@
         <rect width="1230" height="944" fill="white"/>
         <g transform="translate(212 21)">
           <g clip-path="url(#область-графика)">
-            <g id="вид-карты"><image id="изображение-карты" href="NUMEX/карта.png" x="35" y="124" width="813" height="632"/></g>
+            <g id="вид-карты" pointer-events="none"><g id="изображение-карты" transform="translate(35 124)"></g></g>
             <g id="измерение" pointer-events="none"></g>
             <rect id="сетка-карты" width="881" height="880" fill="none" pointer-events="none"/>
           </g>
@@ -146,6 +146,7 @@
     <input id="загрузка-параметров" type="file" accept="application/json,.json" hidden>
   </main>
 </div>
+<script src="NUMEX/map.js"></script>
 <script src="NUMEX.js"></script>
 </body>
 </html>
