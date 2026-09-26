@@ -396,20 +396,23 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:var(--ui);color:var
 #pc-claim{font-size:23px;color:var(--dim);line-height:1.6;max-width:52ch}
 #pc-video{display:none;width:100%;max-height:62vh;object-fit:contain;background:#02040A;
   border:1px solid var(--line);border-top:2px solid var(--pc,#4FE3FF);box-shadow:0 18px 46px rgba(0,0,0,.32)}
+#pc-system{display:none;width:100%;height:auto;aspect-ratio:2046 / 1100;max-height:62vh;flex-shrink:0;
+  background:#f0f0f0;border:1px solid var(--line);border-top:2px solid var(--pc,#4FE3FF);
+  box-shadow:0 18px 46px rgba(0,0,0,.32)}
 /* padding-top отведён под шапку кадра (см. #hdr: top:22, ~54 высоты + запас):
    H1 постоянно висит в левом верхнем углу и, если бы pc-name стартовал по
    умолчанию с 64px, они сталкивались бы в углу — теперь заголовок системы
    уезжает под H1 и не наезжает на него. */
-#project-content.с-видео{padding-top:96px;padding-bottom:42px;gap:12px}
-#project-content.с-видео #pc-name{font-size:38px}
+#project-content:is(.с-видео,.с-системой){padding-top:96px;padding-bottom:42px;gap:12px}
+#project-content:is(.с-видео,.с-системой) #pc-name{font-size:38px}
 /* 24.09 (Адиль): убраны кнопка «← к цифровому двойнику» и жёлтый кикер
    «ЦД … · проект NN» на карточке системы. Возврат идёт единственной
    кнопкой в нижнем левом углу у миниатюры 3D (см. #mini-reset). Разметка
    и обработчик закрытия по #pc-back оставлены — при возврате вида можно
    просто снять эти два display:none и всё поедет обратно. */
-#project-content.с-видео #pc-claim,#project-content.с-видео #pc-badge,
-#project-content.с-видео #pc-back,#project-content.с-видео #pc-kick{display:none}
+#project-content:is(.с-видео,.с-системой) :is(#pc-claim,#pc-badge,#pc-back,#pc-kick){display:none}
 #project-content.с-видео #pc-video{display:block}
+#project-content.с-системой #pc-system{display:block}
 /* Кнопка возврата к первому кадру. Стоит у 3D-модели в нижнем левом углу:
    миниатюра занимает `--mini-width × --мини-высота` от MINI_MARGIN, кнопка
    ложится сразу справа от миниатюры (23.09, Адиль — «возврат у 3D-модели»).
@@ -433,7 +436,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:var(--ui);color:var
 <div id="loader"><div class="t">Цифровой двойник с применением ИИ</div><div class="m" id="loadmsg"></div></div>
 
 
-<script>if (window.self !== window.top) document.getElementById('знак').remove();</script>
+<script>if (window.self !== window.top) document.getElementById('знак')?.remove();</script>
 
 <div id="scene"></div>
 
@@ -497,6 +500,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:var(--ui);color:var
   <div id="pc-name"></div>
   <div id="pc-claim"></div>
   <video id="pc-video" controls autoplay muted loop playsinline preload="metadata"></video>
+  <iframe id="pc-system" title="NUMEX — Технико-экономическая оценка" allow="fullscreen"></iframe>
   <div id="pc-badge">заготовка · наполнение позже</div>
 </aside>
 <button id="mini-reset" type="button" aria-label="Вернуть исходный вид" title="Вернуть исходный вид">↩</button>
@@ -1926,7 +1930,8 @@ const PROJECT_KICKERS = { plast:'ЦД пласта', skv:'ЦД скважины'
    оставлены прежними — это подписи, а не имена файлов. */
 const RESERVOIR_VIDEOS = {
   1:{ file:'NUMEX_optimize_cut.mp4', title:'Цифровой двойник пласта' },
-  2:{ file:'NUMEX_new.mp4', title:'Технико-экономическая оценка' }
+  // 26.09: вместо записи NUMEX — локальный интерактивный экран с той же картой.
+  2:{ page:'NUMEX.html?в_презентации=1', title:'Технико-экономическая оценка' }
 };
 const ZONE_VIDEOS = {
   skv:{ file:'drillspot_cut.mp4', title:'Цифровой двойник скважины' },
@@ -2001,12 +2006,17 @@ function openProject(id){
       ? RESERVOIR_VIDEOS[panelState.sub]
       : ZONE_VIDEOS[state.openId];
     const video = $('pc-video');
+    const система = $('pc-system');
     $('pc-kick').textContent = PROJECT_KICKERS[state.openId] + ' · проект ' + zd.no;
     $('pc-name').textContent = videoData ? videoData.title : zd.name;
     $('pc-claim').textContent = videoData ? '' : zd.claim;
     pc.style.setProperty('--pc', zd.color);
-    pc.classList.toggle('с-видео', Boolean(videoData));
-    if(videoData){
+    pc.classList.toggle('с-видео', Boolean(videoData?.file));
+    pc.classList.toggle('с-системой', Boolean(videoData?.page));
+    if(videoData?.page){
+      if(система.getAttribute('src') !== videoData.page) система.setAttribute('src', videoData.page);
+    } else if(система.hasAttribute('src')) система.removeAttribute('src');
+    if(videoData?.file){
       if(video.getAttribute('src') !== videoData.file){
         video.setAttribute('src', videoData.file);
         video.load();
@@ -2099,6 +2109,7 @@ function closeProject(){
 }
 function finishClosing(){
   if(!state.closing) return;
+  $('pc-system').removeAttribute('src');
   state.closing = null;
   clearTimeout(closeT1);
   controls.autoRotate = true;
@@ -2117,6 +2128,16 @@ function finishClosing(){
   рендерЭффекты();
 }
 document.getElementById('pc-back').addEventListener('click', closeProject);
+
+// Нажатия внутри NUMEX принадлежат форме и карте; наружу выходит только возврат.
+addEventListener('message', e => {
+  if(e.source !== $('pc-system').contentWindow || e.origin !== location.origin) return;
+  if(e.data?.тип === 'NUMEX:закрыть' && state.openId) {
+    closeProject();
+    $('mini-reset').blur();
+    window.focus();
+  }
+});
 document.getElementById('mini-reset').addEventListener('click', e => {
   e.stopPropagation();
   closeProject();

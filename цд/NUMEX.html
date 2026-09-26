@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Nedra.NUMEX — Система разработки</title>
+  <link rel="stylesheet" href="NUMEX.css">
+</head>
+<body>
+<div id="оболочка">
+  <main id="приложение" aria-label="Nedra.NUMEX — система разработки месторождения">
+    <header class="заголовок">
+      <span class="логотип" aria-hidden="true">n</span>
+      <span>Nedra.NUMEX — C:\NUMEX\KMG\VMLDB_O5\V03_2\PRED_VW_HW\2\project.json</span>
+      <span class="окно" aria-hidden="true"><span>−</span><span>▢</span><span>×</span></span>
+    </header>
+    <nav class="меню" aria-label="Меню приложения">
+      <div class="пункт-меню">
+        <button data-меню="файл" aria-expanded="false">Файл</button>
+        <div id="файл" class="выпадающее" hidden>
+          <button data-действие="открыть">Открыть параметры…</button>
+          <button data-действие="сохранить">Сохранить параметры…</button>
+          <hr><button data-действие="исходные">Восстановить значения из видео</button>
+        </div>
+      </div>
+      <button data-действие="сохранить">Сохранить</button>
+      <button disabled>3D-просмотр</button>
+      <button disabled>Optimize</button>
+      <div class="пункт-меню">
+        <button data-меню="настройки" aria-expanded="false">Настройки</button>
+        <div id="настройки" class="выпадающее" hidden>
+          <button data-действие="масштаб">Масштаб интерфейса: по размеру окна</button>
+          <button data-действие="полный-экран">Полный экран</button>
+          <button data-действие="сброс-карты">Сбросить вид карты</button>
+        </div>
+      </div>
+      <button data-действие="справка">Справка</button>
+    </nav>
+
+    <aside class="левая-панель" aria-label="Параметры расчета">
+      <nav class="разделы" aria-label="Разделы проекта">
+        <button disabled>Параметры расчета</button>
+        <button disabled>Описание пласта</button>
+        <button disabled>Инициализация</button>
+        <button disabled class="выбран" aria-current="page">Система разработки</button>
+        <button disabled>Заканчивание</button>
+        <button disabled>Сеть сбора</button>
+        <button disabled>Экономика</button>
+        <button disabled>Серийные расчеты</button>
+        <button disabled>Результаты, графики</button>
+      </nav>
+      <form id="расчетные-параметры" class="параметры-слева">
+        <fieldset class="режимы">
+          <label><input type="radio" name="режим" value="автоматический" checked>Автоматический режим</label>
+          <label><input type="checkbox" name="элемент">Расчет элем. разраб-ки</label>
+          <label><input type="radio" name="режим" value="ручной">Ручной режим</label>
+          <label class="приглушено"><input type="checkbox" name="кустование" disabled>Ручное кустование</label>
+          <label class="приглушено"><input type="checkbox" name="ручной-запуск" checked>Ручной запуск скважин</label>
+        </fieldset>
+        <fieldset class="экономика">
+          <legend>Экономический расчет</legend>
+          <div class="в-строку">
+            <label><input type="radio" name="налог" value="ДНС" checked>ДНС</label>
+            <label><input type="radio" name="налог" value="НДД">НДД</label>
+            <label><input type="radio" name="налог" value="ГФЭМ">ГФЭМ</label>
+          </div>
+          <label class="параллельность">Параллельность: к-во ядер<select name="ядра" aria-label="Количество ядер"><option>1</option><option>2</option><option>4</option><option selected>6</option><option>8</option><option>12</option><option>16</option></select></label>
+        </fieldset>
+        <fieldset class="запасы">
+          <legend>Расчет запасов:</legend>
+          <label class="переключатель"><input type="radio" name="источник-запасов" value="постоянные" checked>Постоянные значения</label>
+          <label class="переключатель"><input type="radio" name="источник-запасов" value="симулятор">Расчет гд-симулятора</label>
+          <label class="поле-запасов">Запасы нефти, тыс. т<input name="нефть" value="101.05" inputmode="decimal"></label>
+          <label class="поле-запасов">Запасы газа, млн. м3<input name="газ" value="" inputmode="decimal"></label>
+          <label class="поле-запасов">Запасы воды, тыс. м3<input name="вода" value="50.27" inputmode="decimal"></label>
+          <label class="поле-запасов">Подв. запасы нефти, тыс. т<input name="подвижная-нефть" value="72.18" inputmode="decimal"></label>
+          <label class="поле-запасов">Коэфф. вытеснения, д.е.<input name="вытеснение" value="0.714" inputmode="decimal"></label>
+          <label class="поле-запасов">Площадь мест-я, Га<input name="площадь" value="13.95" inputmode="decimal"></label>
+        </fieldset>
+      </form>
+      <div class="запуск">
+        <label><input type="checkbox" form="расчетные-параметры" name="серийный" checked>Серийный расчет</label>
+        <label><input type="checkbox" form="расчетные-параметры" name="рестарт">Создать точку рестарта</label>
+        <label><input type="checkbox" form="расчетные-параметры" name="редактирование">Ручное редактирование</label>
+        <button disabled>Расчет</button>
+        <button disabled>Расчет экономики</button>
+        <div class="прогресс"><progress max="100" value="0" aria-label="Ход расчета"></progress><span>0%</span></div>
+        <span class="время">Время расчета:</span>
+      </div>
+    </aside>
+
+    <section class="средняя-панель" aria-label="Система разработки">
+      <div class="таблица-параметров">
+        <table aria-label="Параметры системы разработки">
+          <colgroup><col class="столбец-параметра"><col></colgroup>
+          <thead><tr><th>Параметры</th><th>Значения</th></tr></thead>
+          <tbody id="строки-параметров"></tbody>
+        </table>
+      </div>
+      <div class="вкладки" role="tablist" aria-label="Шаблоны и контур">
+        <button role="tab" id="вкладка-шаблоны" aria-selected="true" aria-controls="шаблоны">Шаблоны</button>
+        <button role="tab" id="вкладка-контур" aria-selected="false" aria-controls="свойства-контура">Свойства контура</button>
+      </div>
+      <section id="шаблоны" class="панель-вкладки" role="tabpanel" aria-labelledby="вкладка-шаблоны">
+        <button class="создать-шаблон" data-действие="шаблон"><span aria-hidden="true">＋</span>Создать шаблон</button>
+        <table class="список-шаблонов" aria-label="Шаблоны расчета">
+          <thead><tr><th></th><th>Название шаблона</th></tr></thead>
+          <tbody id="строки-шаблонов"></tbody>
+        </table>
+      </section>
+      <section id="свойства-контура" class="панель-вкладки" role="tabpanel" aria-labelledby="вкладка-контур" hidden>
+        <dl class="описание-контура"><dt>Произвольный контур</dt><dd>КОНТУР3.TXT</dd><dt>Дополнительный контур</dt><dd>WELL_PLACE_BORDER…</dd><dt>Ширина, м</dt><dd>2000.0</dd><dt>Высота, м</dt><dd>2000.0</dd><dt>Радиус области, м</dt><dd>100.0</dd></dl>
+      </section>
+    </section>
+
+    <section class="панель-карты" aria-label="Карта месторождения">
+      <div class="инструменты" role="toolbar" aria-label="Управление картой"></div>
+      <output id="координаты">x=287612. y=5290112.</output>
+      <svg id="карта" viewBox="0 0 1230 944" role="img" aria-label="Карта FOIPM_10230: контур месторождения, изолинии, добывающие и нагнетательные скважины" tabindex="0">
+        <defs>
+          <clipPath id="область-графика"><rect width="881" height="880"/></clipPath>
+          <linearGradient id="шкала-цвета" x1="0" y1="1" x2="0" y2="0">
+            <stop offset="0" stop-color="#f7fcf0"/><stop offset=".1" stop-color="#e5f5df"/><stop offset=".2" stop-color="#d5eecf"/><stop offset=".3" stop-color="#bfe6bf"/><stop offset=".4" stop-color="#9ed8b7"/><stop offset=".5" stop-color="#7cccc4"/><stop offset=".6" stop-color="#56b8d0"/><stop offset=".7" stop-color="#399bc6"/><stop offset=".8" stop-color="#1d7eb9"/><stop offset=".9" stop-color="#0961a3"/><stop offset="1" stop-color="#084c88"/>
+          </linearGradient>
+        </defs>
+        <rect width="1230" height="944" fill="white"/>
+        <g transform="translate(212 21)">
+          <g clip-path="url(#область-графика)">
+            <g id="вид-карты"><image id="изображение-карты" href="NUMEX/карта.png" x="35" y="124" width="813" height="632"/></g>
+            <g id="измерение" pointer-events="none"></g>
+            <rect id="сетка-карты" width="881" height="880" fill="none" pointer-events="none"/>
+          </g>
+          <g id="цветовая-шкала" class="подписи-осей">
+            <rect x="14.5" y="14.5" width="26" height="230" fill="url(#шкала-цвета)" stroke="#111"/>
+            <g id="метки-шкалы"></g>
+          </g>
+          <rect x=".5" y=".5" width="880" height="880" fill="none" stroke="#111" stroke-width="1" pointer-events="none"/>
+          <g id="оси" class="подписи-осей" pointer-events="none"></g>
+        </g>
+      </svg>
+    </section>
+
+    <footer class="статус"><span id="статус-текст" role="status">2026-09-25 15:05:57 | INFO　 | Открыт проект: C:/NUMEX/KMG/VMLDB_O5/V03_2/PRED_VW_HW/Project_VW_HW_Finish.json</span><button data-действие="консоль">Показать консоль</button></footer>
+    <section id="консоль" hidden aria-label="Консоль"><header>Консоль <button data-действие="консоль" aria-label="Закрыть консоль">×</button></header><pre id="журнал"></pre></section>
+    <dialog id="диалог"><form method="dialog"><header><strong id="название-диалога"></strong><button aria-label="Закрыть">×</button></header><div id="текст-диалога"></div><div class="кнопки-диалога"><button value="ok">ОК</button></div></form></dialog>
+    <input id="загрузка-параметров" type="file" accept="application/json,.json" hidden>
+  </main>
+</div>
+<script src="NUMEX.js"></script>
+</body>
+</html>

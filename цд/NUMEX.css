@@ -1,0 +1,109 @@
+:root{color-scheme:light;--фон:#f0f0f0;--линия:#a0a0a0;--чернила:#111;--синий:#160983;--масштаб:1}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;background:var(--фон);color:var(--чернила);font-family:"Segoe UI",Arial,sans-serif;font-size:12px}
+body{overflow:auto}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+button:disabled,select:disabled{cursor:default;color:#858585}
+label:has(input:disabled){cursor:default}
+.ячейка label:has(input:disabled){color:#858585}
+button:focus-visible,input:focus-visible,select:focus-visible,[tabindex]:focus-visible{outline:2px solid #168cdb;outline-offset:-1px}
+[hidden]{display:none!important}
+#оболочка{position:relative;margin:auto}
+#приложение{position:absolute;width:2046px;height:1100px;transform:scale(var(--масштаб));transform-origin:top left;background:var(--фон);overflow:hidden}
+.заголовок{height:24px;display:flex;align-items:center;gap:5px;background:#edf3f9;padding:0 3px;font:12px Arial,sans-serif;white-space:nowrap}
+.логотип{width:16px;height:16px;border-radius:50%;background:#109b99;color:white;font-size:16px;text-align:center;line-height:15px}
+.окно{margin-left:auto;display:flex;height:24px;font:18px Arial,sans-serif}.окно span{display:grid;place-items:center;width:46px}
+.меню{height:20px;background:#fff;display:flex;align-items:stretch;padding-left:2px;gap:3px}
+.меню button{border:0;background:transparent;padding:0 5px;font-size:12px;white-space:nowrap}
+.меню button:enabled:hover,.меню button[aria-expanded=true]{background:#dcecfb}
+.пункт-меню{position:relative;display:flex}
+.выпадающее{position:absolute;z-index:20;top:20px;left:0;min-width:244px;padding:3px;border:1px solid #999;background:#f8f8f8;box-shadow:2px 3px 7px #0003}
+.выпадающее button{display:block;padding:7px 14px;width:100%;text-align:left}.выпадающее hr{border:0;border-top:1px solid #ccc}
+.левая-панель{position:absolute;left:9px;top:54px;width:190px;height:1009px}
+.разделы{height:206px;border:1px solid var(--линия);padding:1px 17px 3px 2px;position:relative}
+.разделы:after{content:"";position:absolute;right:7px;top:18px;width:2px;height:150px;background:#858585}
+.разделы button{display:block;height:22px;width:100%;padding:0 2px;text-align:left;line-height:20px;font-size:16px;border:1px solid transparent;background:transparent;white-space:nowrap;border-radius:2px}
+.разделы button.выбран{background:#cde7fb;border-color:#0078d7;color:var(--чернила)}.разделы button:enabled:hover{background:#ddecf8}
+.параметры-слева{height:621px;margin-top:5px;border:1px solid var(--линия);padding:3px}
+fieldset{min-width:0;padding:0;border:1px solid #d8d8d8;margin:0}
+input[type=checkbox],input[type=radio]{appearance:none;width:13px;height:13px;margin:0 7px 0 0;vertical-align:middle;flex:none;border:1px solid #111;background:#fff;position:relative;cursor:pointer}
+input[type=checkbox]:checked:after{content:"";position:absolute;left:3px;top:0;width:4px;height:8px;border:solid #111;border-width:0 2px 2px 0;transform:rotate(40deg)}
+input[type=radio]{border-radius:50%}input[type=radio]:checked:after{content:"";position:absolute;inset:2px;border-radius:50%;background:#111}
+input[type=checkbox]:disabled,input[type=radio]:disabled{border-color:#aaa;background:#f5f5f5;cursor:default}
+label{cursor:pointer}
+.режимы{height:112px;padding:3px 5px}
+.режимы label{display:flex;align-items:center;height:21px;white-space:nowrap}
+.приглушено{color:#898989}
+.экономика{height:94px;margin-top:5px;padding:0 0 3px}
+legend{padding:0 2px;margin:0;font-size:12px}
+.в-строку{display:flex;align-items:center;justify-content:space-between;height:30px;padding:0 3px}
+.в-строку label{display:flex;align-items:center}.в-строку input{margin-right:7px}
+.параллельность{display:block;line-height:21px}.параллельность select{display:block;height:22px;width:100%;padding:0 3px;border:1px solid #c7c7c7;background:#fafafa}
+.запасы{height:373px;margin-top:3px;padding:4px 2px 3px}
+.переключатель{display:flex;height:22px;align-items:center;white-space:nowrap}
+.поле-запасов{display:block;height:50px;line-height:20px}
+.поле-запасов input{display:block;width:167px;height:22px;border:1px solid #e5e5e5;border-bottom-color:#909090;background:#fff;margin-top:3px;padding:1px 2px;border-radius:0}
+.запуск{padding-top:4px}.запуск>label{display:flex;height:22px;align-items:center}
+.запуск>button{display:block;width:100%;height:23px;margin:5px 0 7px;border:1px solid #cacaca;background:#fcfcfc;border-radius:3px;padding:0}
+.запуск>button:enabled:hover,.создать-шаблон:enabled:hover{background:#e8f2fb;border-color:#7ab4df}
+.прогресс{display:flex;gap:8px;height:24px;align-items:center;margin-top:6px}
+progress{appearance:none;width:157px;height:24px;border:1px solid #bdbdbd;background:#e5e5e5}
+progress::-webkit-progress-bar{background:#e5e5e5}progress::-webkit-progress-value{background:#168cdb}
+.время{display:block;margin-top:7px}
+.средняя-панель{position:absolute;left:205px;top:54px;width:578px;height:1009px;padding:9px;border:1px solid var(--линия)}
+.таблица-параметров{height:682px;overflow:auto;border:1px solid var(--линия);position:relative;scrollbar-width:thin;scrollbar-color:#858585 #f0f0f0;padding-right:17px;background:#f0f0f0}
+.таблица-параметров:after{content:"";position:absolute;right:7px;top:17px;width:2px;height:507px;background:#858585;pointer-events:none}
+.таблица-параметров table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:12px}
+.столбец-параметра{width:316px}
+.таблица-параметров th{height:24px;font-weight:400;text-align:left;padding:1px 3px;border-right:1px solid #d1d1d1;border-bottom:1px solid #d1d1d1;background:white;position:sticky;top:0;z-index:1}
+.таблица-параметров td{height:22px;max-height:22px;padding:0;border-right:1px solid var(--линия);border-bottom:1px solid var(--линия);overflow:hidden;white-space:nowrap;background:#f5f5f5}
+.таблица-параметров tr:nth-child(even) td{background:#fff}
+.таблица-параметров td:last-child{border-right:0}
+.ячейка{height:21px;display:flex;align-items:center;white-space:nowrap;overflow:hidden;padding-left:3px;gap:0}
+.уровень-1{padding-left:23px}.уровень-2{padding-left:43px}.уровень-3{padding-left:63px}.уровень-4{padding-left:83px}
+.ячейка label{display:flex;align-items:center;min-width:0;height:21px;overflow:hidden;white-space:nowrap}
+.ячейка input[type=checkbox],.ячейка input[type=radio]{margin-right:3px}
+.ветка{height:20px;width:17px;flex:none;border:0;background:none;padding:0;display:flex;align-items:center;justify-content:flex-start}
+.ветка:before{content:"";width:5px;height:5px;border-right:1.5px solid #333;border-bottom:1.5px solid #333;transform:translate(2px,-2px) rotate(45deg)}
+.ветка[aria-expanded=false]:before{transform:translate(1px,0) rotate(-45deg)}
+.ветка:disabled:before{border-color:#929292}
+.таблица-параметров input.значение{display:block;border:0;width:100%;height:21px;background:transparent;padding:0 3px;font-size:12px;border-radius:0}
+.таблица-параметров input.значение:disabled{color:#929292}.таблица-параметров .недоступная-подпись{color:#929292}
+.таблица-параметров select{appearance:none;border:0;border-radius:0;background:transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='m3 4 3 3 3-3' fill='none' stroke='%23555' stroke-width='.8'/%3E%3C/svg%3E") no-repeat right 1px center;display:block;width:100%;height:21px;padding-left:3px;padding-right:13px;font-size:12px}
+.таблица-параметров .действие-ячейки{height:21px;width:100%;padding:0;border:0;background:#e0e0e0;box-shadow:inset 0 -1px #b9b9b9}
+.таблица-параметров .действие-ячейки:enabled:hover{background:#cde7fb}
+.тип-системы .ячейка{background:#d8d8d8;box-shadow:inset 0 -1px #999;margin-left:20px;padding-left:3px}
+.вкладки{display:flex;height:28px;padding-top:6px;align-items:start}
+.вкладки button{height:22px;padding:0 11px;background:#f0f0f0;border:1px solid #ddd;border-bottom-color:#e0e0e0}
+.вкладки button[aria-selected=true]{background:#fafafa;border-bottom-color:#fafafa}
+.панель-вкладки{height:278px;background:#fafafa;border:1px solid #e1e1e1;border-top:0;padding:10px;position:relative;overflow:auto}
+.создать-шаблон{display:flex;align-items:center;justify-content:center;height:23px;margin-left:auto;margin-bottom:7px;border:1px solid #c9c9c9;background:white;padding:0 5px;border-radius:3px}
+.создать-шаблон span{font-size:21px;color:#555;line-height:16px;margin-right:3px}
+.список-шаблонов{border-collapse:collapse;width:100%;border:1px solid var(--линия);background:#fff;table-layout:fixed}
+.список-шаблонов th{font-weight:400;height:25px}.список-шаблонов th:first-child{width:15px;border-right:1px solid #ddd;background:#f0f0f0}
+.список-шаблонов td{height:30px;padding:0 5px;border-bottom:1px solid #d6d6d6;white-space:nowrap;overflow:hidden}
+.список-шаблонов td:first-child{padding:0;text-align:center;background:#efefef;border-right:1px solid #d6d6d6}
+.список-шаблонов tr[aria-selected=true] td{background:#d8eaf9}
+.список-шаблонов button{display:block;text-align:left;height:29px;width:100%;border:0;padding:0;background:transparent}
+.список-шаблонов tbody:after{content:"";display:table-row;height:17px}
+.описание-контура{margin:8px;font-size:13px;display:grid;grid-template-columns:1fr 1fr;gap:14px}.описание-контура dd{margin:0}
+.панель-карты{position:absolute;left:788px;top:54px;width:1250px;height:1004px;border:1px solid var(--линия);padding:49px 9px 9px}
+.инструменты{position:absolute;left:10px;top:12px;height:30px;display:flex;align-items:center;gap:1px}
+.инструменты button{display:grid;place-items:center;width:30px;height:30px;border:1px solid transparent;border-radius:2px;background:transparent;padding:4px;color:var(--синий)}
+.инструменты button:enabled:hover,.инструменты button[aria-pressed=true]{border-color:#a1bbdd;background:#dceaf9}.инструменты button:disabled{color:#777;cursor:default}
+.инструменты svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.разделитель{width:1px;height:24px;background:#c4c4c4;margin:0 2px}
+#координаты{position:absolute;top:11px;right:10px;font-size:12px}
+#карта{display:block;width:1230px;height:944px;background:white;touch-action:none;user-select:none;cursor:grab}
+#карта.перетаскивание{cursor:grabbing}#карта.линейка,#карта.увеличение{cursor:crosshair}
+.подписи-осей{font:15px Arial,sans-serif;fill:#111}
+.статус{position:absolute;bottom:0;left:0;width:100%;height:28px;display:flex;align-items:end;padding:0 0 3px 8px;gap:10px;font-size:12px;border-bottom:1px solid #74ba42}
+#статус-текст{white-space:nowrap;text-overflow:ellipsis;overflow:hidden;flex:1;line-height:20px}
+.статус button{height:22px;flex:none;padding:0 3px;border:1px solid #ccc;background:#fff;border-radius:3px}
+#консоль{position:absolute;bottom:28px;left:788px;right:9px;height:210px;background:#fff;z-index:5;border:1px solid #999;box-shadow:0 -3px 10px #0002}
+#консоль header{height:28px;background:#e6e6e6;padding:3px 10px;display:flex;align-items:center;justify-content:space-between}#консоль button{border:0;background:none;font-size:18px}#журнал{padding:10px;margin:0;overflow:auto;height:180px;white-space:pre-wrap;font-size:12px}
+dialog{position:absolute;width:510px;padding:0;background:#fafafa;color:#111;border:1px solid #999;box-shadow:0 10px 40px #0005;font-size:15px;line-height:1.55}
+dialog::backdrop{background:#0002}dialog header{display:flex;align-items:center;justify-content:space-between;background:#edf3f9;padding:7px 12px}dialog header button{background:none;border:0;font-size:21px}
+#текст-диалога{padding:18px;white-space:pre-line}#текст-диалога input{display:block;width:100%;margin-top:12px;padding:7px;border:1px solid #aaa;background:white}
+.кнопки-диалога{display:flex;justify-content:flex-end;padding:0 18px 15px;gap:8px}.кнопки-диалога button{min-width:78px;padding:5px 14px;border:1px solid #aaa;background:#fff;border-radius:3px}
