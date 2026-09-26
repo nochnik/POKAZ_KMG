@@ -1,10 +1,11 @@
 /* Content of the open layer on the right. The views (title + data-video) are
    written in v4.html; this module picks the current one and plays its video
-   in the shared <video>. */
+   in the shared <video>, or loads the local application in its frame. */
 import { state, selection } from '../state.js';
 
 const contentEl = document.getElementById('content');
 const videoEl = document.getElementById('content-video');
+const drillspotEl = document.getElementById('content-drillspot');
 const views = [...contentEl.querySelectorAll('.content-view')];
 const SWAP_MS = 260;
 let swapTimer = null;
@@ -22,6 +23,15 @@ function fill(){
   const current = viewFor(zoneId, selection.step);
   for(const view of views) view.classList.toggle('is-current', view === current);
   contentEl.dataset.zone = zoneId;
+  const isApp = current?.classList.contains('content-view-app') || false;
+  contentEl.classList.toggle('is-app', isApp);
+  contentEl.inert = false;
+  videoEl.hidden = isApp;
+  if(isApp){
+    if(!drillspotEl.hasAttribute('src')) drillspotEl.src = drillspotEl.dataset.src;
+  } else {
+    drillspotEl.removeAttribute('src');
+  }
   const file = current?.dataset.video;
   if(file){
     // same file: rewind instead of reloading
@@ -53,5 +63,7 @@ export function showContent(isSwitch){
 export function hideContent(){
   clearTimeout(swapTimer);
   videoEl.pause();
+  drillspotEl.removeAttribute('src');
+  contentEl.inert = true;
   contentEl.classList.remove('is-visible');
 }

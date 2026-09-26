@@ -15,7 +15,7 @@ import { controls } from './scene/core.js';
 import { layers } from './scene/build.js';
 import { startFlight, MINI } from './scene/layout.js';
 import { captureCamera, captureFraming } from './scene/camera-rig.js';
-import { showContent, hideContent } from './ui/content.js';
+import { showContent, hideContent } from './ui/content.js?v=drillspot-2';
 import { hideAssetCard, showAssetCard } from './ui/asset-card.js';
 import { setPanelLayerOpen } from './ui/panel.js';
 

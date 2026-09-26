@@ -20,7 +20,7 @@
 <link rel="stylesheet" href="v4/styles/panel.css">
 <link rel="stylesheet" href="v4/styles/asset-card.css">
 <link rel="stylesheet" href="v4/styles/labels.css">
-<link rel="stylesheet" href="v4/styles/content.css">
+<link rel="stylesheet" href="v4/styles/content.css?v=drillspot-2">
 </head>
 <body>
 
@@ -379,12 +379,13 @@
 <!-- ═══ Content of an open layer (right, 70 % of the screen) ═════════════
      One view per layer; the reservoir has one per step (GGDM, step 0, has
      no external tool and never opens). JS marks the current view and plays
-     its data-video in the shared <video>.
+     its data-video in the shared <video>. The well layer embeds the local
+     DrillSpot application across the drawer instead.
      24.09 (Adil): titles use the customer's words, not file names; the
      "← к цифровому двойнику" button and the amber kicker were removed —
      going back is the ↩ button next to the mini stack. Their markup stays,
      hidden in styles/content.css. -->
-<aside id="content">
+<aside id="content" inert>
   <button id="content-back">← к цифровому двойнику</button>
   <section class="content-view" data-zone="reservoir" data-step="1" data-video="NUMEX_cut.mp4">
     <div class="content-kicker">ЦД пласта · проект 01</div>
@@ -394,9 +395,10 @@
     <div class="content-kicker">ЦД пласта · проект 01</div>
     <div class="content-name">Технико-экономическая оценка</div>
   </section>
-  <section class="content-view" data-zone="well" data-video="drillspot_cut.mp4">
+  <section class="content-view content-view-app" data-zone="well">
     <div class="content-kicker">ЦД скважины · проект 02</div>
     <div class="content-name">Цифровой двойник скважины</div>
+    <iframe id="content-drillspot" data-src="drillspot/" title="DrillSpot — цифровой двойник скважины" allow="fullscreen"></iframe>
   </section>
   <section class="content-view" data-zone="surface" data-video="im.emg.kz.mp4">
     <div class="content-kicker">ЦД наземки · проект 03</div>
