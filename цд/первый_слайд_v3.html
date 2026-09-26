@@ -1793,8 +1793,14 @@ const УХОД_ВНИЗ = 260;          // и вниз, в тот же угол 
    высоты окна, потому что и сама модель на экране растёт вместе с ней.
    MINI_HEIGHT_RATIO ещё и отдана панели через CSS-переменную: панель не
    должна заезжать в угол, поэтому её max-height считается от неё же. */
-const MINI_SCALE = 0.50;
-const MINI_HEIGHT_RATIO = 0.39;
+/* 26.09 (Адиль): «подними мини-тортик выше, чтоб все слои были видны —
+   некоторые уходят вниз за рамки». Три слоя со своим объёмом плюс два
+   разрыва оказываются выше рамки высотой 39vh — нижний край срезается.
+   Ratio увеличен до 0.56 (центр бокса поднимается на ~85 px), scale
+   уменьшен до 0.42 — стек занимает столько же места по ширине, но по
+   высоте с запасом влезает целиком и никуда не уходит. */
+const MINI_SCALE = 0.42;
+const MINI_HEIGHT_RATIO = 0.56;
 const MINI_ASPECT_RATIO = 0.90;
 const MINI_MARGIN = 34;
 const MINI_TRANSITION_MS = 900;
@@ -2413,7 +2419,9 @@ function positionEffectsOverview(){
   const stackRect = elStack.getBoundingClientRect();
   effects.style.left = stackRect.left + 'px';
   effects.style.width = Math.max(stackRect.width, Math.min(560, innerWidth * .3 - 52)) + 'px';
-  effects.style.top = Math.max(16, stackRect.top - effects.offsetHeight - 12) + 'px';
+  /* 26.09 (Адиль): при поднятии стека к top:200px эффекты стали лезть под h1.
+     Минимум top — 96 px, чтобы всегда оставаться под шапкой заголовка. */
+  effects.style.top = Math.max(96, stackRect.top - effects.offsetHeight - 12) + 'px';
 }
 
 /* Заливка линии и бегущая точка доходят до текущего узла: видно, что процесс
