@@ -8,6 +8,9 @@
   const state = { domain: 'Time', window: 'Demo', well: '2793', metric: 'Hole Depth', onlyOpen: false, hiddenTraces: new Set(), openWindows: ['Demo', '3D 4 Nurlan'] };
   let notificationTimer;
   let lastMenuTrigger;
+  const metricUnits = { 'Hole Depth': 'm', 'Total Gas': '%', WOB: 'tonf[metric]' };
+  const metricHistory = { 'Hole Depth': ['721.1', '706.0', '696.6'], 'Total Gas': ['0.017', '0.016', '0.016', '0.017'], WOB: ['0.0', '0.0'] };
+  const metricPointCounts = { 'Hole Depth': 1, 'Total Gas': 4, WOB: 2 };
 
   function createElement(tag, className, text) {
     const element = document.createElement(tag);
@@ -53,7 +56,7 @@
       checkbox.dataset.group = title;
       checkbox.setAttribute('aria-label', title);
       row.title = title;
-      row.append(checkbox, createElement('span', 'trace-symbol', title === 'Erratic Torque' ? '⚠' : 'ξ'), createElement('span', 'name', title), createElement('span', 'group-badges', 'TD'));
+      row.append(checkbox, title === 'Erratic Torque' ? createIcon('warning-icon') : createElement('span', 'trace-symbol', 'ξ'), createElement('span', 'name', title), createElement('span', 'group-badges', 'TD'));
       query('#group-list').append(row);
     });
   }
@@ -78,32 +81,6 @@
       });
       headers.append(header);
     });
-  }
-
-  function drawSpatialGrid() {
-    const grid = query('#spatial-grid');
-    const addLine = (coordinates, primary = false) => {
-      const line = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-      line.setAttribute('d', coordinates);
-      line.setAttribute('stroke', primary ? '#3d5060' : '#304453');
-      line.setAttribute('stroke-width', primary ? '3' : '1');
-      line.setAttribute('opacity', primary ? '.55' : '.35');
-      line.setAttribute('fill', 'none');
-      grid.append(line);
-    };
-    // Только плоская сетка места под будущий 3D-виджет; сцена здесь не создаётся.
-    for (let step = -6; step < 15; step += 1) {
-      const height = step * 85;
-      addLine(`M70 ${height + 275} 420 ${height + 25} 1025 ${height + 455}`);
-    }
-    for (let step = 0; step <= 11; step += 1) {
-      const x = 70 + step * 86.8;
-      const top = x < 420 ? 25 + (420 - x) * .715 : 25 + (x - 420) * .711;
-      addLine(`M${x} ${top - 200}V955`);
-    }
-    addLine('M70 275 420 25 1025 455', true);
-    addLine('M420 25V720');
-    addLine('M70 955 420 720 750 955');
   }
 
   function prepareCanvas(canvas) {
@@ -262,8 +239,16 @@
   }
 
   function selectMetric(title) {
+    app.classList.remove('directional-active');
+    const widgetTool = query('#widget-tool');
+    widgetTool.dataset.section = 'NUMERAL';
+    widgetTool.textContent = 'NUMERAL';
+    selectSection('NUMERAL');
     state.metric = title;
     query('#trace-title').textContent = title;
+    query('#trace-units option').textContent = metricUnits[title];
+    query('#last-points').value = metricPointCounts[title];
+    query('#last-points').setAttribute('aria-valuetext', `${metricPointCounts[title]} last points`);
     queryAll('[data-metric]').forEach((card) => {
       const selected = card.dataset.metric === title;
       card.classList.toggle('selected', selected);
@@ -303,10 +288,30 @@
     menu.replaceChildren();
     const addMenuItem = (label, action) => {
       const item = createElement('button', '', label);
+      item.setAttribute('role', 'menuitem');
       item.addEventListener('click', action);
       menu.append(item);
+      return item;
     };
     switch (button.dataset.menu) {
+      case 'scene-view':
+      case 'scene-exaggeration': {
+        const options = button.dataset.menu === 'scene-view'
+          ? [['isometric', '3D view'], ['front', 'Front view'], ['side', 'Side view'], ['top', 'Top view']]
+          : ['1', '2', '3', '5', '10'].map(value => [value, value]);
+        options.forEach(([value, label]) => {
+          const item = addMenuItem(label, () => {
+          button.value = value;
+          if (button.id === 'scene-exaggeration') query('#scene-exaggeration-value').textContent = value;
+          button.dispatchEvent(new Event('change', { bubbles: true }));
+          closeMenu();
+          button.focus();
+          });
+          item.setAttribute('role', 'menuitemradio');
+          item.setAttribute('aria-checked', String(button.value === value));
+        });
+        break;
+      }
       case 'windows': screenData.windows.forEach((name) => addMenuItem(name, () => selectWindow(name))); break;
       case 'wells': [...new Set(screenData.wells)].forEach((name) => addMenuItem(name, () => selectWell(name))); break;
       case 'traces': ['Hole Depth', 'Total Gas', 'WOB'].forEach((name) => addMenuItem(name, () => selectMetric(name))); break;
@@ -315,6 +320,7 @@
       case 'settings': addMenuItem('Reset layout', () => {
         app.classList.remove('ribbon-collapsed', 'sidebar-collapsed');
         query('#collapse-sidebar').setAttribute('aria-expanded', 'true');
+        query('#collapse-sidebar').setAttribute('aria-label', 'Collapse sidebar');
         query('#collapse-ribbon').setAttribute('aria-expanded', 'true');
         query('#collapse-ribbon').firstChild.textContent = 'Collapse menu ';
         closeMenu();
@@ -325,6 +331,7 @@
     const bounds = button.getBoundingClientRect();
     menu.style.left = `${Math.max(8, Math.min(bounds.left, innerWidth - menu.offsetWidth - 8))}px`;
     menu.style.top = `${Math.min(bounds.bottom + 4, innerHeight - menu.offsetHeight - 8)}px`;
+    (query('[aria-checked="true"]', menu) || query('button', menu))?.focus();
   }
 
   function selectSection(title) {
@@ -333,10 +340,11 @@
       button.setAttribute('aria-pressed', String(button.dataset.section === title));
     });
     query('#numeral-settings').hidden = title !== 'NUMERAL';
+    query('#directional-settings').hidden = title !== 'DIRECTIONAL';
     const tools = query('#other-tools');
-    tools.hidden = title === 'NUMERAL';
+    tools.hidden = title === 'NUMERAL' || title === 'DIRECTIONAL';
     tools.replaceChildren();
-    if (title === 'NUMERAL') return;
+    if (title === 'NUMERAL' || title === 'DIRECTIONAL') return;
     const options = title === 'WINDOW' ? ['Add window', 'Reset layout'] : title === 'WELL FORMAT' ? ['Well color', 'Line width', 'Show labels'] : ['Calculator'];
     options.forEach((label) => {
       const button = createElement('button', '', label);
@@ -402,8 +410,15 @@
   query('#last-points').addEventListener('input', (event) => {
     const count = Number(event.target.value);
     event.target.setAttribute('aria-valuetext', `${count} last points`);
-    query('#depth-value').textContent = count === 1 ? '721.1' : ['721.1', '706.0', '696.6'].slice(0, Math.min(count, 3)).join('\n');
-    query('#depth-value').style.whiteSpace = 'pre-line';
+    metricPointCounts[state.metric] = count;
+    const card = queryAll('[data-metric]').find(element => element.dataset.metric === state.metric);
+    const history = metricHistory[state.metric].slice(0, count);
+    if (state.metric === 'Hole Depth') {
+      query('#depth-value').textContent = history.join('\n');
+      query('#depth-value').style.whiteSpace = 'pre-line';
+    } else {
+      query('.value-history', card).replaceChildren(...history.map((value, index) => createElement('span', state.metric === 'WOB' && index === 0 ? 'red' : '', value)));
+    }
   });
   query('#group-list').addEventListener('change', (event) => {
     if (!event.target.matches('input')) return;
@@ -423,6 +438,21 @@
   query('#chart-area').addEventListener('pointerleave', () => { query('#chart-cursor').hidden = true; });
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') { closeMenu(); lastMenuTrigger?.focus(); }
+    if (event.target.matches('button[data-menu]') && ['ArrowDown', 'ArrowUp'].includes(event.key)) {
+      event.preventDefault();
+      if (menu.hidden) openMenu(event.target);
+      const items = queryAll('button', menu);
+      (event.key === 'ArrowUp' ? items.at(-1) : items[0])?.focus();
+      return;
+    }
+    if (!menu.hidden && event.key === 'Tab') { closeMenu(); lastMenuTrigger?.focus(); }
+    if (!menu.hidden && menu.contains(event.target) && ['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) {
+      event.preventDefault();
+      const items = queryAll('button', menu);
+      const index = items.indexOf(event.target);
+      const next = event.key === 'Home' ? 0 : event.key === 'End' ? items.length - 1 : (index + (event.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length;
+      items[next]?.focus();
+    }
     if (event.target.matches('.tab') && ['ArrowLeft', 'ArrowRight'].includes(event.key)) {
       event.preventDefault();
       const tabs = queryAll('.tab');
@@ -434,9 +464,17 @@
   });
   window.addEventListener('resize', closeMenu);
 
+  document.addEventListener('directional:activate', () => {
+    app.classList.add('directional-active');
+    queryAll('[data-metric]').forEach(card => card.setAttribute('aria-pressed', 'false'));
+    const widgetTool = query('#widget-tool');
+    widgetTool.dataset.section = 'DIRECTIONAL';
+    widgetTool.textContent = 'DIRECTIONAL';
+    selectSection('DIRECTIONAL');
+  });
+
   populateTrees();
   populateTracks();
-  drawSpatialGrid();
   // Размеры холстов зависят от доступного места, в том числе после сворачивания панелей.
   const resizeObserver = new ResizeObserver(() => { drawCharts(); drawOverview(); });
   resizeObserver.observe(query('#chart-area'));

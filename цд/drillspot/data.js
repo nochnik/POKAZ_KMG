@@ -19,6 +19,6 @@ const screenData = Object.freeze({
     [{ name: 'Surface Torque', label: 'Surface', color: '#8cdff1', line: 'torque' }, { name: 'Surface RPM', label: 'Surface', color: '#69c953', line: 'none' }],
     [{ name: 'Flow In Rate', label: 'Flow In', color: '#8773ff', line: 'flow' }, { name: 'Standpipe Pressure', label: 'Standpi', color: '#ff6339', line: 'pressure' }],
     [{ name: 'Gamma Ray', label: 'Gamma', color: '#92e5f5', line: 'gamma' }, { name: 'Total Gas', label: 'Total Ga', color: '#ff6236', line: 'gas' }],
-    [{ name: 'Total Volume', label: 'Total Ta', color: '#94e4f5', line: 'none' }, { name: 'Total Volume', label: 'Total Vo', color: '#7c6aff', line: 'volume' }],
+    [{ name: 'Total Tank Volume', label: 'Total Ta', color: '#94e4f5', line: 'none' }, { name: 'Total Volume', label: 'Total Vo', color: '#7c6aff', line: 'volume' }],
   ],
 });

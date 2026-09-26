@@ -6,9 +6,11 @@
   <meta name="color-scheme" content="dark">
   <title>2793 · DrillSpot</title>
   <link rel="icon" href="logo.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="styles.css">
-  <script src="data.js" defer></script>
-  <script src="app.js" defer></script>
+  <link rel="stylesheet" href="styles.css?v=20260926.8">
+  <script src="data.js?v=20260926.2" defer></script>
+  <script src="app.js?v=20260926.4" defer></script>
+  <script type="importmap">{"imports":{"three":"../vendor/three.module.js"}}</script>
+  <script type="module" src="scene.js?v=20260926.9"></script>
 </head>
 <body>
   <svg class="sprite" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -26,18 +28,31 @@
     <symbol id="trash" viewBox="0 0 24 24"><path d="M4 6h16M9 6V3h6v3M6 6l1 15h10l1-15M10 10v7m4-7v7"/></symbol>
     <symbol id="settings" viewBox="0 0 24 24"><path d="m9 3 1-2h4l1 3 3 1 3 1v4l-2 2 1 3 1 3-3 3-3-1-3 1-2 2-4-2v-3l-2-2-3-1v-4l3-1 1-3Z"/><circle cx="12" cy="12" r="3.5"/></symbol>
     <symbol id="chat" viewBox="0 0 24 24"><path d="M4 18 2 22l6-2a10 10 0 1 0-4-2Z M8 9h8M8 13h5"/></symbol>
+    <symbol id="target-icon" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><circle cx="12" cy="12" r="4"/><path d="M12 1v6m0 10v6M1 12h6m10 0h6"/></symbol>
+    <symbol id="starred-icon" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="m12 6 2 4 4 .5-3 3 .8 4.5-3.8-2-3.8 2 .8-4.5-3-3 4-.5Z"/></symbol>
+    <symbol id="target-top-icon" viewBox="0 0 24 24"><path d="M5 5h14M12 7v14M8 11l4-4 4 4"/></symbol>
+    <symbol id="center-well-icon" viewBox="0 0 24 24"><path d="M5 3v6c0 6 4 7 12 7M13 12l4 4-4 4M3 3h4M17 7h4v14h-4"/></symbol>
+    <symbol id="fit-view-icon" viewBox="0 0 24 24"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5M8 8l3 3m5-3-3 3m-5 5 3-3m5 3-3-3"/></symbol>
+    <symbol id="more-icon" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.5" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="grip-icon" viewBox="0 0 16 16"><g fill="currentColor" stroke="none"><circle cx="3" cy="3" r="1.2"/><circle cx="8" cy="3" r="1.2"/><circle cx="13" cy="3" r="1.2"/><circle cx="3" cy="8" r="1.2"/><circle cx="8" cy="8" r="1.2"/><circle cx="13" cy="8" r="1.2"/></g></symbol>
+    <symbol id="collision-icon" viewBox="0 0 24 24"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5M8 6v5c0 4 3 5 9 5m-4-4 4 4-4 4"/><circle cx="17" cy="6" r="1" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="arrow-down-icon" viewBox="0 0 24 24"><path d="M12 2v19m-8-8 8 8 8-8"/></symbol>
+    <symbol id="arrow-left-icon" viewBox="0 0 24 24"><path d="M22 12H3m8-8-8 8 8 8"/></symbol>
+    <symbol id="warning-icon" viewBox="0 0 24 24"><path d="M10 3a2.3 2.3 0 0 1 4 0l9 17H1Z M12 8v6m0 3v1"/></symbol>
+    <symbol id="derrick-icon" viewBox="0 0 24 24"><path d="M5 22 10 2h4l5 20M8 9h8M6 16h12M9 9l8 7M7 16l9-7M10 2l5 7"/></symbol>
+    <symbol id="sparkle-icon" viewBox="0 0 24 24"><path d="m12 1 3 8-3 3-3-3Z" fill="#79ad85"/><path d="m23 12-8 3-3-3 3-3Z" fill="#b9a18b"/><path d="m12 23-3-8 3-3 3 3Z" fill="#829bc1"/><path d="m1 12 8-3 3 3-3 3Z" fill="#b48cb5"/></symbol>
     <symbol id="apps" viewBox="0 0 24 24"><path d="M3 3h8v8H3ZM3 13h8v8H3Zm10 0h8v8h-8Zm0-7 5-5 5 5-5 5Z"/></symbol>
   </svg>
 
-  <div class="app" id="app">
+  <div class="app directional-active" id="app">
     <header class="topbar">
       <a class="logo" href="./" aria-label="DrillSpot"><img src="logo.svg" alt="DrillSpot" width="32" height="28"></a>
       <button class="project-selector" data-menu="projects"><span class="project-marker">∨</span> East Moldabek <svg class="icon"><use href="#chevron"/></svg></button>
       <nav class="sections" aria-label="Tools">
-        <button data-section="WINDOW">WINDOW</button><button data-section="CALCULATOR">CALCULATOR</button><button data-section="WELL FORMAT">WELL FORMAT</button><button class="active" data-section="NUMERAL" aria-pressed="true">NUMERAL</button>
+        <button data-section="WINDOW">WINDOW</button><button data-section="CALCULATOR">CALCULATOR</button><button data-section="WELL FORMAT">WELL FORMAT</button><button class="active" id="widget-tool" data-section="DIRECTIONAL" aria-pressed="true">DIRECTIONAL</button>
       </nav>
       <div class="services">
-        <button class="icon-button sparkle" data-menu="assistant" aria-label="Solo AI">✦</button>
+        <button class="icon-button sparkle" data-menu="assistant" aria-label="Solo AI"><svg aria-hidden="true" viewBox="0 0 24 24"><use href="#sparkle-icon"/></svg></button>
         <button class="icon-button" data-menu="support" aria-label="Support"><svg class="icon"><use href="#chat"/></svg></button>
         <button class="icon-button" data-menu="settings" aria-label="Settings"><svg class="icon"><use href="#settings"/></svg></button>
         <button class="icon-button" data-menu="apps" aria-label="Solo Apps"><svg class="icon"><use href="#apps"/></svg></button>
@@ -46,14 +61,14 @@
     </header>
 
     <section class="ribbon" id="ribbon" aria-label="Widget settings">
-      <div class="numeral-settings" id="numeral-settings">
+      <div class="numeral-settings" id="numeral-settings" hidden>
         <fieldset class="ribbon-group view"><legend>View</legend>
           <div class="settings-row"><span>Domain</span><div class="segments" aria-label="Domain"><button class="selected" data-domain="Time" aria-pressed="true">Time</button><button data-domain="MD" aria-pressed="false">MD</button></div></div>
           <label class="settings-row points">Last points <input id="last-points" type="range" min="1" max="10" value="1" aria-label="Last points"></label>
         </fieldset>
         <fieldset class="ribbon-group trace"><legend>Trace</legend>
           <button class="trace-selector" data-menu="traces"><span class="trace-symbol">ξ</span><svg class="icon"><use href="#chevron"/></svg><span id="trace-title">Hole Depth</span></button>
-          <select disabled aria-label="Units"><option>m</option></select>
+          <select id="trace-units" disabled aria-label="Units"><option>m</option></select>
           <label class="settings-row">Decimal <select disabled aria-label="Decimal"><option>.0</option></select></label>
         </fieldset>
         <fieldset class="ribbon-group alerts"><legend>Alerts</legend>
@@ -63,6 +78,48 @@
         <div class="ribbon-actions"><button disabled><svg class="icon"><use href="#trash"/></svg>Remove Trace</button><button disabled><svg class="icon red"><use href="#close"/></svg>Remove widget</button></div>
       </div>
       <div class="other-tools" id="other-tools" hidden></div>
+      <div class="directional-settings" id="directional-settings">
+        <fieldset class="ribbon-group scene-view-group" aria-label="View">
+          <button class="scene-view-button" id="scene-view" value="isometric" data-menu="scene-view" aria-label="3D view" aria-haspopup="true" aria-expanded="false" aria-controls="popup-menu">
+            <svg class="view-cube" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" aria-hidden="true"><path d="m4 7 11-3 9 5v15l-11-3-9-4Z M4 7l9 4 11-2 M13 11v10 M15 4v13l9 7"/><path d="m4 17 11-4" stroke-dasharray="1.5 1.5" opacity=".5"/></svg>
+            <span class="view-button-caption"><span id="scene-view-label">3D</span><span>view<svg class="view-chevron" aria-hidden="true"><use href="#chevron"/></svg></span></span>
+          </button>
+        </fieldset>
+        <fieldset class="ribbon-group scene-scale-group" aria-label="Scale">
+          <div class="exaggeration-row"><span id="exaggeration-label"><svg class="exaggeration-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true"><path d="M2 13h11V2M2 11l9-9M7 2h4v4"/></svg>Exaggeration</span><button class="exaggeration-button" id="scene-exaggeration" value="3" data-menu="scene-exaggeration" aria-labelledby="exaggeration-label scene-exaggeration-value" aria-haspopup="true" aria-expanded="false" aria-controls="popup-menu"><span id="scene-exaggeration-value">3</span><svg class="icon" aria-hidden="true"><use href="#chevron"/></svg></button></div>
+          <label class="scene-checkbox"><input type="checkbox" id="scene-grid" checked>Show grid</label>
+        </fieldset>
+        <fieldset class="ribbon-group scene-centering-group" aria-label="Centering">
+          <div class="centering-options">
+            <div class="centering-row">
+              <button class="scene-ribbon-button" data-scene-action="reset" title="Centering (Home)"><svg class="icon"><use href="#target-icon"/></svg><span>Centering</span></button>
+              <div class="centering-buttons"><button class="ribbon-icon-button primary" data-scene-action="reset" aria-label="Center active well" title="Center active well"><svg class="icon"><use href="#center-well-icon"/></svg></button><button class="ribbon-icon-button" data-scene-action="fit" aria-label="Fit model in view" title="Fit model in view"><svg class="icon"><use href="#fit-view-icon"/></svg></button></div>
+            </div>
+            <div class="centering-row">
+              <button class="scene-ribbon-button" data-menu="wells" title="Choose well to follow"><svg class="icon"><use href="#starred-icon"/></svg><span>Follow Starred…</span></button>
+              <div class="centering-buttons"><button class="ribbon-icon-button primary" data-menu="wells" aria-label="Choose well to follow" title="Choose well to follow"><svg class="icon"><use href="#more-icon"/></svg></button><button class="ribbon-icon-button primary follow-button" id="scene-follow" aria-pressed="false" aria-label="Follow active well" title="Follow active well"><svg class="icon"><use href="#target-icon"/></svg></button></div>
+            </div>
+          </div>
+          <div class="target-options">
+            <button class="scene-ribbon-button" data-scene-action="top"><svg class="icon"><use href="#target-top-icon"/></svg>Target Top</button>
+            <button class="scene-ribbon-button" data-scene-action="base"><svg class="icon target-base-icon"><use href="#target-top-icon"/></svg>Target Base</button>
+            <label class="md-start-row">MD start <input id="scene-md-start" type="number" min="0" max="721.1" step="0.1" value="0" aria-label="MD start"></label>
+          </div>
+        </fieldset>
+        <fieldset class="ribbon-group scene-options-group" aria-label="Uncertainty">
+          <span class="ribbon-caption">Uncertainty</span>
+          <label class="scene-checkbox"><input type="checkbox" id="scene-ellipses" checked>Ellipses</label>
+        </fieldset>
+        <fieldset class="ribbon-group scene-components-group" aria-label="Well components">
+          <label class="scene-checkbox"><input type="checkbox" id="scene-bit" checked>Bit Position</label>
+          <label class="settings-row">String Components <select id="scene-components"><option value="all">All</option><option value="none">None</option></select></label>
+        </fieldset>
+        <fieldset class="ribbon-group scene-widgets-group" aria-label="Widgets">
+          <label class="settings-row">Widgets <select id="scene-widgets" aria-label="Widgets"><option value="all">All</option><option value="active">Directional – 3D</option></select></label>
+        </fieldset>
+        <div class="ribbon-actions scene-remove"><button disabled><svg class="icon red"><use href="#close"/></svg>Remove widget</button></div>
+        <div class="detailed-scene-help" id="scene-help">Drag to rotate · Scroll to zoom<br>Right-drag to pan · Double-click to reset</div>
+      </div>
       <button class="collapse-ribbon" id="collapse-ribbon" aria-expanded="true">Collapse menu <svg class="icon"><use href="#chevron"/></svg></button>
     </section>
 
@@ -88,24 +145,28 @@
       <main class="main-panel">
         <div class="tabs" role="tablist" aria-label="Windows" id="tabs"><button class="tab active" role="tab" aria-selected="true" data-window="Demo"><svg class="icon"><use href="#users"/></svg><span>Demo</span></button><button class="tab" role="tab" aria-selected="false" data-window="3D 4 Nurlan"><svg class="icon"><use href="#users"/></svg><span>3D 4 Nurlan</span></button><button class="icon-button add-window" data-menu="windows" aria-label="Add window"><svg class="icon"><use href="#plus"/></svg></button></div>
         <div class="workspace-window" role="tabpanel" aria-label="Demo" id="workspace-window">
-          <div class="context"><button data-menu="rigs"><span class="derrick">A</span>No assigned Rig<svg class="icon"><use href="#chevron"/></svg></button><button data-menu="wells"><svg class="icon"><use href="#well"/></svg><strong class="well-number">2793</strong><svg class="icon"><use href="#chevron"/></svg></button></div>
+          <div class="context"><button data-menu="rigs"><svg class="icon derrick" aria-hidden="true"><use href="#derrick-icon"/></svg>No assigned Rig<svg class="icon"><use href="#chevron"/></svg></button><button data-menu="wells"><svg class="icon"><use href="#well"/></svg><strong class="well-number">2793</strong><svg class="icon"><use href="#chevron"/></svg></button></div>
           <div class="widgets">
-            <section class="directional" aria-label="Directional — 3D placeholder">
+            <section class="directional" aria-label="Directional — 3D well model">
+              <span class="directional-label"><svg class="icon widget-grip" aria-hidden="true"><use href="#grip-icon"/></svg>Directional – 3D</span>
               <div class="model-area" id="model-area">
-                <svg class="spatial-grid" viewBox="0 0 1100 955" preserveAspectRatio="none" aria-hidden="true" id="spatial-grid"></svg>
-                <div class="depths" aria-hidden="true"><span>-67</span><span>0</span><span>67</span><span>133</span><span>200</span><span>267</span><span>333</span><span>400</span><span>467</span></div>
-                <div class="directional-summary"><div><span class="red">◌</span><span>↓ 1.0</span><span>← 1.9 <span class="muted">C2C</span> 2.2</span></div><div class="muted">Remains to TD <span class="light">38.9</span></div></div>
-                <div class="compass" aria-hidden="true"><span>N</span><i></i><b>•</b></div>
+                <div class="scene-host" id="scene-host"></div>
+                <div class="depth-labels" id="depth-labels" aria-hidden="true"></div>
+                <div class="directional-summary"><div><svg class="icon red collision-icon" aria-hidden="true"><use href="#collision-icon"/></svg><span class="summary-value"><svg class="icon" aria-hidden="true"><use href="#arrow-down-icon"/></svg>1.0</span><span class="summary-value"><svg class="icon" aria-hidden="true"><use href="#arrow-left-icon"/></svg>1.9 <span class="muted">C2C</span> 2.2</span></div><div class="muted">Remains to TD <span class="light">38.9</span></div></div>
+                <svg class="orientation-gizmo" id="orientation-gizmo" viewBox="0 0 100 100" aria-hidden="true"></svg>
                 <div class="trajectory-table"><div class="well-label"><svg class="icon"><use href="#well"/></svg><span class="well-number">2793</span></div><table><thead><tr><th></th><th>MD</th><th>INCL</th><th>AZ GN</th><th>TVD</th><th>VS</th><th>DLS</th></tr></thead><tbody><tr><td>○</td><td>696.6</td><td>88.8</td><td>357.17</td><td>274.29</td><td>497.85</td><td>1.50</td></tr><tr><td>○</td><td>706.0</td><td>87.5</td><td>357.24</td><td>274.59</td><td>507.23</td><td>4.30</td></tr><tr><td>○</td><td>721.1</td><td>87.0</td><td>357.00</td><td>275.32</td><td>522.29</td><td>1.00</td></tr></tbody></table></div>
-                <div class="model-placeholder">3D</div>
+                <div class="scene-status" id="scene-status" role="status">Loading 3D…</div>
+                <span class="diameter-label" id="diameter-label" hidden>244.5mm</span>
+                <div class="scene-tooltip" id="scene-tooltip" hidden></div>
                 <div class="warnings">No collision warnings</div>
+                <div class="scene-controls" aria-label="3D camera controls"><button data-scene-action="zoom-in" aria-label="Zoom in" title="Zoom in (+)">+</button><button data-scene-action="zoom-out" aria-label="Zoom out" title="Zoom out (−)">−</button><button data-scene-action="reset" aria-label="Reset 3D view" title="Reset view (Home)"><svg class="icon" aria-hidden="true"><use href="#target-icon"/></svg></button></div>
               </div>
               <footer class="model-status"><span>Active</span><i></i><span class="well-number">2793</span></footer>
             </section>
 
             <section class="monitoring" aria-label="Drilling monitoring">
               <div class="numeral-widgets">
-                <button class="card depth selected" data-metric="Hole Depth" aria-pressed="true"><span class="widget-label"><span>⠿</span> Numeral</span><span class="card-title">Hole Depth <small>T</small></span><span class="reading green" id="depth-value">721.1</span><span class="card-footer"><span>m</span><time>30 апр., 18:25</time></span></button>
+                <button class="card depth" data-metric="Hole Depth" aria-pressed="false"><span class="widget-label"><svg class="icon widget-grip" aria-hidden="true"><use href="#grip-icon"/></svg>Numeral</span><span class="card-title">Hole Depth <small>T</small></span><span class="reading green" id="depth-value">721.1</span><span class="card-footer"><span>m</span><time>30 апр., 18:25</time></span></button>
                 <button class="card gas" data-metric="Total Gas" aria-pressed="false"><span class="card-title"><span>Total Gas</span><small>T</small></span><span class="value-history"><span>0.017</span><span>0.016</span><span>0.016</span><span>0.017</span></span><span class="card-footer"><span>%</span><time>30 апр.,<br>18:25</time></span></button>
                 <button class="card load" data-metric="WOB" aria-pressed="false"><span class="card-title">WOB <small>T</small></span><span class="value-history"><span class="red">0.0</span><span>0.0</span></span><span class="card-footer"><span>tonf[metric]</span><time>30 апр., 18:25</time></span></button>
                 <div class="card distance"><div class="distance-heading">Distance, m</div><div class="bar-chart"><span class="zero">0</span><div class="bar"><i></i></div></div><div class="distance-legend"><span>No Top</span><b>Top</b></div></div>
@@ -120,7 +181,7 @@
       </main>
     </div>
   </div>
-  <div class="popup-menu" id="popup-menu" hidden></div>
+  <div class="popup-menu" id="popup-menu" role="menu" hidden></div>
   <div class="notification" id="notification" role="status" hidden></div>
 </body>
 </html>
