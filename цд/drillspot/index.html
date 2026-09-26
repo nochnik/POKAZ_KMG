@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>2793 · DrillSpot</title>
+  <link rel="icon" href="logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+  <script src="data.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <svg class="sprite" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <symbol id="chevron" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+    <symbol id="window" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></symbol>
+    <symbol id="users" viewBox="0 0 24 24"><circle cx="8" cy="6" r="3"/><circle cx="17" cy="7" r="2.5"/><path d="M2 19v-3c0-5 12-5 12 0v3ZM15 12c4-1 7 1 7 4v2h-5"/></symbol>
+    <symbol id="search-icon" viewBox="0 0 24 24"><circle cx="10" cy="10" r="7"/><path d="m15 15 6 6"/></symbol>
+    <symbol id="panel" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M9 4v16"/></symbol>
+    <symbol id="well" viewBox="0 0 24 24"><path d="M3 4c0 13 5 10 16 10m-4-4 5 4-5 4"/></symbol>
+    <symbol id="folder" viewBox="0 0 24 24"><path d="M3 6h7l2-3h7v4M3 7h18l-2 14H2Z"/></symbol>
+    <symbol id="plus" viewBox="0 0 24 24"><path d="M12 3v18M3 12h18"/></symbol>
+    <symbol id="close" viewBox="0 0 24 24"><path d="m4 4 16 16M4 20 16-16"/></symbol>
+    <symbol id="filter" viewBox="0 0 24 24"><path d="M3 5h18M7 12h10M10 19h4"/></symbol>
+    <symbol id="info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-10v1"/></symbol>
+    <symbol id="trash" viewBox="0 0 24 24"><path d="M4 6h16M9 6V3h6v3M6 6l1 15h10l1-15M10 10v7m4-7v7"/></symbol>
+    <symbol id="settings" viewBox="0 0 24 24"><path d="m9 3 1-2h4l1 3 3 1 3 1v4l-2 2 1 3 1 3-3 3-3-1-3 1-2 2-4-2v-3l-2-2-3-1v-4l3-1 1-3Z"/><circle cx="12" cy="12" r="3.5"/></symbol>
+    <symbol id="chat" viewBox="0 0 24 24"><path d="M4 18 2 22l6-2a10 10 0 1 0-4-2Z M8 9h8M8 13h5"/></symbol>
+    <symbol id="apps" viewBox="0 0 24 24"><path d="M3 3h8v8H3ZM3 13h8v8H3Zm10 0h8v8h-8Zm0-7 5-5 5 5-5 5Z"/></symbol>
+  </svg>
+
+  <div class="app" id="app">
+    <header class="topbar">
+      <a class="logo" href="./" aria-label="DrillSpot"><img src="logo.svg" alt="DrillSpot" width="32" height="28"></a>
+      <button class="project-selector" data-menu="projects"><span class="project-marker">∨</span> East Moldabek <svg class="icon"><use href="#chevron"/></svg></button>
+      <nav class="sections" aria-label="Tools">
+        <button data-section="WINDOW">WINDOW</button><button data-section="CALCULATOR">CALCULATOR</button><button data-section="WELL FORMAT">WELL FORMAT</button><button class="active" data-section="NUMERAL" aria-pressed="true">NUMERAL</button>
+      </nav>
+      <div class="services">
+        <button class="icon-button sparkle" data-menu="assistant" aria-label="Solo AI">✦</button>
+        <button class="icon-button" data-menu="support" aria-label="Support"><svg class="icon"><use href="#chat"/></svg></button>
+        <button class="icon-button" data-menu="settings" aria-label="Settings"><svg class="icon"><use href="#settings"/></svg></button>
+        <button class="icon-button" data-menu="apps" aria-label="Solo Apps"><svg class="icon"><use href="#apps"/></svg></button>
+        <button class="news" data-menu="news">What's new <span>АО</span></button>
+      </div>
+    </header>
+
+    <section class="ribbon" id="ribbon" aria-label="Widget settings">
+      <div class="numeral-settings" id="numeral-settings">
+        <fieldset class="ribbon-group view"><legend>View</legend>
+          <div class="settings-row"><span>Domain</span><div class="segments" aria-label="Domain"><button class="selected" data-domain="Time" aria-pressed="true">Time</button><button data-domain="MD" aria-pressed="false">MD</button></div></div>
+          <label class="settings-row points">Last points <input id="last-points" type="range" min="1" max="10" value="1" aria-label="Last points"></label>
+        </fieldset>
+        <fieldset class="ribbon-group trace"><legend>Trace</legend>
+          <button class="trace-selector" data-menu="traces"><span class="trace-symbol">ξ</span><svg class="icon"><use href="#chevron"/></svg><span id="trace-title">Hole Depth</span></button>
+          <select disabled aria-label="Units"><option>m</option></select>
+          <label class="settings-row">Decimal <select disabled aria-label="Decimal"><option>.0</option></select></label>
+        </fieldset>
+        <fieldset class="ribbon-group alerts"><legend>Alerts</legend>
+          <div class="alerts-row">Alerts <button class="toggle" role="switch" aria-checked="false" aria-label="Alerts" disabled></button><svg class="icon"><use href="#info"/></svg></div>
+          <div class="thresholds"><label>High <input disabled aria-label="High"></label><label>Max <input disabled aria-label="Max"></label><label>Low <input disabled aria-label="Low"></label><label>Min <input disabled aria-label="Min"></label></div>
+        </fieldset>
+        <div class="ribbon-actions"><button disabled><svg class="icon"><use href="#trash"/></svg>Remove Trace</button><button disabled><svg class="icon red"><use href="#close"/></svg>Remove widget</button></div>
+      </div>
+      <div class="other-tools" id="other-tools" hidden></div>
+      <button class="collapse-ribbon" id="collapse-ribbon" aria-expanded="true">Collapse menu <svg class="icon"><use href="#chevron"/></svg></button>
+    </section>
+
+    <div class="workspace">
+      <aside class="sidebar" aria-label="Project explorer">
+        <div class="search"><button class="icon-button" id="collapse-sidebar" aria-label="Collapse sidebar" aria-expanded="true"><svg class="icon"><use href="#panel"/></svg></button><label><svg class="icon"><use href="#search-icon"/></svg><input id="search" type="search" placeholder="Search" aria-label="Search project"></label></div>
+        <div class="trees">
+          <section class="tree-section windows">
+            <div class="tree-heading"><button data-tree="window-list" aria-expanded="true"><svg class="icon"><use href="#chevron"/></svg>Windows</button><button class="icon-button" id="window-filter" aria-label="Show open windows" aria-pressed="false"><svg class="icon"><use href="#filter"/></svg></button></div>
+            <div class="tree-content" id="window-list"><button class="tree-root" data-tree="project-windows" aria-expanded="true"><svg class="icon"><use href="#chevron"/></svg>Windows</button><div id="project-windows"></div></div>
+          </section>
+          <section class="tree-section objects">
+            <div class="tree-heading"><button data-tree="object-list" aria-expanded="true"><svg class="icon"><use href="#chevron"/></svg>Object tree</button></div>
+            <div class="tree-content" id="object-list"><button class="tree-root" data-tree="project-wells" aria-expanded="true"><svg class="icon"><use href="#chevron"/></svg><span class="minus">−</span><svg class="icon"><use href="#well"/></svg>Wells</button><div id="project-wells"></div></div>
+          </section>
+          <section class="tree-section groups">
+            <div class="tree-heading"><button data-tree="group-list" aria-expanded="true"><svg class="icon"><use href="#chevron"/></svg>Group tree</button></div>
+            <div class="tree-content" id="group-list"></div>
+          </section>
+        </div>
+      </aside>
+
+      <main class="main-panel">
+        <div class="tabs" role="tablist" aria-label="Windows" id="tabs"><button class="tab active" role="tab" aria-selected="true" data-window="Demo"><svg class="icon"><use href="#users"/></svg><span>Demo</span></button><button class="tab" role="tab" aria-selected="false" data-window="3D 4 Nurlan"><svg class="icon"><use href="#users"/></svg><span>3D 4 Nurlan</span></button><button class="icon-button add-window" data-menu="windows" aria-label="Add window"><svg class="icon"><use href="#plus"/></svg></button></div>
+        <div class="workspace-window" role="tabpanel" aria-label="Demo" id="workspace-window">
+          <div class="context"><button data-menu="rigs"><span class="derrick">A</span>No assigned Rig<svg class="icon"><use href="#chevron"/></svg></button><button data-menu="wells"><svg class="icon"><use href="#well"/></svg><strong class="well-number">2793</strong><svg class="icon"><use href="#chevron"/></svg></button></div>
+          <div class="widgets">
+            <section class="directional" aria-label="Directional — 3D placeholder">
+              <div class="model-area" id="model-area">
+                <svg class="spatial-grid" viewBox="0 0 1100 955" preserveAspectRatio="none" aria-hidden="true" id="spatial-grid"></svg>
+                <div class="depths" aria-hidden="true"><span>-67</span><span>0</span><span>67</span><span>133</span><span>200</span><span>267</span><span>333</span><span>400</span><span>467</span></div>
+                <div class="directional-summary"><div><span class="red">◌</span><span>↓ 1.0</span><span>← 1.9 <span class="muted">C2C</span> 2.2</span></div><div class="muted">Remains to TD <span class="light">38.9</span></div></div>
+                <div class="compass" aria-hidden="true"><span>N</span><i></i><b>•</b></div>
+                <div class="trajectory-table"><div class="well-label"><svg class="icon"><use href="#well"/></svg><span class="well-number">2793</span></div><table><thead><tr><th></th><th>MD</th><th>INCL</th><th>AZ GN</th><th>TVD</th><th>VS</th><th>DLS</th></tr></thead><tbody><tr><td>○</td><td>696.6</td><td>88.8</td><td>357.17</td><td>274.29</td><td>497.85</td><td>1.50</td></tr><tr><td>○</td><td>706.0</td><td>87.5</td><td>357.24</td><td>274.59</td><td>507.23</td><td>4.30</td></tr><tr><td>○</td><td>721.1</td><td>87.0</td><td>357.00</td><td>275.32</td><td>522.29</td><td>1.00</td></tr></tbody></table></div>
+                <div class="model-placeholder">3D</div>
+                <div class="warnings">No collision warnings</div>
+              </div>
+              <footer class="model-status"><span>Active</span><i></i><span class="well-number">2793</span></footer>
+            </section>
+
+            <section class="monitoring" aria-label="Drilling monitoring">
+              <div class="numeral-widgets">
+                <button class="card depth selected" data-metric="Hole Depth" aria-pressed="true"><span class="widget-label"><span>⠿</span> Numeral</span><span class="card-title">Hole Depth <small>T</small></span><span class="reading green" id="depth-value">721.1</span><span class="card-footer"><span>m</span><time>30 апр., 18:25</time></span></button>
+                <button class="card gas" data-metric="Total Gas" aria-pressed="false"><span class="card-title"><span>Total Gas</span><small>T</small></span><span class="value-history"><span>0.017</span><span>0.016</span><span>0.016</span><span>0.017</span></span><span class="card-footer"><span>%</span><time>30 апр.,<br>18:25</time></span></button>
+                <button class="card load" data-metric="WOB" aria-pressed="false"><span class="card-title">WOB <small>T</small></span><span class="value-history"><span class="red">0.0</span><span>0.0</span></span><span class="card-footer"><span>tonf[metric]</span><time>30 апр., 18:25</time></span></button>
+                <div class="card distance"><div class="distance-heading">Distance, m</div><div class="bar-chart"><span class="zero">0</span><div class="bar"><i></i></div></div><div class="distance-legend"><span>No Top</span><b>Top</b></div></div>
+              </div>
+              <div class="linear-widget">
+                <div class="depth-overview"><div class="inactive"><i></i>Inactive</div><div class="drilling-values"><span>Hole</span><b>721.1</b><span>Bit</span><b>402.6</b></div><div class="mini-chart"><canvas id="overview" aria-label="Depth overview, April 21–30" role="img"></canvas><div class="dates"><span>21 Apr</span><span>23 Apr</span><span>25 Apr</span><span>27 Apr</span><span>29 Apr</span></div><div class="selected-time">18:25</div></div></div>
+                <div class="tracks" id="tracks"><div class="track-headers" id="track-headers"></div><div class="chart-area" id="chart-area"><canvas id="charts" role="img" aria-label="Drilling traces: block position, hookload, WOB, ROP, pressure, flow, gamma ray and gas"></canvas><div class="time-labels" id="time-labels"></div><div class="chart-cursor" id="chart-cursor" hidden><span></span></div></div></div>
+              </div>
+            </section>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+  <div class="popup-menu" id="popup-menu" hidden></div>
+  <div class="notification" id="notification" role="status" hidden></div>
+</body>
+</html>
