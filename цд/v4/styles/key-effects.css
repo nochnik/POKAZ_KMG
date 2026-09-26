@@ -1,0 +1,105 @@
+/* Key-effects strip under the frame title.
+
+   No subtitle — the title itself heads the frame (23.09, Adil). The strip
+   stays in the corridor between the left edge and the first-asset card: the
+   card is up to 660px wide, 26px from the edge, +14 air — 700 on the right. */
+#key-effects {
+  position: fixed;
+  top: 112px;
+  left: 26px;
+  right: calc(min(660px, 34vw) + 40px);
+  z-index: 9;
+  padding: 0;
+  pointer-events: none;
+  transition:
+    opacity 0.28s ease,
+    transform 0.42s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+#key-effects .columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+#key-effects .card {
+  padding: 13px 17px;
+  background: var(--glass);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--cyan);
+  backdrop-filter: blur(8px);
+}
+
+/* Rows go downward; within a row value and label share a line:
+   "2 864 тыс. тонн" with a label on the right, "326 млрд ₸" without one. */
+#key-effects .rows {
+  display: block;
+}
+
+#key-effects .row {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+#key-effects .row + .row {
+  margin-top: 5px;
+}
+
+/* 24.09 (Adil): 24px numbers got lost next to the first-asset card — raised
+   to 40, the card shrank. 25.09 ("a bit smaller, it overlaps the 3D"):
+   40 → 32. 25.09, second pass: same card size but bigger white text instead of
+   cyan — cyan merged with the stand background: 32 → 36 for the value,
+   17 → 18 for the label. The blue stripe on the left keeps the accent. */
+#key-effects .value {
+  font-family: var(--mono);
+  font-size: 36px;
+  font-weight: 700;
+  line-height: 1.05;
+  color: #f2f7ff;
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+#key-effects .label {
+  font-size: 18px;
+  line-height: 1.3;
+  color: var(--dim);
+}
+
+/* Docked — the same effects as one column above the stack while a layer is
+   selected or open. ui/key-effects.js positions it. A bit larger than the
+   stack items (21.5px) so the key effects are caught from the hall first. */
+#key-effects.is-docked {
+  padding: 0;
+  transform: none;
+  left: auto;
+  right: auto;
+  top: auto;
+}
+
+#key-effects.is-docked .columns {
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+#key-effects.is-docked .card {
+  padding: 11px 13px;
+  border-left-width: 3px;
+  background: linear-gradient(180deg, rgba(14, 25, 43, 0.95), rgba(8, 15, 27, 0.92));
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.18);
+}
+
+#key-effects.is-docked .row {
+  gap: 12px;
+}
+
+#key-effects.is-docked .value {
+  font-size: 23px;
+}
+
+#key-effects.is-docked .label {
+  font-size: 16px;
+}
