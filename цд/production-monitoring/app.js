@@ -7,16 +7,32 @@
     // --- Dynamic Height & Zoom Auto-Fit ---
     function updateZoom() {
         var targetHeight = 2160;
+        var targetWidth = 7680;
         var vh = window.innerHeight || document.documentElement.clientHeight;
+        var vw = window.innerWidth || document.documentElement.clientWidth;
         if (vh && vh > 200) {
             var scale = vh / targetHeight;
             $('.dashboard').css({
                 'transform': 'scale(' + scale + ')',
-                'transform-origin': 'top left'
+                'transform-origin': 'top left',
+                'width': targetWidth + 'px',
+                'height': targetHeight + 'px'
             });
+            var scaledWidth = Math.ceil(targetWidth * scale);
+            var finalWidth = Math.max(vw || 0, scaledWidth);
+            if (document.body) {
+                document.body.style.setProperty('width', finalWidth + 'px', 'important');
+                document.body.style.setProperty('height', vh + 'px', 'important');
+                document.body.style.setProperty('min-height', vh + 'px', 'important');
+                document.body.style.setProperty('max-height', vh + 'px', 'important');
+            }
         }
     }
-    updateZoom();
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', updateZoom);
+    } else {
+        updateZoom();
+    }
     window.addEventListener('resize', updateZoom);
     window.addEventListener('load', updateZoom);
     [100, 300, 600, 1000].forEach(function(ms) { setTimeout(updateZoom, ms); });

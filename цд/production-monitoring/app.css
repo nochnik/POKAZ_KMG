@@ -10,15 +10,20 @@ html {
 }
 
 body {
-    height: 2155px !important;
-    min-height: 2155px !important;
-    max-height: 2155px !important;
-    width: 7680px !important;
     margin: 0 !important;
     padding: 0 !important;
-    overflow-x: visible !important;
+    overflow-x: auto !important;
     overflow-y: hidden !important;
     background: #19191e !important;
+    position: relative !important;
+}
+
+.dashboard {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 7680px !important;
+    height: 2160px !important;
 }
 
 /* --- 1. Push and Event Card Overlay --- */
@@ -267,11 +272,11 @@ body {
 
 /* --- 4. Interactive Popups (Last 10 & Widgets) --- */
 .popup {
-    position: absolute !important;
+    position: fixed !important;
     left: 0px !important;
     top: 0px !important;
-    width: 7680px !important;
-    height: 2160px !important;
+    width: 100vw !important;
+    height: 100vh !important;
     background: transparent !important;
     display: none;
     z-index: 99999998 !important;
@@ -371,15 +376,30 @@ body {
 /* --- Interactive Elements Cursor & Hover --- */
 .otvod, .otvod-b, .rgs, .rgs2, .rgs3, .rgs4, .pech, .pech1, .pech2, 
 .block-text-1, .block-text-2, .bdr, .agzu-circle, .normative-cell, 
-.rvs, .rvs2, .nasos, .nasos2, .massometr, .massometr-2, .massometr-3, 
+.rvs, .rvs2, .nasos-1, .nasos-2, .nasosnaya, .massometr, .massometr-2, .massometr-3, 
 .water-counter-table, .gas-counter-table, .page-button, .m-button {
     cursor: pointer !important;
 }
 .otvod:hover, .otvod-b:hover, .rgs:hover, .pech1:hover, .pech2:hover,
 .block-text-1:hover, .block-text-2:hover, .bdr:hover, .agzu-circle:hover,
-.rvs:hover, .rvs2:hover, .nasos:hover, .nasos2:hover {
+.rvs:hover, .rvs2:hover,
+.nasos-1:hover, .nasos-2:hover, .nasosnaya:hover {
     filter: brightness(1.22);
     transition: filter 0.15s ease;
+}
+
+/* Prevent containing block displacement on pump containers */
+.nasos:hover, .nasos2:hover {
+    filter: none !important;
+}
+.nasos .nasos-1, .nasos .nasos-2, .nasos .nasosnaya,
+.nasos2 .nasos-1, .nasos2 .nasos-2, .nasos2 .nasosnaya {
+    cursor: pointer !important;
+    transition: filter 0.15s ease !important;
+}
+.nasos:hover .nasos-1, .nasos:hover .nasos-2, .nasos:hover .nasosnaya,
+.nasos2:hover .nasos-1, .nasos2:hover .nasos-2, .nasos2:hover .nasosnaya {
+    filter: brightness(1.22) !important;
 }
 
 /* --- 5. Report Modal --- */
