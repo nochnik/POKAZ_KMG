@@ -1,0 +1,63 @@
+:root {
+  /* Системный шрифт Windows */
+  --font-family-base: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
+  --font-family-mono: Consolas, 'Courier New', monospace;
+
+  /* Палитра интерфейса Windows и RDP */
+  --color-win-bg: #ffffff;
+  --color-win-title-text: #333333;
+  --color-win-border: #d1d5db;
+  --color-rdp-blue: #184176;
+  --color-rdp-dark: #0d3672;
+  --color-rdp-border: #255982;
+
+  /* Палитра Nedra Ribbon */
+  --color-ribbon-grad: linear-gradient(90deg, #0d3672 0%, #184176 25%, #1f4774 50%, #255982 75%, #245a80 100%);
+  --color-ribbon-text: #ffffff;
+  --color-ribbon-hover: rgba(255, 255, 255, 0.18);
+  --color-ribbon-border: rgba(255, 255, 255, 0.25);
+
+  /* Палитра вкладок (1-в-1 по видео и скриншотам) */
+  --color-tab-active-text: #000000;
+  --color-tab-inactive-text: #a8a8a8;
+  --color-tab-hover-text: #505050;
+  --color-tab-underline: #527ab1;
+
+  /* Левый вертикальный тулбар: аутентичные размеры 1-в-1 по фото (иконки в 2 раза крупнее) */
+  --toolbar-width: 82px;
+  --toolbar-btn-size: 58px;
+  --toolbar-icon-size: 50px;
+  --color-toolbar-hover-bg: transparent;
+  --color-toolbar-hover-border: transparent;
+  --color-toolbar-active-bg: #e8e8e8;
+  --color-toolbar-active-border: #bebebe;
+  --color-toolbar-divider: #707070;
+
+  /* Дашборд и график */
+  --color-subwin-header: #5087c9;
+  --color-subwin-border: #8ca0b8;
+  --color-home-btn: #1ea59a;
+  --color-home-btn-hover: #168f85;
+  --color-home-btn-border: #178f85;
+
+  /* Тултип графика */
+  --color-tooltip-bg: #fef984;
+  --color-tooltip-border: #877e26;
+  --color-tooltip-text: #000000;
+
+  /* Таблицы */
+  --color-table-header-text: #1e293b;
+  --color-table-header-border: #cbd5e1;
+  --color-table-row-hover: #f1f5f9;
+  --color-table-row-selected: #e2eaf5;
+  --color-table-cell-selected-bg: #3398dc;
+  --color-table-cell-selected-text: #ffffff;
+  --color-table-border: #e2e8f0;
+  --color-table-text: #1e293b;
+
+  /* Статусы и направления */
+  --color-status-prod: #16a34a;
+  --color-status-inj: #0891b2;
+  --color-status-shut: #64748b;
+  --color-status-completed: #15803d;
+}

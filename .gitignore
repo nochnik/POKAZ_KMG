@@ -77,3 +77,10 @@ docs/*
 # перебивают верхнее «.DS_Store», и Finder-файлы уезжали в репозиторий.
 .DS_Store
 Thumbs.db
+
+# Временные файлы калибровки NUMEX и видео
+cache/
+цд/frames/
+цд/IMG_3903.MP4
+цд/extract_frames.swift
+

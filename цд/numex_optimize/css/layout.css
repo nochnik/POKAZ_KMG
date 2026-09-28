@@ -1,0 +1,734 @@
+/* Общий каркас окна */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background: #0f172a;
+  font-family: var(--font-family-base);
+}
+
+#pc-numex {
+  display: flex !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  max-height: 100vh !important;
+  min-height: 100vh !important;
+  background: var(--color-ribbon-grad, linear-gradient(90deg, #0d3672 0%, #184176 25%, #1f4774 50%, #255982 75%, #245a80 100%));
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  overflow: hidden;
+  flex-direction: column;
+  font-family: var(--font-family-base);
+  color: #1e293b;
+  user-select: none;
+  position: relative;
+}
+
+/* Фоновые изолинии рельефа на весь экран (видны в синих отступах) */
+.нумекс-фон-изолинии-полный {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Плавающий синий RDP-бар сеанса (10.128.0.45 - Remote Desktop) */
+.нумекс-rdp-бар {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  height: 24px;
+  background: linear-gradient(180deg, #1d4ed8 0%, #1e40af 100%);
+  border: 1px solid #172554;
+  border-top: none;
+  border-bottom-left-radius: 6px;
+  border-bottom-right-radius: 6px;
+  display: flex;
+  align-items: center;
+  padding: 0 8px 0 10px;
+  gap: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+  cursor: default;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.нумекс-rdp-пин {
+  width: 12px;
+  height: 12px;
+  opacity: 0.85;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.нумекс-rdp-пин:hover { opacity: 1; }
+
+.нумекс-rdp-сигнал {
+  display: flex;
+  align-items: flex-end;
+  gap: 1.5px;
+  height: 10px;
+}
+.нумекс-rdp-сигнал span {
+  width: 2px;
+  background: #60a5fa;
+  border-radius: 1px;
+}
+.нумекс-rdp-сигнал span:nth-child(1) { height: 3px; }
+.нумекс-rdp-сигнал span:nth-child(2) { height: 5px; }
+.нумекс-rdp-сигнал span:nth-child(3) { height: 7px; }
+.нумекс-rdp-сигнал span:nth-child(4) { height: 9px; background: #93c5fd; }
+
+.нумекс-rdp-текст {
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.нумекс-rdp-кнопки {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: 6px;
+}
+
+.нумекс-rdp-кнопка {
+  width: 18px;
+  height: 18px;
+  display: grid;
+  place-items: center;
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-size: 10px;
+  cursor: pointer;
+  border-radius: 2px;
+  opacity: 0.8;
+  transition: opacity 0.15s, background 0.15s;
+}
+.нумекс-rdp-кнопка:hover {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.2);
+}
+.нумекс-rdp-кнопка.закрыть:hover {
+  background: #e81123;
+}
+
+/* Шапка Windows с белым фоном */
+.нумекс-шапка-windows {
+  height: 28px;
+  background: var(--color-win-bg);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 0 0 8px;
+  border-top: 1px solid #111111;
+  border-bottom: none;
+  position: relative;
+  z-index: 5;
+}
+
+.нумекс-шапка-лево {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+}
+
+.нумекс-лого-недра {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+}
+
+.нумекс-заголовок-окна {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--color-win-title-text);
+  letter-spacing: 0.005em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.нумекс-кнопки-окна {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.нумекс-кнопка-окна {
+  width: 44px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  background: transparent;
+  border: none;
+  color: #333333;
+  font-size: 11px;
+  cursor: pointer;
+  transition: background .15s, color .15s;
+}
+
+.нумекс-кнопка-окна:hover {
+  background: #e5e7eb;
+  color: #000000;
+}
+
+.нумекс-кнопка-окна.нумекс-закрыть:hover {
+  background: #e81123;
+  color: #ffffff;
+}
+
+/* Синяя полоса с изолиниями рельефа, меню и тулбаром */
+.нумекс-синяя-полоса {
+  background: var(--color-ribbon-grad);
+  position: relative;
+  padding: 5px 12px 6px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  z-index: 1000;
+}
+
+.нумекс-изолинии-фон {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.нумекс-меню-пункты {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  z-index: 1001;
+  position: relative;
+}
+
+.нумекс-меню-контейнер {
+  position: relative;
+}
+
+.нумекс-меню-пункт {
+  font-family: var(--font-family-base);
+  font-size: 12px;
+  font-weight: 400;
+  color: #ffffff;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  user-select: none;
+  padding: 2px 7px;
+  border-radius: 0;
+  display: block;
+  white-space: nowrap;
+  transition: background 0.08s;
+}
+
+.нумекс-меню-пункт u {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-thickness: 1px;
+}
+
+/* При наведении или клике — насыщенный синий прямоугольник как на видео */
+.нумекс-меню-контейнер:hover .нумекс-меню-пункт,
+.нумекс-меню-пункт.активен {
+  background: #0078d7;
+  color: #ffffff;
+}
+
+.нумекс-меню-контейнер:hover .нумекс-меню-пункт u,
+.нумекс-меню-пункт.активен u {
+  text-decoration: none;
+}
+
+/* Выпадающие меню (открываются при наведении и клике) */
+.нумекс-выпадающее-меню {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 0;
+  background: #f0f0f0;
+  border: 1px solid #979797;
+  border-radius: 0;
+  box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.25);
+  width: max-content;
+  min-width: unset;
+  padding: 2px 0;
+  z-index: 99999;
+  display: none;
+  box-sizing: border-box;
+}
+
+.нумекс-выпадающее-меню::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: 0;
+  right: 0;
+  height: 6px;
+}
+
+.нумекс-меню-контейнер:hover .нумекс-выпадающее-меню,
+.нумекс-выпадающее-меню.показано {
+  display: block;
+}
+
+.нумекс-меню-разделитель {
+  height: 1px;
+  background: #d4d4d4;
+  margin: 3px 2px;
+}
+
+.нумекс-меню-строка {
+  height: 22px;
+  padding: 0 16px 0 6px;
+  font-size: 11.5px;
+  color: #000000;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  cursor: pointer;
+  user-select: none;
+  gap: 0;
+  box-sizing: border-box;
+  font-family: var(--font-family-base);
+  white-space: nowrap;
+}
+
+.нумекс-меню-строка-текст {
+  white-space: nowrap;
+  font-size: 11.5px;
+  color: #000000;
+  letter-spacing: 0.005em;
+  flex-shrink: 0;
+}
+
+.нумекс-меню-иконка {
+  width: 18px;
+  height: 16px;
+  margin-right: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.нумекс-меню-иконка-пусто {
+  width: 18px;
+  height: 16px;
+  margin-right: 6px;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.нумекс-меню-строка:hover:not(.disabled) {
+  background: #0078d7;
+  color: #ffffff;
+}
+
+.нумекс-меню-строка:hover:not(.disabled) .нумекс-меню-строка-текст,
+.нумекс-меню-строка:hover:not(.disabled) .нумекс-горячая-клавиша,
+.нумекс-меню-строка:hover:not(.disabled) .нумекс-меню-стрелка {
+  color: #ffffff;
+}
+
+.нумекс-меню-строка:hover:not(.disabled) svg path,
+.нумекс-меню-строка:hover:not(.disabled) svg rect,
+.нумекс-меню-строка:hover:not(.disabled) svg line,
+.нумекс-меню-строка:hover:not(.disabled) svg polyline,
+.нумекс-меню-строка:hover:not(.disabled) svg polygon,
+.нумекс-меню-строка:hover:not(.disabled) svg circle {
+  stroke: #ffffff;
+}
+
+.нумекс-меню-строка:hover:not(.disabled) svg path[fill="#262626"],
+.нумекс-меню-строка:hover:not(.disabled) svg rect[fill="#262626"],
+.нумекс-меню-строка:hover:not(.disabled) svg polygon[fill="#262626"],
+.нумекс-меню-строка:hover:not(.disabled) svg circle[fill="#334155"] {
+  fill: #ffffff;
+}
+
+.нумекс-меню-строка.disabled {
+  color: #8c8c8c;
+  cursor: default;
+}
+
+.нумекс-меню-строка.disabled .нумекс-меню-строка-текст {
+  color: #8c8c8c;
+}
+
+.нумекс-меню-строка.disabled:hover {
+  background: transparent;
+  color: #8c8c8c;
+}
+
+.нумекс-горячая-клавиша {
+  color: #4b5563;
+  font-size: 11px;
+  white-space: nowrap;
+  margin-left: auto;
+  padding-left: 24px;
+}
+
+.нумекс-меню-стрелка {
+  color: #4b5563;
+  font-size: 9px;
+  margin-left: auto;
+  padding-left: 24px;
+}
+
+/* Верхний ряд быстрых иконок */
+.нумекс-верхний-тулбар {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  z-index: 1;
+  margin-top: 2px;
+}
+
+.нумекс-верхняя-иконка {
+  width: 22px;
+  height: 22px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  padding: 0;
+  transition: background .12s, border-color .12s;
+}
+
+.нумекс-верхняя-иконка:hover {
+  background: var(--color-ribbon-hover);
+  border-color: var(--color-ribbon-border);
+}
+
+/* Белое главное окно приложения на синем фоне (точно 1-в-1 по видео) */
+.нумекс-белое-окно {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  margin: 3px 6px 4px 6px;
+  background: #ffffff;
+  border-radius: 4px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  min-height: 0;
+  min-width: 0;
+  position: relative;
+  z-index: 10;
+}
+
+/* Вкладки приложения: 4 равные колонки на всю ширину окна 1-в-1 по видео */
+.нумекс-вкладки {
+  height: 44px;
+  background: #ffffff;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-items: stretch;
+  padding: 0;
+  box-sizing: border-box;
+  width: 100%;
+  position: relative;
+  z-index: 10;
+  border-radius: 4px 4px 0 0;
+}
+
+.нумекс-вкладки::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: #e0e0e0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* На вкладке скважин линия заканчивается у скроллбара таблицы и не перекрывает тулбар фильтрации (точно по референсу) */
+.нумекс-белое-окно.вкладка-wells .нумекс-вкладки::after,
+.нумекс-белое-окно:has(#экран-wells.активен) .нумекс-вкладки::after {
+  right: 52px;
+}
+
+.нумекс-вкладка {
+  height: 100%;
+  padding: 0 6px;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--color-tab-inactive-text, #a8a8a8);
+  font-size: clamp(13px, 1.4vw, 17.5px);
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 0.12s ease;
+  position: relative;
+  font-family: var(--font-family-base);
+  letter-spacing: 0.005em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  white-space: nowrap;
+  user-select: none;
+  min-width: 0;
+}
+
+.нумекс-вкладка:hover:not(.активная) {
+  color: var(--color-tab-hover-text, #505050);
+}
+
+.нумекс-вкладка.активная {
+  color: var(--color-tab-active-text, #000000);
+  font-weight: 700;
+}
+
+.нумекс-вкладка.активная::after {
+  content: '';
+  position: absolute;
+  left: 7%;
+  right: 7%;
+  bottom: -1px;
+  height: 3px;
+  background: var(--color-tab-underline, #527ab1);
+  border-radius: 0;
+}
+
+/* Основное тело страницы */
+.нумекс-тело {
+  flex: 1;
+  display: flex;
+  background: #ffffff;
+  min-height: 0;
+  min-width: 0;
+  position: relative;
+  overflow: hidden;
+  border-radius: 0 0 4px 4px;
+}
+
+/* Левый вертикальный тулбар: кнопки и разделитель 1-в-1 по референсу */
+.нумекс-боковой-тулбар {
+  width: var(--toolbar-width);
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 4px;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  border-right: 1px solid #e2e8f0;
+}
+
+.нумекс-боковые-кнопки-группа {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+  margin-top: 4px;
+}
+
+.нумекс-боковая-кнопка-верх {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.нумекс-боковые-кнопки-список {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  gap: 18px;
+}
+
+.нумекс-боковая-кнопка {
+  width: var(--toolbar-btn-size);
+  height: var(--toolbar-btn-size);
+  display: grid;
+  place-items: center;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  padding: 0;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: background .12s, border-color .12s;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.нумекс-боковая-кнопка svg {
+  width: var(--toolbar-icon-size);
+  height: var(--toolbar-icon-size);
+  display: block;
+}
+
+/* При наведении: без желтого фона и рамки, 1-в-1 как на фото 2 */
+.нумекс-боковая-кнопка:hover {
+  background: transparent;
+  border-color: transparent;
+}
+
+/* При нажатии (:active) или в выбранном состоянии (.активная): чуть высвечивается серым как на 3 фото */
+.нумекс-боковая-кнопка:active,
+.нумекс-боковая-кнопка.активная {
+  background: var(--color-toolbar-active-bg, #e8e8e8);
+  border-color: var(--color-toolbar-active-border, #bebebe);
+  border-radius: 4px;
+}
+
+.нумекс-тулбар-разделитель {
+  width: 62px;
+  height: 1px;
+  background: var(--color-toolbar-divider, #707070);
+  margin: 14px 0 24px 0;
+}
+
+/* Всплывающий системный тултип кнопки тулбара (точно 1-в-1 как на фото 2) */
+.нумекс-кнопка-тултип {
+  position: absolute;
+  left: calc(100% + 8px);
+  top: 50%;
+  transform: translateY(-50%);
+  background: #ffffff;
+  color: #000000;
+  border: 1px solid #000000;
+  border-radius: 0;
+  padding: 2px 4px 3px 4px;
+  font-size: 11.5px;
+  line-height: 1.15;
+  font-family: var(--font-family-base);
+  box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.45);
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 10000;
+  display: none;
+}
+
+.нумекс-боковая-кнопка:hover .нумекс-кнопка-тултип {
+  display: block;
+}
+
+/* Разделитель с 5 точками между рабочими окнами и нижней консолью */
+.нумекс-разделитель-панелей {
+  height: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: row-resize;
+  background: transparent;
+  flex-shrink: 0;
+  margin: 1px 0;
+}
+
+.нумекс-точки-разделителя {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.нумекс-точки-разделителя span {
+  width: 3px;
+  height: 3px;
+  background: #cbd5e1;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+/* Контейнер экранов */
+.нумекс-экран-контейнер {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+  position: relative;
+}
+
+.нумекс-экран {
+  display: none;
+  width: 100%;
+  min-height: 0;
+  min-width: 0;
+}
+
+.нумекс-экран.активен {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+}
+
+#экран-dashboard.активен {
+  flex: 0 0 auto;
+  height: auto;
+}
+
+#экран-results.активен,
+#экран-wells.активен,
+#экран-queue.активен,
+#экран-tornado.активен {
+  flex: 1 1 auto;
+  height: 100%;
+}
+
+/* На экранах кроме дашборда левый боковой тулбар скрывается */
+body:has(#экран-wells.активен) .нумекс-боковой-тулбар,
+body:has(#экран-results.активен) .нумекс-боковой-тулбар,
+body:has(#экран-queue.активен) .нумекс-боковой-тулбар,
+body:has(#экран-tornado.активен) .нумекс-боковой-тулбар {
+  display: none !important;
+}
+
+/* На экране скважин, результатов и очереди расчетов нижняя панель и разделитель скрываются */
+body:has(#экран-wells.активен) .нумекс-разделитель-панелей,
+body:has(#экран-wells.активен) .нумекс-нижняя-панель,
+body:has(#экран-results.активен) .нумекс-разделитель-панелей,
+body:has(#экран-results.активен) .нумекс-нижняя-панель,
+body:has(#экран-queue.активен) .нумекс-разделитель-панелей,
+body:has(#экран-queue.активен) .нумекс-нижняя-панель {
+  display: none !important;
+}
+
+@media (max-height: 720px) {
+  :root {
+    --toolbar-width: 72px;
+    --toolbar-btn-size: 48px;
+    --toolbar-icon-size: 40px;
+  }
+  .нумекс-тулбар-разделитель {
+    width: 52px;
+    margin: 10px 0 16px 0;
+  }
+  .нумекс-боковые-кнопки-список {
+    gap: 12px;
+  }
+}
+

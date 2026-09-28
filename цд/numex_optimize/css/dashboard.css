@@ -1,0 +1,263 @@
+/* Стили дашборда и графика */
+.нумекс-подокно {
+  flex: 0 0 auto;
+  margin: 4px 16px 4px 12px;
+  border: 1px solid var(--color-subwin-border);
+  border-radius: 3px;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  min-height: 0;
+  min-width: 0;
+}
+
+.нумекс-подокно-шапка {
+  height: 18px;
+  background: var(--color-subwin-header);
+  color: #ffffff;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 6px;
+  box-sizing: border-box;
+}
+
+.нумекс-подокно-заголовок {
+  font-family: Tahoma, var(--font-family-base);
+  font-size: 11px;
+  line-height: 18px;
+  font-weight: 500;
+  color: #ffffff;
+  text-align: center;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.нумекс-подокно-крестик {
+  position: absolute;
+  right: 4px;
+  background: none;
+  border: none;
+  color: #ffffff;
+  width: 14px;
+  height: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  opacity: 0.85;
+  transition: opacity .12s, color .12s;
+}
+
+.нумекс-подокно-крестик:hover {
+  opacity: 1;
+  color: #fee2e2;
+}
+
+.нумекс-панель-управления-графиком {
+  height: 30px;
+  padding: 4px 8px 4px 8px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #ffffff;
+  border-bottom: 1px solid #f1f5f9;
+  position: relative;
+  z-index: 50;
+}
+
+.нумекс-селектор-группа {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: #1e293b;
+  font-weight: 500;
+  font-family: var(--font-family-base);
+  position: relative;
+}
+
+.нумекс-селектор-метка {
+  font-size: 12px;
+  font-weight: 600;
+  color: #000000;
+  user-select: none;
+}
+
+/* Кастомный выпадающий селектор параметров (1-в-1 по скриншотам из ПО) */
+.нумекс-кастомный-селект {
+  position: relative;
+  display: inline-block;
+  user-select: none;
+}
+
+.нумекс-селект-кнопка {
+  height: 22px;
+  background: #f0f0f0;
+  border: 1px solid #ababab;
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 4px 0 6px;
+  cursor: pointer;
+  box-sizing: border-box;
+  outline: none;
+  transition: background 0.12s, border-color 0.12s;
+}
+
+#нумекс-селект-х-контейнер .нумекс-селект-кнопка {
+  min-width: 125px;
+}
+
+#нумекс-селект-у-контейнер .нумекс-селект-кнопка {
+  min-width: 142px;
+}
+
+.нумекс-селект-кнопка:hover,
+.нумекс-кастомный-селект:hover .нумекс-селект-кнопка,
+.нумекс-кастомный-селект.активен .нумекс-селект-кнопка {
+  background: #e5e5e5;
+  border-color: #707070;
+}
+
+.нумекс-селект-текст {
+  font-family: var(--font-family-base);
+  font-size: 11.5px;
+  color: #000000;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 4px;
+}
+
+.нумекс-селект-стрелка {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 10px;
+  height: 100%;
+  flex-shrink: 0;
+}
+
+/* Выпадающее окно со списком параметров и скроллбаром */
+.нумекс-селект-выпадающий {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 1px;
+  background: #ffffff;
+  border: 1px solid #7f9db9;
+  box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.35);
+  width: max-content;
+  min-width: 100%;
+  max-height: 192px;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  z-index: 9999;
+  display: none;
+  box-sizing: border-box;
+}
+
+/* Раскрытие при наведении или клике */
+.нумекс-кастомный-селект:hover .нумекс-селект-выпадающий,
+.нумекс-селект-выпадающий.показан {
+  display: block;
+}
+
+/* Элементы списка параметров */
+.нумекс-селект-пункт {
+  height: 19px;
+  line-height: 19px;
+  padding: 0 6px;
+  font-family: var(--font-family-base);
+  font-size: 11px;
+  color: #000000;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  box-sizing: border-box;
+}
+
+.нумекс-селект-пункт:hover,
+.нумекс-селект-пункт.выбран {
+  background: #0078d7;
+  color: #ffffff;
+}
+
+/* Аутентичный Windows-скроллбар списка */
+.нумекс-селект-выпадающий::-webkit-scrollbar {
+  width: 13px;
+}
+
+.нумекс-селект-выпадающий::-webkit-scrollbar-track {
+  background: #f0f0f0;
+  border-left: 1px solid #d4d4d4;
+}
+
+.нумекс-селект-выпадающий::-webkit-scrollbar-thumb {
+  background: #cdcdcd;
+  border: 2px solid #f0f0f0;
+  border-radius: 4px;
+}
+
+.нумекс-селект-выпадающий::-webkit-scrollbar-thumb:hover {
+  background: #a6a6a6;
+}
+
+/* Бирюзовый домик сброса масштаба */
+.нумекс-кнопка-домой {
+  width: 22px;
+  height: 22px;
+  background: var(--color-home-btn);
+  border: 1px solid var(--color-home-btn-border);
+  border-radius: 2px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: background .12s, transform .1s;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.нумекс-кнопка-домой:hover {
+  background: var(--color-home-btn-hover);
+}
+
+.нумекс-кнопка-домой:active {
+  transform: scale(0.94);
+}
+
+/* Область графика */
+.нумекс-график-область {
+  flex: 1;
+  position: relative;
+  min-height: 0;
+  min-width: 0;
+  padding: 0;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+#нумекс-svg-график {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Нижняя синяя плашка под окном графика: 1-в-1 по видео и скриншоту с текстом «Ход оптимизации» */
+.нумекс-подокно-подвал {
+  height: 18px;
+  background: var(--color-subwin-header);
+  color: #ffffff;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 6px;
+  box-sizing: border-box;
+}

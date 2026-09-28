@@ -1,0 +1,806 @@
+/* Стили экранов таблиц и представлений */
+
+.нумекс-вид-контейнер {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: #ffffff;
+  padding: 0 16px 0 24px;
+  overflow: hidden;
+}
+
+/* Область с таблицей и правым тулбаром */
+.нумекс-вид-основной {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+  gap: 8px;
+  position: relative;
+}
+
+.нумекс-таблица-обертка {
+  flex: 1;
+  overflow: auto;
+  border: 1px solid #d1d5db;
+  border-radius: 2px;
+  background: #ffffff;
+  min-height: 0;
+}
+
+/* Оформление таблицы */
+.нумекс-таблица {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-family-base);
+  font-size: 11.5px;
+  line-height: 1.35;
+  color: var(--color-table-text);
+  white-space: nowrap;
+}
+
+.нумекс-таблица thead {
+  position: sticky;
+  top: 0;
+  background: #ffffff;
+  z-index: 2;
+  box-shadow: 0 1px 0 #d1d5db;
+}
+
+.нумекс-таблица th {
+  padding: 5px 8px;
+  font-weight: 600;
+  color: #0f172a;
+  border-bottom: 1px solid #cbd5e1;
+  border-right: 1px solid #f1f5f9;
+  text-align: left;
+  user-select: none;
+  background: #ffffff;
+}
+
+.нумекс-таблица th.число {
+  text-align: right;
+}
+
+.нумекс-таблица td {
+  padding: 3.5px 8px;
+  border-bottom: 1px solid #f1f5f9;
+  border-right: 1px solid #f8fafc;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.нумекс-таблица td.число {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.нумекс-таблица tr:hover td {
+  background: var(--color-table-row-hover);
+}
+
+.нумекс-таблица tr.выбрана td {
+  background: var(--color-table-row-selected);
+}
+
+/* Выделенная ячейка как в видео (синяя плашка #2563eb) */
+.нумекс-таблица td.ячейка-выбрана {
+  background: var(--color-table-cell-selected-bg) !important;
+  color: var(--color-table-cell-selected-text) !important;
+  font-weight: 500;
+}
+
+/* Иконки дерева скважин ▸ / ▾ */
+.нумекс-дерево-стрелка {
+  display: inline-block;
+  width: 12px;
+  font-size: 9px;
+  color: #64748b;
+  cursor: pointer;
+  transition: transform 0.12s;
+  user-select: none;
+}
+.нумекс-дерево-стрелка.раскрыто {
+  transform: rotate(90deg);
+}
+
+/* Цветные стрелки состояний скважин */
+.нумекс-состояние-доб {
+  color: #15803d;
+  font-weight: 500;
+}
+.нумекс-состояние-наг {
+  color: #0284c7;
+  font-weight: 500;
+}
+.нумекс-состояние-бд {
+  color: #64748b;
+}
+
+.нумекс-стрелка-перехода {
+  color: #10b981;
+  font-weight: bold;
+  margin: 0 4px;
+}
+
+/* Статус очереди */
+.нумекс-статус-завершен {
+  color: #15803d;
+  font-weight: 500;
+}
+
+/* Специфичные стили для экрана «Оптимизируемые скважины» 1-в-1 по референсу */
+#экран-wells {
+  width: 100%;
+  height: 100%;
+}
+
+#экран-wells .нумекс-вид-контейнер {
+  padding: 0 14px 0 22px;
+  background: #ffffff;
+  height: 100%;
+}
+
+#экран-wells .нумекс-вид-основной {
+  gap: 12px;
+  height: 100%;
+  min-width: 0;
+  width: 100%;
+  position: relative;
+}
+
+#экран-wells .нумекс-таблица-обертка {
+  border: none;
+  border-bottom: 1px solid #d1d5db;
+  border-radius: 0;
+  background: #ffffff;
+  overflow-y: scroll;
+  overflow-x: auto;
+  flex: 1;
+  min-width: 0;
+}
+
+#экран-wells .нумекс-таблица-обертка::-webkit-scrollbar {
+  width: 14px;
+}
+
+#экран-wells .нумекс-таблица-обертка::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+#экран-wells .нумекс-таблица-обертка::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 7px;
+  border: 3px solid #ffffff;
+}
+
+#экран-wells .нумекс-таблица-обертка::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+#экран-wells .нумекс-таблица {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  font-family: var(--font-family-base);
+  font-size: 11px;
+  line-height: 1.25;
+  color: #111827;
+  letter-spacing: -0.01em;
+}
+
+#экран-wells .нумекс-таблица thead {
+  box-shadow: none;
+  border-bottom: 1px solid #cbd5e1;
+}
+
+#экран-wells .нумекс-таблица th {
+  padding: 5px 3px;
+  font-weight: 700;
+  font-size: 11px;
+  color: #111827;
+  border: none;
+  background: #ffffff;
+  text-align: left;
+  white-space: nowrap;
+}
+
+/* Точные пропорции колонок 1-в-1 по фото/видео (шапка и строки тянутся строго до скроллбара) */
+#экран-wells .нумекс-таблица th:nth-child(1),
+#экран-wells .нумекс-таблица td:nth-child(1) { width: 7.5%; }
+
+#экран-wells .нумекс-таблица th:nth-child(2),
+#экран-wells .нумекс-таблица td:nth-child(2) { width: 7.5%; }
+
+#экран-wells .нумекс-таблица th:nth-child(3),
+#экран-wells .нумекс-таблица td:nth-child(3) { width: 14%; }
+
+#экран-wells .нумекс-таблица th:nth-child(4),
+#экран-wells .нумекс-таблица td:nth-child(4) { width: 16%; }
+
+#экран-wells .нумекс-таблица th:nth-child(5),
+#экран-wells .нумекс-таблица td:nth-child(5) { width: 16%; }
+
+#экран-wells .нумекс-таблица th:nth-child(6),
+#экран-wells .нумекс-таблица td:nth-child(6) { width: 10%; }
+
+#экран-wells .нумекс-таблица th:nth-child(7),
+#экран-wells .нумекс-таблица td:nth-child(7) { width: 8.5%; }
+
+#экран-wells .нумекс-таблица th:nth-child(8),
+#экран-wells .нумекс-таблица td:nth-child(8) { width: 9%; }
+
+#экран-wells .нумекс-таблица th:nth-child(9),
+#экран-wells .нумекс-таблица td:nth-child(9) { width: 11.5%; }
+
+#экран-wells .нумекс-таблица td {
+  padding: 2px 3px;
+  font-size: 11px;
+  color: #111827;
+  border: none;
+  height: 19px;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#экран-wells .нумекс-таблица tr:hover td {
+  background: #f8fafc;
+}
+
+/* Элементы внутри ячеек скважин */
+.нумекс-сорт-стрелка {
+  font-size: 8px;
+  margin-left: 2px;
+  color: #374151;
+}
+
+.нумекс-дерево-стрелка {
+  font-size: 8.5px;
+  color: #64748b;
+  margin-right: 2px;
+  display: inline-block;
+  user-select: none;
+}
+
+.нумекс-скв-номер {
+  font-weight: 400;
+  color: #111827;
+}
+
+.нумекс-скв-номер.ячейка-фокус {
+  display: inline-block;
+  padding: 0 4px;
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  border-radius: 2px;
+  box-shadow: inset 0 1px 1px rgba(0,0,0,0.05);
+}
+
+.нумекс-знач-базовое {
+  color: #111827;
+}
+
+.нумекс-стрелка-перехода {
+  color: #111827;
+  margin: 0 2px;
+}
+
+.нумекс-знач-целевое {
+  color: #40b8a4;
+  font-weight: 400;
+}
+
+/* Правый вертикальный тулбар фильтрации для таблицы скважин (точно 1-в-1 по референсу) */
+.нумекс-правый-тулбар {
+  width: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  align-items: center;
+  padding-top: 1px;
+  padding-right: 2px;
+  padding-left: 2px;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 5;
+}
+
+.нумекс-правая-кнопка {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  cursor: pointer;
+  padding: 0;
+  color: #000000;
+  outline: none;
+  transition: background 0.1s, border-color 0.1s;
+}
+
+.нумекс-правая-кнопка svg {
+  width: 25px;
+  height: 25px;
+  display: block;
+}
+
+.нумекс-правая-кнопка:hover {
+  background: transparent;
+  border-color: transparent;
+}
+
+.нумекс-правая-кнопка:active,
+.нумекс-правая-кнопка.активная {
+  background: #e8e8e8;
+  border-color: #bebebe;
+  border-radius: 3px;
+}
+
+/* Специфичные стили для экрана «Результаты» (точно 1-в-1 по референсу из ПО) */
+#экран-results {
+  width: 100%;
+  height: 100%;
+  background: #ffffff;
+}
+
+#экран-results .нумекс-вид-контейнер {
+  padding: 0 16px 0 24px;
+  background: #ffffff;
+  height: 100%;
+  min-width: 0;
+}
+
+#экран-results .нумекс-вид-основной {
+  height: 100%;
+  gap: 0;
+  min-width: 0;
+}
+
+#экран-results .нумекс-таблица-обертка {
+  border: none;
+  border-bottom: 1px solid #d1d5db;
+  border-radius: 0;
+  background: #ffffff;
+  overflow-y: auto;
+  overflow-x: auto;
+  flex: 1;
+  min-width: 0;
+}
+
+#экран-results .нумекс-таблица-обертка::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+#экран-results .нумекс-таблица-обертка::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+#экран-results .нумекс-таблица-обертка::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+#экран-results .нумекс-таблица {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  font-family: Tahoma, "Segoe UI", Arial, sans-serif;
+  font-size: 10px;
+  letter-spacing: -0.025em;
+  line-height: 22px;
+  color: #000000;
+}
+
+#экран-results .нумекс-таблица thead {
+  position: sticky;
+  top: 0;
+  background: #ffffff;
+  z-index: 5;
+  box-shadow: none;
+  border-bottom: 1px solid #cbd5e1;
+}
+
+#экран-results .нумекс-таблица thead tr {
+  height: 22px;
+}
+
+#экран-results .нумекс-таблица th {
+  height: 22px;
+  line-height: 22px;
+  padding: 0 2px;
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: -0.025em;
+  color: #000000;
+  border-bottom: 1px solid #cbd5e1;
+  border-right: 1px solid #e0e0e0;
+  background: #ffffff;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: clip;
+  box-sizing: border-box;
+}
+
+#экран-results .нумекс-таблица th:nth-child(16) {
+  font-size: 9.5px;
+  letter-spacing: -0.035em;
+}
+
+#экран-results .нумекс-таблица tbody tr {
+  height: 22px;
+}
+
+#экран-results .нумекс-таблица td {
+  height: 22px;
+  line-height: 22px;
+  padding: 0 2px;
+  font-size: 10px;
+  letter-spacing: -0.02em;
+  color: #000000;
+  border-bottom: 1px solid #e0e0e0;
+  border-right: 1px solid #e0e0e0;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: clip;
+  background: #ffffff;
+  box-sizing: border-box;
+}
+
+#экран-results .нумекс-таблица td:nth-child(4),
+#экран-results .нумекс-таблица td:nth-child(6) {
+  letter-spacing: -0.03em;
+}
+
+#экран-results .нумекс-таблица th:last-child,
+#экран-results .нумекс-таблица td:last-child {
+  border-right: none;
+}
+
+#экран-results .нумекс-таблица tr:hover td:not(.ячейка-выбрана-результат):not(.ячейка-выбрана) {
+  background: #f8fafc;
+}
+
+/* Точные ширины колонок 1-в-1 по фото (1024px) */
+#экран-results .нумекс-таблица th:nth-child(1),
+#экран-results .нумекс-таблица td:nth-child(1) { width: 8.8%; }
+
+#экран-results .нумекс-таблица th:nth-child(2),
+#экран-results .нумекс-таблица td:nth-child(2) { width: 6.2%; }
+
+#экран-results .нумекс-таблица th:nth-child(3),
+#экран-results .нумекс-таблица td:nth-child(3) { width: 5.3%; }
+
+#экран-results .нумекс-таблица th:nth-child(4),
+#экран-results .нумекс-таблица td:nth-child(4) { width: 4.6%; }
+
+#экран-results .нумекс-таблица th:nth-child(5),
+#экран-results .нумекс-таблица td:nth-child(5) { width: 7.0%; }
+
+#экран-results .нумекс-таблица th:nth-child(6),
+#экран-results .нумекс-таблица td:nth-child(6) { width: 4.5%; }
+
+#экран-results .нумекс-таблица th:nth-child(7),
+#экран-results .нумекс-таблица td:nth-child(7) { width: 7.5%; }
+
+#экран-results .нумекс-таблица th:nth-child(8),
+#экран-results .нумекс-таблица td:nth-child(8) { width: 6.9%; }
+
+#экран-results .нумекс-таблица th:nth-child(9),
+#экран-results .нумекс-таблица td:nth-child(9) { width: 5.5%; }
+
+#экран-results .нумекс-таблица th:nth-child(10),
+#экран-results .нумекс-таблица td:nth-child(10) { width: 4.8%; }
+
+#экран-results .нумекс-таблица th:nth-child(11),
+#экран-results .нумекс-таблица td:nth-child(11) { width: 5.8%; }
+
+#экран-results .нумекс-таблица th:nth-child(12),
+#экран-results .нумекс-таблица td:nth-child(12) { width: 6.6%; }
+
+#экран-results .нумекс-таблица th:nth-child(13),
+#экран-results .нумекс-таблица td:nth-child(13) { width: 7.4%; }
+
+#экран-results .нумекс-таблица th:nth-child(14),
+#экран-results .нумекс-таблица td:nth-child(14) { width: 7.5%; }
+
+#экран-results .нумекс-таблица th:nth-child(15),
+#экран-results .нумекс-таблица td:nth-child(15) { width: 6.2%; }
+
+#экран-results .нумекс-таблица th:nth-child(16),
+#экран-results .нумекс-таблица td:nth-child(16) { width: 5.4%; }
+
+/* Ячейка Модель в 1 строке: фокусная рамка по референсу */
+#экран-results .нумекс-таблица td.ячейка-фокус-результат {
+  background: #f2f9fe;
+  outline: 1px solid #8cb1e0;
+  outline-offset: -1px;
+}
+
+/* Выделенная ячейка Вода т во 2 строке: точный цвет #3398dc 1-в-1 по фото */
+#экран-results .нумекс-таблица td.ячейка-выбрана,
+#экран-results .нумекс-таблица td.ячейка-выбрана-результат {
+  background: #3398dc !important;
+  color: #ffffff !important;
+  font-weight: 500;
+  padding: 0 2px;
+}
+
+/* Специфичные стили для экрана «Очередь расчетов» (точно 1-в-1 по референсу) */
+#экран-queue {
+  width: 100%;
+  height: 100%;
+  background: #ffffff;
+}
+
+#экран-queue .нумекс-вид-контейнер {
+  padding: 0 16px 0 24px;
+  background: #ffffff;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+#экран-queue .нумекс-вид-основной {
+  height: 100%;
+  gap: 0;
+}
+
+#экран-queue .нумекс-таблица-обертка {
+  border: none;
+  border-radius: 0;
+  background: #ffffff;
+  overflow-y: scroll;
+  overflow-x: auto;
+  flex: 1;
+  height: 100%;
+}
+
+#экран-queue .нумекс-таблица-обертка::-webkit-scrollbar {
+  width: 14px;
+  height: 14px;
+}
+
+#экран-queue .нумекс-таблица-обертка::-webkit-scrollbar-track {
+  background: #f5f5f5;
+}
+
+#экран-queue .нумекс-таблица-обертка::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 6px;
+  border: 2px solid #f5f5f5;
+}
+
+#экран-queue .нумекс-таблица {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  font-family: Arial, "Segoe UI", Tahoma, sans-serif;
+  font-size: 15px;
+  line-height: 41px;
+  color: #000000;
+  letter-spacing: normal;
+}
+
+#экран-queue .нумекс-таблица thead {
+  position: sticky;
+  top: 0;
+  background: #ffffff;
+  z-index: 5;
+}
+
+#экран-queue .нумекс-таблица th {
+  padding: 0 4px;
+  height: 40px;
+  line-height: 40px;
+  font-weight: 700;
+  font-size: 15px;
+  color: #000000;
+  border: none;
+  border-bottom: 1px solid #d1d5db;
+  background: #ffffff;
+  text-align: left;
+  white-space: nowrap;
+  box-sizing: border-box;
+}
+
+#экран-queue .нумекс-заголовок-сорт {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-right: 6px;
+}
+
+#экран-queue .нумекс-таблица th .нумекс-сорт-стрелка {
+  font-size: 12px;
+  color: #000000;
+  display: inline-block;
+  line-height: 1;
+}
+
+#экран-queue .нумекс-кол-очередь-id {
+  width: 145px;
+}
+
+#экран-queue .нумекс-кол-очередь-старт {
+  width: 180px;
+}
+
+#экран-queue .нумекс-кол-очередь-статус {
+  width: 135px;
+}
+
+#экран-queue .нумекс-кол-очередь-длит {
+  width: 200px;
+}
+
+#экран-queue .нумекс-кол-очередь-узел {
+  width: 135px;
+}
+
+#экран-queue .нумекс-кол-очередь-рез {
+  width: 150px;
+}
+
+#экран-queue .нумекс-кол-очередь-распорка {
+  width: auto;
+}
+
+#экран-queue .нумекс-таблица td {
+  padding: 0 4px;
+  font-size: 15px;
+  color: #000000;
+  border: none;
+  height: 41px;
+  line-height: 41px;
+  text-align: left;
+  white-space: nowrap;
+  background: #ffffff;
+  box-sizing: border-box;
+}
+
+#экран-queue .нумекс-таблица td.ячейка-фокус-очередь {
+  background: #eaf2fc;
+  outline: 1px solid #7da2ce;
+  outline-offset: -1px;
+}
+
+#экран-queue .нумекс-таблица tr:hover td:not(.ячейка-фокус-очередь) {
+  background: #f8fafc;
+}
+
+
+/* Нижняя информационная панель (1-в-1 по видео и скриншоту: ~25-35% высоты) */
+.нумекс-нижняя-панель {
+  flex: 1 1 auto;
+  min-height: 130px;
+  border: 1px solid #d1d5db;
+  border-radius: 2px;
+  background: #ffffff;
+  margin: 2px 8px 6px 6px;
+  padding: 6px 12px;
+  font-size: 11px;
+  color: #475569;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+#экран-results.активен ~ .нумекс-нижняя-панель,
+#экран-wells.активен ~ .нумекс-нижняя-панель,
+#экран-queue.активен ~ .нумекс-нижняя-панель,
+#экран-tornado.активен ~ .нумекс-нижняя-панель {
+  flex: 0 0 140px;
+  height: 140px;
+}
+
+/* На экране Дашборда нижняя область отображается как отдельная белая область 1-в-1 по референсу */
+#экран-dashboard.активен ~ .нумекс-нижняя-панель {
+  flex: 1 1 auto;
+  height: auto;
+  min-height: 60px;
+  max-height: none;
+  padding: 0;
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+}
+
+#экран-dashboard.активен ~ .нумекс-нижняя-панель .нумекс-нижняя-панель-шапка,
+#экран-dashboard.активен ~ .нумекс-нижняя-панель .нумекс-нижняя-панель-контент {
+  display: none;
+}
+
+.нумекс-нижняя-панель-шапка {
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #f1f5f9;
+  padding-bottom: 4px;
+}
+
+.нумекс-нижняя-панель-контент {
+  flex: 1;
+  overflow: auto;
+  font-family: var(--font-family-mono);
+  font-size: 11px;
+  line-height: 1.5;
+  color: #334155;
+}
+
+/* Бейджи и индикаторы */
+.нумекс-бейдж {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.нумекс-бейдж.успех {
+  background: #dcfce7;
+  color: #15803d;
+}
+.нумекс-бейдж.инфо {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+/* Дополнительные представления: Торнадо / План разработки */
+.нумекс-торнадо-вид {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.нумекс-торнадо-полоса {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 11.5px;
+}
+.нумекс-торнадо-метка {
+  width: 180px;
+  text-align: right;
+  color: #1e293b;
+  font-weight: 500;
+}
+.нумекс-торнадо-график-бар {
+  flex: 1;
+  height: 20px;
+  background: #f1f5f9;
+  border-radius: 2px;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.нумекс-торнадо-отриц {
+  position: absolute;
+  right: 50%;
+  height: 100%;
+  background: #ef4444;
+  border-radius: 2px 0 0 2px;
+}
+.нумекс-торнадо-полож {
+  position: absolute;
+  left: 50%;
+  height: 100%;
+  background: #10b981;
+  border-radius: 0 2px 2px 0;
+}
+.нумекс-торнадо-ось {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #475569;
+}
