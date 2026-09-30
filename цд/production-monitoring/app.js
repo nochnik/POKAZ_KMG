@@ -19,6 +19,7 @@
             var frameBottom = Math.max(chart.offsetTop + chart.offsetHeight, table.offsetTop + table.offsetHeight);
             var frameWidth = frameRight - frameLeft;
             var frameHeight = frameBottom - frameTop;
+            if (viewWidth <= 0 || viewHeight <= 0 || frameWidth <= 0 || frameHeight <= 0) return;
             // Один масштаб по обеим осям: график и таблица не растягиваются
             // на всю ширину iframe с искажением пропорций.
             var scale = Math.min(viewWidth / frameWidth, viewHeight / frameHeight);
@@ -63,7 +64,32 @@
     }
     window.addEventListener('resize', updateZoom);
     window.addEventListener('load', updateZoom);
-    [100, 300, 600, 1000].forEach(function(ms) { setTimeout(updateZoom, ms); });
+    if (focusWells) {
+        // load недостаточно: график строится асинхронно. До готовности графика
+        // и шрифтов сохраняем размеры страницы, но скрываем её первый кадр.
+        window.addEventListener('load', function() {
+            document.fonts.ready.then(function() {
+                var chart = document.querySelector('.lineCharts');
+                if (!chart) return;
+                var observer = new MutationObserver(revealWhenReady);
+                observer.observe(chart, { childList: true, subtree: true });
+                function revealWhenReady() {
+                    if (!chart.querySelector('svg .chart-group')) return;
+                    observer.disconnect();
+                    updateZoom();
+                    requestAnimationFrame(function() {
+                        updateZoom();
+                        requestAnimationFrame(function() {
+                            document.documentElement.classList.add('wells-ready');
+                        });
+                    });
+                }
+                revealWhenReady();
+            });
+        }, { once: true });
+    } else {
+        [100, 300, 600, 1000].forEach(function(ms) { setTimeout(updateZoom, ms); });
+    }
 
     // --- Live Clock ---
     function updateClock() {

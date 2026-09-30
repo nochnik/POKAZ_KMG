@@ -7,6 +7,16 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Мониторинг добычи</title>
+        <script>
+            // Включаем режим до первого кадра, а не после разбора всей страницы.
+            if (new URLSearchParams(location.search).get('focus') === 'wells') {
+                document.documentElement.classList.add('wells-focus');
+            }
+        </script>
+        <style>
+            html.wells-focus { background: transparent !important; }
+            html.wells-focus:not(.wells-ready) body { visibility: hidden; }
+        </style>
         <link href="public/css/bootstrap.min.css" rel="stylesheet">
         <link href="public/css/c3.min.css" rel="stylesheet">
         <link href="public/css/jquery.dataTables.min.css" rel="stylesheet">
@@ -14,7 +24,7 @@
         <link href="public/style.css?v4" rel="stylesheet">
         <link rel="icon" type="image/x-icon" href="public/images/icons/favicon.png">
         <script src="public/js/jquery.min.js"></script>
-        <script src="app.js?v=20260930.3"></script>
+        <script src="app.js?v=20260930.5"></script>
         <script src="public/js/bootstrap.min.js"></script>
         <script src="public/js/jquery-dateFormat.min.js"></script>
         <script src="public/js/knockout-3.4.2.js"></script>

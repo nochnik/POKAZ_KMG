@@ -444,7 +444,10 @@ body.финал :is(#stack,#справка,#pilot,#mini-reset,#panel,#chip,#teo,
 #project-content.с-системой #pc-system{display:block}
 #pc-system-header{display:contents}
 #pc-system-header left-head-btns{display:none}
-#project-content.с-системой{padding:96px 0 var(--content-bottom,60px);gap:0;justify-content:flex-end;overflow:hidden;border:0}
+/* Встроенный интерфейс появляется на месте: движение всей панели размывало
+   мелкий текст и границы уже масштабированного содержимого iframe. */
+#project-content.с-системой{padding:96px 0 var(--content-bottom,60px);gap:0;justify-content:flex-end;overflow:hidden;border:0;
+  transform:none;transition:opacity .25s ease}
 #project-content.с-системой #pc-system-header{display:flex;align-items:center;gap:20px;
   width:min(92%,1280px);align-self:center;padding-bottom:18px;flex-shrink:0}
 #project-content.с-системой #pc-system-header left-head-btns{display:block}
@@ -2065,7 +2068,7 @@ const RESERVOIR_CONTENT = {
 };
 const ZONE_VIDEOS = {
   skv:{ file:'drillspot_v5_3.mp4', title:'Цифровой двойник скважины' },
-  naz:{ page:'production-monitoring/index.html?focus=wells&v=20260930.4', title:'Интеллектуальное месторождение' }
+  naz:{ page:'production-monitoring/index.html?focus=wells&v=20260930.5', title:'Интеллектуальное месторождение' }
 };
 const teoImages = [...document.querySelectorAll('#pc-carousel img')];
 const teoCarousel = document.getElementById('pc-carousel');
