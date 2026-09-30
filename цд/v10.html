@@ -156,20 +156,55 @@ body.финал #kmg-logo{opacity:0}
   font-size:26px;cursor:pointer;line-height:1}
 #p-close:hover{color:var(--txt)}
 
-/* Финальный шаг повторяет 9-й кадр v9: эффекты сверху, модель и контуры,
-   справа — ТОП-12. На шагах 1–10 эта лента скрыта. */
-#effects-overview{display:none;position:fixed;top:112px;left:26px;
-  right:calc(min(660px,34vw) + 40px);z-index:9;pointer-events:none}
-body.финал #effects-overview{display:block}
-#effects-overview .cols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-#effects-overview .effect-col{padding:13px 17px;background:var(--glass);border:1px solid var(--line);
-  border-left:3px solid var(--ec);backdrop-filter:blur(8px)}
+/* Ключевые эффекты — только финальный кадр (30.09, Адиль): пирога, списка слева и
+   карточек на нём нет, два блока стоят друг над другом строго по центру экрана.
+   Раньше это была лента под заголовком на всех кадрах («Топ 12 · более 90 %»
+   с самого первого экрана) — убрана: на первом кадре её быть не должно, а на
+   промежуточных она бы появлялась из ниоткуда и исчезала на финале.
+   Показывает контейнер body.финал, прячет — его отсутствие. Шрифт — одна
+   переменная --эф на все значения («Топ 12», «Более 90 %», «2 864 тыс. тонн»,
+   «326 млрд ₸»): на пустом экране можно крупно, растёт с шириной экрана. */
+:root{--эф:clamp(36px,3.4vw,84px)}
+#effects-overview{position:fixed;inset:0;z-index:9;display:none;align-items:center;justify-content:center;
+  pointer-events:none}
+body.финал #effects-overview{display:flex}
+#effects-overview::before{content:"";position:absolute;inset:12% 8%;pointer-events:none;
+  background:radial-gradient(ellipse,rgba(29,136,170,.12),transparent 68%)}
+#effects-overview .cols{position:relative;display:flex;flex-direction:column;align-items:center;
+  width:92%;gap:clamp(18px,3.4vh,48px)}
+#effects-overview .effect-col{position:relative;isolation:isolate;overflow:hidden;max-width:100%;
+  padding:.38em .7em;background:linear-gradient(120deg,rgba(20,47,65,.65),rgba(10,18,32,.94) 60%);
+  border:1px solid rgba(140,170,210,.24);border-left:3px solid var(--ec);border-radius:4px 14px 14px 4px;
+  box-shadow:0 20px 65px rgba(0,0,0,.18);text-align:center;font-size:var(--эф)}
+#effects-overview .effect-col::after{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
+  background:linear-gradient(110deg,transparent 25%,rgba(79,227,255,.1) 48%,transparent 70%);opacity:0}
+body.финал #effects-overview .effect-col{animation:эф_вход .85s cubic-bezier(.16,1,.3,1) both;
+  animation-delay:var(--card-delay)}
+body.финал #effects-overview .effect-col::after{animation:эф_блик 1.5s ease-out both;
+  animation-delay:calc(var(--card-delay) + .2s)}
+@keyframes эф_вход{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:none}}
+@keyframes эф_строка{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes эф_блик{0%{opacity:0;transform:translateX(-100%)}25%{opacity:1}100%{opacity:0;transform:translateX(100%)}}
+@keyframes эф_рисунок{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}
 #effects-overview .items{display:block}
-#effects-overview .item{display:flex;align-items:baseline;gap:12px;min-width:0;flex-wrap:wrap}
-#effects-overview .item + .item{margin-top:5px}
-#effects-overview .v{font-family:var(--mono);font-size:36px;font-weight:700;line-height:1.05;color:#F2F7FF;
+#effects-overview .item{display:flex;align-items:center;justify-content:center;gap:.32em;min-width:0}
+#effects-overview .item + .item{margin-top:.24em}
+#effects-overview .effect-copy{display:flex;align-items:baseline;justify-content:center;gap:.28em;min-width:0;flex-wrap:wrap}
+#effects-overview .effect-icon{display:grid;place-items:center;flex:0 0 1.12em;width:1.12em;height:1.12em;
+  color:var(--cyan);border:1px solid rgba(79,227,255,.2);border-radius:20%;
+  background:radial-gradient(circle at 30% 20%,rgba(79,227,255,.14),rgba(79,227,255,.025))}
+#effects-overview .effect-icon svg{width:76%;height:76%;fill:none;stroke:currentColor;stroke-width:1.65;
+  stroke-linecap:round;stroke-linejoin:round}
+body.финал #effects-overview .item{animation:эф_строка .75s cubic-bezier(.16,1,.3,1) both;animation-delay:var(--item-delay)}
+body.финал #effects-overview .effect-icon path{stroke-dasharray:1;
+  animation:эф_рисунок 1.1s ease both;animation-delay:var(--item-delay)}
+#effects-overview .v{font-family:var(--mono);font-size:1em;font-weight:700;line-height:1.1;color:var(--ec);
   flex:0 1 auto;max-width:100%}
-#effects-overview .l{font-size:18px;line-height:1.3;color:var(--dim)}
+#effects-overview .l{font-size:.5em;line-height:1.3;color:var(--dim)}
+@media (prefers-reduced-motion:reduce){
+  body.финал #effects-overview :is(.effect-col,.item,.effect-icon path){animation:none}
+  body.финал #effects-overview .effect-col::after{animation:none}
+}
 
 /* дорожная карта скрыта по решению от 12.08 — вернуть: display:flex вместо none */
 #road{display:none;position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:10;align-items:center;gap:0;
@@ -248,29 +283,20 @@ body.финал #effects-overview{display:block}
   text-transform:uppercase;color:#7C8DA6;font-weight:400;line-height:1.35}
 #справка .rw.эффект .v{font-size:1em;color:#DCE7F5;align-self:auto;line-height:1.25}
 #справка .гр{padding:0 0 .3em;font-family:var(--mono);font-size:.64em;letter-spacing:.24em;text-transform:uppercase;color:var(--cyan)}
-#топ12{position:fixed;right:26px;top:50%;transform:translateY(-50%) translateX(40px);width:32vw;min-width:420px;max-width:600px;
-  max-height:86vh;z-index:11;padding:20px 24px;overflow:hidden auto;
-  background:linear-gradient(180deg,rgba(6,11,20,.96),rgba(4,8,15,.985));border:1px solid rgba(140,170,210,.16);
-  opacity:0;transition:opacity .5s,transform .6s cubic-bezier(.22,.61,.36,1);pointer-events:none}
-#топ12.on{opacity:1;transform:translateY(-50%);pointer-events:auto}
-/* 28.09 (Адиль): «шрифты в ТОП-12 маловаты» — те же ~2px на все
-   уровни, ширина без изменения. */
-#топ12 .kicker{font-family:var(--mono);font-size:18px;letter-spacing:.24em;text-transform:uppercase;color:var(--cyan);margin-bottom:10px}
-#топ12 h3{font-family:var(--serif);font-size:34px;font-weight:600;line-height:1.15;color:#F2F7FF;margin:0}
-#топ12 .lead{font-size:19px;color:#9DB4CE;margin-top:8px;padding-bottom:14px;border-bottom:1px solid rgba(140,170,210,.16)}
-#топ12 .lead b{color:var(--cyan);font-weight:700}
-#топ12 .обл{margin-top:14px}
-#топ12 .обл .нм{font-family:var(--mono);font-size:16px;letter-spacing:.24em;text-transform:uppercase;color:var(--cyan);margin-bottom:4px}
-#топ12 .обл .комп{font-size:15.5px;color:#7C8DA6;line-height:1.4;margin-bottom:6px}
-#топ12 .обл .мест{font-size:18px;color:#DCE7F5;line-height:1.5;padding:8px 12px;border-left:2px solid rgba(79,227,255,.35);background:rgba(79,227,255,.04);border-radius:0 8px 8px 0}
 /* ко второй части показа — скрыта по решению от 14.08; вернуть: убрать display:none */
 #next{display:none;left:26px;bottom:22px}
 /* 25.09: кнопка возвращена — справа-сверху, чтобы не спорить с блоком
    ключевых эффектов слева и не наезжать на карточку «Первый актив» справа
    в раскрытом виде. */
 #pilot{right:26px;top:22px}
-/* На финале модель и список контуров остаются, как в v9. */
-body.финал #pilot{display:none}
+/* Финальный кадр (30.09, Адиль): «пирога на экране не будет, справа блока про
+   12 месторождений и слева раскладки по ЦД пласта, скважины — тоже; только два
+   ключевых эффекта по центру». Пирог не убираем из сцены, а гасим: так возврат
+   с финала на слой (кнопки внизу, ←) не пересобирает сцену. Заголовок H1 и
+   нижняя панель страниц остаются — это рамка показа, а не содержимое кадра. */
+#scene{transition:opacity .6s ease}
+body.финал #scene{opacity:0;pointer-events:none}
+body.финал :is(#stack,#справка,#pilot,#mini-reset,#panel,#chip,#teo,#horiz,#naz-lbl){display:none !important}
 /* 29.09 (Адиль): внизу — кнопки 1–8, переходы на страницы показа (см. флоу
    в конце файла). Активная подсвечена тем же циан, что и кнопки сверху. */
 #страницы{position:fixed;left:50%;bottom:10px;transform:translateX(-50%);z-index:17;display:flex;gap:6px;
@@ -498,7 +524,10 @@ body.финал #pilot{display:none}
   <div id="navline"><div id="navfill"></div><div id="navdot"></div></div>
 </div>
 
-<!-- Лента эффектов финального кадра, как на странице 9 в v9.html. -->
+<!-- 30.09 (Адиль): ключевые эффекты живут только на финальном кадре — по центру
+     пустого экрана, без пирога, списка слева и карточек. На остальных кадрах
+     их нет (раньше «Топ 12 · более 90 %» висели над списком с первого экрана).
+     Показывает и прячет их body.финал, см. CSS. -->
 <section id="effects-overview" aria-label="Ключевые эффекты программы">
   <div class="cols"></div>
 </section>
@@ -532,23 +561,6 @@ body.финал #pilot{display:none}
 <button id="pilot" type="button"><span>Первый актив</span><span class="arw">→</span></button>
 <div id="справка"><div class="hd"></div><div class="nm"></div><div class="sub"></div>
   <div class="паспорт ярус"></div><div class="сделано ярус"></div></div>
-<div id="топ12">
-  <div class="kicker">2026–2028</div>
-  <h3>ТОП-12 месторождений КМГ</h3>
-  <div class="lead">обеспечивают <b>более 90 %</b> добычи</div>
-  <div class="обл"><div class="нм">Атырауская область</div>
-    <div class="комп">АО «Эмбамунайгаз»</div>
-    <div class="мест">м/р «Восточный Молдабек» · м/р «С. Нуржанов»</div></div>
-  <div class="обл"><div class="нм">Мангистауская область</div>
-    <div class="комп">АО «Озенмунайгаз» · АО «Мангистаумунайгаз» · АО «Каражанбасмунай»</div>
-    <div class="мест">м/р «Узень» · м/р «Карамандыбас» · м/р «Каламкас» · м/р «Жетыбай» · м/р «Каражанбас» · м/р «Асар»</div></div>
-  <div class="обл"><div class="нм">Актюбинская область</div>
-    <div class="комп">ТОО «Казахтуркмунай» · ТОО «Казахойл Актобе»</div>
-    <div class="мест">м/р «Каратобе Южное» · м/р «Алибекмола» · м/р «Кожасай»</div></div>
-  <div class="обл"><div class="нм">Кызылординская область</div>
-    <div class="комп">ТОО «СП Казгермунай»</div>
-    <div class="мест">м/р «Акшабулак Центральный»</div></div>
-</div>
 <div id="эффекты"><div class="hd"></div><div class="body"></div><div class="road"></div></div>
 <div id="chip"></div>
 <!-- подписи точек бурения: HTML поверх сцены, чтобы цифры оставались чёткими -->
@@ -2167,7 +2179,6 @@ function cancelLaunch(){
    клик по другому слою переключает содержимое (см. switchProject). Держится всё
    само, пока state.openId не снимут в closeProject(). */
 function openProject(id){
-  if(вФинале()) сброситьФинал();
   const isSwitch = state.openId !== null;   // слой уже раскрыт: стопка стоит в углу, меняется только содержимое
   state.launching = null;
   state.openId = id;
@@ -2302,7 +2313,8 @@ function closeProject(){
 
   closeT1 = setTimeout(finishClosing, ЗАКРЫТИЕ_МС);
 }
-/* Финал включается отдельным шагом сценария (см. применитьФинал).
+/* v5 (30.09): финал — не «возврат из слоя», а отдельный пустой кадр с двумя
+   ключевыми эффектами, он включается только сценарием (см. применитьФинал).
    Закрытие слоя — стрелкой ↩, Esc или кнопками внизу — возвращает на голый
    первый кадр; сценарий может попросить вместо него карточку «Первый актив». */
 let возвратКуда = null;   // 'справка' — вернуть карточку «Первый актив»
@@ -2318,19 +2330,12 @@ function finishClosing(){
   возвратКуда = null;
   if(куда === 'справка' && window.__открытьСправку) window.__открытьСправку();
 }
-/* Страница 11: общий вид модели, лента эффектов и ТОП-12 из v9. */
+/* Финал: body.финал гасит пирог, список слева, карточки и кнопку (см. CSS) и
+   показывает два блока ключевых эффектов по центру. */
 const вФинале = () => document.body.classList.contains('финал');
 function применитьФинал(){
   document.body.classList.add('финал');
   if(window.__закрытьСправку) window.__закрытьСправку();
-  $('топ12').classList.add('on');
-  panelState.zone = null; panelState.sub = null;
-  state.locked = null; state.hover = null; state.hoverSub = null;
-  refresh();
-}
-function сброситьФинал(){
-  document.body.classList.remove('финал');
-  $('топ12').classList.remove('on');
 }
 document.getElementById('pc-back').addEventListener('click', closeProject);
 
@@ -2452,26 +2457,51 @@ const размерыЛого = new ResizeObserver(обновитьЛоготип
 размерыЛого.observe(document.getElementById('hdr'));
 размерыЛого.observe(elStack);
 const elEffectsOverview = document.querySelector('#effects-overview .cols');
-/* Значения финального кадра перенесены из v9.html. */
+/* Три «главных» эффекта программы (23.09, Адиль): цифры и подписи взяты с
+   плашки ТОП-12 в финале подводки (см. тиражирование.html) — на первом кадре
+   они стоят единожды и не пересобираются от выбора контура. Цвет — циан,
+   один язык с заголовком «ABAI» и линией процесса. */
+/* 24.09 (Адиль): «326 млрд ₸» перестало быть подписью и стало вторым крупным
+   значением — там программе так же важно назвать деньги, как и тонны, а мелким
+   шрифтом их из зала не видно. В карточке можно ставить один или несколько
+   пунктов; у каждого может быть своя подпись или не быть — «доп. добычи»
+   относится только к тоннам, у денег подписи нет. */
+/* 30.09 (Адиль): на финальном кадре — два блока по центру, больше ничего.
+   «Топ 12 месторождений / Более 90 % добычи» друг над другом и «2 864 тыс. тонн
+   дополнительной добычи / 326 млрд ₸». Приписка «— 3–5 % от EBITDA» убрана по
+   просьбе; «всех активов» у добычи тоже — в формулировке заказчика его нет.
+   Раньше было два набора (исходный и финальный), исходный ушёл: на первом
+   кадре эффектов быть не должно. «2 864 тыс. тонн» (~2,86 млн т) — полное
+   число, чтобы не разойтись с материалами тиражирования и подводки. */
 const ГЛАВНЫЕ_ЭФФЕКТЫ = [
-  [ { v:'Топ 12',                        l:'месторождений' },
-    { v:'Более 90 %',                    l:'добычи всех активов' } ],
-  /* 25.09 (Адиль, поправка): «3–5 % от EBITDA» — тоже крупным шрифтом,
-     через дефис после суммы. Собираем всё во второй строке в одно
-     крупное значение без мелкой подписи `l` — единая цельная фраза. */
-  [ { v:'2 864 тыс. тонн',               l:'дополнительной добычи' },
-    { v:'326 млрд ₸ — 3–5 % от EBITDA' } ],
+  [ { v:'12',         l:'топ месторождений до конца 2028 года', icon:'map' },
+    { v:'90%',     l:'добычи', icon:'well' } ],
+  [ { v:'2 864 тыс. тонн', l:'дополнительной добычи', icon:'oil' },
+    { v:'326', icon:'tenge', l: 'млрд тенге' } ],
 ];
+// Векторные иконки остаются чёткими на любом экране и не требуют загрузки файлов.
+const ИКОНКИ_ЭФФЕКТОВ = {
+  map: '<path pathLength="1" d="M18 26 11 23 3 26V10l8-3 6 3m-6-3v16M18 26l11-4V12M17 18v8"/>'
+    + '<path pathLength="1" d="M29 8c0 4-6 10-6 10s-6-6-6-10a6 6 0 1 1 12 0Z"/><circle cx="23" cy="8" r="2"/>',
+  well: '<path pathLength="1" d="M4 28h24M9 28l4-22h6l4 22M12 6h8M14 3h4M12 12h8M11 18h10M10 24h12M13 12l8 6-11 6M19 12l-8 6 11 6M16 28v3"/>',
+  oil: '<path pathLength="1" d="M16 3c-3 5-10 12-10 17a10 10 0 0 0 20 0C26 15 19 8 16 3Z"/>'
+    + '<path pathLength="1" d="M11 20a5 5 0 0 0 5 5"/>',
+  tenge: '<circle cx="16" cy="16" r="13"/><circle cx="16" cy="16" r="10" opacity=".3"/>'
+    + '<path pathLength="1" d="M11 10h10M11 14h10M16 14v10"/>',
+};
 function рендерЭффекты(){
   elEffectsOverview.textContent = '';
-  for(const пункты of ГЛАВНЫЕ_ЭФФЕКТЫ){
+  for(const [группа, пункты] of ГЛАВНЫЕ_ЭФФЕКТЫ.entries()){
     const col = document.createElement('div');
     col.className = 'effect-col';
     col.style.setProperty('--ec', 'var(--cyan)');
+    col.style.setProperty('--card-delay', `${.3 + группа * .42}s`);
     col.innerHTML = `<div class="items">`
-      + пункты.map(п => `<div class="item"><span class="v">${п.v}</span>`
+      + пункты.map((п, i) => `<div class="item" style="--item-delay:${.45 + группа * .42 + i * .18}s">`
+          + `<span class="effect-icon" aria-hidden="true"><svg viewBox="0 0 32 32" focusable="false">${ИКОНКИ_ЭФФЕКТОВ[п.icon]}</svg></span>`
+          + `<span class="effect-copy"><span class="v">${п.v}</span>`
           + (п.l ? `<span class="l">${п.l}</span>` : '')
-          + `</div>`).join('')
+          + `</span></div>`).join('')
       + `</div>`;
     elEffectsOverview.appendChild(col);
   }
@@ -3409,28 +3439,10 @@ const СПРАВКА = {
   /* 25.09 (Адиль): «36,7 % и 14,8 млн тонн должны подсвечиваться как-то» —
      третье поле строки задаёт CSS-класс (см. #справка .rw.акцент). */
   паспорт:{ шапка:'Справочная информация', строки:[
-      ['Остаточные извл. запасы','14,8 млн тонн','акцент'], ['Извлечено','36,7 %','акцент'],
+      ['Остаточные извл. запасы','15 млн тонн','акцент'], ['Извлечено','37 %','акцент'],
       ['Фонд скважин','421 скважина действующая'],
       ['Добыча с начала года','310,3 тыс. тонн'] ] },
-  /* 23.09 (Адиль): «Выработанность» → «Добыто» — на показе за терминологией
-     заказчика; «600 вариантов» вместо «тысяч за минуты» — говорим то число,
-     под которым ЦРНС реально считалось на первом активе; строки про КИН и
-     МРП добавлены к списку сделанного, а «Внедрение · октябрь 2026» ушло
-     на дорожную карту финала подводки — во «что уже сделано» ему не место.
-     25.09 (Адиль): «Добыто» → «Извлечено» — так называет заказчик; смысл
-     тот же (доля запасов, поднятая на поверхность). */
-  сделано:{ шапка:'Что уже сделано', строки:[
-      ['Расчёт сценариев','600 вариантов'],
-      ['Выявленный потенциал','дополнительно 161 тыс. тонн добычи'],
-      ['Оптимизация бурения','6 наклонно-направленных → 2 горизонтальные'],
-      /* 25.09 (Адиль, замечание): «КИН до 30 %» и «550 → 700 суток» должны идти
-         одним регистром с остальными строками (те же шрифты, та же структура
-         «ключ · значение») — раньше они стояли отдельно как подсвеченные
-         эффекты, но рядом с общей таблицей визуально выпадали. Класс «эффект»
-         снят, стили в CSS обнулены.
-         30.09 (Адиль): строка «ЦИО» убрана; КИН — с 14 % до 30 %. */
-      ['КИН','рост коэффициента извлечения нефти с 14 % до 30 %'],
-      ['550 → 700','увеличение суток межремонтного периода'] ] },
+ 
 };
 let ярусСпр = 0;
 (function карточкаПилота(){
@@ -3459,7 +3471,6 @@ let ярусСпр = 0;
     сп.querySelector('.nm').textContent = СПРАВКА.имя;
     сп.querySelector('.sub').textContent = СПРАВКА.под;
     ярус(сп.querySelector('.паспорт'), СПРАВКА.паспорт);
-    ярус(сп.querySelector('.сделано'), СПРАВКА.сделано);
   }
   function показать(n){
     ярусСпр = Math.max(0, Math.min(2, n));
@@ -3686,7 +3697,7 @@ window.__dbg = { renderer, scene, camera, state, zones, refresh, world,
       6  второй слой снизу — Стратегия разработки;
       7  третий слой — ТЭО, скриншот 1 (нюмекс5);  8  то же, скриншот 2 (нюмекс6);
       9  четвёртый слой — ЦД скважины;  10  верхний слой — наземная инфраструктура;
-     11  финал как в v9: модель, лента эффектов и ТОП-12 месторождений.
+     11  финал: два ключевых эффекта по центру, без пирога и панелей.
    Клавиши «пробел / → / Enter / PageDown» ведут на следующую страницу,
    «← / PageUp / Backspace» — на предыдущую, кнопки внизу — на любую.
    Отклонено: отдельные массивы «шаг вперёд» и «шаг назад», как было раньше
@@ -3743,7 +3754,7 @@ if(new URLSearchParams(location.search).get('в_рамке') !== '1'){
   }
   // страницы 1–5: пирог на месте, слой не раскрыт
   async function показатьКадр(ц){
-    сброситьФинал();
+    document.body.classList.remove('финал');
     закрытьЭффекты();
     if(ц.справка){
       await закрытьСлой('справка');   // finishClosing сам вернёт карточку
@@ -3758,7 +3769,7 @@ if(new URLSearchParams(location.search).get('в_рамке') !== '1'){
   }
   // страницы 6–10: раскрыт слой (и для ТЭО — нужный скриншот)
   async function открытьСлой(ц){
-    сброситьФинал();
+    document.body.classList.remove('финал');
     закрытьЭффекты();
     let перезагрузили = true;
     if(state.openId === null){
@@ -3781,12 +3792,21 @@ if(new URLSearchParams(location.search).get('в_рамке') !== '1'){
       await пауза(720);
     }
   }
-  // Страница 11 соответствует финалу (странице 9) в v9.html.
+  // страница 11: пирог и панели гаснут, по центру остаются два блока эффектов
   async function показатьФинал(){
     закрытьЭффекты();
     if(window.__закрытьСправку) window.__закрытьСправку();
-    await закрытьСлой(null);
-    применитьФинал();
+    document.body.classList.add('финал');   // пирог гаснет сразу, пока слой уезжает; блоки эффектов выходят с задержкой (см. CSS)
+    if(state.openId){
+      возвратКуда = null;
+      closeProject();
+      await пауза(ЗАКРЫТИЕ_МС + 150);
+    } else {
+      panelState.zone = null; panelState.sub = null;
+      state.locked = null; state.hover = null; state.hoverSub = null;
+      refresh();
+      await пауза(800);
+    }
   }
   async function перейтиНа(n){
     if(идёт || n < 1 || n > СТРАНИЦЫ.length) return;
