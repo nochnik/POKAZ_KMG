@@ -27,7 +27,7 @@ body {
 }
 
 /* The focused live tab frames the production chart and well table together. */
-html.wells-focus,html.wells-focus body{overflow:hidden!important}
+html.wells-focus,html.wells-focus body{overflow:hidden!important;background:transparent!important}
 html.wells-focus .dashboard>.header,
 html.wells-focus .dashboard>.monitoring-buttons,
 html.wells-focus .dashboard>.widget:not([widget-id="a1"]):not(#normativeTable){display:none!important}

@@ -35,7 +35,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:var(--ui);color:var
   gap:6px;width:360px;padding-left:24px;transition:opacity .28s ease,transform .42s cubic-bezier(.2,.8,.2,1)}
 /* При смене контента .vis временно снимается; положение списка держим
    до закрытия правой области, чтобы он не прыгал во время затухания. */
-#stack.контент-открыт{top:35%}
+#stack.контент-открыт{top:40%}
 /* 28.09 (Адиль, поправка): стек сжат по вертикали, чтобы между ним и
    мини-пирогом снизу был воздух. Один блок правил у step в новом
    компактном виде (прежде было два конфликтующих). */
@@ -49,11 +49,10 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:var(--ui);color:var
 #stack.выбран #navdot{box-shadow:0 0 0 3px rgba(5,8,16,.9);transition:none}
 #stack.выбран #navfill{transition:none}
 #stack.скрыт{opacity:0;pointer-events:none;transform:translateY(calc(-50% - 14px))}
-/* По горизонтали — центр #stack; по вертикали — свободное место
-   между шапкой и списком. Размер ограничен этим местом, чтобы не перекрывать текст. */
-#kmg-logo{position:fixed;left:var(--лого-центр-x,0px);top:var(--лого-центр-y,20vh);transform:translate(-50%,-50%);z-index:10;width:150px;height:auto;
-  max-width:var(--лого-ширина,150px);max-height:var(--лого-высота,150px);object-fit:contain;
-  opacity:0;pointer-events:none;filter:url(#kmg-светлый);
+/* Логотип повторяет ширину и горизонтальный центр #stack;
+   по вертикали занимает свободное место между шапкой и списком. */
+#kmg-logo{position:fixed;left:var(--лого-центр-x,0px);top:var(--лого-центр-y,20vh);transform:translate(-50%,-50%);z-index:10;width:var(--лого-ширина,360px);height:auto;
+  opacity:0;pointer-events:none;
   transition:opacity .4s ease}
 #kmg-logo.виден{opacity:1}
 body.финал #kmg-logo{opacity:0}
@@ -395,7 +394,7 @@ body.финал :is(#stack,#справка,#pilot,#mini-reset,#panel,#chip,#teo,
   padding:8px 14px;margin-bottom:10px;transition:color .2s,border-color .2s}
 #pc-back:hover{color:var(--txt);border-color:var(--txt)}
 #pc-kick{font-family:var(--mono);font-size:18px;letter-spacing:.3em;text-transform:uppercase;color:var(--pc,#4FE3FF)}
-#pc-name{font-family:var(--serif);font-size:52px;font-weight:600;line-height:1.2;max-width:26ch}
+#pc-name{font-family:var(--serif);font-size:52px;font-weight:600;line-height:1.2;width:100%;min-width:0;max-width:none;white-space:nowrap}
 #pc-claim{font-size:23px;color:var(--dim);line-height:1.6;max-width:52ch}
 .pc-main-video{display:none;width:100%;height:62vh;flex-shrink:0;object-fit:contain;background:#02040A;
   border:1px solid var(--line);border-top:2px solid var(--pc,#4FE3FF);box-shadow:0 18px 46px rgba(0,0,0,.32)}
@@ -433,7 +432,7 @@ body.финал :is(#stack,#справка,#pilot,#mini-reset,#panel,#chip,#teo,
    уезжает под H1 и не наезжает на него. */
 #project-content:is(.с-видео,.с-системой,.с-карусель){padding-top:96px;padding-bottom:var(--content-bottom,60px);gap:12px}
 #project-content:is(.с-видео,.с-карусель){justify-content:flex-end}
-#project-content:is(.с-видео,.с-системой,.с-карусель) #pc-name{font-size:38px}
+#project-content:is(.с-видео,.с-системой,.с-карусель) #pc-name{font-size:clamp(16px,2vw,38px)}
 #project-content.с-tumar.с-видео #pc-name{font-size:clamp(16px,2vw,38px)}
 /* 24.09 (Адиль): убраны кнопка «← к цифровому двойнику» и жёлтый кикер
    «ЦД … · проект NN» на карточке системы. Возврат идёт единственной
@@ -445,12 +444,12 @@ body.финал :is(#stack,#справка,#pilot,#mini-reset,#panel,#chip,#teo,
 #project-content.с-системой #pc-system{display:block}
 #pc-system-header{display:contents}
 #pc-system-header left-head-btns{display:none}
-#project-content.с-системой{padding:96px 0 var(--content-bottom,60px);gap:0;justify-content:flex-end;overflow:hidden}
+#project-content.с-системой{padding:96px 0 var(--content-bottom,60px);gap:0;justify-content:flex-end;overflow:hidden;border:0}
 #project-content.с-системой #pc-system-header{display:flex;align-items:center;gap:20px;
   width:min(92%,1280px);align-self:center;padding-bottom:18px;flex-shrink:0}
 #project-content.с-системой #pc-system-header left-head-btns{display:block}
-#project-content.с-системой #pc-name{width:auto;align-self:auto;padding:0;flex:1;max-width:none}
-#project-content.с-системой #pc-system{width:min(92%,1280px);align-self:center;height:62vh;min-height:0;max-height:none;aspect-ratio:auto;flex:0 0 62vh}
+#project-content.с-системой #pc-name{width:100%;align-self:auto;padding:0;flex:1;max-width:none}
+#project-content.с-системой #pc-system{width:min(92%,1280px);align-self:center;height:62vh;min-height:0;max-height:none;aspect-ratio:auto;flex:0 0 62vh;border:0;box-shadow:none;background:transparent}
 #project-content.с-карусель #pc-carousel{display:block}
 /* Кнопка возврата к первому кадру. Стоит у 3D-модели в левом углу:
    по горизонтали идёт за `--mini-width`, снизу держит общий с контентом отступ.
@@ -496,7 +495,7 @@ body.финал :is(#stack,#справка,#pilot,#mini-reset,#panel,#chip,#teo,
     </filter>
   </defs>
 </svg>
-<img id="kmg-logo" src="kmg_3.png" alt="КазМунайГаз" aria-hidden="true">
+<img id="kmg-logo" src="KazMunayGas_logo%20white.svg" alt="КазМунайГаз" aria-hidden="true">
 <div id="stack" class="слева">
   <div id="navline"><div id="navfill"></div><div id="navdot"></div></div>
 </div>
@@ -2066,7 +2065,7 @@ const RESERVOIR_CONTENT = {
 };
 const ZONE_VIDEOS = {
   skv:{ file:'drillspot_v5_3.mp4', title:'Цифровой двойник скважины' },
-  naz:{ page:'production-monitoring/index.html?focus=wells&v=20260930.3', title:'Интеллектуальное месторождение' }
+  naz:{ page:'production-monitoring/index.html?focus=wells&v=20260930.4', title:'Интеллектуальное месторождение' }
 };
 const teoImages = [...document.querySelectorAll('#pc-carousel img')];
 const teoCarousel = document.getElementById('pc-carousel');
@@ -2421,9 +2420,8 @@ function обновитьЛоготип(){
   const верхСписка = список.top;
   const свободнаяВысота = Math.max(0, верхСписка - низШапки - 32);
   elKmgLogo.style.setProperty('--лого-центр-x', (список.left + список.width / 2) + 'px');
-  elKmgLogo.style.setProperty('--лого-ширина', Math.max(0, список.width - 32) + 'px');
+  elKmgLogo.style.setProperty('--лого-ширина', список.width + 'px');
   elKmgLogo.style.setProperty('--лого-центр-y', ((низШапки + верхСписка) / 2) + 'px');
-  elKmgLogo.style.setProperty('--лого-высота', свободнаяВысота + 'px');
   const виден = $('project-content').classList.contains('vis')
     && свободнаяВысота > 0
     && !document.body.classList.contains('финал');
@@ -2452,8 +2450,8 @@ const elEffectsOverview = document.querySelector('#effects-overview .cols');
    кадре эффектов быть не должно. «2 864 тыс. тонн» (~2,86 млн т) — полное
    число, чтобы не разойтись с материалами тиражирования и подводки. */
 const ГЛАВНЫЕ_ЭФФЕКТЫ = [
-  [ { v:'Топ 12',         l:'месторождений' },
-    { v:'Более 90 %',     l:'добычи' } ],
+  [ { v:'12',         l:'топ месторождений' },
+    { v:'90%',     l:'добычи' } ],
   [ { v:'2 864 тыс. тонн', l:'дополнительной добычи' },
     { v:'326 млрд тенге' } ],
 ];
