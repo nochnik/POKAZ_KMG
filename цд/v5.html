@@ -33,12 +33,9 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:var(--ui);color:var
 /* Навигация по контурам по умолчанию остаётся колонкой слева. */
 #stack{position:fixed;left:26px;top:50%;transform:translateY(-50%);z-index:10;display:flex;flex-direction:column;
   gap:6px;width:360px;padding-left:24px;transition:opacity .28s ease,transform .42s cubic-bezier(.2,.8,.2,1)}
-/* 28.09 (Адиль, поправка): «стек не должен скакать наверх при клике,
-   пусть остаётся на своём месте и раскрывается там же». Возвращаем
-   стеку центрирование по вертикали (top:50% / translateY снаружи),
-   меняем только компактность: gap:8 и увеличенный padding у step —
-   этого хватает, чтобы длинные названия шагов пласта не сливались,
-   а мини-пирог по-прежнему помещается в свободном низу. */
+/* При смене контента .vis временно снимается; положение списка держим
+   до закрытия правой области, чтобы он не прыгал во время затухания. */
+#stack.контент-открыт{top:35%}
 /* 28.09 (Адиль, поправка): стек сжат по вертикали, чтобы между ним и
    мини-пирогом снизу был воздух. Один блок правил у step в новом
    компактном виде (прежде было два конфликтующих). */
@@ -52,9 +49,10 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:var(--ui);color:var
 #stack.выбран #navdot{box-shadow:0 0 0 3px rgba(5,8,16,.9);transition:none}
 #stack.выбран #navfill{transition:none}
 #stack.скрыт{opacity:0;pointer-events:none;transform:translateY(calc(-50% - 14px))}
-/* Справа контент занимает 70vw; центр оставшейся левой панели — 15vw.
-   Половину ширины самого логотипа компенсируем независимо от его размера. */
-#kmg-logo{position:fixed;left:15vw;top:155px;transform:translateX(-50%);z-index:10;width:150px;height:auto;
+/* По горизонтали — центр #stack; по вертикали — свободное место
+   между шапкой и списком. Размер ограничен этим местом, чтобы не перекрывать текст. */
+#kmg-logo{position:fixed;left:var(--лого-центр-x,0px);top:var(--лого-центр-y,20vh);transform:translate(-50%,-50%);z-index:10;width:150px;height:auto;
+  max-width:var(--лого-ширина,150px);max-height:var(--лого-высота,150px);object-fit:contain;
   opacity:0;pointer-events:none;filter:url(#kmg-светлый);
   transition:opacity .4s ease}
 #kmg-logo.виден{opacity:1}
@@ -399,7 +397,7 @@ body.финал :is(#stack,#справка,#pilot,#mini-reset,#panel,#chip,#teo,
 #pc-kick{font-family:var(--mono);font-size:18px;letter-spacing:.3em;text-transform:uppercase;color:var(--pc,#4FE3FF)}
 #pc-name{font-family:var(--serif);font-size:52px;font-weight:600;line-height:1.2;max-width:26ch}
 #pc-claim{font-size:23px;color:var(--dim);line-height:1.6;max-width:52ch}
-#pc-video{display:none;width:100%;height:62vh;flex-shrink:0;object-fit:contain;background:#02040A;
+.pc-main-video{display:none;width:100%;height:62vh;flex-shrink:0;object-fit:contain;background:#02040A;
   border:1px solid var(--line);border-top:2px solid var(--pc,#4FE3FF);box-shadow:0 18px 46px rgba(0,0,0,.32)}
 #pc-carousel{display:none;position:relative;width:100%;height:62vh;flex-shrink:0;
   overflow:hidden;background:#02040A;border:1px solid var(--line);
@@ -424,12 +422,11 @@ body.финал :is(#stack,#справка,#pilot,#mini-reset,#panel,#chip,#teo,
 #pc-system{display:none;width:100%;height:auto;aspect-ratio:2046 / 1100;max-height:62vh;flex-shrink:0;
   background:#f0f0f0;border:1px solid var(--line);border-top:2px solid var(--pc,#4FE3FF);
   box-shadow:0 18px 46px rgba(0,0,0,.32)}
-#pc-tumar{display:none;position:absolute;top:48px;right:72px;width:min(20vw,400px);
+#pc-tumar{display:none;position:absolute;top:48px;right:72px;width:min(15vw,400px);
   aspect-ratio:20/9;object-fit:cover;background:#02040A;border:1px solid var(--line);
   border-top:2px solid var(--pc,#4FE3FF);box-shadow:0 14px 38px rgba(0,0,0,.38)}
 #project-content.с-tumar #pc-tumar{display:block}
 #project-content.с-tumar #pc-name{max-width:none;white-space:nowrap}
-#video-preloaders{position:fixed;width:1px;height:1px;overflow:hidden;visibility:hidden;pointer-events:none}
 /* padding-top отведён под шапку кадра (см. #hdr: top:22, ~54 высоты + запас):
    H1 постоянно висит в левом верхнем углу и, если бы pc-name стартовал по
    умолчанию с 64px, они сталкивались бы в углу — теперь заголовок системы
@@ -554,28 +551,59 @@ body.финал :is(#stack,#справка,#pilot,#mini-reset,#panel,#chip,#teo,
     <div id="pc-name"></div>
   </div>
   <div id="pc-claim"></div>
-  <video id="pc-video" controls autoplay muted loop playsinline preload="auto"></video>
+  <!-- Предзагружаем сами плееры: смена src сбрасывала подготовку ролика. -->
+  <video id="pc-video" class="pc-main-video" data-src="numex_opt.mp4" controls muted loop playsinline preload="auto"></video>
+  <video class="pc-main-video" data-src="drillspot_v5_3.mp4" controls muted loop playsinline preload="auto"></video>
   <div id="pc-carousel" role="region" aria-label="Кадры технико-экономической оценки">
-    <img src="../медиа/нюмекс5.png" alt="Технико-экономическая оценка — кадр 1" class="active">
-    <img src="../медиа/нюмекс6.png" alt="Технико-экономическая оценка — кадр 2">
+    <img src="numex_kmg_v5.jpg" alt="Технико-экономическая оценка — кадр 1" class="active">
+    <img src="numex_kmg_v5_2.jpg" alt="Технико-экономическая оценка — кадр 2">
     <button id="pc-carousel-expand" type="button" aria-label="Открыть кадр на весь экран" title="Открыть кадр на весь экран">⛶</button>
     <button id="pc-carousel-prev" type="button" aria-label="Предыдущий кадр">‹</button>
     <button id="pc-carousel-next" type="button" aria-label="Следующий кадр">›</button>
     <span id="pc-carousel-count" aria-live="polite">1 / 2</span>
   </div>
-  <video id="pc-tumar" src="tumar_new.mp4?v=faststart-1" controls muted loop playsinline preload="auto"
+  <video id="pc-tumar" data-src="tumar_new.mp4?v=faststart-1" controls muted loop playsinline preload="auto"
     aria-label="TUMAR"></video>
   <iframe id="pc-system" title="Интеллектуальное месторождение — график добычи и фонд скважин" allow="fullscreen"></iframe>
   <div id="pc-badge">заготовка · наполнение позже</div>
 </aside>
-<!-- В показе переключение должно быть мгновенным даже без интернета,
-     поэтому все динамически подставляемые ролики начинают грузиться вместе
-     со страницей. TUMAR уже грузится своим видимым #pc-tumar. -->
-<div id="video-preloaders" aria-hidden="true">
-  <video src="numex_opt.mp4" preload="auto" muted playsinline></video>
-  <video src="drillspot_v5.mp4" preload="auto" muted playsinline></video>
-</div>
 <button id="mini-reset" type="button" aria-label="Вернуть исходный вид" title="Вернуть исходный вид">↩</button>
+
+<script>
+/* preload="auto" — лишь подсказка браузеру. Через HTTP полностью получаем
+   каждый ролик до моделей, а плееры сохраняют blob при смене кадров показа.
+   Для file:// оставляем нативную загрузку: fetch локальных файлов запрещён. */
+window.видеоГотовы = Promise.all([...document.querySelectorAll('video[data-src]')].map(async ролик => {
+  let источник = ролик.dataset.src;
+  if(location.protocol !== 'file:'){
+    const отмена = new AbortController();
+    const таймер = setTimeout(() => отмена.abort(), 60000);
+    try {
+      const ответ = await fetch(источник, { signal:отмена.signal, priority:'high' });
+      if(!ответ.ok) throw new Error(`HTTP ${ответ.status}`);
+      источник = URL.createObjectURL(await ответ.blob());
+    } catch(ошибка){
+      console.warn('Предзагрузка видео не завершена, используем обычный плеер:', источник, ошибка);
+    } finally { clearTimeout(таймер); }
+  }
+  await new Promise(resolve => {
+    let таймер;
+    const готово = () => {
+      clearTimeout(таймер);
+      ролик.removeEventListener('loadeddata', готово);
+      ролик.removeEventListener('error', готово);
+      resolve();
+    };
+    ролик.addEventListener('loadeddata', готово, { once:true });
+    ролик.addEventListener('error', готово, { once:true });
+    // Ошибка одного ролика не должна навсегда закрывать весь показ заставкой.
+    таймер = setTimeout(готово, 10000);
+    ролик.src = источник;
+    ролик.load();
+    if(ролик.readyState >= 2) готово();
+  });
+}));
+</script>
 
 <script type="importmap">
 { "imports": {
@@ -1513,6 +1541,7 @@ function собратьКачалки(z, M, yb, части){
 }
 
 async function build(){
+  await window.видеоГотовы;
   const roots = {};
   const animations = {};
   // верхняя составляющая пласта (ТЭО) собирается кодом — модель для неё не грузим
@@ -1874,7 +1903,7 @@ const MINI_SCALE = 0.31;
 const MINI_HEIGHT_RATIO = 0.36;
 const MINI_ASPECT_RATIO = 0.90;
 const MINI_MARGIN = 52;
-const CONTENT_BOTTOM = 60;
+const CONTENT_BOTTOM = 150;
 const MINI_TRANSITION_MS = 900;
 document.documentElement.style.setProperty('--мини-высота', (MINI_HEIGHT_RATIO*100) + 'vh');
 document.documentElement.style.setProperty('--mini-width', (MINI_HEIGHT_RATIO*MINI_ASPECT_RATIO*100) + 'vh');
@@ -2036,7 +2065,7 @@ const RESERVOIR_CONTENT = {
   2:{ images:true, title:'Технико-экономическая оценка' }
 };
 const ZONE_VIDEOS = {
-  skv:{ file:'drillspot_v5.mp4', title:'Цифровой двойник скважины' },
+  skv:{ file:'drillspot_v5_3.mp4', title:'Цифровой двойник скважины' },
   naz:{ page:'production-monitoring/index.html?focus=wells&v=20260930.3', title:'Интеллектуальное месторождение' }
 };
 const teoImages = [...document.querySelectorAll('#pc-carousel img')];
@@ -2140,7 +2169,15 @@ function openProject(id){
     const videoData = state.openId === 'plast'
       ? RESERVOIR_CONTENT[panelState.sub]
       : ZONE_VIDEOS[state.openId];
-    const video = $('pc-video');
+    let video = $('pc-video');
+    const подготовленный = [...pc.querySelectorAll('.pc-main-video')]
+      .find(ролик => ролик.dataset.src === videoData?.file);
+    if(подготовленный && подготовленный !== video){
+      video.pause();
+      video.removeAttribute('id');
+      подготовленный.id = 'pc-video';
+      video = подготовленный;
+    }
     const система = $('pc-system');
     const tumarVideo = $('pc-tumar');
     const показыватьTumar = state.openId === 'skv';
@@ -2162,7 +2199,8 @@ function openProject(id){
       tumarVideo.play().catch(() => {});
     } else tumarVideo.pause();
     if(videoData?.file){
-      if(video.getAttribute('src') !== videoData.file){
+      if(video.dataset.src !== videoData.file){
+        video.dataset.src = videoData.file;
         video.setAttribute('src', videoData.file);
         video.load();
       }
@@ -2170,8 +2208,6 @@ function openProject(id){
       video.play().catch(() => {});
     } else {
       video.pause();
-      video.removeAttribute('src');
-      video.load();
     }
     pc.classList.add('vis');
     requestAnimationFrame(обновитьЛоготип);
@@ -2380,13 +2416,24 @@ if (new URLSearchParams(location.search).get('в_рамке') === '1') addEventL
 const elStack = document.getElementById('stack');
 const elKmgLogo = document.getElementById('kmg-logo');
 function обновитьЛоготип(){
-  // Размер и положение задаются в #kmg-logo; inline-стили перекрывали ручные правки CSS.
+  const низШапки = $('hdr').getBoundingClientRect().bottom;
+  const список = elStack.getBoundingClientRect();
+  const верхСписка = список.top;
+  const свободнаяВысота = Math.max(0, верхСписка - низШапки - 32);
+  elKmgLogo.style.setProperty('--лого-центр-x', (список.left + список.width / 2) + 'px');
+  elKmgLogo.style.setProperty('--лого-ширина', Math.max(0, список.width - 32) + 'px');
+  elKmgLogo.style.setProperty('--лого-центр-y', ((низШапки + верхСписка) / 2) + 'px');
+  elKmgLogo.style.setProperty('--лого-высота', свободнаяВысота + 'px');
   const виден = $('project-content').classList.contains('vis')
+    && свободнаяВысота > 0
     && !document.body.classList.contains('финал');
   elKmgLogo.classList.toggle('виден', виден);
   elKmgLogo.setAttribute('aria-hidden', String(!виден));
 }
 addEventListener('resize', обновитьЛоготип);
+const размерыЛого = new ResizeObserver(обновитьЛоготип);
+размерыЛого.observe(document.getElementById('hdr'));
+размерыЛого.observe(elStack);
 const elEffectsOverview = document.querySelector('#effects-overview .cols');
 /* Три «главных» эффекта программы (23.09, Адиль): цифры и подписи взяты с
    плашки ТОП-12 в финале подводки (см. тиражирование.html) — на первом кадре
@@ -2553,6 +2600,7 @@ function refresh(){
   const isFirstMove = replacesStack && !panel.classList.contains('вместо-стека');
   $('stack').classList.remove('скрыт');
   $('stack').classList.toggle('выбран', replacesStack);
+  $('stack').classList.toggle('контент-открыт', Boolean(state.openId));
   requestAnimationFrame(обновитьЛоготип);
   if(isFirstMove) panel.classList.remove('vis');
   panel.classList.toggle('вместо-стека', replacesStack);
