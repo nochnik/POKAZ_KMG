@@ -447,7 +447,16 @@ body.финал #pilot{display:none}
   width:min(92%,1280px);align-self:center;padding-bottom:18px;flex-shrink:0}
 #project-content.с-системой #pc-system-header left-head-btns{display:block}
 #project-content.с-системой #pc-name{width:100%;align-self:auto;padding:0;flex:1;max-width:none}
-#project-content.с-системой #pc-system{width:min(92%,1280px);align-self:center;height:62vh;min-height:0;max-height:none;aspect-ratio:auto;flex:0 0 62vh;border:0;box-shadow:none;background:transparent}
+#project-content.с-системой #pc-system{width:min(92%,1280px);align-self:center;height:62vh;min-height:0;max-height:none;aspect-ratio:auto;flex:0 0 62vh;
+  border:0;border-radius:12px;outline:1px solid rgba(53,208,194,.42);
+  background:
+    radial-gradient(ellipse at 0 50%,rgba(53,208,194,.12),transparent 45%),
+    radial-gradient(ellipse at 100% 50%,rgba(79,163,255,.1),transparent 45%),
+    linear-gradient(rgba(79,227,255,.035) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(79,227,255,.035) 1px,transparent 1px),#080f1b;
+  background-size:auto,auto,32px 32px,32px 32px,auto;
+  box-shadow:inset 0 2px 0 rgba(53,208,194,.8),inset 0 -2px 0 rgba(53,208,194,.3),
+    0 0 36px rgba(53,208,194,.09),0 24px 60px rgba(0,0,0,.35)}
 #project-content.с-карусель #pc-carousel{display:block}
 /* Кнопка возврата к первому кадру. Стоит у 3D-модели в левом углу:
    по горизонтали идёт за `--mini-width`, снизу держит общий с контентом отступ.
@@ -2077,7 +2086,7 @@ const RESERVOIR_CONTENT = {
 };
 const ZONE_VIDEOS = {
   skv:{ file:'drillspot_v5_3.mp4', title:'Цифровой двойник скважины' },
-  naz:{ page:'production-monitoring/index.html?focus=wells&v=20260930.5', title:'Интеллектуальное месторождение' }
+  naz:{ page:'production-monitoring/index.html?focus=wells&wide=1&v=20260930.6', title:'Интеллектуальное месторождение' }
 };
 const teoImages = [...document.querySelectorAll('#pc-carousel img')];
 const teoCarousel = document.getElementById('pc-carousel');

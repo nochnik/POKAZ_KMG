@@ -20,13 +20,15 @@
             var frameWidth = frameRight - frameLeft;
             var frameHeight = frameBottom - frameTop;
             if (viewWidth <= 0 || viewHeight <= 0 || frameWidth <= 0 || frameHeight <= 0) return;
-            // Один масштаб по обеим осям: график и таблица не растягиваются
-            // на всю ширину iframe с искажением пропорций.
+            // В v10 график и таблица на 12% шире при прежней высоте.
+            // Остальные встраивания сохраняют равномерный масштаб.
             var scale = Math.min(viewWidth / frameWidth, viewHeight / frameHeight);
-            var left = (viewWidth - frameWidth * scale) / 2 - frameLeft * scale;
+            var wide = new URLSearchParams(window.location.search).get('wide') === '1';
+            var scaleX = Math.min(viewWidth / frameWidth, scale * (wide ? 1.12 : 1));
+            var left = (viewWidth - frameWidth * scaleX) / 2 - frameLeft * scaleX;
             var top = (viewHeight - frameHeight * scale) / 2 - frameTop * scale;
             $('.dashboard').css({
-                transform: 'translate(' + left + 'px, ' + top + 'px) scale(' + scale + ')',
+                transform: 'translate(' + left + 'px, ' + top + 'px) scale(' + scaleX + ', ' + scale + ')',
                 'transform-origin': 'top left',
                 width: '7680px',
                 height: '2160px'
