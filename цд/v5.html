@@ -157,7 +157,7 @@ body.финал #kmg-logo{opacity:0}
 #p-close:hover{color:var(--txt)}
 
 /* Финальный шаг повторяет 9-й кадр v9: эффекты сверху, модель и контуры,
-   справа — ТОП-12. На шагах 1–10 эта лента скрыта. */
+   справа — ТОП-12. До финального шага эта лента скрыта. */
 #effects-overview{display:none;position:fixed;top:112px;left:26px;
   right:calc(min(660px,34vw) + 40px);z-index:9;pointer-events:none}
 body.финал #effects-overview{display:block}
@@ -575,12 +575,13 @@ body.финал #pilot{display:none}
   <video id="pc-video" class="pc-main-video" data-src="numex_opt.mp4" controls muted loop playsinline preload="auto"></video>
   <video class="pc-main-video" data-src="drillspot_v5_3.mp4" controls muted loop playsinline preload="auto"></video>
   <div id="pc-carousel" role="region" aria-label="Кадры технико-экономической оценки">
-    <img src="./numex_media/numex_v5_v1.png" alt="Технико-экономическая оценка — кадр 1" class="active">
-    <img src="./numex_media/numex_v5_v2.png" alt="Технико-экономическая оценка — кадр 2">
+    <img src="./numex_media/numex_v5_1.jpg" alt="Технико-экономическая оценка — кадр 1" class="active">
+    <img src="./numex_media/numex_v5_v1.png" alt="Технико-экономическая оценка — кадр 2" >
+    <img src="./numex_media/numex_v5_v2.png" alt="Технико-экономическая оценка — кадр 3">
     <button id="pc-carousel-expand" type="button" aria-label="Открыть кадр на весь экран" title="Открыть кадр на весь экран">⛶</button>
     <button id="pc-carousel-prev" type="button" aria-label="Предыдущий кадр">‹</button>
     <button id="pc-carousel-next" type="button" aria-label="Следующий кадр">›</button>
-    <span id="pc-carousel-count" aria-live="polite">1 / 2</span>
+    <span id="pc-carousel-count" aria-live="polite">1 / 3</span>
   </div>
   <video id="pc-tumar" data-src="tumar_new.mp4?v=faststart-1" controls muted loop playsinline preload="auto"
     aria-label="TUMAR"></video>
@@ -2122,7 +2123,7 @@ function showTeoImage(index){
 }
 showTeoImage(0);
 let launchT1 = null;
-function launchProject(id, isSwitch = false){
+function launchProject(id, isSwitch = false, кадрТЭО = 0){
   if(state.launching || state.closing) return;
   if(state.openId && !isSwitch) return;
   // Один клик — сразу выбор слоя и открытие его контента, без промежуточного
@@ -2153,7 +2154,7 @@ function launchProject(id, isSwitch = false){
     panelState.zone = 'plast';
     if(!hasSelectedStep) panelState.sub = 1;
   }
-  openProject(id);
+  openProject(id, кадрТЭО);
 }
 // Esc посреди раскрытия: анимация отменяется, слои возвращаются как были —
 // возможность передумать важнее строгой одноразовости перехода.
@@ -2175,9 +2176,11 @@ function cancelLaunch(){
    угол миниатюрой (см. MINI_* и цикл зон в animate). Миниатюра остаётся нажимаемой:
    клик по другому слою переключает содержимое (см. switchProject). Держится всё
    само, пока state.openId не снимут в closeProject(). */
-function openProject(id){
+function openProject(id, кадрТЭО = 0){
   if(вФинале()) сброситьФинал();
   const isSwitch = state.openId !== null;   // слой уже раскрыт: стопка стоит в углу, меняется только содержимое
+  // Выбираем кадр до смены слоя: иначе возврат к ТЭО сначала показывал страницу 7.
+  if(id === 'plast' && panelState.sub === 2) showTeoImage(кадрТЭО);
   state.launching = null;
   state.openId = id;
   // Справка о В. Молдабеке уходит на время раскрытия слоя: место справа занято
@@ -2209,7 +2212,7 @@ function openProject(id){
     pc.classList.toggle('с-видео', Boolean(videoData?.file));
     pc.classList.toggle('с-системой', Boolean(videoData?.page));
     pc.classList.toggle('с-карусель', Boolean(videoData?.images));
-    if(videoData?.images) showTeoImage(0);
+    if(videoData?.images) showTeoImage(кадрТЭО);
     if(videoData?.page){
       система.title = videoData.title;
       if(система.getAttribute('src') !== videoData.page) система.setAttribute('src', videoData.page);
@@ -2272,9 +2275,9 @@ function позиционироватьПанель(){
    Отклонено: закрыть текущий слой обычным ходом и по окончании открыть новый.
    Стопка тогда летела бы из угла в центр экрана и сразу обратно в угол — целый
    раскрой и сворачивание ради того, чтобы подменить текст справа. */
-function switchProject(id){
+function switchProject(id, кадрТЭО = 0){
   if(!state.openId || state.openId === id || state.closing) return;
-  launchProject(id, true);
+  launchProject(id, true, кадрТЭО);
 }
 
 /* Закрытие — тот же перелёт в обратную сторону: стопка возвращается из угла в
@@ -2327,7 +2330,7 @@ function finishClosing(){
   возвратКуда = null;
   if(куда === 'справка' && window.__открытьСправку) window.__открытьСправку();
 }
-/* Страница 11: общий вид модели, лента эффектов и ТОП-12 из v9. */
+/* Финальная страница: общий вид модели, лента эффектов и ТОП-12 из v9. */
 const вФинале = () => document.body.classList.contains('финал');
 function применитьФинал(){
   document.body.classList.add('финал');
@@ -3687,15 +3690,15 @@ window.__dbg = { renderer, scene, camera, state, zones, refresh, world,
 
 /* ── сценарий показа (v5) ─────────────────────────────────────────────
    30.09 (Адиль): один шаг сценария = одна страница = одна кнопка внизу.
-   Одиннадцать страниц:
+   Двенадцать страниц:
       1  самый первый экран (пирог и список слева, больше ничего);
       2  в списке раскрыт «ЦД пласта»;   3  раскрыт «ЦД скважины»;
       4  раскрыт «ЦД добычи и наземной инфраструктуры»;
       5  карточка «Первый актив»;
       6  второй слой снизу — Стратегия разработки;
-      7  третий слой — ТЭО, скриншот 1 (нюмекс5);  8  то же, скриншот 2 (нюмекс6);
-      9  четвёртый слой — ЦД скважины;  10  верхний слой — наземная инфраструктура;
-     11  финал как в v9: модель, лента эффектов и ТОП-12 месторождений.
+    7–9  третий слой — ТЭО, по странице на каждый скриншот;
+     10  четвёртый слой — ЦД скважины;  11  верхний слой — наземная инфраструктура;
+     12  финал как в v9: модель, лента эффектов и ТОП-12 месторождений.
    Клавиши «пробел / → / Enter / PageDown» ведут на следующую страницу,
    «← / PageUp / Backspace» — на предыдущую, кнопки внизу — на любую.
    Отклонено: отдельные массивы «шаг вперёд» и «шаг назад», как было раньше
@@ -3714,18 +3717,21 @@ if(new URLSearchParams(location.search).get('в_рамке') !== '1'){
     { имя:'Список: ЦД добычи и наземной инфраструктуры', список:'naz' },
     { имя:'Первый актив',                          справка:true },
     { имя:'Стратегия разработки',                  слой:'plast', sub:1 },
-    { имя:'Технико-экономическая оценка · кадр 1', слой:'plast', sub:2, кадр:0 },
-    { имя:'Технико-экономическая оценка · кадр 2', слой:'plast', sub:2, кадр:1 },
+    // Кадры берём из карусели, чтобы добавление изображения не требовало перенумерации.
+    ...teoImages.map((_, кадр) => ({
+      имя:`Технико-экономическая оценка · кадр ${кадр + 1}`, слой:'plast', sub:2, кадр
+    })),
     { имя:'ЦД скважины',                           слой:'skv' },
     { имя:'ЦД добычи и наземной инфраструктуры',   слой:'naz' },
     { имя:'Итог',                                  финал:true },
   ];
   const teoOpen = () => state.openId === 'plast' && panelState.sub === 2;
+  const номерСтраницы = условие => СТРАНИЦЫ.findIndex(условие) + 1;
   const страницаСейчас = () => {
-    if(state.openId === 'plast') return teoOpen() ? 7 + teoImageIndex : 6;
-    if(state.openId === 'skv') return 9;
-    if(state.openId === 'naz') return 10;
-    if(вФинале()) return 11;
+    if(state.openId === 'plast') return номерСтраницы(ц => ц.слой === 'plast' &&
+      (teoOpen() ? ц.sub === 2 && ц.кадр === teoImageIndex : ц.sub === 1));
+    if(state.openId) return номерСтраницы(ц => ц.слой === state.openId);
+    if(вФинале()) return номерСтраницы(ц => ц.финал);
     if($('справка').classList.contains('on')) return 5;
     if(state.locked) return { plast:2, skv:3, naz:4 }[state.locked] || 1;
     return 1;
@@ -3765,32 +3771,30 @@ if(new URLSearchParams(location.search).get('в_рамке') !== '1'){
     state.locked = ц.список || null; state.hover = null; state.hoverSub = null;
     refresh();
   }
-  // страницы 6–10: раскрыт слой (и для ТЭО — нужный скриншот)
+  // Страницы слоёв: раскрыт слой (и для ТЭО — нужный скриншот).
   async function открытьСлой(ц){
     сброситьФинал();
     закрытьЭффекты();
-    let перезагрузили = true;
+    const кадрТЭО = ц.кадр ?? 0;
     if(state.openId === null){
       if(window.__закрытьСправку) window.__закрытьСправку();
       if(ц.слой === 'plast'){ panelState.zone = 'plast'; panelState.sub = ц.sub; }
-      launchProject(ц.слой);
+      launchProject(ц.слой, false, кадрТЭО);
       await пауза(MINI_TRANSITION_MS + 60);
     } else if(state.openId !== ц.слой){
       if(ц.слой === 'plast'){ panelState.zone = 'plast'; panelState.sub = ц.sub; }
-      switchProject(ц.слой);
+      switchProject(ц.слой, кадрТЭО);
       await пауза(MINI_TRANSITION_MS + 60);
     } else if(ц.слой === 'plast' && panelState.sub !== ц.sub){
       panelState.sub = ц.sub;
-      openProject('plast');
+      openProject('plast', кадрТЭО);
       await пауза(400);
-    } else перезагрузили = false;
+    } else if(ц.слой === 'plast' && ц.sub === 2) showTeoImage(кадрТЭО);
     if(ц.слой === 'plast' && ц.sub === 2){
-      if(перезагрузили) await пауза(300);   // контент ТЭО подставляется с задержкой и открывается с первого скриншота
-      showTeoImage(ц.кадр);
       await пауза(720);
     }
   }
-  // Страница 11 соответствует финалу (странице 9) в v9.html.
+  // Финальная страница соответствует финалу (странице 9) в v9.html.
   async function показатьФинал(){
     закрытьЭффекты();
     if(window.__закрытьСправку) window.__закрытьСправку();
