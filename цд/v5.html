@@ -575,9 +575,9 @@ body.финал #pilot{display:none}
   <video id="pc-video" class="pc-main-video" data-src="numex_opt.mp4" controls muted loop playsinline preload="auto"></video>
   <video class="pc-main-video" data-src="drillspot_v5_3.mp4" controls muted loop playsinline preload="auto"></video>
   <div id="pc-carousel" role="region" aria-label="Кадры технико-экономической оценки">
-    <img src="./numex_media/numex_v5_1.jpg" alt="Технико-экономическая оценка — кадр 1" class="active">
-    <img src="./numex_media/numex_v5_v1.png" alt="Технико-экономическая оценка — кадр 2" >
-    <img src="./numex_media/numex_v5_v2.png" alt="Технико-экономическая оценка — кадр 3">
+    <img src="./numex_media/numex_v5_5.png" alt="Технико-экономическая оценка — кадр 1" class="active">
+    <img src="./numex_media/numex_v5_3.png" alt="Технико-экономическая оценка — кадр 2" >
+    <img src="./numex_media/numex_v5_4.png" alt="Технико-экономическая оценка — кадр 3">
     <button id="pc-carousel-expand" type="button" aria-label="Открыть кадр на весь экран" title="Открыть кадр на весь экран">⛶</button>
     <button id="pc-carousel-prev" type="button" aria-label="Предыдущий кадр">‹</button>
     <button id="pc-carousel-next" type="button" aria-label="Следующий кадр">›</button>
@@ -760,6 +760,33 @@ controls.target.set(0, -40, 0);
 // а при выбранном контуре 0.55 — модель заметно тормозила на наведении.
 const ROT_SPEED = 0.55;
 controls.autoRotate = true; controls.autoRotateSpeed = ROT_SPEED;
+
+/* Зум колёсиком только для v5: мышь может прислать большой deltaY, а единицы
+   бывают пикселями, строками или страницами. Мелкие движения тачпада оставляем
+   пропорциональными; один импульс ограничиваем примерно 5% дистанции.
+   Перехватываем до OrbitControls, чтобы избежать повторного зума и его
+   деления на (devicePixelRatio | 0), которое при масштабе < 1 даёт ноль. */
+renderer.domElement.addEventListener('wheel', event => {
+  if(!controls.enabled || !controls.enableZoom || event.buttons) return;
+  event.preventDefault();
+  event.stopImmediatePropagation();
+  const unit = event.deltaMode === 1 ? 16 :
+    event.deltaMode === 2 ? renderer.domElement.clientHeight : 1;
+  const delta = event.deltaY * unit;
+  if(!Number.isFinite(delta) || delta === 0) return;
+  const pixelRatio = Math.max(1, window.devicePixelRatio || 1);
+  const step = Math.min(Math.abs(delta) / (100 * pixelRatio), 1);
+  const factor = Math.pow(0.95, controls.zoomSpeed * step);
+  const distance = camera.position.distanceTo(controls.target);
+  const nextDistance = THREE.MathUtils.clamp(
+    delta < 0 ? distance * factor : distance / factor,
+    controls.minDistance, controls.maxDistance
+  );
+  controls.dispatchEvent({ type:'start' });
+  camera.position.sub(controls.target).setLength(nextDistance).add(controls.target);
+  controls.update();
+  controls.dispatchEvent({ type:'end' });
+}, { passive:false, capture:true });
 
 const world = new THREE.Group(); scene.add(world);
 
